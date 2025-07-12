@@ -1,0 +1,155 @@
+import React from 'react';
+import SectionTitle from '../ui/SectionTitle';
+import { Calendar, GraduationCap, Briefcase, Award } from 'lucide-react';
+
+const About: React.FC = () => {
+  const milestones = [
+    {
+      year: '2025',
+      title: 'AI Developer Intern',
+      description: 'Joined Anantagni as an AI Developer intern, working on computer vision and model deployments',
+      icon: <Briefcase className="text-primary-500" size={24} />
+    },
+    {
+      year: '2025',
+      title: 'B.Tech in Data Science',
+      description: 'Completing B.Tech from BKBIET with a CGPA of 8.26 (up to 7th semester)',
+      icon: <GraduationCap className="text-primary-500" size={24} />
+    },
+    {
+      year: '2024',
+      title: 'Data Science Intern',
+      description: 'Completed internship at Upflairs, building machine learning models and analytics dashboards',
+      icon: <Briefcase className="text-primary-500" size={24} />
+    },
+    {
+      year: '2021',
+      title: 'B.Tech Journey Begins',
+      description: 'Started undergraduate studies at B.K. Birla Institute of Engineering and Technology',
+      icon: <GraduationCap className="text-primary-500" size={24} />
+    }
+  ];
+
+  return (
+    <section id="about" className="py-20 bg-white dark:bg-gray-900">
+      <div className="section-container">
+        <SectionTitle 
+          title="About Me" 
+          subtitle="Learn more about my background, experience, and what drives me in the field of data science."
+        />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Image column */}
+          <div className="relative">
+            <div className="rounded-lg overflow-hidden shadow-xl">
+              <img 
+                src="/tempo.jpg" 
+                alt="Harshit Kandoi" 
+                className="w-full h-auto object-cover"
+              />
+            </div>
+            <div className="absolute -bottom-5 -right-5 bg-white dark:bg-gray-800 p-4 rounded shadow-lg max-w-xs">
+              <p className="text-primary-600 dark:text-primary-400 font-medium text-sm">
+                Actively exploring data science by building real-world ML models and analytical pipelines.
+              </p>
+            </div>
+          </div>
+          
+          {/* Bio column */}
+          <div>
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+              Aspiring Data Scientist & ML Enthusiast
+            </h3>
+            
+            <div className="space-y-4 text-gray-700 dark:text-gray-300">
+              <p>
+                I'm Harshit, a final-year Data Science student with hands-on experience in building ML models, working on real-time data challenges, and solving domain-specific problems.
+              </p>
+              
+              <p>
+                My hands-on experience includes building various AI and machine learning models such as Spam Detection, Crop Recommendation, Insurance Prediction, and a Movie Recommendation System. I also explored computer vision through projects that involve real-world classification automation and object detection.
+              </p>
+              
+              <p>
+                Beyond technical skills, I believe in the importance of communicating insights effectively to non-technical stakeholders. My approach combines rigorous analysis with clear storytelling to ensure data-driven decisions are understood and embraced across organizations.
+              </p>
+              
+              <p>
+                I'm also learning cloud tools, model deployment, and contributing to open-source where possible. I believe in continuous learning and clear data storytelling.
+              </p>
+            </div>
+            
+            <div className="mt-8 grid grid-cols-2 gap-4">
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <h4 className="font-semibold text-primary-600 dark:text-primary-400 mb-1">Education</h4>
+                <p className="text-gray-700 dark:text-gray-300">B.tech in Data Science [CS]</p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <h4 className="font-semibold text-primary-600 dark:text-primary-400 mb-1">Location</h4>
+                <p className="text-gray-700 dark:text-gray-300">Churu, Rajasthan, India</p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <h4 className="font-semibold text-primary-600 dark:text-primary-400 mb-1">Specialization</h4>
+                <p className="text-gray-700 dark:text-gray-300">Machine Learning, NLP, Data Analysis, Computer Vision</p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <h4 className="font-semibold text-primary-600 dark:text-primary-400 mb-1">Languages</h4>
+                <p className="text-gray-700 dark:text-gray-300">English, Hindi, Python, SQL 😉</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Career Timeline */}
+        <div className="mt-20">
+          <h3 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-12">
+            My Journey
+          </h3>
+          
+          <div className="relative max-w-4xl mx-auto">
+            {/* Timeline line */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-primary-200 dark:bg-primary-900"></div>
+            
+            {/* Timeline items */}
+            <div className="space-y-16">
+              {milestones.map((milestone, index) => (
+                <div key={index} className="relative">
+                  {/* Timeline dot */}
+                  <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white dark:bg-gray-800 border-4 border-primary-500 dark:border-primary-400 z-10 flex items-center justify-center">
+                    {milestone.icon}
+                  </div>
+                  
+                  {/* Content */}
+                  <div className={`flex items-center justify-between gap-8 ${
+                    index % 2 === 0 ? 'flex-row-reverse' : ''
+                  }`}>
+                    {/* Year */}
+                    <div className={`w-24 font-semibold text-lg text-primary-600 dark:text-primary-400 ${
+                      index % 2 === 0 ? 'text-left' : 'text-right'
+                    }`}>
+                      {milestone.year}
+                    </div>
+                    
+                    {/* Content box */}
+                    <div className={`w-[calc(50%-4rem)] bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md ${
+                      index % 2 === 0 ? 'text-right' : 'text-left'
+                    }`}>
+                      <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                        {milestone.title}
+                      </h4>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        {milestone.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default About;
