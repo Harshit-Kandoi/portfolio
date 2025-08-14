@@ -75,22 +75,23 @@ const About: React.FC = () => {
             </h3>
             
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
-            <p>
-              I'm Harshit Kandoi, a B.Tech graduate in Data Science with hands-on experience in AI, Machine Learning, and backend development. I specialize in building intelligent, scalable, and secure solutions that bridge the gap between data and impactful applications.
-            </p>
-          
-            <p>
-              My professional journey includes working as an Associate Software Engineer and Software Development Intern at ThoughtIn Solutions, where I contributed to backend systems, API integrations, and scalable software infrastructure. As an AI Intern at Anantagni Industries, I trained YOLO models for plastic detection and deployed AI-driven solutions for waste-to-energy innovation.
-            </p>
-          
-            <p>
-              Over time, I have built and deployed diverse AI/ML models, including Spam Detection, Crop Recommendation, Insurance Prediction, and a Movie Recommendation System. My expertise also extends to computer vision, data pipelines, and real-time processing for domain-specific automation.
-            </p>
-          
-            <p>
-              Beyond development, I value the art of data storytelling—translating complex technical results into clear, actionable insights for decision-makers. I actively explore cloud platforms, cost-efficient deployments, and contribute to open-source, driven by a mindset of continuous learning and innovation.
-            </p>
-          </div>
+              <p>
+                I'm Harshit Kandoi, a B.Tech graduate in Data Science with hands-on experience in AI, Machine Learning, and backend development. I specialize in building intelligent, scalable, and secure solutions that bridge the gap between data and impactful applications.
+              </p>
+            
+              <p>
+                Currently working as an Associate Software Engineer at ThoughtIn Solutions, I focus on backend systems, API integrations, and scalable software infrastructure, delivering reliable and efficient solutions in agile environments. Earlier, during my internship at Anantagni Industries, I developed a YOLO-based computer vision model for plastic detection, contributing to environmental sustainability initiatives.
+              </p>
+            
+              <p>
+                Over time, I have built and deployed diverse AI/ML models, including ASL Hand Sign Detection, Crop Recommendation, Insurance Prediction, and a Movie Recommendation System. My expertise also extends to computer vision, data pipelines, and real-time processing for domain-specific automation.
+              </p>
+            
+              <p>
+                Beyond development, I value the art of data storytelling—translating complex technical results into clear, actionable insights for decision-makers. I actively explore cloud platforms, cost-efficient deployments, and contribute to open-source, driven by a mindset of continuous learning and innovation.
+              </p>
+            </div>
+
 
             
             <div className="mt-8 grid grid-cols-2 gap-4">
