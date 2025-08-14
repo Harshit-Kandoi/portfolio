@@ -5,30 +5,44 @@ import { Calendar, GraduationCap, Briefcase, Award } from 'lucide-react';
 const About: React.FC = () => {
   const milestones = [
     {
-      year: '2025',
-      title: 'AI Developer Intern',
-      description: 'Joined Anantagni as an AI Developer intern, working on computer vision and model deployments',
+      year: 'Aug 2025',
+      title: 'Associate Software Engineer',
+      description: 'Joined ThoughtIn Solutions, contributing to backend development, scalable software infrastructure, API integrations, and secure cloud-based applications in an agile environment.',
       icon: <Briefcase className="text-primary-500" size={24} />
     },
     {
-      year: '2025',
+      year: 'May 2025',
+      title: 'Software Development Intern',
+      description: 'Interned at ThoughtIn Solutions, focusing on backend systems, API development, and streamlining data pipelines to enhance system efficiency.',
+      icon: <Briefcase className="text-primary-500" size={24} />
+    },
+    {
+      year: 'Apr 2025',
+      title: 'AI Intern',
+      description: 'Worked with Anantagni Industries on computer vision solutions, training YOLO models for plastic detection and deploying AI models for waste-to-energy innovations.',
+      icon: <Briefcase className="text-primary-500" size={24} />
+    },
+    {
+      year: 'Jul 2025',
       title: 'B.Tech in Data Science [CSE]',
-      description: 'Completed B.Tech from BKBIET with a CGPA of 8.35',
+      description: 'Graduated from B.K. Birla Institute of Engineering and Technology with a CGPA of 8.35, specializing in AI, ML, and data-driven solutions.',
       icon: <GraduationCap className="text-primary-500" size={24} />
     },
     {
-      year: '2024',
+      year: 'June 2024',
       title: 'Data Science Intern',
-      description: 'Completed internship at Upflairs, building machine learning models and analytics dashboards',
+      description: 'Interned at Upflairs, building machine learning models and analytics dashboards for real-world applications.',
       icon: <Briefcase className="text-primary-500" size={24} />
     },
     {
       year: '2021',
       title: 'B.Tech Journey Begins',
-      description: 'Started undergraduate studies at B.K. Birla Institute of Engineering and Technology',
+      description: 'Started undergraduate studies in Computer Science with a specialization in Data Science at BKBIET.',
       icon: <GraduationCap className="text-primary-500" size={24} />
     }
   ];
+};
+
 
   return (
     <section id="about" className="py-20 bg-white dark:bg-gray-900">
