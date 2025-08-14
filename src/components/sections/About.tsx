@@ -1,48 +1,8 @@
 import React from 'react';
 import SectionTitle from '../ui/SectionTitle';
 import { Calendar, GraduationCap, Briefcase, Award } from 'lucide-react';
-
 const About: React.FC = () => {
   const milestones = [
-    {
-      year: 'Aug 2025',
-      title: 'Associate Software Engineer',
-      description: 'Joined ThoughtIn Solutions, contributing to backend development, scalable software infrastructure, API integrations, and secure cloud-based applications in an agile environment.',
-      icon: <Briefcase className="text-primary-500" size={24} />
-    },
-    {
-      year: 'May 2025',
-      title: 'Software Development Intern',
-      description: 'Interned at ThoughtIn Solutions, focusing on backend systems, API development, and streamlining data pipelines to enhance system efficiency.',
-      icon: <Briefcase className="text-primary-500" size={24} />
-    },
-    {
-      year: 'Apr 2025',
-      title: 'AI Intern',
-      description: 'Worked with Anantagni Industries on computer vision solutions, training YOLO models for plastic detection and deploying AI models for waste-to-energy innovations.',
-      icon: <Briefcase className="text-primary-500" size={24} />
-    },
-    {
-      year: 'Jul 2025',
-      title: 'B.Tech in Data Science [CSE]',
-      description: 'Graduated from B.K. Birla Institute of Engineering and Technology with a CGPA of 8.35, specializing in AI, ML, and data-driven solutions.',
-      icon: <GraduationCap className="text-primary-500" size={24} />
-    },
-    {
-      year: 'June 2024',
-      title: 'Data Science Intern',
-      description: 'Interned at Upflairs, building machine learning models and analytics dashboards for real-world applications.',
-      icon: <Briefcase className="text-primary-500" size={24} />
-    },
-    {
-      year: '2021',
-      title: 'B.Tech Journey Begins',
-      description: 'Started undergraduate studies in Computer Science with a specialization in Data Science at BKBIET.',
-      icon: <GraduationCap className="text-primary-500" size={24} />
-    }
-  ];
-
-
   return (
     <section id="about" className="py-20 bg-white dark:bg-gray-900">
       <div className="section-container">
@@ -111,54 +71,6 @@ const About: React.FC = () => {
                 <h4 className="font-semibold text-primary-600 dark:text-primary-400 mb-1">Languages</h4>
                 <p className="text-gray-700 dark:text-gray-300">English, Hindi, Python, SQL 😉</p>
               </div>
-            </div>
-          </div>
-        </div>
-        
-        {/* Career Timeline */}
-        <div className="mt-20">
-          <h3 className="text-2xl font-bold text-center text-gray-900 dark:text-white mb-12">
-            My Journey
-          </h3>
-          
-          <div className="relative max-w-4xl mx-auto">
-            {/* Timeline line */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-0.5 bg-primary-200 dark:bg-primary-900"></div>
-            
-            {/* Timeline items */}
-            <div className="space-y-16">
-              {milestones.map((milestone, index) => (
-                <div key={index} className="relative">
-                  {/* Timeline dot */}
-                  <div className="absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white dark:bg-gray-800 border-4 border-primary-500 dark:border-primary-400 z-10 flex items-center justify-center">
-                    {milestone.icon}
-                  </div>
-                  
-                  {/* Content */}
-                  <div className={`flex items-center justify-between gap-8 ${
-                    index % 2 === 0 ? 'flex-row-reverse' : ''
-                  }`}>
-                    {/* Year */}
-                    <div className={`w-24 font-semibold text-lg text-primary-600 dark:text-primary-400 ${
-                      index % 2 === 0 ? 'text-left' : 'text-right'
-                    }`}>
-                      {milestone.year}
-                    </div>
-                    
-                    {/* Content box */}
-                    <div className={`w-[calc(50%-4rem)] bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md ${
-                      index % 2 === 0 ? 'text-right' : 'text-left'
-                    }`}>
-                      <h4 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                        {milestone.title}
-                      </h4>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        {milestone.description}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
