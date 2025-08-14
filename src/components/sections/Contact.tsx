@@ -20,7 +20,7 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <section id="contact" className="py-20 bg-gray-50 dark:bg-gray-800">
+    <section id="contact" className="py-20 bg-white dark:bg-gray-900">
       <div className="section-container">
         <SectionTitle 
           title="Contact Me" 

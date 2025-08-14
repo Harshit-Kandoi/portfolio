@@ -5,7 +5,7 @@ import { Calendar, ExternalLink } from 'lucide-react';
 
 const Blog: React.FC = () => {
   return (
-    <section id="blog" className="py-20 bg-white dark:bg-gray-900">
+    <section id="blog" className="py-20 bg-gray-50 dark:bg-gray-800">
       <div className="section-container">
         <SectionTitle 
           title="Blog & Articles" 
