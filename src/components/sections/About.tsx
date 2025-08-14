@@ -3,6 +3,7 @@ import SectionTitle from '../ui/SectionTitle';
 import { Calendar, GraduationCap, Briefcase, Award } from 'lucide-react';
 const About: React.FC = () => {
   const milestones = [
+  ]
   return (
     <section id="about" className="py-20 bg-white dark:bg-gray-900">
       <div className="section-container">
