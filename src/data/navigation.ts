@@ -3,9 +3,9 @@ import { NavLink, SocialLink } from '../types';
 export const navLinks: NavLink[] = [
   { name: 'Home', href: 'home' },
   { name: 'About', href: 'about' },
+  { name: 'Experience', href: 'experience' },
   { name: 'Projects', href: 'projects' },
   { name: 'Skills', href: 'skills' },
-  { name: 'Experience', href: 'experience' },
   { name: 'Blog', href: 'blog' },
   { name: 'Contact', href: 'contact' }
 ];

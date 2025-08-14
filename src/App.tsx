@@ -19,9 +19,9 @@ function App() {
       <main>
         <Home />
         <About />
+        <Experience />
         <Projects />
         <Skills />
-        <Experience />
         <Blog />
         <Contact />
         <ResumeButton />
