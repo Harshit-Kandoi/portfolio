@@ -12,8 +12,8 @@ const About: React.FC = () => {
     },
     {
       year: '2025',
-      title: 'B.Tech in Data Science',
-      description: 'Completing B.Tech from BKBIET with a CGPA of 8.26 (up to 7th semester)',
+      title: 'B.Tech in Data Science [CSE]',
+      description: 'Completed B.Tech from BKBIET with a CGPA of 8.35',
       icon: <GraduationCap className="text-primary-500" size={24} />
     },
     {
