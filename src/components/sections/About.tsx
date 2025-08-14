@@ -76,22 +76,23 @@ const About: React.FC = () => {
             </h3>
             
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
-              <p>
-                I'm Harshit, a final-year Data Science student with hands-on experience in building ML models, working on real-time data challenges, and solving domain-specific problems.
-              </p>
-              
-              <p>
-                My hands-on experience includes building various AI and machine learning models such as Spam Detection, Crop Recommendation, Insurance Prediction, and a Movie Recommendation System. I also explored computer vision through projects that involve real-world classification automation and object detection.
-              </p>
-              
-              <p>
-                Beyond technical skills, I believe in the importance of communicating insights effectively to non-technical stakeholders. My approach combines rigorous analysis with clear storytelling to ensure data-driven decisions are understood and embraced across organizations.
-              </p>
-              
-              <p>
-                I'm also learning cloud tools, model deployment, and contributing to open-source where possible. I believe in continuous learning and clear data storytelling.
-              </p>
-            </div>
+            <p>
+              I'm Harshit Kandoi, a B.Tech graduate in Data Science with hands-on experience in AI, Machine Learning, and backend development. I specialize in building intelligent, scalable, and secure solutions that bridge the gap between data and impactful applications.
+            </p>
+          
+            <p>
+              My professional journey includes working as an Associate Software Engineer and Software Development Intern at ThoughtIn Solutions, where I contributed to backend systems, API integrations, and scalable software infrastructure. As an AI Intern at Anantagni Industries, I trained YOLO models for plastic detection and deployed AI-driven solutions for waste-to-energy innovation.
+            </p>
+          
+            <p>
+              Over time, I have built and deployed diverse AI/ML models, including Spam Detection, Crop Recommendation, Insurance Prediction, and a Movie Recommendation System. My expertise also extends to computer vision, data pipelines, and real-time processing for domain-specific automation.
+            </p>
+          
+            <p>
+              Beyond development, I value the art of data storytelling—translating complex technical results into clear, actionable insights for decision-makers. I actively explore cloud platforms, cost-efficient deployments, and contribute to open-source, driven by a mindset of continuous learning and innovation.
+            </p>
+          </div>
+
             
             <div className="mt-8 grid grid-cols-2 gap-4">
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
