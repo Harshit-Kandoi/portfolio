@@ -41,7 +41,6 @@ const About: React.FC = () => {
       icon: <GraduationCap className="text-primary-500" size={24} />
     }
   ];
-};
 
 
   return (
