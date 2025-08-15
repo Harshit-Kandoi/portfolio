@@ -142,7 +142,7 @@ const Experience: React.FC = () => {
                         {cert.date}
                       </span>
                       <a
-                        href={`https://drive.google.com/drive/folders/your-folder-id/${cert.id}`}
+                        href={cert.link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center text-primary-600 dark:text-primary-400 hover:underline text-sm"
