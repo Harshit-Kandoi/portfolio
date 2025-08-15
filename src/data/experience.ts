@@ -91,6 +91,24 @@ export const experience: ExperienceItem[] = [
   },
   {
     id: 8,
+    title: "Career Essentials in GitHub Copilot Professional Certificate",
+    organization: "GitHub",
+    date: "August, 2025",
+    type: "Course",
+    description:
+      "Covered GitHub Copilot, AI-assisted coding, version control, and productivity in software development."
+  },
+  {
+    id: 9,
+    title: "Introduction to Artificial Intelligence",
+    organization: "LinkedIn Learning",
+    date: "August, 2025",
+    type: "Course",
+    description:
+      "Learned AI fundamentals, applications, and emerging trends across industries."
+  },
+  {
+    id: 10,
     title: "100 Days of Code: The Complete Python Pro Bootcamp",
     organization: "Udemy | Dr. Angela Yu",
     date: "Feburary, 2025",
@@ -99,7 +117,7 @@ export const experience: ExperienceItem[] = [
       "Completed a hands-on Python bootcamp covering programming, APIs, web dev, and automation through real-world projects.",
   },
   {
-    id: 9,
+    id: 11,
     title: "Machine Learning A-Z: AI, Python & R + ChatGPT Prize",
     organization: "Udemy | SuperDataScience",
     date: "November, 2024",
@@ -108,19 +126,28 @@ export const experience: ExperienceItem[] = [
       "Gained practical ML knowledge covering supervised & unsupervised learning, NLP, and deep learning using Python and R.",
   },
   {
-    id: 10,
+    id: 12,
     title: "Tata Brand Assessment – Round 1",
     organization: "Tata Imagination Challenge 2023",
-    date: "November 29, 2023",
+    date: "November, 2023",
     type: "Participation",
     description:
       "Selected for the first round of Tata’s prestigious national-level brand assessment challenge. Demonstrated critical thinking, innovation, and brand strategy analysis.",
   },
   {
-    id: 11,
+    id: 13,
+    title: "Career Essentials in Generative AI by Microsoft and LinkedIn",
+    organization: "Microsoft",
+    date: "September, 2023",
+    type: "Course",
+    description:
+      "Explored generative AI concepts, prompt engineering, Microsoft Copilot, and responsible AI practices."
+  },
+  {
+    id: 14,
     title: "Sustain-o-Thon – National Sustainability Challenge",
     organization: "IGNITE 180 | Centre for Civil Society",
-    date: "October 1, 2023",
+    date: "October, 2023",
     type: "Participation",
     description:
       "Participated in a national event focused on sustainable development and policy-driven solutions for environmental and social challenges.",
