@@ -62,7 +62,7 @@ const About: React.FC = () => {
               </div>
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                 <h4 className="font-semibold text-primary-600 dark:text-primary-400 mb-1">Location</h4>
-                <p className="text-gray-700 dark:text-gray-300">Churu, Rajasthan, India</p>
+                <p className="text-gray-700 dark:text-gray-300">Jaipur, Rajasthan, India</p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                 <h4 className="font-semibold text-primary-600 dark:text-primary-400 mb-1">Specialization</h4>
