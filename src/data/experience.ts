@@ -3,7 +3,7 @@ import { ExperienceItem } from '../types';
 export const experience: ExperienceItem[] = [
   {
     id: 1,
-    role: "B.Tech in Data Science[CSE]",
+    role: "B.Tech in Data Science [CSE]",
     company: "B.K. Birla Institute of Engineering and Technology",
     location: "Pilani, Rajasthan",
     period: "2021 - 2025",
