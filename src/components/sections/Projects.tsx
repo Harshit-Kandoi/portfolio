@@ -160,10 +160,13 @@ const Projects: React.FC = () => {
 
         {/* All Projects */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProjects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
-          ))}
+          {filteredProjects
+            .filter(project => !(activeCategory === 'All' && project.featured))
+            .map((project) => (
+              <ProjectCard key={project.id} project={project} />
+            ))}
         </div>
+
       </div>
     </section>
   );
