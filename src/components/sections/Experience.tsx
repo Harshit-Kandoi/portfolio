@@ -4,7 +4,7 @@ import { experience } from '../../data/experience';
 import { Briefcase, GraduationCap, Award, ExternalLink } from 'lucide-react';
 
 const Experience: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'education' | 'work' | 'certification'>('education');
+  const [activeTab, setActiveTab] = useState<'education' | 'work' | 'certification'>('work');
   
   // Filter experience items based on active tab
   const filteredExperience = experience.filter(item => {
@@ -39,16 +39,6 @@ const Experience: React.FC = () => {
         {/* Tab navigation */}
         <div className="flex justify-center space-x-4 mb-12">
           <button
-            onClick={() => setActiveTab('education')}
-            className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
-              activeTab === 'education'
-                ? 'bg-primary-500 text-white shadow-lg scale-105'
-                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
-            }`}
-          >
-            Education
-          </button>
-          <button
             onClick={() => setActiveTab('work')}
             className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
               activeTab === 'work'
@@ -57,6 +47,16 @@ const Experience: React.FC = () => {
             }`}
           >
             Work Experience
+          </button>
+          <button
+            onClick={() => setActiveTab('education')}
+            className={`px-6 py-3 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'education'
+                ? 'bg-primary-500 text-white shadow-lg scale-105'
+                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+            }`}
+          >
+            Education
           </button>
           <button
             onClick={() => setActiveTab('certification')}
