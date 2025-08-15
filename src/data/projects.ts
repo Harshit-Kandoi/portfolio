@@ -8,7 +8,7 @@ export const projects: Project[] = [
     image: "https://images.pexels.com/photos/3861958/pexels-photo-3861958.jpeg", // server/cloud setup
     category: ["Cloud Computing", "Backend Development"],
     technologies: ["Python", "Flask", "Firestore Emulator", "Pub/Sub Emulator", "GCP"],
-    github: "",
+    github: "https://github.com/Harshit-Kandoi/Local-GCP-Emulator",
     featured: true
   },
   {
@@ -28,7 +28,7 @@ export const projects: Project[] = [
     image: "https://images.pexels.com/photos/802221/pexels-photo-802221.jpeg", // plastic waste
     category: ["Data Engineering", "Web Scraping"],
     technologies: ["Python", "BeautifulSoup4", "Selenium", "Pandas"],
-    github: "",
+    github: "https://github.com/Harshit-Kandoi/web-image-scrapper",
     featured: true
   },
   {
@@ -38,7 +38,7 @@ export const projects: Project[] = [
     image: "https://images.pexels.com/photos/3165335/pexels-photo-3165335.jpeg", // gaming AI
     category: ["Reinforcement Learning", "Game AI"],
     technologies: ["Python", "PyTorch", "NumPy", "OpenCV", "ViZDoom"],
-    github: "",
+    github: "https://github.com/Harshit-Kandoi/doom_reinforcement_learning",
     featured: true
   },
   {
@@ -48,7 +48,7 @@ export const projects: Project[] = [
     image: "https://images.pexels.com/photos/2781760/pexels-photo-2781760.jpeg", // artistic illustration
     category: ["Generative AI", "Creative AI"],
     technologies: ["Python", "Google Gemini", "Pillow", "GenerativeAI"],
-    github: "",
+    github: "https://github.com/Harshit-Kandoi/Ghibli",
     featured: true
   },
   {
