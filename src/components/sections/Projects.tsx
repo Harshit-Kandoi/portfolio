@@ -4,12 +4,39 @@ import { projects } from '../../data/projects';
 import SectionTitle from '../ui/SectionTitle';
 
 const Projects: React.FC = () => {
-  const allCategories = ['All', ...new Set(projects.flatMap(project => project.category))];
+  // Define broad recruiter-friendly categories
+  const broadCategories = [
+    'All',
+    'Machine Learning & AI',
+    'Data Science & Analytics', 
+    'Web & App Development',
+    'Cloud & Deployment',
+    'Special Projects',
+    'Web Scraping & Automation'
+  ];
+
+  // Mapping from broad categories to detailed tags
+  const categoryMapping = {
+    'Machine Learning & AI': ['Machine Learning', 'Deep Learning', 'Computer Vision', 'NLP', 'Reinforcement Learning', 'Generative AI', 'Game AI', 'Creative AI'],
+    'Data Science & Analytics': ['Data Visualization', 'Data Engineering', 'Finance', 'Agriculture', 'Data Mining', 'Feature Engineering'],
+    'Web & App Development': ['Web App', 'Backend Development', 'API', 'Full Stack'],
+    'Cloud & Deployment': ['Cloud Computing', 'GCP', 'AWS', 'MLOps', 'Docker', 'CI/CD'],
+    'Special Projects': ['ASL Detection', 'Ghibli Art Generator', 'Plastic Classification'],
+    'Web Scraping & Automation': ['Web Scraping', 'Selenium', 'BeautifulSoup4']
+  };
+
   const [activeCategory, setActiveCategory] = useState('All');
 
-  const filteredProjects = activeCategory === 'All'
-    ? projects.filter(project => !project.featured)
-    : projects.filter(project => project.category.includes(activeCategory));
+  const filteredProjects = (() => {
+    if (activeCategory === 'All') {
+      return projects.filter(project => !project.featured);
+    }
+    
+    const detailedTags = categoryMapping[activeCategory as keyof typeof categoryMapping] || [];
+    return projects.filter(project => 
+      project.category.some(cat => detailedTags.includes(cat)) && !project.featured
+    );
+  })();
 
   const ProjectCard = ({ project, isFeatured = false }: { project: any; isFeatured?: boolean }) => (
     <div 
@@ -88,7 +115,7 @@ const Projects: React.FC = () => {
         
         {/* Category Filter */}
         <div className="flex flex-wrap justify-center gap-2 mb-12">
-          {allCategories.map((category) => (
+          {broadCategories.map((category) => (
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
