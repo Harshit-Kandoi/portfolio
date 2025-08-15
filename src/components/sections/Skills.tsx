@@ -142,34 +142,28 @@ const Skills: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
-    title: 'Machine Learning & Predictive Modeling',
-    description: 'Designing and deploying models for classification, regression, and recommendation systems using real-world datasets.',
-    bgColor: 'bg-primary-500/10 dark:bg-primary-900/20',
-    textColor: 'text-primary-700 dark:text-primary-300'
+                title: 'Machine Learning & Predictive Modeling',
+                description: 'Designing and deploying models for classification, regression, and recommendation systems using real-world datasets.',
+                bgColor: 'bg-primary-500/10 dark:bg-primary-900/20',
+                textColor: 'text-primary-700 dark:text-primary-300'
               },
               {
-    title: 'Deep Learning & Computer Vision',
-    description: 'Working with CNNs, TensorFlow, and YOLOv5 for image-based solutions like hand sign detection and custom object detection.',
-    bgColor: 'bg-pink-500/10 dark:bg-pink-900/20',
-    textColor: 'text-pink-700 dark:text-pink-300'
+                title: 'Deep Learning & Computer Vision',
+                description: 'Working with CNNs, TensorFlow, and YOLOv5 for image-based solutions like ASL hand sign detection and custom object detection.',
+                bgColor: 'bg-pink-500/10 dark:bg-pink-900/20',
+                textColor: 'text-pink-700 dark:text-pink-300'
               },
               {
-    title: 'Data Visualization & Storytelling',
-    description: 'Creating insightful dashboards and visual reports using Tableau, Matplotlib, and Seaborn for decision-making.',
-    bgColor: 'bg-accent-500/10 dark:bg-accent-900/20',
-    textColor: 'text-accent-700 dark:text-accent-300'
+                title: 'Data Visualization & Storytelling',
+                description: 'Creating insightful dashboards and visual reports using Tableau, Matplotlib, and Seaborn for decision-making.',
+                bgColor: 'bg-accent-500/10 dark:bg-accent-900/20',
+                textColor: 'text-accent-700 dark:text-accent-300'
               },
               {
-    title: 'Web App Development with Python',
-    description: 'Building interactive web apps using Streamlit and Flask to deliver end-to-end machine learning solutions.',
-    bgColor: 'bg-yellow-500/10 dark:bg-yellow-900/20',
-    textColor: 'text-yellow-700 dark:text-yellow-300'
-              },
-              {
-    title: 'API Integration & Automation',
-    description: 'Integrating external APIs and automating data workflows for efficient, scalable applications.',
-    bgColor: 'bg-cyan-500/10 dark:bg-cyan-900/20',
-    textColor: 'text-cyan-700 dark:text-cyan-300'
+                title: 'Web App Development & API Integration',
+                description: 'Building interactive web apps with Streamlit and Flask, integrating APIs, and automating workflows for scalable solutions.',
+                bgColor: 'bg-yellow-500/10 dark:bg-yellow-900/20',
+                textColor: 'text-yellow-700 dark:text-yellow-300'
               }
             ].map((area, index) => (
               <div 
