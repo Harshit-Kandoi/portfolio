@@ -96,7 +96,7 @@ export const experience: ExperienceItem[] = [
     date: "August, 2025",
     type: "Course",
     description:
-      "Covered GitHub Copilot, AI-assisted coding, version control, and productivity in software development."
+      "Covered GitHub Copilot, AI-assisted coding, version control, and productivity in software development.",
     link: "https://www.linkedin.com/learning/certificates/ec842b1f8a1a2b3c2c439c8d4adfa5471b607088840f171ca6d1642f3f894d9a"
   },
   {
@@ -106,7 +106,8 @@ export const experience: ExperienceItem[] = [
     date: "August, 2025",
     type: "Course",
     description:
-      "Learned AI fundamentals, applications, and emerging trends across industries."
+      "Learned AI fundamentals, applications, and emerging trends across industries.",
+    link: "https://www.linkedin.com/learning/certificates/f98e856a89cf06ff734abe279f0cb755a681a31e01f256b2ef774835eca7f12c"
   },
   {
     id: 10,
@@ -116,6 +117,7 @@ export const experience: ExperienceItem[] = [
     type: "Course",
     description:
       "Completed a hands-on Python bootcamp covering programming, APIs, web dev, and automation through real-world projects.",
+        link: "https://www.udemy.com/certificate/UC-7ae3e699-3a95-404f-a9cd-e074b5f1553d/"
   },
   {
     id: 11,
@@ -125,6 +127,7 @@ export const experience: ExperienceItem[] = [
     type: "Course",
     description:
       "Gained practical ML knowledge covering supervised & unsupervised learning, NLP, and deep learning using Python and R.",
+    link: "https://www.udemy.com/certificate/UC-a4c0bbee-c659-4d51-ad51-5b1211e9cc4f/"
   },
   {
     id: 12,
@@ -133,7 +136,8 @@ export const experience: ExperienceItem[] = [
     date: "September, 2023",
     type: "Course",
     description:
-      "Explored generative AI concepts, prompt engineering, Microsoft Copilot, and responsible AI practices."
+      "Explored generative AI concepts, prompt engineering, Microsoft Copilot, and responsible AI practices.",
+    link: "https://www.linkedin.com/learning/certificates/b49c37aa015b852352b5baa8f01d3457ca2a7869e14843045ddc807ca0f65d84"
   },
   {
     id: 13,
@@ -143,5 +147,6 @@ export const experience: ExperienceItem[] = [
     type: "Participation",
     description:
       "Participated in a national event focused on sustainable development and policy-driven solutions for environmental and social challenges.",
+    link: "https://drive.google.com/file/d/1cUj4xk_0HsTso0g9Oj6y_Doia_b_wAYi/view?usp=drive_link"
   }
 ];
