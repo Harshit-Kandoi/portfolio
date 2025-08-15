@@ -3,47 +3,69 @@ import { ExperienceItem } from '../types';
 export const experience: ExperienceItem[] = [
   {
     id: 1,
-    role: "B.Tech in Data Science[CS]",
+    role: "B.Tech in Data Science[CSE]",
     company: "B.K. Birla Institute of Engineering and Technology",
     location: "Pilani, Rajasthan",
     period: "2021 - 2025",
     description: [
-      "CGPA: 8.26/10.0",
+      "CGPA: 8.35/10.0",
       "Specialization in Computer Science and Data Science",
       "Active member of coding club and NGO's",
       "Participated in various Unstop competitions."
     ],
     type: "education"
   },
+  // Work Experience
   {
     id: 2,
-    role: "AI Developer Intern",
-    company: "Anantagni",
-    location: "Remote",
-    period: "April 2025 - Present",
+    role: "Associate Software Engineer",
+    company: "ThoughtIn Solutions",
+    location: "Remote / Gurugram, Haryana",
+    period: "Aug 2025 – Present",
     description: [
-      "Collaborating with the Anantagni tech team to develop a computer vision model for real-world classification automation",
-      "Utilizing OpenCV, deep learning (CNNs), and custom datasets for robust image classification and detection tasks",
-      "Deploying AI models for practical use in large-scale event environments, focusing on performance and accuracy"
+      "Developing backend systems, API integrations, and scalable software infrastructure in agile environments",
+      "Ensuring security and performance of cloud-native applications"
     ],
     type: "work"
   },
   {
     id: 3,
-    role: "Data Science Intern",
-    company: "Upflairs Pvt Ltd",
-    location: "Jaipur, Rajasthan",
-    period: "June 2024 - August 2024",
+    role: "Software Development Intern",
+    company: "ThoughtIn Solutions",
+    location: "Remote / Gurugram, Haryana",
+    period: "May 2025 – Aug 2025",
     description: [
-      "Developed a movie recommendation system using collaborative and content-based filtering",
-      "Built a credit card financial dashboard for transaction analytics",
-      "Created a pizza sales analytics dashboard to track revenue and trends",
-      "Worked with Python, SQL, and Tableau for data analysis and visualization"
+      "Worked on backend systems and API development to improve data handling efficiency",
+      "Assisted in creating scalable and maintainable application architectures"
     ],
     type: "work"
   },
   {
     id: 4,
+    role: "AI Intern",
+    company: "Anantagni Industries Pvt Ltd",
+    location: "Remote",
+    period: "Apr 2025 – Jul 2025",
+    description: [
+      "Trained and deployed a YOLO-based computer vision model for plastic detection",
+      "Contributed to environmental sustainability initiatives by developing practical AI solutions"
+    ],
+    type: "work"
+  },
+  {
+    id: 5,
+    role: "Data Science Intern",
+    company: "Upflairs Pvt Ltd",
+    location: "Jaipur, Rajasthan",
+    period: "Jun 2024 – Aug 2024",
+    description: [
+      "Developed a movie recommendation system using collaborative & content-based filtering",
+      "Built credit card transaction analytics and pizza sales dashboards using Python, SQL, and Tableau"
+    ],
+    type: "work"
+  },
+  {
+    id: 6,
     role: "Higher Secondary Education",
     company: "Saraswati Vidhya Peeth SR SEC School",
     location: "Sikar, Rajasthan",
@@ -56,7 +78,7 @@ export const experience: ExperienceItem[] = [
     type: "education"
   },
   {
-    id: 5,
+    id: 7,
     role: "Secondary Education",
     company: "Lords International School",
     location: "Rajgarh, Rajasthan",
@@ -68,7 +90,7 @@ export const experience: ExperienceItem[] = [
     type: "education"
   },
   {
-    id: 6,
+    id: 8,
     title: "100 Days of Code: The Complete Python Pro Bootcamp",
     organization: "Udemy | Dr. Angela Yu",
     date: "Feburary, 2025",
@@ -77,7 +99,7 @@ export const experience: ExperienceItem[] = [
       "Completed a hands-on Python bootcamp covering programming, APIs, web dev, and automation through real-world projects.",
   },
   {
-    id: 7,
+    id: 9,
     title: "Machine Learning A-Z: AI, Python & R + ChatGPT Prize",
     organization: "Udemy | SuperDataScience",
     date: "November, 2024",
@@ -86,7 +108,7 @@ export const experience: ExperienceItem[] = [
       "Gained practical ML knowledge covering supervised & unsupervised learning, NLP, and deep learning using Python and R.",
   },
   {
-    id: 8,
+    id: 10,
     title: "Tata Brand Assessment – Round 1",
     organization: "Tata Imagination Challenge 2023",
     date: "November 29, 2023",
@@ -95,7 +117,7 @@ export const experience: ExperienceItem[] = [
       "Selected for the first round of Tata’s prestigious national-level brand assessment challenge. Demonstrated critical thinking, innovation, and brand strategy analysis.",
   },
   {
-    id: 9,
+    id: 11,
     title: "Sustain-o-Thon – National Sustainability Challenge",
     organization: "IGNITE 180 | Centre for Civil Society",
     date: "October 1, 2023",
