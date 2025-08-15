@@ -98,7 +98,7 @@ export const skills: Skill[] = [
   },
   {
     name: "Git & GitHub",
-    proficiency: 75,
+    proficiency: 85,
     category: "Tools"
   },
   {
