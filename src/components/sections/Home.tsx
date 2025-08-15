@@ -33,7 +33,7 @@ const Home: React.FC = () => {
               />
             </div>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-lg">
-              Just a passed-out Data Science student with hands-on experience in AI development, passionate about transforming data into impactful solutions through machine learning and deep learning models.
+            A B.Tech Data Science graduate with hands-on experience in AI and backend development, passionate about transforming data into impactful, real-world solutions using machine learning, deep learning, and scalable cloud applications.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
