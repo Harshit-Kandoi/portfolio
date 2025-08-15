@@ -127,15 +127,6 @@ export const experience: ExperienceItem[] = [
   },
   {
     id: 12,
-    title: "Tata Brand Assessment – Round 1",
-    organization: "Tata Imagination Challenge 2023",
-    date: "November, 2023",
-    type: "Participation",
-    description:
-      "Selected for the first round of Tata’s prestigious national-level brand assessment challenge. Demonstrated critical thinking, innovation, and brand strategy analysis.",
-  },
-  {
-    id: 13,
     title: "Career Essentials in Generative AI by Microsoft and LinkedIn",
     organization: "Microsoft",
     date: "September, 2023",
@@ -144,7 +135,7 @@ export const experience: ExperienceItem[] = [
       "Explored generative AI concepts, prompt engineering, Microsoft Copilot, and responsible AI practices."
   },
   {
-    id: 14,
+    id: 13,
     title: "Sustain-o-Thon – National Sustainability Challenge",
     organization: "IGNITE 180 | Centre for Civil Society",
     date: "October, 2023",
