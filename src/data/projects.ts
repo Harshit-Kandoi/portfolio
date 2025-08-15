@@ -65,7 +65,7 @@ export const projects: Project[] = [
     id: 7,
     title: "Whisper Transcription Web-App",
     description: "Built a speech-to-text web app using Whisper AI, capable of transcribing audio from local files and real-time microphone input.",
-    image: "https://images.pexels.com/photos/757880/pexels-photo-757880.jpeg", // microphone
+    image: "https://images.pexels.com/photos/267614/pexels-photo-267614.jpeg", // microphone
     category: ["NLP", "Web App"],
     technologies: ["Python", "Flask", "Whisper AI", "JavaScript", "HTML", "CSS"],
     github: "https://github.com/Harshit-Kandoi/Transcription",
