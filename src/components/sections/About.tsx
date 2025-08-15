@@ -58,7 +58,7 @@ const About: React.FC = () => {
             <div className="mt-8 grid grid-cols-2 gap-4">
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                 <h4 className="font-semibold text-primary-600 dark:text-primary-400 mb-1">Education</h4>
-                <p className="text-gray-700 dark:text-gray-300">B.tech in Data Science [CS]</p>
+                <p className="text-gray-700 dark:text-gray-300">B.tech in Data Science [CSE]</p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                 <h4 className="font-semibold text-primary-600 dark:text-primary-400 mb-1">Location</h4>
