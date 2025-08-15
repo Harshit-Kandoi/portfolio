@@ -29,12 +29,12 @@ const Projects: React.FC = () => {
 
   const filteredProjects = (() => {
     if (activeCategory === 'All') {
-      return projects.filter(project => !project.featured);
+      return projects;
     }
     
     const detailedTags = categoryMapping[activeCategory as keyof typeof categoryMapping] || [];
     return projects.filter(project => 
-      project.category.some(cat => detailedTags.includes(cat)) && !project.featured
+      project.category.some(cat => detailedTags.includes(cat))
     );
   })();
 
