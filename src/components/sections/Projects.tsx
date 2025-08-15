@@ -4,7 +4,6 @@ import { projects } from '../../data/projects';
 import SectionTitle from '../ui/SectionTitle';
 
 const Projects: React.FC = () => {
-  // Define broad recruiter-friendly categories
   const broadCategories = [
     'All',
     'Machine Learning & AI',
@@ -15,14 +14,30 @@ const Projects: React.FC = () => {
     'Web Scraping & Automation'
   ];
 
-  // Mapping from broad categories to detailed tags
-  const categoryMapping = {
-    'Machine Learning & AI': ['Machine Learning', 'Deep Learning', 'Computer Vision', 'NLP', 'Reinforcement Learning', 'Generative AI', 'Game AI', 'Creative AI'],
-    'Data Science & Analytics': ['Data Visualization', 'Data Engineering', 'Finance', 'Agriculture', 'Data Mining', 'Feature Engineering'],
-    'Web & App Development': ['Web App', 'Backend Development', 'API', 'Full Stack'],
-    'Cloud & Deployment': ['Cloud Computing', 'GCP', 'AWS', 'MLOps', 'Docker', 'CI/CD'],
-    'Special Projects': ['ASL Detection', 'Ghibli Art Generator', 'Plastic Classification'],
-    'Web Scraping & Automation': ['Web Scraping', 'Selenium', 'BeautifulSoup4']
+  // Match these with actual strings from your projects.ts
+  const categoryMapping: Record<string, string[]> = {
+    'Machine Learning & AI': [
+      'Machine Learning', 'Deep Learning', 'Computer Vision',
+      'NLP', 'Reinforcement Learning', 'Generative AI', 'Game AI', 'Creative AI'
+    ],
+    'Data Science & Analytics': [
+      'Data Visualization', 'Data Engineering', 'Finance',
+      'Agriculture', 'Feature Engineering'
+    ],
+    'Web & App Development': [
+      'Web App', 'Backend Development', 'API', 'Full Stack'
+    ],
+    'Cloud & Deployment': [
+      'Cloud Computing', 'GCP', 'AWS', 'MLOps', 'Docker', 'CI/CD'
+    ],
+    'Special Projects': [
+      'Computer Vision', // ASL Detection is in this category
+      'Generative AI',   // Ghibli Art Generator
+      'Web Scraping'     // Plastic Classification Dataset
+    ],
+    'Web Scraping & Automation': [
+      'Web Scraping', 'Selenium', 'BeautifulSoup4'
+    ]
   };
 
   const [activeCategory, setActiveCategory] = useState('All');
@@ -31,9 +46,8 @@ const Projects: React.FC = () => {
     if (activeCategory === 'All') {
       return projects;
     }
-    
-    const detailedTags = categoryMapping[activeCategory as keyof typeof categoryMapping] || [];
-    return projects.filter(project => 
+    const detailedTags = categoryMapping[activeCategory] || [];
+    return projects.filter(project =>
       project.category.some(cat => detailedTags.includes(cat))
     );
   })();
