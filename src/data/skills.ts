@@ -45,7 +45,17 @@ export const skills: Skill[] = [
     category: "Libraries"
   },
   {
+    name: "PyTorch",
+    proficiency: 85,
+    category: "Libraries"
+  },
+  {
     name: "YOLOv5",
+    proficiency: 80,
+    category: "Libraries"
+  },
+  {
+    name: "OpenCV",
     proficiency: 80,
     category: "Libraries"
   },
@@ -55,13 +65,23 @@ export const skills: Skill[] = [
     category: "Libraries"
   },
   {
-    name: "Flask",
+    name: "Flask / Streamlit",
+    proficiency: 85,
+    category: "Libraries"
+  },
+  {
+    name: "BeautifulSoup4",
     proficiency: 80,
     category: "Libraries"
   },
   {
-    name: "Streamlit",
-    proficiency: 85,
+    name: "Selenium",
+    proficiency: 75,
+    category: "Libraries"
+  },
+  {
+    name: "LangChain",
+    proficiency: 70,
     category: "Libraries"
   },
 
@@ -72,13 +92,8 @@ export const skills: Skill[] = [
     category: "Tools"
   },
   {
-    name: "Google Colab",
-    proficiency: 85,
-    category: "Tools"
-  },
-  {
-    name: "VS Code",
-    proficiency: 85,
+    name: "Google Cloud Platform (GCP)",
+    proficiency: 80,
     category: "Tools"
   },
   {
@@ -87,7 +102,12 @@ export const skills: Skill[] = [
     category: "Tools"
   },
   {
-    name: "Tableau",
+    name: "Docker",
+    proficiency: 75,
+    category: "Tools"
+  },
+  {
+    name: "Power BI",
     proficiency: 80,
     category: "Tools"
   },
@@ -96,9 +116,14 @@ export const skills: Skill[] = [
     proficiency: 80,
     category: "Tools"
   },
-  {
-    name: "PostgreSQL / MySQL",
+    {
+    name: "CI/CD",
     proficiency: 70,
+    category: "Tools"
+  },
+  {
+    name: "MySQL / PostgreSQL",
+    proficiency: 75,
     category: "Tools"
   },
 
