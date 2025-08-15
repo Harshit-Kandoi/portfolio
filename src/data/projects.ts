@@ -15,7 +15,7 @@ export const projects: Project[] = [
     id: 2,
     title: "ASL Hand-Sign Detection",
     description: "Real-time ASL hand sign detection using YOLOv5 and a custom dataset to translate gestures into text, enabling better communication for the hearing-impaired.",
-    image: "https://images.pexels.com/photos/4425763/pexels-photo-4425763.jpeg", // sign language
+    image: "https://images.pexels.com/photos/4101143/pexels-photo-4101143.jpeg", // sign language
     category: ["Computer Vision", "Deep Learning"],
     technologies: ["Python", "YOLOv5", "PyTorch", "OpenCV"],
     github: "https://github.com/Harshit-Kandoi/ASL-letter-detection",
