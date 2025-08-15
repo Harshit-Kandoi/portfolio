@@ -37,21 +37,22 @@ const About: React.FC = () => {
             
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
               <p>
-                I'm Harshit Kandoi, a B.Tech graduate in Data Science with hands-on experience in AI, Machine Learning, and backend development. I specialize in building intelligent, scalable, and secure solutions that bridge the gap between data and impactful applications.
+                I'm Harshit Kandoi, a B.Tech graduate in Data Science with experience in AI, Machine Learning, and backend development. I build intelligent, scalable solutions that bridge data and impactful applications.
               </p>
             
               <p>
-                Currently working as an Associate Software Engineer at ThoughtIn Solutions, I focus on backend systems, API integrations, and scalable software infrastructure, delivering reliable and efficient solutions in agile environments. Earlier, during my internship at Anantagni Industries, I developed a YOLO-based computer vision model for plastic detection, contributing to environmental sustainability initiatives.
+                Currently an Associate Software Engineer at ThoughtIn Solutions, I work on backend systems, API integrations, and scalable software infrastructure. Previously, at Anantagni Industries, I developed a YOLO-based plastic detection model for sustainability initiatives.
               </p>
             
               <p>
-                Over time, I have built and deployed diverse AI/ML models, including ASL Hand Sign Detection, Crop Recommendation, Insurance Prediction, and a Movie Recommendation System. My expertise also extends to computer vision, data pipelines, and real-time processing for domain-specific automation.
+                I’ve built and deployed AI/ML models like ASL Hand Sign Detection, Crop Recommendation, Insurance Prediction, and Movie Recommendation Systems, with expertise in computer vision, data pipelines, and real-time automation.
               </p>
             
               <p>
-                Beyond development, I value the art of data storytelling—translating complex technical results into clear, actionable insights for decision-makers. I actively explore cloud platforms, cost-efficient deployments, and contribute to open-source, driven by a mindset of continuous learning and innovation.
+                Passionate about data storytelling, cloud platforms, and open-source contributions, I strive for continuous learning and innovation in every project.
               </p>
             </div>
+
 
 
             
