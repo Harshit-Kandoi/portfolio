@@ -97,6 +97,7 @@ export const experience: ExperienceItem[] = [
     type: "Course",
     description:
       "Covered GitHub Copilot, AI-assisted coding, version control, and productivity in software development."
+    link: "https://www.linkedin.com/learning/certificates/ec842b1f8a1a2b3c2c439c8d4adfa5471b607088840f171ca6d1642f3f894d9a"
   },
   {
     id: 9,
