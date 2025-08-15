@@ -75,7 +75,7 @@ export const projects: Project[] = [
     id: 8,
     title: "Crop Classification",
     description: "Created a classification model to predict crop types based on environmental factors like temperature, humidity, and rainfall. Deployed as a Flask web app for easy accessibility.",
-    image: "https://images.pexels.com/photos/3185757/pexels-photo-3185757.jpeg", // crops field
+    image: "https://images.pexels.com/photos/265216/pexels-photo-265216.jpeg", // crops field
     category: ["Agriculture", "Machine Learning"],
     technologies: ["Python", "Scikit-learn", "Flask", "Pandas"],
     github: "https://github.com/Harshit-Kandoi/crops",
