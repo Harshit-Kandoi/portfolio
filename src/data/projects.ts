@@ -3,89 +3,89 @@ import { Project } from '../types';
 export const projects: Project[] = [
   {
     id: 1,
-    title: "ASL Hand-Sign Detection",
-    description: "Real-time ASL hand sign detection using YOLOv5 and a custom dataset to translate gestures into text, enabling better communication for the hearing-impaired.",
-    image: "https://images.pexels.com/photos/4101143/pexels-photo-4101143.jpeg",
-    category: ["Computer Vision", "Deep Learning"],
-    technologies: ["Python", "YOLOv5", "PyTorch", "Github"],
-    github: "https://github.com/Harshit-Kandoi/ASL-letter-detection",
+    title: "Local GCP Emulator (Firestore + Pub/Sub Simulation)",
+    description: "Engineered a local simulation of GCP services using Firestore and Pub/Sub emulators, enabling offline development and testing. Built a Flask dashboard for uploads, background threading for message listening, and a GCP-like architecture to prototype cloud apps locally without cost.",
+    image: "https://images.pexels.com/photos/3861958/pexels-photo-3861958.jpeg", // server/cloud setup
+    category: ["Cloud Computing", "Backend Development"],
+    technologies: ["Python", "Flask", "Firestore Emulator", "Pub/Sub Emulator", "GCP"],
+    github: "",
     featured: true
   },
   {
     id: 2,
-    title: "Reinforcement Learning Snake Game",
-    description: "Implemented a self-learning Snake game using Deep Q-Learning, improving gameplay strategy through reinforcement learning techniques.",
-    image: "https://images.pexels.com/photos/1616216/pexels-photo-1616216.jpeg",
-    category: ["Reinforcement Learning", "Game AI"],
-    technologies: ["Python", "PyTorch", "Numpy", "Matplotlib"],
-    github: "https://github.com/Harshit-Kandoi/Reinforcement-Learning-Snake-Game-",
+    title: "ASL Hand-Sign Detection",
+    description: "Real-time ASL hand sign detection using YOLOv5 and a custom dataset to translate gestures into text, enabling better communication for the hearing-impaired.",
+    image: "https://images.pexels.com/photos/4425763/pexels-photo-4425763.jpeg", // sign language
+    category: ["Computer Vision", "Deep Learning"],
+    technologies: ["Python", "YOLOv5", "PyTorch", "OpenCV"],
+    github: "https://github.com/Harshit-Kandoi/ASL-letter-detection",
     featured: true
   },
   {
     id: 3,
-    title: "Whisper Transcription Web-App",
-    description: "Developed a speech-to-text application using Whisper AI, enabling accurate transcription for web-based and local file inputs.",
-    image: "https://images.pexels.com/photos/267614/pexels-photo-267614.jpeg",
-    category: ["NLP", "Web App"],
-    technologies: ["Python", "Flask", "Whisper AI", "HTML", "CSS", "JavaScript"],
-    github: "https://github.com/Harshit-Kandoi/Transcription",
+    title: "Plastic Type Classification Dataset (Web Scraping)",
+    description: "Curated a dataset of over 3,000 plastic images for classification into categories like PET, PE, PC, PP, PS, and Others. Used BeautifulSoup and Selenium for automated scraping and Pandas for organization, designed for YOLO training and sustainability research.",
+    image: "https://images.pexels.com/photos/802221/pexels-photo-802221.jpeg", // plastic waste
+    category: ["Data Engineering", "Web Scraping"],
+    technologies: ["Python", "BeautifulSoup4", "Selenium", "Pandas"],
+    github: "",
     featured: true
   },
   {
     id: 4,
-    title: "Movie Recommendation System",
-    description: "Built a personalized movie recommendation system using collaborative & content-based filtering, deployed with Streamlit for ease of use.",
-    image: "https://images.pexels.com/photos/7991579/pexels-photo-7991579.jpeg",
-    category: ["Machine Learning", "Web App"],
-    technologies: ["Python", "Machine Learning", "Streamlit", "Kaggle"],
-    github: "https://github.com/Harshit-Kandoi/movie-recommender",
+    title: "Doom Reinforcement Learning Game",
+    description: "Developed a reinforcement learning agent with Deep Q-Learning to play Doom using only pixel data. Implemented CNN-based models, tuned reward functions, and managed GPU-intensive training in a 3D ViZDoom environment.",
+    image: "https://images.pexels.com/photos/3165335/pexels-photo-3165335.jpeg", // gaming AI
+    category: ["Reinforcement Learning", "Game AI"],
+    technologies: ["Python", "PyTorch", "NumPy", "OpenCV", "ViZDoom"],
+    github: "",
     featured: true
   },
   {
     id: 5,
-    title: "Email Spam or Ham Classification",
-    description: "Applied NLP and machine learning techniques to classify emails as spam or ham using text preprocessing and vectorization methods.",
-    image: "https://images.pexels.com/photos/267614/pexels-photo-267614.jpeg",
-    category: ["NLP", "Classification"],
-    technologies: ["Python", "NLTK", "Scikit-learn", "Flask", "CountVectorizer"],
-    github: "https://github.com/Harshit-Kandoi/email-project",
+    title: "Ghibli Art Generator",
+    description: "Built a Python tool that transforms text prompts into Studio Ghibli-style images using Google's Gemini API. Runs without GPU dependency, showcasing rapid prototyping in Generative AI.",
+    image: "https://images.pexels.com/photos/2781760/pexels-photo-2781760.jpeg", // artistic illustration
+    category: ["Generative AI", "Creative AI"],
+    technologies: ["Python", "Google Gemini", "Pillow", "GenerativeAI"],
+    github: "",
     featured: true
   },
   {
     id: 6,
-    title: "House Price Prediction",
-    description: "Developed a regression model to predict house prices based on various numerical and categorical features using feature engineering and model evaluation.",
-    image: "https://images.pexels.com/photos/439391/pexels-photo-439391.jpeg",
-    category: ["Regression", "Machine Learning"],
-    technologies: ["Python", "Pandas", "Scikit-learn", "Matplotlib"],
-    github: "https://github.com/Harshit-Kandoi/house-sale-prediction",
+    title: "Movie Recommendation System",
+    description: "Implemented collaborative and content-based filtering to recommend movies based on user preferences. Deployed with Streamlit for interactive use.",
+    image: "https://images.pexels.com/photos/7991375/pexels-photo-7991375.jpeg", // movie theater
+    category: ["Machine Learning", "Web App"],
+    technologies: ["Python", "Machine Learning", "Streamlit", "Pandas"],
+    github: "https://github.com/Harshit-Kandoi/movie-recommender",
     featured: true
   },
   {
     id: 7,
-    title: "Crop Classification",
-    description: "Implemented a classification model to predict crop types based on environmental conditions like rainfall, temperature, and humidity.",
-    image: "https://images.pexels.com/photos/265216/pexels-photo-265216.jpeg",
-    category: ["Agriculture", "Machine Learning"],
-    technologies: ["Python", "Pandas", "Scikit-learn", "Matplotlib", "Flask"],
-    github: "https://github.com/Harshit-Kandoi/crops",
+    title: "Whisper Transcription Web-App",
+    description: "Built a speech-to-text web app using Whisper AI, capable of transcribing audio from local files and real-time microphone input.",
+    image: "https://images.pexels.com/photos/757880/pexels-photo-757880.jpeg", // microphone
+    category: ["NLP", "Web App"],
+    technologies: ["Python", "Flask", "Whisper AI", "JavaScript", "HTML", "CSS"],
+    github: "https://github.com/Harshit-Kandoi/Transcription",
     featured: true
   },
   {
     id: 8,
-    title: "Pizza Sales Analytics Dashboard",
-    description: "Designed an interactive dashboard to analyze sales data, track revenue trends, and identify top-performing pizza categories and time slots.",
-    image: "https://images.pexels.com/photos/2619970/pexels-photo-2619970.jpeg",
-    category: ["Data Visualization", "Business Analytics"],
-    technologies: ["Power BI", "Excel", "SQL", "Python (Pandas)"],
-    github: "https://github.com/Harshit-Kandoi/pizza-sales",
+    title: "Crop Classification",
+    description: "Created a classification model to predict crop types based on environmental factors like temperature, humidity, and rainfall. Deployed as a Flask web app for easy accessibility.",
+    image: "https://images.pexels.com/photos/3185757/pexels-photo-3185757.jpeg", // crops field
+    category: ["Agriculture", "Machine Learning"],
+    technologies: ["Python", "Scikit-learn", "Flask", "Pandas"],
+    github: "https://github.com/Harshit-Kandoi/crops",
     featured: true
   },
   {
     id: 9,
     title: "Credit Card Financial Dashboard",
-    description: "Created a financial analytics dashboard to track customer transactions, credit limits, and identify customer segments.",
-    image: "https://images.pexels.com/photos/210574/pexels-photo-210574.jpeg",
+    description: "Designed an analytics dashboard in Power BI to monitor customer transactions, credit limits, and spending trends, integrating SQL for backend queries.",
+    image: "https://images.pexels.com/photos/259200/pexels-photo-259200.jpeg", // finance dashboard
     category: ["Data Visualization", "Finance"],
     technologies: ["Power BI", "SQL", "Python", "Excel"],
     github: "https://github.com/Harshit-Kandoi/Credit-Card-Financial-Dashboard",
