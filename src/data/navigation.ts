@@ -33,4 +33,4 @@ export const socialLinks: SocialLink[] = [
   }
 ];
 
-export const resumeLink = 'https://drive.google.com/file/d/1zfKDoL0lQI6zoiO4-3i3ypXF60Kga281/view?usp=sharing';
+export const resumeLink = 'https://drive.google.com/file/d/1fYUUjcESj-TWWT12rs3hOfE_oarpTQz-/view?usp=sharing';
