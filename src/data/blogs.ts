@@ -16,7 +16,7 @@ export const blogPosts: BlogPost[] = [
     excerpt: "Learn how to customize large language models with LoRA—an easy-to-follow guide for beginners and ML enthusiasts alike.",
     date: "Sep 23, 2025",
     category: "LLM",
-    image: "https://unsplash.com/photos/a-white-board-with-writing-written-on-it-1xE5QnNXJH0",
+    image: "https://miro.medium.com/v2/resize:fit:828/format:webp/0*f_wPpFovbbbsR0hV",
     link: "https://medium.com/towards-artificial-intelligence/mastering-lora-a-gentle-path-to-custom-large-language-models-a37e2d65b627"
   },
   {
