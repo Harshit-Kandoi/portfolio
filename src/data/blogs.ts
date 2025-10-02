@@ -7,7 +7,7 @@ export const blogPosts: BlogPost[] = [
     excerpt: "Unlock the real power of Mojo for AI/ML in Part 2 of our series—advanced features, speed, and seamless Python integration.",
     date: "Sep 26, 2025",
     category: "Mojo",
-    image: "https://miro.medium.com/v2/resize:fit:828/format:webp/0*ydQtU6L8UxKyVPZA",
+    image: "https://miro.medium.com/v2/resize:fit:828/format:webp/0*c4NUURn0zsLDoE1e",
     link: "https://medium.com/towards-artificial-intelligence/mojo-part-2-unlocking-the-real-power-of-mojo-for-ai-ml-development-c7aa7e35933f"
   },
   {
@@ -25,7 +25,7 @@ export const blogPosts: BlogPost[] = [
     excerpt: "Master Docker with this in-depth guide, perfect for students and professionals looking to streamline development and deployment.",
     date: "Sep 20, 2025",
     category: "Docker",
-    image: "https://miro.medium.com/v2/resize:fit:828/format:webp/0*c4NUURn0zsLDoE1e",
+    image: "https://miro.medium.com/v2/resize:fit:828/format:webp/0*ydQtU6L8UxKyVPZA",
     link: "https://medium.com/towards-artificial-intelligence/docker-demystified-an-in-depth-guide-for-students-and-working-professionals-4685cd6414aa"
   },
   {
