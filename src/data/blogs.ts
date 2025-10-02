@@ -31,7 +31,7 @@ export const blogPosts: BlogPost[] = [
   {
     id: 4,
     title: "Meet Mojo: Why It Might Replace Python for ML and Why It Matters to You",
-    excerpt: Discover why Mojo could replace Python for ML with faster performance, full Python support, and what it means for developers like you.",
+    excerpt: "Discover why Mojo could replace Python for ML with faster performance, full Python support, and what it means for developers like you.",
     date: "May 19, 2025",
     category: "MOjo",
     image: "https://miro.medium.com/v2/resize:fit:828/format:webp/0*ydQtU6L8UxKyVPZA",
