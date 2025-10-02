@@ -7,7 +7,7 @@ export const blogPosts: BlogPost[] = [
     excerpt: "Unlock the real power of Mojo for AI/ML in Part 2 of our series—advanced features, speed, and seamless Python integration.",
     date: "Sep 26, 2025",
     category: "Mojo",
-    image: "https://miro.medium.com/v2/resize:fit:1100/format:webp/0*GBF1StZ8lFxVs9xy",
+    image: "https://miro.medium.com/v2/resize:fit:828/format:webp/0*ydQtU6L8UxKyVPZA",
     link: "https://medium.com/towards-artificial-intelligence/mojo-part-2-unlocking-the-real-power-of-mojo-for-ai-ml-development-c7aa7e35933f"
   },
   {
@@ -16,7 +16,7 @@ export const blogPosts: BlogPost[] = [
     excerpt: "Learn how to customize large language models with LoRA—an easy-to-follow guide for beginners and ML enthusiasts alike.",
     date: "Sep 23, 2025",
     category: "LLM",
-    image: "https://miro.medium.com/v2/resize:fit:828/format:webp/0*OY-SeBBwNrmO77Te",
+    image: "https://unsplash.com/photos/a-white-board-with-writing-written-on-it-1xE5QnNXJH0",
     link: "https://medium.com/towards-artificial-intelligence/mastering-lora-a-gentle-path-to-custom-large-language-models-a37e2d65b627"
   },
   {
@@ -34,7 +34,7 @@ export const blogPosts: BlogPost[] = [
     excerpt: "Discover why Mojo could replace Python for ML with faster performance, full Python support, and what it means for developers like you.",
     date: "May 19, 2025",
     category: "MOjo",
-    image: "https://miro.medium.com/v2/resize:fit:828/format:webp/0*ydQtU6L8UxKyVPZA",
+    image: "https://miro.medium.com/v2/resize:fit:828/format:webp/0*OY-SeBBwNrmO77Te",
     link: "https://medium.com/towards-artificial-intelligence/meet-mojo-why-it-might-replace-python-for-ml-and-why-it-matters-to-you-26d197c572fb"
   },
   {
