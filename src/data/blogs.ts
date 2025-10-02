@@ -3,8 +3,8 @@ import { BlogPost } from '../types';
 export const blogPosts: BlogPost[] = [
   {
     id: 1,
-    title: "Part 2: What's inside UV, How Rust Powers Next-Gen Package Manager",
-    excerpt: "How is Rust secretly powering Python's fastest package manager? Peek inside UV's high-speed engine built for pros.",
+    title: "Mojo Part 2: Unlocking the Real Power of Mojo for AI/ML Development",
+    excerpt: "HWelcome back to our little tutorial about Mojo, the programming language that`s changing the AI/ML definition using …",
     date: "May 14, 2025",
     category: "Python",
     image: "https://miro.medium.com/v2/resize:fit:1100/format:webp/0*GBF1StZ8lFxVs9xy",
