@@ -9,7 +9,7 @@ const About: React.FC = () => {
       <div className="section-container">
         <SectionTitle 
           title="About Me" 
-          subtitle="Learn more about my background, experience, and what drives me in the field of data science."
+          subtitle="A brief overview of my background, experience, and how I build backend systems using cloud and AI."
         />
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -24,7 +24,7 @@ const About: React.FC = () => {
             </div>
             <div className="absolute -bottom-5 -right-5 bg-white dark:bg-gray-800 p-4 rounded shadow-lg max-w-xs">
               <p className="text-primary-600 dark:text-primary-400 font-medium text-sm">
-                Actively exploring data science by building real-world ML models and analytical pipelines.
+                Backend-focused engineer building cloud-native systems with Python, GCP, and applied AI.
               </p>
             </div>
           </div>
@@ -32,29 +32,26 @@ const About: React.FC = () => {
           {/* Bio column */}
           <div>
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Aspiring Data Scientist & ML Enthusiast
+              Associate Software Engineer (Backend)
             </h3>
             
             <div className="space-y-4 text-gray-700 dark:text-gray-300">
               <p>
-                I'm Harshit Kandoi, a B.Tech graduate in Data Science with experience in AI, Machine Learning, and backend development. I build intelligent, scalable solutions that bridge data and impactful applications.
+                I’m Harshit Kandoi, an Associate Software Engineer specializing in backend development, with hands-on experience in building cloud-native and AI-enabled systems using Python and Google Cloud Platform (GCP).
               </p>
             
               <p>
-                Currently an Associate Software Engineer at ThoughtIn Solutions, I work on backend systems, API integrations, and scalable software infrastructure. Previously, at Anantagni Industries, I developed a YOLO-based plastic detection model for sustainability initiatives.
+                At ThoughtIn Solutions, I work on backend services, APIs, and Cloud Functions that reduce data latency, automate data processing, and improve system reliability. I apply AI-driven approaches to minimize manual effort while increasing accuracy in production workflows.
               </p>
             
               <p>
-                I’ve built and deployed AI/ML models like ASL Hand Sign Detection, Crop Recommendation, Insurance Prediction, and Movie Recommendation Systems, with expertise in computer vision, data pipelines, and real-time automation.
+                Previously, I worked on applied AI and computer vision projects, including YOLO-based classification models and machine learning systems. These experiences helped me build a strong foundation in applied AI while transitioning into backend and cloud-focused engineering roles.
               </p>
             
               <p>
-                Passionate about data storytelling, cloud platforms, and open-source contributions, I strive for continuous learning and innovation in every project.
+                I enjoy working in product-driven environments where backend systems, cloud infrastructure, and AI come together to solve real business problems in a scalable and maintainable way.
               </p>
             </div>
-
-
-
             
             <div className="mt-8 grid grid-cols-2 gap-4">
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
@@ -66,12 +63,12 @@ const About: React.FC = () => {
                 <p className="text-gray-700 dark:text-gray-300">Jaipur, Rajasthan, India</p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                <h4 className="font-semibold text-primary-600 dark:text-primary-400 mb-1">Specialization</h4>
-                <p className="text-gray-700 dark:text-gray-300">Machine Learning, NLP, Data Analysis, Computer Vision</p>
+                <h4 className="font-semibold text-primary-600 dark:text-primary-400 mb-1">Core Focus</h4>
+                <p className="text-gray-700 dark:text-gray-300">Backend Engineering, Cloud Systems, Applied AI</p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                 <h4 className="font-semibold text-primary-600 dark:text-primary-400 mb-1">Languages</h4>
-                <p className="text-gray-700 dark:text-gray-300">English, Hindi, Python, SQL 😉</p>
+                <p className="text-gray-700 dark:text-gray-300">English, Hindi, Python, React, Javascript 😉</p>
               </div>
             </div>
           </div>
