@@ -20,11 +20,11 @@ const Home: React.FC = () => {
             <div className="text-xl sm:text-2xl lg:text-3xl font-medium text-primary-600 dark:text-primary-400 mb-6 h-14">
               <TypeAnimation
                 sequence={[
-                  'Data Science Student',
+                  'Backend Software Engineer',
                   2000,
-                  'ML Enthusiast',
+                  'Python & Cloud Specialist',
                   2000,
-                  'Problem Solver',
+                  'AI-Driven Data Systems Builder',
                   2000,
                 ]}
                 wrapper="span"
@@ -33,7 +33,7 @@ const Home: React.FC = () => {
               />
             </div>
             <p className="text-lg text-gray-700 dark:text-gray-300 mb-8 max-w-lg">
-            A B.Tech Data Science graduate with hands-on experience in AI and backend development, passionate about transforming data into impactful, real-world solutions using machine learning, deep learning, and scalable cloud applications.
+            Backend-focused Software Engineer with hands-on experience in Python, cloud-native systems, and applied AI, building scalable services that reduce manual effort and improve data-driven workflows.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -67,7 +67,7 @@ const Home: React.FC = () => {
             </div>
             <div className="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
               <p className="text-sm text-gray-600 dark:text-gray-400 font-medium italic">
-                "Turning data into decisions"
+                "Building backend systems that turn data into reliable decisions"
               </p>
             </div>
           </div>
