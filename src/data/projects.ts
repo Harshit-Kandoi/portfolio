@@ -51,7 +51,7 @@ export const projects: Project[] = [
   },
   {
     id: 6,
-    title: "Personalized Movie Recommendation Engine",
+    title: "Movie Recommendation Engine",
     description: "Implemented collaborative and content-based filtering to recommend movies based on user preferences. Deployed the system with Streamlit to provide an interactive recommendation experience.",
     image: "https://images.pexels.com/photos/7991375/pexels-photo-7991375.jpeg",
     category: ["Machine Learning", "Web App"],
