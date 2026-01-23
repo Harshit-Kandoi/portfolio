@@ -9,7 +9,7 @@ export const skills: Skill[] = [
   },
   {
     name: "SQL",
-    proficiency: 85,
+    proficiency: 80,
     category: "Languages"
   },
   {
@@ -17,113 +17,104 @@ export const skills: Skill[] = [
     proficiency: 65,
     category: "Languages"
   },
+
+  // Backend & APIs
   {
-    name: "HTML/CSS",
-    proficiency: 70,
-    category: "Languages"
+    name: "Backend Development",
+    proficiency: 85,
+    category: "Backend"
+  },
+  {
+    name: "REST APIs",
+    proficiency: 85,
+    category: "Backend"
+  },
+  {
+    name: "API Integration",
+    proficiency: 80,
+    category: "Backend"
   },
 
-  // Libraries & Frameworks
-  {
-    name: "Pandas",
-    proficiency: 90,
-    category: "Libraries"
-  },
-  {
-    name: "NumPy",
-    proficiency: 85,
-    category: "Libraries"
-  },
-  {
-    name: "Scikit-learn",
-    proficiency: 85,
-    category: "Libraries"
-  },
-  {
-    name: "TensorFlow",
-    proficiency: 75,
-    category: "Libraries"
-  },
-  {
-    name: "PyTorch",
-    proficiency: 85,
-    category: "Libraries"
-  },
-  {
-    name: "YOLOv5",
-    proficiency: 80,
-    category: "Libraries"
-  },
-  {
-    name: "OpenCV",
-    proficiency: 80,
-    category: "Libraries"
-  },
-  {
-    name: "Matplotlib / Seaborn",
-    proficiency: 80,
-    category: "Libraries"
-  },
-  {
-    name: "Flask / Streamlit",
-    proficiency: 85,
-    category: "Libraries"
-  },
-  {
-    name: "BeautifulSoup4",
-    proficiency: 80,
-    category: "Libraries"
-  },
-  {
-    name: "Selenium",
-    proficiency: 75,
-    category: "Libraries"
-  },
-  {
-    name: "LangChain",
-    proficiency: 70,
-    category: "Libraries"
-  },
-
-  // Tools & Platforms
-  {
-    name: "Jupyter Notebook",
-    proficiency: 90,
-    category: "Tools"
-  },
+  // Cloud & DevOps
   {
     name: "Google Cloud Platform (GCP)",
-    proficiency: 80,
-    category: "Tools"
+    proficiency: 85,
+    category: "Cloud"
   },
+  {
+    name: "Cloud Functions",
+    proficiency: 85,
+    category: "Cloud"
+  },
+  {
+    name: "App Engine",
+    proficiency: 80,
+    category: "Cloud"
+  },
+  {
+    name: "Pub/Sub",
+    proficiency: 75,
+    category: "Cloud"
+  },
+  {
+    name: "Firestore",
+    proficiency: 80,
+    category: "Cloud"
+  },
+  {
+    name: "Docker",
+    proficiency: 75,
+    category: "Cloud"
+  },
+  {
+    name: "CI/CD Basics",
+    proficiency: 70,
+    category: "Cloud"
+  },
+
+  // AI & Data Systems
+  {
+    name: "Applied Machine Learning",
+    proficiency: 80,
+    category: "AI"
+  },
+  {
+    name: "AI-Driven Data Extraction",
+    proficiency: 80,
+    category: "AI"
+  },
+  {
+    name: "Computer Vision (YOLO, CNN)",
+    proficiency: 80,
+    category: "AI"
+  },
+  {
+    name: "Model Deployment & Integration",
+    proficiency: 75,
+    category: "AI"
+  },
+
+  // Databases
+  {
+    name: "MySQL / PostgreSQL",
+    proficiency: 75,
+    category: "Databases"
+  },
+  {
+    name: "NoSQL Databases",
+    proficiency: 75,
+    category: "Databases"
+  },
+
+  // Tools & Workflow
   {
     name: "Git & GitHub",
     proficiency: 85,
     category: "Tools"
   },
   {
-    name: "Docker",
-    proficiency: 75,
-    category: "Tools"
-  },
-  {
-    name: "Power BI",
+    name: "Jupyter Notebook",
     proficiency: 80,
-    category: "Tools"
-  },
-  {
-    name: "Excel (Advanced)",
-    proficiency: 80,
-    category: "Tools"
-  },
-    {
-    name: "CI/CD",
-    proficiency: 70,
-    category: "Tools"
-  },
-  {
-    name: "MySQL / PostgreSQL",
-    proficiency: 75,
     category: "Tools"
   },
 
@@ -134,23 +125,13 @@ export const skills: Skill[] = [
     category: "Soft Skills"
   },
   {
-    name: "Team Collaboration",
+    name: "Cross-Team Collaboration",
     proficiency: 85,
     category: "Soft Skills"
   },
   {
     name: "Communication",
     proficiency: 80,
-    category: "Soft Skills"
-  },
-  {
-    name: "Time Management",
-    proficiency: 80,
-    category: "Soft Skills"
-  },
-  {
-    name: "Self-Learning",
-    proficiency: 90,
     category: "Soft Skills"
   }
 ];
