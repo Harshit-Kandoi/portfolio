@@ -165,7 +165,7 @@ const Skills: React.FC = () => {
                 description: 'Applying AI to reduce manual data processing, improve accuracy, and optimize backend systems.',
               },
               {
-                title: 'System Reliability & Scaling',
+                title: 'System Reliability',
                 description: 'Focusing on performance, maintainability, and reliability across cloud-based applications.',
               }
             ].map((area, index) => (
