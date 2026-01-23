@@ -18,13 +18,14 @@ export const experience: ExperienceItem[] = [
   // Work Experience
   {
     id: 2,
-    role: "Associate Software Engineer",
+    role: "Associate Software Engineer (Backend)",
     company: "ThoughtIn Solutions",
     location: "Remote / Gurugram, Haryana",
     period: "Aug 2025 – Present",
     description: [
-      "Developing backend systems, API integrations, and scalable software infrastructure in agile environments",
-      "Ensuring security and performance of cloud-native applications"
+      "Building lightweight Python backend services and APIs to support production workflows and internal tools",
+      "Designing and deploying cloud-native components on GCP to reduce data latency and improve system reliability",
+      "Applying AI-driven automation to minimize manual data processing and improve accuracy across backend systems"
     ],
     type: "work"
   },
@@ -35,8 +36,9 @@ export const experience: ExperienceItem[] = [
     location: "Remote / Gurugram, Haryana",
     period: "May 2025 – Aug 2025",
     description: [
-      "Worked on backend systems and API development to improve data handling efficiency",
-      "Assisted in creating scalable and maintainable application architectures"
+      "Worked on backend services and API development using Python and GCP",
+      "Assisted in building scalable application architecture and understanding the transition from development to production",
+      "Gained hands-on experience with Docker-based builds and cloud deployments"
     ],
     type: "work"
   },
@@ -47,8 +49,9 @@ export const experience: ExperienceItem[] = [
     location: "Remote",
     period: "Apr 2025 – Jul 2025",
     description: [
-      "Trained and deployed a YOLO-based computer vision model for plastic detection",
-      "Contributed to environmental sustainability initiatives by developing practical AI solutions"
+      "Developed a YOLO-based computer vision solution for plastic type detection in a clean-tech environment",
+      "Created and augmented datasets and trained CNN models for accurate classification",
+      "Applied AI solutions to real-world sustainability and waste-to-energy use cases"
     ],
     type: "work"
   },
@@ -59,8 +62,9 @@ export const experience: ExperienceItem[] = [
     location: "Jaipur, Rajasthan",
     period: "Jun 2024 – Aug 2024",
     description: [
-      "Developed a movie recommendation system using collaborative & content-based filtering",
-      "Built credit card transaction analytics and pizza sales dashboards using Python, SQL, and Tableau"
+      "Built machine learning projects as part of hands-on learning, including recommendation and classification systems",
+      "Developed a Crop Classification model using agricultural and environmental data",
+      "Strengthened fundamentals in Python, data preprocessing, and applied machine learning"
     ],
     type: "work"
   },
