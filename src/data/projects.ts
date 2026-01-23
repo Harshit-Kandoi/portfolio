@@ -1,8 +1,8 @@
 export const projects: Project[] = [
   {
     id: 1,
-    title: "Local GCP Emulator (Firestore + Pub/Sub Simulation)",
-    description: "Built a local emulator for GCP services using Firestore and Pub/Sub to enable offline development and cost-free testing. Designed a Flask-based dashboard, background message listeners, and a cloud-like architecture to prototype and validate backend workflows before production deployment.",
+    title: "Local GCP Emulator for Backend Prototyping",
+    description: "Built a local emulator for Firestore and Pub/Sub to enable offline backend development and cost-free testing. Designed a Flask dashboard and background listeners to simulate cloud workflows before production deployment.",
     image: "https://images.pexels.com/photos/3861958/pexels-photo-3861958.jpeg",
     category: ["Cloud Computing", "Backend Development"],
     technologies: ["Python", "Flask", "Firestore Emulator", "Pub/Sub Emulator", "GCP"],
@@ -11,8 +11,8 @@ export const projects: Project[] = [
   },
   {
     id: 2,
-    title: "ASL Hand-Sign Detection",
-    description: "Developed a real-time hand sign detection system using YOLOv5 and a custom dataset to convert ASL gestures into text. Focused on efficient inference, dataset preparation, and real-time computer vision pipelines.",
+    title: "Real-Time ASL Hand Sign Detection",
+    description: "Developed a real-time computer vision pipeline using YOLOv5 to convert ASL hand signs into text. Focused on custom dataset preparation, efficient inference, and real-time gesture recognition.",
     image: "https://images.pexels.com/photos/4101143/pexels-photo-4101143.jpeg",
     category: ["Computer Vision", "Deep Learning"],
     technologies: ["Python", "YOLOv5", "PyTorch", "OpenCV"],
@@ -21,8 +21,8 @@ export const projects: Project[] = [
   },
   {
     id: 3,
-    title: "Plastic Type Classification Dataset (Web Scraping)",
-    description: "Engineered an automated web scraping pipeline to curate a dataset of 3,000+ plastic images categorized by material type. Designed the dataset for YOLO-based training to support computer vision models in sustainability-focused use cases.",
+    title: "Plastic Image Dataset Pipeline for CV Models",
+    description: "Engineered an automated web scraping pipeline to collect and organize 3,000+ plastic images by material type. Designed the dataset specifically for YOLO-based training in sustainability-focused applications.",
     image: "https://images.pexels.com/photos/802221/pexels-photo-802221.jpeg",
     category: ["Data Engineering", "Web Scraping"],
     technologies: ["Python", "BeautifulSoup4", "Selenium", "Pandas"],
@@ -31,8 +31,8 @@ export const projects: Project[] = [
   },
   {
     id: 4,
-    title: "Doom Reinforcement Learning Game",
-    description: "Built a Deep Q-Learning agent to play Doom using raw pixel input. Implemented CNN-based models, tuned reward functions, and managed GPU-intensive training in a simulated 3D environment to study reinforcement learning behavior.",
+    title: "Deep Q-Learning Agent for Doom",
+    description: "Built a reinforcement learning agent using Deep Q-Learning to play Doom from raw pixel input. Implemented CNN-based models and tuned reward strategies in a simulated 3D environment.",
     image: "https://images.pexels.com/photos/3165335/pexels-photo-3165335.jpeg",
     category: ["Reinforcement Learning", "Game AI"],
     technologies: ["Python", "PyTorch", "NumPy", "OpenCV", "ViZDoom"],
@@ -41,8 +41,8 @@ export const projects: Project[] = [
   },
   {
     id: 5,
-    title: "Ghibli Art Generator",
-    description: "Developed a lightweight generative AI tool that converts text prompts into Ghibli-style images using Google’s Gemini API. Focused on rapid prototyping, API integration, and running inference without GPU dependency.",
+    title: "Ghibli-Style Image Generator",
+    description: "Developed a lightweight generative AI tool that transforms text prompts into Ghibli-style images. Integrated Google Gemini API to enable fast inference without GPU dependency.",
     image: "https://images.pexels.com/photos/2781760/pexels-photo-2781760.jpeg",
     category: ["Generative AI", "Creative AI"],
     technologies: ["Python", "Google Gemini", "Pillow", "GenerativeAI"],
@@ -51,8 +51,8 @@ export const projects: Project[] = [
   },
   {
     id: 6,
-    title: "Movie Recommendation System",
-    description: "Implemented collaborative and content-based recommendation algorithms to suggest movies based on user preferences. Deployed the system using Streamlit to provide an interactive and user-friendly interface.",
+    title: "Personalized Movie Recommendation Engine",
+    description: "Implemented collaborative and content-based filtering to recommend movies based on user preferences. Deployed the system with Streamlit to provide an interactive recommendation experience.",
     image: "https://images.pexels.com/photos/7991375/pexels-photo-7991375.jpeg",
     category: ["Machine Learning", "Web App"],
     technologies: ["Python", "Machine Learning", "Streamlit", "Pandas"],
@@ -61,8 +61,8 @@ export const projects: Project[] = [
   },
   {
     id: 7,
-    title: "Whisper Transcription Web-App",
-    description: "Built a speech-to-text web application using OpenAI Whisper, supporting both file-based and real-time audio transcription. Integrated backend APIs with a simple frontend for seamless user interaction.",
+    title: "Speech-to-Text Transcription Web App",
+    description: "Built a web application for audio transcription using OpenAI Whisper. Supported both file-based and real-time audio input through backend APIs and a simple frontend.",
     image: "https://images.pexels.com/photos/267614/pexels-photo-267614.jpeg",
     category: ["NLP", "Web App"],
     technologies: ["Python", "Flask", "Whisper AI", "JavaScript", "HTML", "CSS"],
@@ -71,8 +71,8 @@ export const projects: Project[] = [
   },
   {
     id: 8,
-    title: "Crop Classification",
-    description: "Developed a machine learning model to classify crop types based on environmental parameters such as temperature, humidity, and rainfall. Deployed the model as a Flask web application for easy access and testing.",
+    title: "Crop Classification ML Service",
+    description: "Developed a machine learning model to classify crops using environmental parameters such as rainfall and temperature. Deployed the model as a Flask-based web application for testing and usage.",
     image: "https://images.pexels.com/photos/265216/pexels-photo-265216.jpeg",
     category: ["Agriculture", "Machine Learning"],
     technologies: ["Python", "Scikit-learn", "Flask", "Pandas"],
@@ -81,8 +81,8 @@ export const projects: Project[] = [
   },
   {
     id: 9,
-    title: "Credit Card Financial Dashboard",
-    description: "Designed an interactive Power BI dashboard to analyze credit card transactions, spending patterns, and customer behavior, supported by SQL-based data querying and preprocessing.",
+    title: "Credit Card Transaction Analytics Dashboard",
+    description: "Designed an interactive Power BI dashboard to analyze credit card spending patterns and customer behavior. Used SQL and Python for data preparation and backend querying.",
     image: "https://images.pexels.com/photos/259200/pexels-photo-259200.jpeg",
     category: ["Data Visualization", "Finance"],
     technologies: ["Power BI", "SQL", "Python", "Excel"],
