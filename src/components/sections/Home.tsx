@@ -57,18 +57,20 @@ const Home: React.FC = () => {
             </div>
           </div>
           
-          <div className="relative hidden lg:block animate-slide-right">
-            <div className="rounded-full h-80 w-80 mx-auto overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl">
-              <img 
-                src="/profile.jpg"
-                alt="Harshit Kandoi" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
-              <p className="text-sm text-gray-600 dark:text-gray-400 font-medium italic">
-                "Turning data into systems"
-              </p>
+          <div className="hidden lg:flex justify-center items-center animate-slide-right">
+            <div className="relative inline-block">
+              <div className="rounded-full h-80 w-80 overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl">
+                <img
+                  src="/profile.jpg"
+                  alt="Harshit Kandoi"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg max-w-xs">
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium italic">
+                  "Turning data into systems"
+                </p>
+              </div>
             </div>
           </div>
         </div>
