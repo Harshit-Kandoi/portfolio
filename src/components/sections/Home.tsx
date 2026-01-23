@@ -68,7 +68,7 @@ const Home: React.FC = () => {
               </div>
               <div className="absolute -bottom-6 -right-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg max-w-xs">
                 <p className="text-sm text-gray-600 dark:text-gray-400 font-medium italic">
-                  "Turning data into systems"
+                  "Building backend systems that turn data into reliable decisions"
                 </p>
               </div>
             </div>
