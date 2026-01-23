@@ -79,7 +79,7 @@ const Contact: React.FC = () => {
               <div className="space-y-3 text-gray-600 dark:text-gray-400">
                 <p>💼 Professional inquiries welcome</p>
                 <p>🤝 Open to collaboration opportunities</p>
-                <p>📚 Happy to discuss data science topics</p>
+                <p>📚 Happy to discuss tech topics</p>
               </div>
             </div>
           </div>
