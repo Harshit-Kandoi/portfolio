@@ -31,8 +31,7 @@ const Footer: React.FC = () => {
               Harshit Kandoi
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Data Scientist passionate about transforming data into actionable insights 
-              and building solutions that make a difference.
+              Backend Engineer focused on building cloud-native systems that turn data into reliable, actionable outcomes.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((link) => (
