@@ -66,8 +66,8 @@ const Home: React.FC = () => {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg max-w-xs">
-                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium italic text-center">
+              <div className="absolute -bottom-6 -right-4 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg max-w-xs">
+                <p className="text-sm text-gray-600 dark:text-gray-400 font-medium italic">
                   "Building backend systems that turn data into reliable decisions"
                 </p>
               </div>
