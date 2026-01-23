@@ -30,8 +30,7 @@ const Contact: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              I'm always open to discussing new opportunities and challenges in the data science field. 
-              Whether you have a project in mind or just want to connect, I'd love to hear from you.
+              I’m open to opportunities and challenges in backend, cloud, and applied AI engineering. Whether it’s a role, project, or technical discussion, I’m always happy to connect.
             </p>
           </div>
           
