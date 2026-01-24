@@ -57,7 +57,7 @@ const Blog: React.FC = () => {
         
         {/* Call to Action */}
         <div className="mt-12 text-center">
-          <p className="text-gray-600 dark:text-gray-400 mb-2">
+          <p className="text-gray-600 dark:text-gray-400 mb-2 text-center">
             Interested in more articles about data science?
           </p>
           <a
