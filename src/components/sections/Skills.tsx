@@ -15,13 +15,13 @@ const Skills: React.FC = () => {
   return (
     <section id="skills" className="py-20 bg-white dark:bg-gray-900">
       <div className="section-container">
-        <SectionTitle 
-          title="Technical Skills" 
+        <SectionTitle
+          title="Technical Skills"
           subtitle="Technologies and competencies I use to build backend systems, cloud-native services, and AI-enabled solutions."
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          
+
           {/* Left column */}
           <div>
             {/* Languages */}
@@ -31,7 +31,7 @@ const Skills: React.FC = () => {
               </h3>
               <div className="space-y-6">
                 {skillsByCategory['Languages'].map((skill, index) => (
-                  <ProgressBar 
+                  <ProgressBar
                     key={index}
                     label={skill.name}
                     percentage={skill.proficiency}
@@ -49,7 +49,7 @@ const Skills: React.FC = () => {
               </h3>
               <div className="space-y-6">
                 {skillsByCategory['Backend'].map((skill, index) => (
-                  <ProgressBar 
+                  <ProgressBar
                     key={index}
                     label={skill.name}
                     percentage={skill.proficiency}
@@ -67,7 +67,7 @@ const Skills: React.FC = () => {
               </h3>
               <div className="space-y-6">
                 {skillsByCategory['AI'].map((skill, index) => (
-                  <ProgressBar 
+                  <ProgressBar
                     key={index}
                     label={skill.name}
                     percentage={skill.proficiency}
@@ -95,7 +95,7 @@ const Skills: React.FC = () => {
                         {skill.proficiency}%
                       </span>
                     </div>
-                    <ProgressBar 
+                    <ProgressBar
                       percentage={skill.proficiency}
                       color="bg-primary-500"
                       showPercentage={false}
@@ -111,9 +111,9 @@ const Skills: React.FC = () => {
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-2 border-b">
                 Tools & Workflow
               </h3>
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {skillsByCategory['Tools'].map((skill, index) => (
-                  <ProgressBar 
+                  <ProgressBar
                     key={index}
                     label={skill.name}
                     percentage={skill.proficiency}
@@ -129,9 +129,9 @@ const Skills: React.FC = () => {
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-2 border-b">
                 Professional Skills
               </h3>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {skillsByCategory['Soft Skills'].map((skill, index) => (
-                  <ProgressBar 
+                  <ProgressBar
                     key={index}
                     label={skill.name}
                     percentage={skill.proficiency}

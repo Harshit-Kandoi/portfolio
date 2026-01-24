@@ -28,6 +28,7 @@ export interface ExperienceItem {
   date?: string;
   description: string[] | string;
   type: 'work' | 'education' | 'Course' | 'Participation';
+  link?: string;
 }
 
 export interface BlogPost {

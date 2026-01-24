@@ -22,18 +22,18 @@ const Contact: React.FC = () => {
   return (
     <section id="contact" className="py-20 bg-white dark:bg-gray-900">
       <div className="section-container">
-        <SectionTitle 
-          title="Contact Me" 
+        <SectionTitle
+          title="Contact Me"
           subtitle="Feel free to reach out if you have any questions about my work or if you're interested in collaborating on a project."
         />
-        
+
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto md:text-center">
               I’m open to opportunities and challenges in backend, cloud, and applied AI engineering. Whether it’s a role, project, or technical discussion, I’m always happy to connect.
             </p>
           </div>
-          
+
           {/* Contact Information Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             {socialLinks.map((link) => (
@@ -58,7 +58,7 @@ const Contact: React.FC = () => {
               </a>
             ))}
           </div>
-          
+
           {/* Additional Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6">
@@ -71,7 +71,7 @@ const Contact: React.FC = () => {
                 <p>⏰ Open to full-time and freelance opportunities</p>
               </div>
             </div>
-            
+
             <div className="bg-white dark:bg-gray-900 rounded-xl shadow-md p-6">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Let's Connect
@@ -83,10 +83,10 @@ const Contact: React.FC = () => {
               </div>
             </div>
           </div>
-          
+
           {/* Call to Action */}
           <div className="text-center mt-12">
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-6 text-center">
               Prefer a different way to connect?
             </p>
             <div className="flex flex-wrap justify-center gap-4">

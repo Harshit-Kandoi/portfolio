@@ -7,7 +7,7 @@ const Projects: React.FC = () => {
   const broadCategories = [
     'All',
     'Machine Learning & AI',
-    'Data Science & Analytics', 
+    'Data Science & Analytics',
     'Web & App Development',
     'Cloud & Deployment',
     'Special Projects',
@@ -53,8 +53,8 @@ const Projects: React.FC = () => {
   })();
 
   const ProjectCard = ({ project, isFeatured = false }: { project: any; isFeatured?: boolean }) => (
-    <div 
-      key={project.id} 
+    <div
+      key={project.id}
       className="card group hover:transform hover:-translate-y-2 transition-all overflow-hidden"
     >
       <div className={`relative ${isFeatured ? 'h-56' : 'h-48'} overflow-hidden`}>
@@ -67,9 +67,9 @@ const Projects: React.FC = () => {
           <div className="p-4 w-full">
             <div className="flex justify-end space-x-3">
               {project.github && (
-                <a 
-                  href={project.github} 
-                  target="_blank" 
+                <a
+                  href={project.github}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/40 transition-colors"
                   aria-label="View GitHub Repository"
@@ -78,9 +78,9 @@ const Projects: React.FC = () => {
                 </a>
               )}
               {project.demo && (
-                <a 
-                  href={project.demo} 
-                  target="_blank" 
+                <a
+                  href={project.demo}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="p-2 bg-white/20 backdrop-blur-sm rounded-full text-white hover:bg-white/40 transition-colors"
                   aria-label="View Live Demo"
@@ -102,7 +102,7 @@ const Projects: React.FC = () => {
         </p>
         <div className="flex flex-wrap gap-2 mt-4">
           {project.technologies.slice(0, 3).map((tech: string, index: number) => (
-            <span 
+            <span
               key={index}
               className="px-3 py-1 bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400 text-xs rounded-full"
             >
@@ -122,22 +122,21 @@ const Projects: React.FC = () => {
   return (
     <section id="projects" className="py-20 bg-gray-50 dark:bg-gray-800">
       <div className="section-container">
-        <SectionTitle 
-          title="My Projects" 
+        <SectionTitle
+          title="My Projects"
           subtitle="Explore a selection of data science and machine learning projects I've worked on."
         />
-        
+
         {/* Category Filter */}
         <div className="flex flex-wrap justify-center gap-2 mb-12">
           {broadCategories.map((category) => (
             <button
               key={category}
               onClick={() => setActiveCategory(category)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                activeCategory === category
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors ${activeCategory === category
                   ? 'bg-primary-500 text-white dark:bg-primary-600'
                   : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
-              }`}
+                }`}
             >
               {category}
             </button>

@@ -10,7 +10,7 @@ export const experience: ExperienceItem[] = [
     description: [
       "CGPA: 8.35/10.0",
       "Specialization in Computer Science and Data Science",
-      "Active member of coding club and NGO's",
+      "Active member of coding club and NGOs",
       "Participated in various Unstop competitions."
     ],
     type: "education"
@@ -31,7 +31,7 @@ export const experience: ExperienceItem[] = [
   },
   {
     id: 3,
-    role: "Software Development Intern",
+    role: "Software Developer Intern",
     company: "ThoughtIn Solutions",
     location: "Remote / Gurugram, Haryana",
     period: "May 2025 – Aug 2025",
@@ -46,7 +46,7 @@ export const experience: ExperienceItem[] = [
     id: 4,
     role: "AI Intern",
     company: "Anantagni Industries Pvt Ltd",
-    location: "Remote",
+    location: "Remote / Pune, Maharashtra",
     period: "Apr 2025 – Jul 2025",
     description: [
       "Developed a YOLO-based computer vision solution for plastic type detection in a clean-tech environment",
@@ -73,7 +73,7 @@ export const experience: ExperienceItem[] = [
     role: "Higher Secondary Education",
     company: "Saraswati Vidhya Peeth SR SEC School",
     location: "Sikar, Rajasthan",
-    period: "2020 - 2021",
+    period: "2019 - 2021",
     description: [
       "Scored 91% in Class 12th",
       "Science Stream with Mathematics",
@@ -117,11 +117,11 @@ export const experience: ExperienceItem[] = [
     id: 10,
     title: "100 Days of Code: The Complete Python Pro Bootcamp",
     organization: "Udemy | Dr. Angela Yu",
-    date: "Feburary, 2025",
+    date: "February, 2025",
     type: "Course",
     description:
       "Completed a hands-on Python bootcamp covering programming, APIs, web dev, and automation through real-world projects.",
-        link: "https://www.udemy.com/certificate/UC-7ae3e699-3a95-404f-a9cd-e074b5f1553d/"
+    link: "https://www.udemy.com/certificate/UC-7ae3e699-3a95-404f-a9cd-e074b5f1553d/"
   },
   {
     id: 11,
