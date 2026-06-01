@@ -33,7 +33,7 @@ const Experience: React.FC = () => {
       <div className="section-container">
         <SectionTitle
           title="Experience"
-          subtitle="My professional journey, education, and certifications in the field of data science."
+          subtitle="A chronological snapshot of my professional roles, academic background, and technical certifications."
         />
 
         {/* Tab navigation */}

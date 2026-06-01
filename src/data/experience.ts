@@ -9,10 +9,10 @@ export const experience: ExperienceItem[] = [
     location: "Gurugram, India (Remote)",
     period: "Aug 2025 - Present",
     description: [
-      "Engineered frontend features using React and JavaScript alongside backend services built with Java, Python, and GCP for internal business applications.",
-      "Built cloud-based workflows using Cloud Functions, Pub/Sub, and Firestore to process notifications and automate business operations.",
-      "Designed an event-driven email processing workflow using Gmail API, Pub/Sub, Cloud Functions, and Firestore to extract, validate, and transform incoming data for downstream applications.",
-      "Performed testing, debugging, deployments, and production monitoring while collaborating with cross-functional teams using Agile practices."
+      "Developed internal business applications using React, JavaScript, Java, Python, and GCP to support production workflows and operational processes.",
+      "Engineered event-driven workflows using Cloud Functions, Pub/Sub, Firestore, and Gmail APIs to automate email processing and business operations.",
+      "Integrated APIs, deployment workflows, and cloud services while supporting testing, debugging, monitoring, and production releases.",
+      "Collaborated with cross-functional teams using Agile practices and Jira to deliver reliable software solutions across frontend, backend, and cloud environments."
     ],
     type: "work"
   },
@@ -23,7 +23,7 @@ export const experience: ExperienceItem[] = [
     location: "Gurugram, India (Remote)",
     period: "May 2025 - Aug 2025",
     description: [
-      "Built backend services and cloud-based workflows using Python and GCP to support scalable application development.",
+      "Developed backend services and cloud-native workflows using Python, Cloud Functions, Pub/Sub, Firestore, and App Engine.",
       "Executed deployment automation using Docker, GitHub Actions, and API integration workflows across development and testing environments."
     ],
     type: "work"
@@ -36,7 +36,7 @@ export const experience: ExperienceItem[] = [
     period: "Apr 2025 - Jul 2025",
     description: [
       "Implemented a YOLO-based computer vision solution for plastic waste classification, achieving ~75% detection accuracy on custom datasets.",
-      "Built dataset preparation and image processing workflows to support model training, evaluation, and deployment."
+      "Managed dataset preparation, image preprocessing, model evaluation, and deployment workflows for sustainability-focused applications."
     ],
     type: "work"
   },
@@ -63,7 +63,7 @@ export const experience: ExperienceItem[] = [
     description: [
       "CGPA: 8.35/10.0",
       "Specialization in Computer Science and Data Science",
-      "Focused on Machine Learning, Cloud Services, and Software Development workflows."
+      "Built a solid foundation in software engineering, cloud computing, databases, and machine learning."
     ],
     type: "education"
   },
@@ -74,8 +74,8 @@ export const experience: ExperienceItem[] = [
     location: "Sikar, India",
     period: "2019 - 2021",
     description: [
-      "GPA: 91%",
-      "Focused on Physics, Chemistry, Mathematics, and Biology (PCMB)."
+      "Academic Score: 91%",
+      "Focused on Physics, Chemistry, Mathematics, and Biology."
     ],
     type: "education"
   },
@@ -86,7 +86,7 @@ export const experience: ExperienceItem[] = [
     location: "Rajgarh, Rajasthan",
     period: "2018 - 2019",
     description: [
-      "Scored 73.1% in Class 10th",
+      "Academic Score: 73.1%",
       "Active participant in school competitions and academic activities."
     ],
     type: "education"
@@ -100,7 +100,7 @@ export const experience: ExperienceItem[] = [
     date: "Mar 2026",
     type: "Course",
     description: "Certified Google Associate Cloud Engineer with hands-on experience designing backend services, deploying applications, and managing cloud resources on GCP.",
-    link: "https://www.credential.net/"
+    link: "https://www.credly.com/badges/dce123b5-e38c-4619-86d6-8ff49362c926/linked_in_profile"
   },
   {
     id: 9,
@@ -109,7 +109,7 @@ export const experience: ExperienceItem[] = [
     date: "Aug 2025",
     type: "Course",
     description: "Certified professional in containerization, image building, multi-stage Dockerfiles, and local container orchestration.",
-    link: "https://www.credly.com/"
+    link: "https://www.linkedin.com/learning/certificates/9642001c23ee467631715f91472bc09ffd79bd1ceca1419cac4f1024651bcf29?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_certifications_details%3B0z%2F01oKQRpeu4u0V4hzrfA%3D%3D"
   },
   {
     id: 10,
