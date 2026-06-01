@@ -6,51 +6,19 @@ import SectionTitle from '../ui/SectionTitle';
 const Projects: React.FC = () => {
   const broadCategories = [
     'All',
-    'Machine Learning & AI',
-    'Data Science & Analytics',
-    'Web & App Development',
-    'Cloud & Deployment',
-    'Special Projects',
-    'Web Scraping & Automation'
+    'Featured',
+    'AI & Machine Learning',
+    'Cloud & Backend',
+    'Data & Automation'
   ];
-
-  // Match these with actual strings from your projects.ts
-  const categoryMapping: Record<string, string[]> = {
-    'Machine Learning & AI': [
-      'Machine Learning', 'Deep Learning', 'Computer Vision',
-      'NLP', 'Reinforcement Learning', 'Generative AI', 'Game AI', 'Creative AI'
-    ],
-    'Data Science & Analytics': [
-      'Data Visualization', 'Data Engineering', 'Finance',
-      'Agriculture', 'Feature Engineering'
-    ],
-    'Web & App Development': [
-      'Web App', 'Backend Development', 'API', 'Full Stack'
-    ],
-    'Cloud & Deployment': [
-      'Cloud Computing', 'GCP', 'AWS', 'MLOps', 'Docker', 'CI/CD'
-    ],
-    'Special Projects': [
-      'Computer Vision', // ASL Detection is in this category
-      'Generative AI',   // Ghibli Art Generator
-      'Web Scraping'     // Plastic Classification Dataset
-    ],
-    'Web Scraping & Automation': [
-      'Web Scraping', 'Selenium', 'BeautifulSoup4'
-    ]
-  };
 
   const [activeCategory, setActiveCategory] = useState('All');
 
-  const filteredProjects = (() => {
-    if (activeCategory === 'All') {
-      return projects;
-    }
-    const detailedTags = categoryMapping[activeCategory] || [];
-    return projects.filter(project =>
-      project.category.some(cat => detailedTags.includes(cat))
-    );
-  })();
+  const filteredProjects = activeCategory === 'All'
+    ? projects
+    : activeCategory === 'Featured'
+      ? projects.filter(project => project.featured)
+      : projects.filter(project => project.category.includes(activeCategory));
 
   const ProjectCard = ({ project, isFeatured = false }: { project: any; isFeatured?: boolean }) => (
     <div
@@ -124,7 +92,7 @@ const Projects: React.FC = () => {
       <div className="section-container">
         <SectionTitle
           title="My Projects"
-          subtitle="Explore a selection of data science and machine learning projects I've worked on."
+          subtitle="A showcase of full-stack applications, cloud-native systems, automation workflows, and AI-driven solutions built using modern software engineering practices."
         />
 
         {/* Category Filter */}
@@ -134,8 +102,8 @@ const Projects: React.FC = () => {
               key={category}
               onClick={() => setActiveCategory(category)}
               className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors ${activeCategory === category
-                  ? 'bg-primary-500 text-white dark:bg-primary-600'
-                  : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
+                ? 'bg-primary-500 text-white dark:bg-primary-600'
+                : 'bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600'
                 }`}
             >
               {category}
@@ -143,27 +111,11 @@ const Projects: React.FC = () => {
           ))}
         </div>
 
-        {/* Featured Projects */}
-        {activeCategory === 'All' && (
-          <div className="mb-16">
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-8 text-center">
-              Featured Projects
-            </h3>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {projects.filter(project => project.featured).map((project) => (
-                <ProjectCard key={project.id} project={project} isFeatured />
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* All Projects */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProjects
-            .filter(project => !(activeCategory === 'All' && project.featured))
-            .map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
+          {filteredProjects.map((project) => (
+            <ProjectCard key={project.id} project={project} />
+          ))}
         </div>
 
       </div>

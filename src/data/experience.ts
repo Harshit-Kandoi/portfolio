@@ -1,83 +1,81 @@
 import { ExperienceItem } from '../types';
 
 export const experience: ExperienceItem[] = [
-  {
-    id: 1,
-    role: "B.Tech in Data Science [CSE]",
-    company: "B.K. Birla Institute of Engineering and Technology",
-    location: "Pilani, Rajasthan",
-    period: "2021 - 2025",
-    description: [
-      "CGPA: 8.35/10.0",
-      "Specialization in Computer Science and Data Science",
-      "Active member of coding club and NGOs",
-      "Participated in various Unstop competitions."
-    ],
-    type: "education"
-  },
   // Work Experience
   {
-    id: 2,
-    role: "Associate Software Engineer (Backend)",
-    company: "ThoughtIn Solutions",
-    location: "Remote / Gurugram, Haryana",
-    period: "Aug 2025 – Present",
+    id: 1,
+    role: "Associate Software Engineer",
+    company: "ThoughtIn Solutions India Pvt. Ltd.",
+    location: "Gurugram, India (Remote)",
+    period: "Aug 2025 - Present",
     description: [
-      "Building lightweight Python backend services and APIs to support production workflows and internal tools",
-      "Designing and deploying cloud-native components on GCP to reduce data latency and improve system reliability",
-      "Applying AI-driven automation to minimize manual data processing and improve accuracy across backend systems"
+      "Engineered frontend features using React and JavaScript alongside backend services built with Java, Python, and GCP for internal business applications.",
+      "Built cloud-based workflows using Cloud Functions, Pub/Sub, and Firestore to process notifications and automate business operations.",
+      "Designed an event-driven email processing workflow using Gmail API, Pub/Sub, Cloud Functions, and Firestore to extract, validate, and transform incoming data for downstream applications.",
+      "Performed testing, debugging, deployments, and production monitoring while collaborating with cross-functional teams using Agile practices."
+    ],
+    type: "work"
+  },
+  {
+    id: 2,
+    role: "Software Engineer Intern",
+    company: "ThoughtIn Solutions India Pvt. Ltd.",
+    location: "Gurugram, India (Remote)",
+    period: "May 2025 - Aug 2025",
+    description: [
+      "Built backend services and cloud-based workflows using Python and GCP to support scalable application development.",
+      "Executed deployment automation using Docker, GitHub Actions, and API integration workflows across development and testing environments."
     ],
     type: "work"
   },
   {
     id: 3,
-    role: "Software Developer Intern",
-    company: "ThoughtIn Solutions",
-    location: "Remote / Gurugram, Haryana",
-    period: "May 2025 – Aug 2025",
+    role: "AI Intern (Computer Vision)",
+    company: "Anantagni Industries Pvt. Ltd.",
+    location: "Pune, India (Remote)",
+    period: "Apr 2025 - Jul 2025",
     description: [
-      "Worked on backend services and API development using Python and GCP",
-      "Assisted in building scalable application architecture and understanding the transition from development to production",
-      "Gained hands-on experience with Docker-based builds and cloud deployments"
+      "Implemented a YOLO-based computer vision solution for plastic waste classification, achieving ~75% detection accuracy on custom datasets.",
+      "Built dataset preparation and image processing workflows to support model training, evaluation, and deployment."
     ],
     type: "work"
   },
   {
     id: 4,
-    role: "AI Intern",
-    company: "Anantagni Industries Pvt Ltd",
-    location: "Remote / Pune, Maharashtra",
-    period: "Apr 2025 – Jul 2025",
+    role: "Data Science Intern",
+    company: "Upflairs Pvt. Ltd.",
+    location: "Jaipur, India",
+    period: "Jun 2024 - Aug 2024",
     description: [
-      "Developed a YOLO-based computer vision solution for plastic type detection in a clean-tech environment",
-      "Created and augmented datasets and trained CNN models for accurate classification",
-      "Applied AI solutions to real-world sustainability and waste-to-energy use cases"
+      "Trained crop classification models achieving ~95% accuracy using structured agricultural datasets and feature-engineered inputs.",
+      "Performed data preprocessing, feature engineering, model evaluation, and performance analysis across end-to-end ML workflows."
     ],
     type: "work"
   },
+
+  // Education
   {
     id: 5,
-    role: "Data Science Intern",
-    company: "Upflairs Pvt Ltd",
-    location: "Jaipur, Rajasthan",
-    period: "Jun 2024 – Aug 2024",
+    role: "Bachelor of Technology in CSE (Data Science)",
+    company: "B.K. Birla Institute of Engineering and Technology",
+    location: "Pilani, India",
+    period: "2021 - 2025",
     description: [
-      "Built machine learning projects as part of hands-on learning, including recommendation and classification systems",
-      "Developed a Crop Classification model using agricultural and environmental data",
-      "Strengthened fundamentals in Python, data preprocessing, and applied machine learning"
+      "CGPA: 8.35/10.0",
+      "Specialization in Computer Science and Data Science",
+      "Focused on Machine Learning, Cloud Services, and Software Development workflows."
     ],
-    type: "work"
+    type: "education"
   },
   {
     id: 6,
-    role: "Higher Secondary Education",
-    company: "Saraswati Vidhya Peeth SR SEC School",
-    location: "Sikar, Rajasthan",
+    role: "Senior Secondary (PCMB)",
+    company: "Sarasvati Vidhya Peeth Sr. Sec. School",
+    location: "Sikar, India",
     period: "2019 - 2021",
     description: [
-      "Scored 91% in Class 12th",
-      "Science Stream with Mathematics",
-      "School prefect and active participant in academic competitions"
+      "GPA: 91%",
+      "Focused on Physics, Chemistry, Mathematics, and Biology (PCMB)."
     ],
     type: "education"
   },
@@ -89,68 +87,46 @@ export const experience: ExperienceItem[] = [
     period: "2018 - 2019",
     description: [
       "Scored 73.1% in Class 10th",
-      "Active participation in school activities and sports"
+      "Active participant in school competitions and academic activities."
     ],
     type: "education"
   },
+
+  // Certifications / Courses
   {
     id: 8,
-    title: "Career Essentials in GitHub Copilot Professional Certificate",
-    organization: "GitHub",
-    date: "August, 2025",
+    title: "Google Associate Cloud Engineer (ACE)",
+    organization: "Google Cloud",
+    date: "Mar 2026",
     type: "Course",
-    description:
-      "Covered GitHub Copilot, AI-assisted coding, version control, and productivity in software development.",
-    link: "https://www.linkedin.com/learning/certificates/ec842b1f8a1a2b3c2c439c8d4adfa5471b607088840f171ca6d1642f3f894d9a"
+    description: "Certified Google Associate Cloud Engineer with hands-on experience designing backend services, deploying applications, and managing cloud resources on GCP.",
+    link: "https://www.credential.net/"
   },
   {
     id: 9,
-    title: "Introduction to Artificial Intelligence",
-    organization: "LinkedIn Learning",
-    date: "August, 2025",
+    title: "Docker Foundations Professional Certificate",
+    organization: "Docker",
+    date: "Aug 2025",
     type: "Course",
-    description:
-      "Learned AI fundamentals, applications, and emerging trends across industries.",
-    link: "https://www.linkedin.com/learning/certificates/f98e856a89cf06ff734abe279f0cb755a681a31e01f256b2ef774835eca7f12c"
+    description: "Certified professional in containerization, image building, multi-stage Dockerfiles, and local container orchestration.",
+    link: "https://www.credly.com/"
   },
   {
     id: 10,
-    title: "100 Days of Code: The Complete Python Pro Bootcamp",
+    title: "Python Bootcamp (100 Days of Code)",
     organization: "Udemy | Dr. Angela Yu",
-    date: "February, 2025",
+    date: "Feb 2025",
     type: "Course",
-    description:
-      "Completed a hands-on Python bootcamp covering programming, APIs, web dev, and automation through real-world projects.",
+    description: "Completed comprehensive Python bootcamp covering advanced programming, building web scrapers, APIs, and automation scripts.",
     link: "https://www.udemy.com/certificate/UC-7ae3e699-3a95-404f-a9cd-e074b5f1553d/"
   },
   {
     id: 11,
-    title: "Machine Learning A-Z: AI, Python & R + ChatGPT Prize",
+    title: "Machine Learning A-Z",
     organization: "Udemy | SuperDataScience",
-    date: "November, 2024",
+    date: "Nov 2024",
     type: "Course",
-    description:
-      "Gained practical ML knowledge covering supervised & unsupervised learning, NLP, and deep learning using Python and R.",
+    description: "Grained deep understanding of machine learning models, regression, classification, clustering, reinforcement learning, and neural networks using Python.",
     link: "https://www.udemy.com/certificate/UC-a4c0bbee-c659-4d51-ad51-5b1211e9cc4f/"
-  },
-  {
-    id: 12,
-    title: "Career Essentials in Generative AI by Microsoft and LinkedIn",
-    organization: "Microsoft",
-    date: "September, 2023",
-    type: "Course",
-    description:
-      "Explored generative AI concepts, prompt engineering, Microsoft Copilot, and responsible AI practices.",
-    link: "https://www.linkedin.com/learning/certificates/b49c37aa015b852352b5baa8f01d3457ca2a7869e14843045ddc807ca0f65d84"
-  },
-  {
-    id: 13,
-    title: "Sustain-o-Thon – National Sustainability Challenge",
-    organization: "IGNITE 180 | Centre for Civil Society",
-    date: "October, 2023",
-    type: "Participation",
-    description:
-      "Participated in a national event focused on sustainable development and policy-driven solutions for environmental and social challenges.",
-    link: "https://drive.google.com/file/d/1cUj4xk_0HsTso0g9Oj6y_Doia_b_wAYi/view?usp=drive_link"
   }
 ];

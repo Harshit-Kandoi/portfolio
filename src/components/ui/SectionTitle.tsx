@@ -6,10 +6,10 @@ interface SectionTitleProps {
   center?: boolean;
 }
 
-const SectionTitle: React.FC<SectionTitleProps> = ({ 
-  title, 
+const SectionTitle: React.FC<SectionTitleProps> = ({
+  title,
   subtitle,
-  center = true 
+  center = true
 }) => {
   return (
     <div className={`mb-12 ${center ? 'text-center' : ''}`}>
@@ -17,7 +17,7 @@ const SectionTitle: React.FC<SectionTitleProps> = ({
         {title}
       </h2>
       {subtitle && (
-        <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+        <p className={`mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto ${center ? 'text-center' : ''}`}>
           {subtitle}
         </p>
       )}

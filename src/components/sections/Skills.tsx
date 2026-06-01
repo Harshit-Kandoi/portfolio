@@ -5,7 +5,7 @@ import { skills } from '../../data/skills';
 
 const Skills: React.FC = () => {
   // Updated categories to match backend + cloud positioning
-  const categories = ['Languages', 'Backend', 'Cloud', 'AI', 'Tools', 'Soft Skills'];
+  const categories = ['Languages', 'Backend', 'Frontend', 'Databases', 'Cloud', 'AI', 'Tools', 'Soft Skills'];
 
   const skillsByCategory = categories.reduce((acc, category) => {
     acc[category] = skills.filter(skill => skill.category === category);
@@ -17,7 +17,7 @@ const Skills: React.FC = () => {
       <div className="section-container">
         <SectionTitle
           title="Technical Skills"
-          subtitle="Technologies and competencies I use to build backend systems, cloud-native services, and AI-enabled solutions."
+          subtitle="Technologies I use to build full-stack applications, backend services, cloud-native systems, and automation workflows."
         />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -60,13 +60,31 @@ const Skills: React.FC = () => {
               </div>
             </div>
 
-            {/* AI */}
-            <div>
+            {/* Frontend */}
+            <div className="mb-12">
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-2 border-b">
-                Applied AI
+                Frontend Development
               </h3>
               <div className="space-y-6">
-                {skillsByCategory['AI'].map((skill, index) => (
+                {skillsByCategory['Frontend'].map((skill, index) => (
+                  <ProgressBar
+                    key={index}
+                    label={skill.name}
+                    percentage={skill.proficiency}
+                    color="bg-primary-500"
+                    height="h-3"
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Databases */}
+            <div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-2 border-b">
+                Databases
+              </h3>
+              <div className="space-y-6">
+                {skillsByCategory['Databases'].map((skill, index) => (
                   <ProgressBar
                     key={index}
                     label={skill.name}
@@ -102,6 +120,24 @@ const Skills: React.FC = () => {
                       height="h-2"
                     />
                   </div>
+                ))}
+              </div>
+            </div>
+
+            {/* AI */}
+            <div className="mb-12">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-6 pb-2 border-b">
+                Applied AI & Automation
+              </h3>
+              <div className="space-y-6">
+                {skillsByCategory['AI'].map((skill, index) => (
+                  <ProgressBar
+                    key={index}
+                    label={skill.name}
+                    percentage={skill.proficiency}
+                    color="bg-accent-500"
+                    height="h-3"
+                  />
                 ))}
               </div>
             </div>

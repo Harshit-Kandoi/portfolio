@@ -31,7 +31,7 @@ const Footer: React.FC = () => {
               Harshit Kandoi
             </h3>
             <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Backend Engineer focused on building cloud-native systems that turn data into reliable, actionable outcomes.
+              Full Stack Software Engineer and Google Cloud Certified (ACE) specializing in backend systems, cloud architectures, and automations.
             </p>
             <div className="flex space-x-4">
               {socialLinks.map((link) => (
@@ -80,19 +80,19 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li className="flex items-center text-gray-600 dark:text-gray-400">
                 <Mail size={16} className="mr-2 text-primary-500" />
-                <a href="mailto:hello@harshitkandoi.com" className="hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
+                <a href="mailto:kandoiharshitsdlp@gmail.com" className="hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
                   kandoiharshitsdlp@gmail.com
                 </a>
               </li>
               <li className="flex items-center text-gray-600 dark:text-gray-400">
                 <Phone size={16} className="mr-2 text-primary-500" />
-                <a href="tel:+15551234567" className="hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
+                <a href="tel:+917850098453" className="hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
                   +91 7850098453
                 </a>
               </li>
               <li className="flex items-center text-gray-600 dark:text-gray-400">
                 <Github size={16} className="mr-2 text-primary-500" />
-                <a href="https://github.com/harshitkandoi" target="_blank" rel="noopener noreferrer" className="hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
+                <a href="https://github.com/Harshit-Kandoi" target="_blank" rel="noopener noreferrer" className="hover:text-primary-500 dark:hover:text-primary-400 transition-colors">
                   github.com/Harshit-Kandoi
                 </a>
               </li>

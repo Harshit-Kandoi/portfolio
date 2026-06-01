@@ -13,7 +13,7 @@ export interface Project {
 export interface Skill {
   name: string;
   proficiency: number;
-  category: 'Languages' | 'Libraries' | 'Tools' | 'Soft Skills';
+  category: string;
   icon?: string;
 }
 
