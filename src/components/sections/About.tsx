@@ -20,6 +20,7 @@ const About: React.FC = () => {
                 src="/tempo.jpg"
                 alt="Harshit Kandoi"
                 className="w-full h-auto object-cover"
+                loading="lazy"
               />
             </div>
             <div className="absolute -bottom-5 -right-5 bg-white dark:bg-gray-800 p-4 rounded shadow-lg max-w-xs">
