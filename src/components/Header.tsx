@@ -3,7 +3,6 @@ import { Link } from 'react-scroll';
 import { Menu, X } from 'lucide-react';
 import { navLinks, resumeLink } from '../data/navigation';
 import ThemeToggle from './ui/ThemeToggle';
-import Button from './ui/Button';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,7 +18,7 @@ const Header: React.FC = () => {
       }
 
       // Determine active section based on scroll position
-      const sections = document.querySelectorAll('section[id]');
+      const sections = document.querySelectorAll<HTMLElement>('section[id]');
       sections.forEach(section => {
         const sectionTop = section.offsetTop - 100;
         const sectionHeight = section.offsetHeight;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-scroll';
-import { ArrowDown, ExternalLink } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
 import { TypeAnimation } from 'react-type-animation';
 import Button from '../ui/Button';
 

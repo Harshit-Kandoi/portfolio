@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ExternalLink, Github } from 'lucide-react';
 import { projects } from '../../data/projects';
+import { Project } from '../../types';
 import SectionTitle from '../ui/SectionTitle';
 
 const Projects: React.FC = () => {
@@ -20,7 +21,7 @@ const Projects: React.FC = () => {
       ? projects.filter(project => project.featured)
       : projects.filter(project => project.category.includes(activeCategory));
 
-  const ProjectCard = ({ project, isFeatured = false }: { project: any; isFeatured?: boolean }) => (
+  const ProjectCard = ({ project, isFeatured = false }: { project: Project; isFeatured?: boolean }) => (
     <div
       key={project.id}
       className="card group hover:transform hover:-translate-y-2 transition-all overflow-hidden"

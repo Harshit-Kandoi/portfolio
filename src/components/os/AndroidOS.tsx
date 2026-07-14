@@ -1,0 +1,762 @@
+import { useState, useEffect, useRef } from 'react';
+import { useOSStore, AppTheme } from '../../store/useOSStore';
+import { 
+  Wifi, Signal, Battery, Search, Bell, Settings as GearIcon, 
+  Volume2, Sun, Palette, Trash2, Bluetooth, Zap, ChevronLeft, Gamepad2,
+  User, Folder, Briefcase, Award, FileText, Terminal as TermIcon,
+  MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon
+} from 'lucide-react';
+import AboutApp from '../apps/AboutApp';
+import ProjectsApp from '../apps/ProjectsApp';
+import ExperienceApp from '../apps/ExperienceApp';
+import SkillsApp from '../apps/SkillsApp';
+import ResumeApp from '../apps/ResumeApp';
+import TerminalWindow from '../apps/TerminalWindow';
+import AIAssistantApp from '../apps/AIAssistantApp';
+import BlogApp from '../apps/BlogApp';
+import AchievementsApp from '../apps/AchievementsApp';
+import GamingApp from '../apps/GamingApp';
+import ContactApp from '../apps/ContactApp';
+import SettingsApp from '../apps/SettingsApp';
+import { playWindowSound } from '../../utils/sounds';
+
+interface AndroidOSProps {
+  isFullscreen: boolean;
+}
+
+export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
+  const {
+    theme, setTheme,
+    notifications, dismissNotification, clearNotifications,
+    activeMobileApp, openMobileApp, closeMobileApp, mobileRecents, clearMobileRecents,
+    showMobileDrawer, setShowMobileDrawer,
+    showMobileSettings, setShowMobileSettings,
+    mobileBrightness, setMobileBrightness,
+    soundEnabled, setSoundEnabled,
+    volume, setVolume
+  } = useOSStore();
+
+  const [sysTime, setSysTime] = useState(new Date());
+  const [localSearch, setLocalSearch] = useState('');
+  const [wifiEnabled, setWifiEnabled] = useState(true);
+  const [bluetoothEnabled, setBluetoothEnabled] = useState(true);
+  const [airplaneMode, setAirplaneMode] = useState(false);
+  const flashlight = false;
+  const batteryCharging = true;
+  const [batteryPct, setBatteryPct] = useState(87);
+  const [showRecents, setShowRecents] = useState(false);
+
+  const pointerStartY = useRef(0);
+  const pointerStartX = useRef(0);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    pointerStartY.current = e.clientY;
+    pointerStartX.current = e.clientX;
+  };
+
+  const handlePointerUp = (e: React.PointerEvent, context: 'home' | 'settings' | 'drawer') => {
+    const deltaY = e.clientY - pointerStartY.current;
+    const deltaX = e.clientX - pointerStartX.current;
+    const threshold = 45;
+
+    if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      if (context === 'home') {
+        if (deltaY > threshold) {
+          setShowMobileSettings(true);
+        } else if (deltaY < -threshold) {
+          setShowMobileDrawer(true);
+        }
+      } else if (context === 'settings') {
+        if (deltaY < -threshold) {
+          setShowMobileSettings(false);
+        }
+      } else if (context === 'drawer') {
+        if (deltaY > threshold) {
+          setShowMobileDrawer(false);
+        }
+      }
+    }
+  };
+
+  // Update clock time
+  useEffect(() => {
+    const timer = setInterval(() => setSysTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Update battery level simulation
+  useEffect(() => {
+    const batteryTimer = setInterval(() => {
+      setBatteryPct((prev) => {
+        if (batteryCharging) {
+          return prev >= 100 ? 100 : prev + 1;
+        } else {
+          return prev <= 1 ? 1 : prev - 1;
+        }
+      });
+    }, 60000);
+    return () => clearInterval(batteryTimer);
+  }, [batteryCharging]);
+
+  // Mobile App metadata mapper
+  const appIcons = [
+    { id: 'about', title: 'About Me', icon: User, color: 'from-blue-500 to-cyan-400', category: 'system' },
+    { id: 'projects', title: 'Projects', icon: Folder, color: 'from-purple-500 to-indigo-500', category: 'work' },
+    { id: 'experience', title: 'Experience', icon: Briefcase, color: 'from-emerald-500 to-teal-500', category: 'work' },
+    { id: 'skills', title: 'Skills', icon: Award, color: 'from-amber-500 to-orange-500', category: 'work' },
+    { id: 'resume', title: 'Resume', icon: FileText, color: 'from-rose-500 to-red-500', category: 'system' },
+    { id: 'terminal', title: 'Terminal', icon: TermIcon, color: 'from-slate-700 to-slate-900', category: 'dev' },
+    { id: 'ai', title: 'AI Assistant', icon: MessageSquare, color: 'from-pink-500 to-rose-400', category: 'social' },
+    { id: 'blog', title: 'Tech Blog', icon: BookOpen, color: 'from-sky-500 to-blue-600', category: 'social' },
+    { id: 'achievements', title: 'Badges', icon: Trophy, color: 'from-yellow-400 to-amber-500', category: 'game' },
+    { id: 'gaming', title: 'Gaming OS', icon: Gamepad2, color: 'from-red-500 to-pink-500', category: 'game' },
+    { id: 'contact', title: 'Say Hello', icon: Send, color: 'from-teal-400 to-emerald-500', category: 'social' },
+    { id: 'settings', title: 'Settings', icon: GearIcon, color: 'from-slate-400 to-slate-600', category: 'system' },
+  ];
+
+  // Quick App Search filter
+  const filteredApps = appIcons.filter(app => 
+    app.title.toLowerCase().includes(localSearch.toLowerCase())
+  );
+
+  // Dynamic mobile background gradient depending on store theme
+  const getBackgroundStyle = () => {
+    switch (theme) {
+      case 'light':
+        return 'bg-gradient-to-b from-[#e0eafc] to-[#cfdef3]';
+      case 'dark':
+        return 'bg-gradient-to-b from-[#0f2027] via-[#203a43] to-[#2c5364]';
+      case 'cyberpunk':
+        return 'bg-gradient-to-b from-[#120015] via-[#22002b] to-[#120015] border-2 border-yellow-400/20';
+      case 'retro':
+        return 'bg-black border border-green-500/20';
+      case 'nord':
+        return 'bg-gradient-to-b from-[#2e3440] via-[#3b4252] to-[#434c5e]';
+      case 'glass':
+        return 'bg-gradient-to-b from-[#1a1c29] via-[#0e1017] to-[#050608]';
+      case 'midnight':
+      default:
+        return 'bg-gradient-to-b from-[#0f0c20] via-[#150a33] to-[#090212]';
+    }
+  };
+
+  // Back Key action handler
+  const handleBackKey = () => {
+    if (showMobileSettings) {
+      setShowMobileSettings(false);
+    } else if (showMobileDrawer) {
+      setShowMobileDrawer(false);
+    } else if (showRecents) {
+      setShowRecents(false);
+    } else if (activeMobileApp) {
+      playWindowSound('close');
+      // Go back to previous app or home
+      const nextActiveIdx = mobileRecents.indexOf(activeMobileApp) + 1;
+      if (nextActiveIdx < mobileRecents.length) {
+        openMobileApp(mobileRecents[nextActiveIdx]);
+      } else {
+        closeMobileApp(activeMobileApp);
+      }
+    }
+  };
+
+  // Home Key action handler
+  const handleHomeKey = () => {
+    setShowMobileSettings(false);
+    setShowMobileDrawer(false);
+    setShowRecents(false);
+    if (activeMobileApp) {
+      playWindowSound('close');
+      // Set active app to null but keep in recents stack
+      useOSStore.setState({ activeMobileApp: null });
+    }
+  };
+
+  // Recents Switcher Key handler
+  const handleRecentsKey = () => {
+    setShowMobileSettings(false);
+    setShowMobileDrawer(false);
+    setShowRecents(!showRecents);
+  };
+
+  const handleLaunchApp = (appId: string) => {
+    playWindowSound('open');
+    openMobileApp(appId);
+    setShowRecents(false);
+  };
+
+  const formatClock = sysTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+  const formatDateLong = sysTime.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+
+  // Render content of opened app
+  const renderAppContent = (appId: string) => {
+    switch (appId) {
+      case 'about': return <AboutApp />;
+      case 'projects': return <ProjectsApp />;
+      case 'experience': return <ExperienceApp />;
+      case 'skills': return <SkillsApp />;
+      case 'resume': return <ResumeApp />;
+      case 'terminal': return <TerminalWindow />;
+      case 'ai': return <AIAssistantApp />;
+      case 'blog': return <BlogApp />;
+      case 'achievements': return <AchievementsApp />;
+      case 'gaming': return <GamingApp />;
+      case 'contact': return <ContactApp />;
+      case 'settings': return <SettingsApp />;
+      default: return <div className="p-4 text-center text-white">App is currently building...</div>;
+    }
+  };
+
+  return (
+    <div className={`relative w-full ${isFullscreen ? 'h-dvh' : 'h-full'} flex flex-col select-none overflow-hidden ${getBackgroundStyle()} ${theme === 'light' ? 'text-gray-800' : 'text-white'} font-sans`}>
+      
+      {/* Dynamic Brightness Dimming Overlay */}
+      <div 
+        className="absolute inset-0 z-[1000] pointer-events-none bg-black transition-opacity duration-200" 
+        style={{ opacity: 1 - mobileBrightness }} 
+      />
+
+      {/* Retro CRT Grid Overlay (for retro theme) */}
+      {theme === 'retro' && (
+        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px] opacity-20 z-40" />
+      )}
+
+      {/* Flashlight Simulated Aura */}
+      {flashlight && (
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-48 h-48 bg-yellow-300/10 rounded-full blur-3xl pointer-events-none z-30 animate-pulse" />
+      )}
+
+      {/* ================= STATUS BAR ================= */}
+      <div 
+        onClick={() => setShowMobileSettings(true)}
+        className={`h-9 w-full flex items-center justify-between px-6 pt-1.5 text-[11px] font-bold tracking-tight select-none cursor-pointer z-50 transition ${
+          theme === 'light' ? 'hover:bg-black/5 active:bg-black/10 text-gray-700' : 'hover:bg-white/5 active:bg-white/10 text-white'
+        }`}
+      >
+        {/* Left Side: Time / Notification Icons */}
+        <div className="flex items-center space-x-1.5">
+          <span>{formatClock}</span>
+          {!airplaneMode && notifications.length > 0 && (
+            <Bell className={`w-3 h-3 ${theme === 'light' ? 'text-purple-600' : 'text-amber-400'} animate-bounce`} />
+          )}
+        </div>
+
+        {/* Center notch spacing for desktop phone simulator */}
+        {!isFullscreen && <div className="w-20" />}
+
+        {/* Right Side: Network Status Icons */}
+        <div className="flex items-center space-x-1.5">
+          {airplaneMode ? (
+            <span className={`text-[9px] uppercase tracking-wider ${theme === 'light' ? 'text-red-650' : 'text-red-400'}`}>Airplane Mode</span>
+          ) : (
+            <>
+              {wifiEnabled ? <Wifi className={`w-3.5 h-3.5 ${theme === 'light' ? 'text-emerald-600' : 'text-emerald-400'}`} /> : <Wifi className="w-3.5 h-3.5 text-gray-500" />}
+              <Signal className={`w-3.5 h-3.5 ${theme === 'light' ? 'text-sky-650' : 'text-sky-400'}`} />
+            </>
+          )}
+          {bluetoothEnabled && <Bluetooth className={`w-3 h-3 ${theme === 'light' ? 'text-purple-600' : 'text-purple-400'}`} />}
+          
+          <div className="flex items-center space-x-0.5">
+            <span className={`text-[9px] font-normal ${theme === 'light' ? 'text-gray-700' : 'text-gray-200'}`}>{batteryPct}%</span>
+            <div className="relative flex items-center">
+              <Battery className={`w-4 h-4 ${batteryCharging ? (theme === 'light' ? 'text-green-600' : 'text-green-400') : (theme === 'light' ? 'text-gray-600' : 'text-gray-200')}`} />
+              {batteryCharging && <Zap className={`w-2.5 h-2.5 absolute left-0.5 ${theme === 'light' ? 'text-green-500' : 'text-green-300'} animate-pulse`} />}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ================= QUICK SETTINGS / NOTIFICATIONS DRAWER ================= */}
+      <div 
+        onPointerDown={handlePointerDown}
+        onPointerUp={(e) => handlePointerUp(e, 'settings')}
+        className={`absolute inset-0 ${
+          theme === 'light' ? 'bg-[#f4f7f6]/95 text-gray-800' : 'bg-slate-950/95 text-white'
+        } z-[600] flex flex-col justify-between px-6 pt-10 pb-4 transition-transform duration-300 ease-out ${
+          showMobileSettings ? 'translate-y-0 pointer-events-auto opacity-100' : '-translate-y-full pointer-events-none opacity-0 invisible'
+        }`}
+      >
+          <div className="space-y-6">
+            
+            {/* Drawer Top Handle */}
+            <div className={`flex justify-between items-center border-b ${theme === 'light' ? 'border-gray-200' : 'border-white/10'} pb-4`}>
+              <div className="flex flex-col">
+                <span className={`text-xs ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'} font-bold uppercase tracking-wider`}>Quick Controls</span>
+                <span className={`text-[10px] ${theme === 'light' ? 'text-gray-450' : 'text-gray-500'} mt-0.5`}>{formatDateLong}</span>
+              </div>
+              <button 
+                onClick={() => setShowMobileSettings(false)}
+                className={`p-1.5 rounded-full ${theme === 'light' ? 'bg-black/5 hover:bg-black/10 text-gray-600' : 'bg-white/5 hover:bg-white/10 text-gray-400'}`}
+              >
+                <ChevronLeft className="w-5 h-5 rotate-275" />
+              </button>
+            </div>
+
+            {/* Quick Settings Action Grid */}
+            <div className="grid grid-cols-3 gap-3">
+              {/* Wi-Fi Toggle */}
+              <button 
+                onClick={() => !airplaneMode && setWifiEnabled(!wifiEnabled)}
+                disabled={airplaneMode}
+                className={`p-3 rounded-2xl flex flex-col items-center justify-center space-y-1.5 border transition ${
+                  wifiEnabled && !airplaneMode 
+                    ? 'bg-emerald-600 border-emerald-500 text-white shadow-md' 
+                    : (theme === 'light' ? 'bg-gray-200/60 border-gray-300/40 text-gray-600 hover:bg-gray-200' : 'bg-white/5 border-white/5 text-gray-400')
+                }`}
+              >
+                <Wifi className="w-5 h-5" />
+                <span className="text-[10px] font-semibold">Wi-Fi</span>
+              </button>
+
+              {/* Bluetooth Toggle */}
+              <button 
+                onClick={() => setBluetoothEnabled(!bluetoothEnabled)}
+                className={`p-3 rounded-2xl flex flex-col items-center justify-center space-y-1.5 border transition ${
+                  bluetoothEnabled 
+                    ? 'bg-purple-600 border-purple-500 text-white shadow-md' 
+                    : (theme === 'light' ? 'bg-gray-200/60 border-gray-300/40 text-gray-600 hover:bg-gray-200' : 'bg-white/5 border-white/5 text-gray-400')
+                }`}
+              >
+                <Bluetooth className="w-5 h-5" />
+                <span className="text-[10px] font-semibold">Bluetooth</span>
+              </button>
+
+              {/* Airplane Mode Toggle */}
+              <button 
+                onClick={() => {
+                  setAirplaneMode(!airplaneMode);
+                  if(!airplaneMode) setWifiEnabled(false);
+                }}
+                className={`p-3 rounded-2xl flex flex-col items-center justify-center space-y-1.5 border transition ${
+                  airplaneMode 
+                    ? 'bg-red-600 border-red-500 text-white shadow-md' 
+                    : (theme === 'light' ? 'bg-gray-200/60 border-gray-300/40 text-gray-600 hover:bg-gray-200' : 'bg-white/5 border-white/5 text-gray-400')
+                }`}
+              >
+                <Zap className="w-5 h-5 rotate-45" />
+                <span className="text-[10px] font-semibold">Airplane</span>
+              </button>
+
+              {/* Dark Theme Toggle */}
+              <button 
+                onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                className={`p-3 rounded-2xl flex flex-col items-center justify-center space-y-1.5 border transition ${
+                  theme !== 'light' 
+                    ? 'bg-indigo-600 border-indigo-500 text-white shadow-md' 
+                    : (theme === 'light' ? 'bg-gray-200/60 border-gray-300/40 text-gray-600 hover:bg-gray-200' : 'bg-white/5 border-white/5 text-gray-400')
+                }`}
+              >
+                {theme !== 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                <span className="text-[10px] font-semibold">Dark Theme</span>
+              </button>
+
+              {/* System Sound Toggle */}
+              <button 
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                className={`p-3 rounded-2xl flex flex-col items-center justify-center space-y-1.5 border transition ${
+                  soundEnabled 
+                    ? 'bg-[#38bdf8] border-[#0ea5e9] text-black font-semibold shadow-md' 
+                    : (theme === 'light' ? 'bg-gray-200/60 border-gray-300/40 text-gray-600 hover:bg-gray-200' : 'bg-white/5 border-white/5 text-gray-400')
+                }`}
+              >
+                {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
+                <span className="text-[10px] font-semibold">Sounds</span>
+              </button>
+
+              {/* Theme Cycle Toggle */}
+              <button 
+                onClick={() => {
+                  const themes: AppTheme[] = ['midnight', 'dark', 'light', 'cyberpunk', 'nord', 'retro', 'glass'];
+                  const currentIdx = themes.indexOf(theme);
+                  const nextTheme = themes[(currentIdx + 1) % themes.length];
+                  setTheme(nextTheme);
+                }}
+                className={`p-3 rounded-2xl border flex flex-col items-center justify-center space-y-1.5 active:scale-95 transition ${
+                  theme === 'light' 
+                    ? 'bg-gray-200/60 border-gray-300/40 text-purple-700 hover:bg-gray-200' 
+                    : 'bg-white/5 border-white/5 text-purple-300 hover:bg-white/10'
+                }`}
+              >
+                <Palette className="w-5 h-5" />
+                <span className="text-[10px] font-semibold truncate capitalize w-16 text-center">{theme}</span>
+              </button>
+            </div>
+
+            {/* Sliders: Brightness and Sound Volume */}
+            <div className={`space-y-4 ${theme === 'light' ? 'bg-gray-100/80 border-gray-200' : 'bg-white/5 border-white/10'} border p-4 rounded-3xl`}>
+              
+              {/* Brightness Slider */}
+              <div className="space-y-1.5">
+                <div className={`flex justify-between items-center text-[10px] font-semibold ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
+                  <span className="flex items-center space-x-1"><Sun className="w-3.5 h-3.5 text-yellow-400" /> <span>Display Brightness</span></span>
+                  <span>{Math.round(mobileBrightness * 100)}%</span>
+                </div>
+                <input 
+                  type="range"
+                  min="0.15"
+                  max="1.0"
+                  step="0.05"
+                  value={mobileBrightness}
+                  onChange={(e) => setMobileBrightness(parseFloat(e.target.value))}
+                  className="w-full accent-purple-500 cursor-pointer"
+                />
+              </div>
+
+              {/* Sound Volume Slider */}
+              <div className="space-y-1.5">
+                <div className={`flex justify-between items-center text-[10px] font-semibold ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
+                  <span className="flex items-center space-x-1"><Volume2 className="w-3.5 h-3.5 text-sky-400" /> <span>System Volume</span></span>
+                  <span>{Math.round(volume * 100)}%</span>
+                </div>
+                <input 
+                  type="range"
+                  min="0.0"
+                  max="1.0"
+                  step="0.05"
+                  value={volume}
+                  onChange={(e) => setVolume(parseFloat(e.target.value))}
+                  className="w-full accent-purple-500 cursor-pointer"
+                  disabled={!soundEnabled}
+                />
+              </div>
+            </div>
+
+            {/* Active System Notifications */}
+            <div className="space-y-2.5">
+              <div className="flex justify-between items-center px-1">
+                <span className={`text-xs font-bold ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>Notifications ({notifications.length})</span>
+                {notifications.length > 0 && (
+                  <button 
+                    onClick={clearNotifications}
+                    className={`text-[10px] ${theme === 'light' ? 'text-purple-700 hover:text-purple-900' : 'text-gray-500 hover:text-white'} flex items-center space-x-1`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> <span>Dismiss All</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="max-h-56 overflow-y-auto space-y-2 pr-1">
+                {notifications.length === 0 ? (
+                  <div className={`p-6 rounded-2xl ${theme === 'light' ? 'bg-gray-100 border-gray-250 text-gray-500' : 'bg-white/5 border-white/5 text-gray-500'} text-center text-xs border`}>
+                    No active notifications
+                  </div>
+                ) : (
+                  notifications.map((n) => (
+                    <div 
+                      key={n.id}
+                      className={`p-3 ${theme === 'light' ? 'bg-white border-gray-200 shadow-sm text-gray-800' : 'bg-white/5 border-white/10 text-white'} border rounded-2xl flex items-start justify-between relative group hover:bg-white/10 transition`}
+                    >
+                      <div className="space-y-0.5 min-w-0 pr-6">
+                        <div className="flex items-center space-x-1">
+                          {n.type === 'achievement' && <Trophy className="w-3.5 h-3.5 text-yellow-400 shrink-0" />}
+                          <span className={`text-[11px] font-bold ${theme === 'light' ? 'text-gray-800' : 'text-white'} leading-tight truncate`}>{n.title}</span>
+                        </div>
+                        <p className={`text-[10px] ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'} leading-normal`}>{n.message}</p>
+                      </div>
+                      <button 
+                        onClick={() => dismissNotification(n.id)}
+                        className={`text-gray-500 ${theme === 'light' ? 'hover:text-red-650' : 'hover:text-red-400'} absolute top-2 right-2 text-xs`}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+          </div>
+
+          {/* Settings Footer Close button */}
+          <button 
+            onClick={() => setShowMobileSettings(false)}
+            className={`w-full py-2.5 ${theme === 'light' ? 'bg-gray-200 hover:bg-gray-300 text-gray-700' : 'bg-white/10 hover:bg-white/15 text-white'} active:scale-95 border border-white/10 rounded-2xl text-xs font-semibold text-center mt-4 transition`}
+          >
+            Close Panel
+          </button>
+        </div>
+
+      {/* ================= HOMESCREEN CONTENT ================= */}
+      <div 
+        onPointerDown={handlePointerDown}
+        onPointerUp={(e) => handlePointerUp(e, 'home')}
+        className={`flex-grow flex flex-col justify-between px-6 pt-4 pb-2 z-10 select-none ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}
+      >
+        
+        {/* HOMESCREEN WIDGETS AND APP GRID */}
+        {!activeMobileApp && !showRecents ? (
+          <>
+            <div className="space-y-8 mt-2">
+              
+              {/* Material You Style Digital Clock Widget */}
+              <div className={`flex flex-col items-center justify-center text-center p-6 ${theme === 'light' ? 'bg-white/70 border-white shadow-md' : 'bg-white/5 border-white/10 shadow-lg shadow-black/10'} rounded-[32px] border`}>
+                <span className={`text-[44px] font-light tracking-tighter ${theme === 'light' ? 'text-gray-800' : 'text-white'} leading-none`}>
+                  {formatClock}
+                </span>
+                <span className={`text-[10px] font-semibold ${theme === 'light' ? 'text-purple-600' : 'text-purple-400'} uppercase tracking-widest mt-1.5`}>
+                  {formatDateLong}
+                </span>
+              </div>
+
+              {/* Dynamic Google App Search Pill */}
+              <div className="relative">
+                <Search className={`w-4 h-4 absolute left-4 top-3 ${theme === 'light' ? 'text-purple-600' : 'text-purple-300'}`} />
+                <input 
+                  type="text"
+                  placeholder="Search application grid..."
+                  value={localSearch}
+                  onChange={(e) => setLocalSearch(e.target.value)}
+                  className={`w-full ${theme === 'light' ? 'bg-white/75 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-gray-400'} pl-11 pr-4 py-2.5 rounded-full text-xs focus:outline-none focus:bg-white/10 border transition`}
+                />
+              </div>
+
+              {/* Launcher App Grid (Home icons) */}
+              <div className="grid grid-cols-4 gap-y-4.5 gap-x-2 pt-2">
+                {filteredApps.slice(0, 8).map((app) => (
+                  <button
+                    key={app.id}
+                    onClick={() => handleLaunchApp(app.id)}
+                    className="flex flex-col items-center space-y-1.5 focus:outline-none transition group hover:scale-[1.05]"
+                  >
+                    <div className={`w-12 h-12 rounded-[18px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md shadow-black/15 group-active:scale-95 transition-transform`}>
+                      <app.icon className="w-5.5 h-5.5" />
+                    </div>
+                    <span className={`text-[9px] font-medium tracking-wide ${theme === 'light' ? 'text-gray-700' : 'text-gray-200'} truncate w-14 text-center`}>
+                      {app.title}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom Dock Launcher trigger */}
+            <div className="pb-4 flex flex-col items-center">
+              {/* App Drawer Swiper Indicator */}
+              <button 
+                onClick={() => setShowMobileDrawer(true)}
+                className="flex flex-col items-center space-y-1 hover:opacity-80 transition cursor-pointer mb-2.5"
+              >
+                <div className={`w-8 h-1 ${theme === 'light' ? 'bg-gray-300' : 'bg-white/25'} rounded-full animate-bounce`} />
+                <span className={`text-[8px] font-bold uppercase tracking-widest ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>All Apps</span>
+              </button>
+
+              {/* Standard Dock Apps */}
+              <div className={`w-full ${theme === 'light' ? 'bg-white/70 border-white shadow-lg' : 'bg-white/10 border-white/10 shadow-lg'} backdrop-blur-xl border p-3 rounded-[26px] flex justify-around items-center`}>
+                {appIcons.filter(a => ['about', 'ai', 'projects', 'settings'].includes(a.id)).map((app) => (
+                  <button
+                    key={app.id}
+                    onClick={() => handleLaunchApp(app.id)}
+                    className="flex flex-col items-center transition hover:scale-[1.1] active:scale-90"
+                    title={app.title}
+                  >
+                    <div className={`w-11 h-11 rounded-[16px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-sm`}>
+                      <app.icon className="w-5 h-5" />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
+        ) : null}
+
+        {/* ================= RECENTS TASK CAROUSEL SWITCHER ================= */}
+        {showRecents && !activeMobileApp && (
+          <div className="flex-grow flex flex-col justify-between pt-6 pb-4 animate-fade-in h-full">
+            <div className="text-center">
+              <span className={`text-xs font-bold ${theme === 'light' ? 'text-gray-650' : 'text-gray-400'} uppercase tracking-widest`}>Active Background Apps</span>
+              <p className="text-[9px] text-gray-500 mt-1">Swipe or click Dismiss to shut apps, tap to launch</p>
+            </div>
+
+            {mobileRecents.length === 0 ? (
+              <div className="flex flex-col items-center justify-center space-y-3 flex-grow">
+                <div className={`w-16 h-16 rounded-full ${theme === 'light' ? 'bg-gray-100 border-gray-200 text-gray-400' : 'bg-white/5 border-white/10 text-gray-500'} border flex items-center justify-center`}>
+                  ■
+                </div>
+                <span className={`text-xs ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'} font-semibold`}>No recent apps running</span>
+              </div>
+            ) : (
+              <div className="flex-grow flex items-center justify-center overflow-x-auto py-4 px-2 space-x-4 max-w-full">
+                {mobileRecents.map((appId) => {
+                  const appMeta = appIcons.find(a => a.id === appId);
+                  if (!appMeta) return null;
+                  return (
+                    <div 
+                      key={appId}
+                      className={`w-48 h-72 flex-shrink-0 ${theme === 'light' ? 'bg-white border-gray-200 text-gray-800 shadow-md' : 'bg-slate-900 border-white/15 text-white'} border rounded-3xl p-3 flex flex-col justify-between shadow-2xl relative transition hover:border-purple-500/50`}
+                    >
+                      {/* Card Header */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <div className={`p-1.5 rounded-lg bg-gradient-to-br ${appMeta.color} text-white`}>
+                            <appMeta.icon className="w-3.5 h-3.5" />
+                          </div>
+                          <span className={`text-[10px] font-bold truncate w-24 ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}>{appMeta.title}</span>
+                        </div>
+                        <button 
+                          onClick={() => closeMobileApp(appId)}
+                          className={`text-[10px] ${theme === 'light' ? 'text-red-700 bg-red-50 hover:bg-red-650 hover:text-white border border-red-200' : 'text-red-400 bg-red-950/20 hover:bg-red-500 hover:text-white'} px-2 py-0.5 rounded-full transition`}
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+
+                      {/* Mock Screen Content Preview */}
+                      <div 
+                        onClick={() => handleLaunchApp(appId)}
+                        className={`flex-grow mt-3 rounded-xl ${theme === 'light' ? 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-800' : 'bg-slate-950/50 border-white/5 text-purple-100 hover:bg-slate-950/70'} border flex items-center justify-center cursor-pointer transition overflow-hidden`}
+                      >
+                        <div className="text-center p-3 space-y-1">
+                          <appMeta.icon className="w-8 h-8 mx-auto opacity-40 text-purple-400" />
+                          <span className={`text-[9px] ${theme === 'light' ? 'text-gray-650' : 'text-gray-500'} block uppercase tracking-wide`}>Tap to Resume</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Clear All Actions */}
+            {mobileRecents.length > 0 && (
+              <button
+                onClick={clearMobileRecents}
+                className={`w-fit self-center py-2 px-6 ${theme === 'light' ? 'bg-red-100 hover:bg-red-600 hover:text-white text-red-700 border-red-200' : 'bg-red-600/20 hover:bg-red-600 text-red-200 hover:text-white'} border font-semibold rounded-full tracking-wide transition active:scale-95 shadow-md text-xs`}
+              >
+                Clear All Apps
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* ================= FULLSCREEN PORTRAIT APP VIEWER ================= */}
+        {activeMobileApp && !showRecents && (
+          <div className={`absolute inset-x-0 top-9 bottom-12 ${theme === 'light' ? 'bg-white text-gray-800' : 'bg-slate-950 text-white'} z-[40] flex flex-col overflow-hidden animate-slide-up`}>
+            
+            {/* App Action Bar (Header) */}
+            <div className={`h-11 w-full ${theme === 'light' ? 'bg-gray-105 border-b border-gray-200 text-gray-800' : 'bg-slate-900 border-b border-white/10 text-white'} px-4 flex items-center justify-between shrink-0 select-none z-[45]`}>
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={() => closeMobileApp(activeMobileApp)}
+                  className={`p-1 rounded-full ${theme === 'light' ? 'hover:bg-gray-200 text-purple-700' : 'hover:bg-white/10 text-purple-400'} transition`}
+                  title="Close App"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <span className="text-xs font-bold tracking-wide">
+                  {appIcons.find(a => a.id === activeMobileApp)?.title}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                {/* Simulated App Options or Actions */}
+                <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse" title="App active" />
+              </div>
+            </div>
+
+            {/* Render app contents scrollable */}
+            <div className="flex-grow overflow-hidden relative">
+              {renderAppContent(activeMobileApp)}
+            </div>
+          </div>
+        )}
+
+        {/* ================= ALL APP LAUNCHER / DRAWER SCREEN ================= */}
+        <div 
+          onPointerDown={handlePointerDown}
+          onPointerUp={(e) => handlePointerUp(e, 'drawer')}
+          className={`absolute inset-0 ${
+            theme === 'light' ? 'bg-[#f4f7f6]/95 border-r border-gray-250 text-gray-800' : 'bg-slate-950/95 text-white'
+          } z-[550] flex flex-col justify-between px-6 pt-10 pb-4 transition-transform duration-300 ease-out ${
+            showMobileDrawer ? 'translate-y-0 pointer-events-auto opacity-100' : 'translate-y-full pointer-events-none opacity-0 invisible'
+          }`}
+        >
+          <div className="space-y-5 flex-grow flex flex-col overflow-hidden">
+            
+            {/* Drawer search header */}
+            <div className={`flex items-center justify-between pb-2 border-b ${theme === 'light' ? 'border-gray-200' : 'border-white/10'}`}>
+              <span className={`text-xs font-bold uppercase tracking-wider ${theme === 'light' ? 'text-purple-700' : 'text-purple-300'}`}>All Applications</span>
+              <button 
+                onClick={() => setShowMobileDrawer(false)}
+                className={`text-xs ${theme === 'light' ? 'text-gray-500 hover:text-gray-700' : 'text-gray-550 hover:text-white'}`}
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            {/* Drawer Search Field */}
+            <div className="relative">
+              <Search className={`w-4 h-4 absolute left-4 top-3 ${theme === 'light' ? 'text-purple-600' : 'text-purple-400'}`} />
+              <input 
+                type="text"
+                placeholder="Search drawer..."
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
+                className={`w-full ${theme === 'light' ? 'bg-white/75 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-gray-400'} pl-11 pr-4 py-2.5 rounded-full text-xs focus:outline-none focus:bg-white/10 border transition`}
+              />
+            </div>
+
+            {/* Launcher scrolling grid */}
+            <div className="flex-grow overflow-y-auto pr-1">
+              <div className="grid grid-cols-4 gap-y-5 gap-x-2 pt-2">
+                {filteredApps.map((app) => (
+                  <button
+                    key={app.id}
+                    onClick={() => handleLaunchApp(app.id)}
+                    className="flex flex-col items-center space-y-1.5 focus:outline-none transition group"
+                  >
+                    <div className={`w-11 h-11 rounded-[16px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md group-active:scale-90 transition-transform`}>
+                      <app.icon className="w-5 h-5" />
+                    </div>
+                    <span className={`text-[9px] font-medium tracking-wide ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'} truncate w-14 text-center`}>
+                      {app.title}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <button 
+            onClick={() => setShowMobileDrawer(false)}
+            className={`w-full py-2.5 ${theme === 'light' ? 'bg-gray-200 hover:bg-gray-300 text-gray-700' : 'bg-white/10 hover:bg-white/15 text-white'} border border-white/10 rounded-2xl text-xs font-semibold text-center mt-3 transition`}
+          >
+            Back to Home
+          </button>
+        </div>
+
+      </div>
+
+      {/* ================= SYSTEM NAVIGATION BUTTONS ================= */}
+      <div className={`h-12 w-full flex items-center justify-around px-8 ${
+        theme === 'light' ? 'border-t border-gray-250 bg-gray-150/90 text-gray-700' : 'border-t border-white/5 bg-black/45 text-gray-400'
+      } backdrop-blur-xl shrink-0 z-50`}>
+        {/* BACK: Triangle */}
+        <button 
+          onClick={handleBackKey}
+          className={`p-3 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-12 h-12`}
+          title="Back"
+        >
+          <div className="w-0 h-0 border-t-[5px] border-t-transparent border-r-[10px] border-r-current border-b-[5px] border-b-transparent" />
+        </button>
+
+        {/* HOME: Circle */}
+        <button 
+          onClick={handleHomeKey}
+          className={`p-3 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-12 h-12`}
+          title="Home"
+        >
+          <div className="w-3.5 h-3.5 rounded-full border-2 border-current" />
+        </button>
+
+        {/* RECENTS: Square */}
+        <button 
+          onClick={handleRecentsKey}
+          className={`p-3 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-12 h-12`}
+          title="Recents"
+        >
+          <div className="w-3.5 h-3.5 border-2 border-current rounded-sm" />
+        </button>
+      </div>
+
+    </div>
+  );
+}
