@@ -213,3 +213,13 @@ body {
 .custom-scrollbar:hover {
   scrollbar-color: rgba(156, 163, 175, 0.25) transparent;
 }
+
+/* Touch Action & Scroll Chaining containment overrides */
+.overflow-y-auto {
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+.overflow-x-auto {
+  overscroll-behavior: contain;
+  touch-action: pan-x;
+}

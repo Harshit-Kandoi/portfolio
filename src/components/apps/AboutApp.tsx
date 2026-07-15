@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useOSStore } from '../../store/useOSStore';
+import { SPOTIFY_CONFIG } from '../../data/config';
 import { Music, Award, MapPin, Code2, Sparkles, BookOpen, Quote } from 'lucide-react';
 
 const QUOTES = [
@@ -98,37 +99,36 @@ export default function AboutApp() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         
         {/* Spotify Now Playing Widget (Desktop / Tablet only) */}
-        {!isMobile ? (
-          <div className={`p-4 rounded-xl border flex flex-col space-y-2.5 ${boxBg}`}>
-            <div className="flex items-center justify-between">
-              <span className="text-[9px] font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1.5">
-                <Music className="w-3.5 h-3.5 text-pink-400 animate-pulse" />
-                <span>Now Playing (Spotify)</span>
-              </span>
-              <span className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">Chill Beats</span>
-            </div>
-            <div className="w-full rounded-xl overflow-hidden shadow-md">
-              <iframe 
-                style={{ borderRadius: '12px' }} 
-                src="https://open.spotify.com/embed/playlist/37i9dQZF1DX8UebhnwHgIF?utm_source=generator&theme=0" 
-                width="100%" 
-                height="80" 
-                frameBorder="0" 
-                allowFullScreen
-                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-                loading="lazy"
-              ></iframe>
-            </div>
+        <div className={`hidden md:flex p-4 rounded-xl border flex-col space-y-2.5 ${boxBg}`}>
+          <div className="flex items-center justify-between">
+            <span className="text-[9px] font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1.5">
+              <Music className="w-3.5 h-3.5 text-pink-400 animate-pulse" />
+              <span>Now Playing (Spotify)</span>
+            </span>
+            <span className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">{SPOTIFY_CONFIG.label}</span>
           </div>
-        ) : (
-          <div className={`p-4 rounded-xl border flex flex-col space-y-3 justify-center items-center text-center ${boxBg}`}>
-            <Music className="w-6 h-6 text-pink-400 animate-bounce" />
-            <div className="space-y-1">
-              <p className="text-xs font-bold text-white">Lofi Coding Vibes</p>
-              <p className="text-[10px] text-gray-400">Spotify embed is disabled on mobile for performance speedups.</p>
-            </div>
+          <div className="w-full rounded-xl overflow-hidden shadow-md">
+            <iframe 
+              style={{ borderRadius: '12px' }} 
+              src={SPOTIFY_CONFIG.embedUrl}
+              width="100%" 
+              height="80" 
+              frameBorder="0" 
+              allowFullScreen
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+              loading="lazy"
+            ></iframe>
           </div>
-        )}
+        </div>
+
+        {/* Mobile placeholder */}
+        <div className={`flex md:hidden p-4 rounded-xl border flex-col space-y-3 justify-center items-center text-center ${boxBg}`}>
+          <Music className="w-6 h-6 text-pink-400 animate-bounce" />
+          <div className="space-y-1">
+            <p className="text-xs font-bold text-white">Lofi Coding Vibes</p>
+            <p className="text-[10px] text-gray-400">Spotify embed is disabled on mobile for performance speedups.</p>
+          </div>
+        </div>
 
         {/* Career Goals & Random Quote */}
         <div className={`p-4 rounded-xl border flex flex-col justify-between ${boxBg} shadow-lg`}>

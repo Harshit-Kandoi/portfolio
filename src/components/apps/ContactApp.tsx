@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Mail, Send, Linkedin, Github, CheckCircle, Phone, Copy, ExternalLink, BookOpen, Database } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
+import { PORTFOLIO_META } from '../../data/config';
 import { playNotificationSound } from '../../utils/sounds';
 
 export default function ContactApp() {
-  const theme = useOSStore((state) => state.theme);
-  const addNotification = useOSStore((state) => state.addNotification);
+  const theme              = useOSStore((state) => state.theme);
+  const addNotification    = useOSStore((state) => state.addNotification);
+  const unlockAchievement  = useOSStore((state) => state.unlockAchievement);
   
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
@@ -15,8 +17,9 @@ export default function ContactApp() {
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    addNotification('📋 Copied to Clipboard', `${label} (${text}) has been copied to your clipboard!`, 'info');
+    addNotification('📋 Copied to Clipboard', `${label} copied!`, 'info', 'social');
     playNotificationSound();
+    unlockAchievement('social_butterfly');
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -29,7 +32,7 @@ export default function ContactApp() {
     setTimeout(() => {
       setSending(false);
       setSuccess(true);
-      addNotification('✉️ Message Dispatched', 'Your email inquiry was successfully sent to Harshit!', 'success');
+      addNotification('✉️ Message Dispatched', 'Your email inquiry was successfully sent to Harshit!', 'success', 'career');
       playNotificationSound();
       
       // Reset form
@@ -67,17 +70,17 @@ export default function ContactApp() {
                     <span>Email Address</span>
                   </span>
                 </div>
-                <p className="text-[10px] font-bold text-white truncate">kandoiharshitsdlp@gmail.com</p>
+                <p className="text-[10px] font-bold text-white truncate">{PORTFOLIO_META.email}</p>
                 <div className="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-white/5">
                   <button 
-                    onClick={() => handleCopy('kandoiharshitsdlp@gmail.com', 'Email')}
+                    onClick={() => handleCopy(PORTFOLIO_META.email, 'Email')}
                     className="py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[9px] font-bold flex items-center justify-center space-x-1 transition"
                   >
                     <Copy className="w-2.5 h-2.5" />
                     <span>Copy</span>
                   </button>
                   <a 
-                    href="mailto:kandoiharshitsdlp@gmail.com"
+                    href={`mailto:${PORTFOLIO_META.email}`}
                     className="py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-[9px] font-bold flex items-center justify-center space-x-1 text-center transition"
                   >
                     <ExternalLink className="w-2.5 h-2.5" />
@@ -94,17 +97,17 @@ export default function ContactApp() {
                     <span>Phone Number</span>
                   </span>
                 </div>
-                <p className="text-[10px] font-bold text-white truncate">+91 78500 98453</p>
+                <p className="text-[10px] font-bold text-white truncate">{PORTFOLIO_META.phone}</p>
                 <div className="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-white/5">
                   <button 
-                    onClick={() => handleCopy('+917850098453', 'Phone')}
+                    onClick={() => handleCopy(PORTFOLIO_META.phone, 'Phone')}
                     className="py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[9px] font-bold flex items-center justify-center space-x-1 transition"
                   >
                     <Copy className="w-2.5 h-2.5" />
                     <span>Copy</span>
                   </button>
                   <a 
-                    href="tel:+917850098453"
+                    href={`tel:${PORTFOLIO_META.phone}`}
                     className="py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-[9px] font-bold flex items-center justify-center space-x-1 text-center transition"
                   >
                     <ExternalLink className="w-2.5 h-2.5" />
@@ -118,7 +121,7 @@ export default function ContactApp() {
                 <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">Profiles</span>
                 <div className="grid grid-cols-2 gap-2">
                   <a
-                    href="https://linkedin.com/in/harshit-kandoi"
+                    href={PORTFOLIO_META.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center space-x-1.5 p-2 rounded-lg bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 transition"
@@ -127,7 +130,7 @@ export default function ContactApp() {
                     <span className="text-[10px] font-bold">LinkedIn</span>
                   </a>
                   <a
-                    href="https://github.com/Harshit-Kandoi"
+                    href={PORTFOLIO_META.github}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center space-x-1.5 p-2 rounded-lg bg-gray-600/15 hover:bg-gray-600/25 text-gray-300 transition"
@@ -136,7 +139,7 @@ export default function ContactApp() {
                     <span className="text-[10px] font-bold">GitHub</span>
                   </a>
                   <a
-                    href="https://medium.com/@kandoiharshitsdlp"
+                    href={PORTFOLIO_META.medium}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center space-x-1.5 p-2 rounded-lg bg-cyan-600/10 hover:bg-cyan-600/20 text-cyan-400 transition"
@@ -145,7 +148,7 @@ export default function ContactApp() {
                     <span className="text-[10px] font-bold">Medium</span>
                   </a>
                   <a
-                    href="https://kaggle.com/harshitkandoi"
+                    href={PORTFOLIO_META.kaggle}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center space-x-1.5 p-2 rounded-lg bg-amber-600/10 hover:bg-amber-600/20 text-amber-400 transition"

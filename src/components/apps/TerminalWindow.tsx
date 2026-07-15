@@ -316,7 +316,8 @@ export default function TerminalWindow() {
   return (
     <div 
       onClick={focusInput}
-      className="flex-grow flex flex-col bg-black text-green-400 font-mono text-sm p-4 h-full cursor-text overflow-y-auto"
+      className="flex-grow flex flex-col bg-black text-green-400 font-mono text-xs md:text-sm p-3.5 w-full h-full min-h-0 cursor-text overflow-y-auto overscroll-contain"
+      style={{ overscrollBehavior: 'contain', touchAction: 'pan-y' }}
       ref={containerRef}
     >
       {isMatrixActive ? (
@@ -331,7 +332,7 @@ export default function TerminalWindow() {
             value={inputVal}
             onChange={(e) => setInputVal(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="absolute bottom-2 left-2 z-10 opacity-0 w-1"
+            className="absolute bottom-2 left-2 z-10 opacity-0 w-1 text-base"
             autoFocus
           />
         </div>
@@ -340,7 +341,7 @@ export default function TerminalWindow() {
           {history.map((item, idx) => (
             <div key={idx} className="space-y-1">
               <div className="flex items-center space-x-2">
-                <span className="text-blue-400">guest@harshit-os:~$</span>
+                <span className="text-blue-400"><span className="hidden sm:inline">guest@</span>harshit-os:~$</span>
                 <span>{item.command}</span>
               </div>
               <div className="pl-4">{item.output}</div>
@@ -348,14 +349,14 @@ export default function TerminalWindow() {
           ))}
           
           <div className="flex items-center space-x-2">
-            <span className="text-blue-400">guest@harshit-os:~$</span>
+            <span className="text-blue-400"><span className="hidden sm:inline">guest@</span>harshit-os:~$</span>
             <input
               ref={inputRef}
               type="text"
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex-grow bg-transparent focus:outline-none text-green-400 font-mono caret-green-400 border-none p-0"
+              className="flex-grow bg-transparent focus:outline-none text-green-400 font-mono caret-green-400 border-none p-0 text-base sm:text-xs md:text-sm"
               autoFocus
             />
           </div>

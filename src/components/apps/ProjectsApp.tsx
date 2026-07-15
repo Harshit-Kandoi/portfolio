@@ -1,20 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { projects } from '../../data/projects';
 import { Project } from '../../types';
-import { Folder, Grid, List, Search, Github, ExternalLink, X } from 'lucide-react';
+import { Folder, Grid, List, Search, Github, ExternalLink, X, Star } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 
 export default function ProjectsApp() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null); // Hide preview panel by default
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [favorites, setFavorites] = useState<number[]>([]);
   const theme = useOSStore((state) => state.theme);
+  const unlockAchievement = useOSStore((state) => state.unlockAchievement);
+
+  // Fire project_browser achievement once on first open
+  useEffect(() => { unlockAchievement('project_browser'); }, [unlockAchievement]);
+
+  const toggleFavorite = (id: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFavorites((prev) => prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]);
+  };
+
+  const [sidebarWidth, setSidebarWidth] = useState(288);
+  const sidebarStartRef = React.useRef<{ clientX: number; startWidth: number } | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 767px)');
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
+
+  const handlePointerDownResize = (e: React.PointerEvent) => {
+    e.preventDefault();
+    sidebarStartRef.current = { clientX: e.clientX, startWidth: sidebarWidth };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMoveResize = (e: React.PointerEvent) => {
+    if (!sidebarStartRef.current) return;
+    const delta = e.clientX - sidebarStartRef.current.clientX;
+    const newWidth = sidebarStartRef.current.startWidth - delta;
+    setSidebarWidth(Math.max(200, Math.min(600, newWidth)));
+  };
+
+  const handlePointerUpResize = (e: React.PointerEvent) => {
+    sidebarStartRef.current = null;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+  };
 
   // Categorize
-  const categories = ['All', 'AI & ML', 'Cloud & Backend', 'Data & Automation'];
+  const categories = ['All', 'AI & ML', 'Cloud & Backend', 'Data & Automation', '⭐ Favorites'];
 
   const filteredProjects = projects.filter((project) => {
+    if (selectedCategory === '⭐ Favorites') return favorites.includes(project.id);
+
     const matchesCategory =
       selectedCategory === 'All' ||
       project.category.some((cat) => {
@@ -43,7 +85,7 @@ export default function ProjectsApp() {
   return (
     <div className={`flex flex-grow h-full overflow-hidden ${explorerBg} custom-scrollbar`}>
       {/* Sidebar Categories */}
-      <div className={`w-48 flex-shrink-0 p-4 flex flex-col space-y-2 select-none ${sidebarBg}`}>
+      <div className={`hidden md:flex w-48 flex-shrink-0 p-4 flex flex-col space-y-2 select-none ${sidebarBg}`}>
         <h3 className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${textMuted}`}>Categories</h3>
         {categories.map((cat) => {
           const isSelected = selectedCategory === cat;
@@ -70,6 +112,33 @@ export default function ProjectsApp() {
       {/* Explorer Central Container */}
       <div className="flex-grow flex flex-col min-w-0">
         
+        {/* Mobile Categories Bar */}
+        <div className="flex md:hidden px-3 py-2 border-b border-white/5 space-x-1.5 overflow-x-auto shrink-0 select-none custom-scrollbar bg-black/10">
+          {categories.map((cat) => {
+            const isSelected = selectedCategory === cat;
+            return (
+              <button
+                key={cat}
+                onClick={() => {
+                  setSelectedCategory(cat);
+                  setSelectedProject(null);
+                }}
+                className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition whitespace-nowrap border shrink-0 ${
+                  isSelected
+                    ? isLight
+                      ? 'bg-purple-50 border-purple-600 text-purple-600'
+                      : 'bg-purple-600/20 border-purple-500 text-purple-300'
+                    : isLight
+                      ? 'bg-white border-gray-200 text-gray-600'
+                      : 'bg-slate-900 border-white/5 text-gray-400'
+                }`}
+              >
+                {cat}
+              </button>
+            );
+          })}
+        </div>
+
         {/* Explorer Address Bar / Search & Controls */}
         <div className={`p-3 border-b flex items-center justify-between space-x-4 ${isLight ? 'border-gray-200' : 'border-white/5'}`}>
           <div className="relative flex-grow max-w-md">
@@ -126,10 +195,17 @@ export default function ProjectsApp() {
                         </span>
                       )}
                     </div>
-                    <div>
+                    <div className="flex items-start justify-between gap-1">
                       <h4 className="text-xs font-bold truncate">{project.title}</h4>
-                      <p className={`text-[10px] line-clamp-2 mt-1 leading-normal ${textMuted}`}>{project.description}</p>
+                      <button
+                        onClick={(e) => toggleFavorite(project.id, e)}
+                        className="shrink-0 p-0.5 rounded hover:bg-white/10 transition"
+                        title={favorites.includes(project.id) ? 'Remove from Favorites' : 'Add to Favorites'}
+                      >
+                        <Star className={`w-3 h-3 transition ${favorites.includes(project.id) ? 'fill-amber-400 text-amber-400' : 'text-gray-600 hover:text-amber-400'}`} />
+                      </button>
                     </div>
+                    <p className={`text-[10px] line-clamp-2 mt-1 leading-normal ${textMuted}`}>{project.description}</p>
                     <div className="flex flex-wrap gap-1 mt-auto">
                       {project.technologies.slice(0, 3).map((tech) => (
                         <span key={tech} className="bg-purple-950/40 text-purple-300 text-[8px] font-bold px-1.5 py-0.5 rounded border border-purple-800/30">
@@ -169,9 +245,21 @@ export default function ProjectsApp() {
 
           {/* Details Sidebar Pane */}
           {selectedProject && (
-            <div className={`w-72 flex-shrink-0 p-5 border-l flex flex-col space-y-4 overflow-y-auto select-none ${
-              isLight ? 'bg-white border-gray-200' : 'bg-slate-900/40 border-white/5'
-            } custom-scrollbar`}>
+            <>
+              {/* Resize Handle */}
+              <div
+                onPointerDown={handlePointerDownResize}
+                onPointerMove={handlePointerMoveResize}
+                onPointerUp={handlePointerUpResize}
+                className="hidden md:block w-1 cursor-col-resize hover:bg-purple-500/40 active:bg-purple-600 transition-colors self-stretch flex-shrink-0 relative z-10"
+                style={{ marginLeft: '-2px' }}
+              />
+              <div 
+                style={{ width: isMobile ? '100%' : `${sidebarWidth}px` }}
+                className={`flex-shrink-0 p-5 border-l flex flex-col space-y-4 overflow-y-auto select-none ${
+                  isLight ? 'bg-white border-gray-200' : 'bg-slate-900 border-white/10'
+                } custom-scrollbar absolute inset-y-0 right-0 z-30 md:static w-full md:w-auto`}
+              >
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
                 <span className="text-[9px] font-bold text-purple-400 uppercase tracking-wider">{selectedProject.category.join(' / ')}</span>
                 <button 
@@ -244,7 +332,8 @@ export default function ProjectsApp() {
                   </a>
                 )}
               </div>
-            </div>
+              </div>
+            </>
           )}
         </div>
 

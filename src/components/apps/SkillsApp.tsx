@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { skills } from '../../data/skills';
 import { projects } from '../../data/projects';
 import { Skill } from '../../types';
-import { Info, Sparkles, Target, Library, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { Info, Sparkles, Target, Library, ZoomIn, ZoomOut, RotateCcw, LayoutGrid, GitBranch } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 
 const SKILL_ALIASES: Record<string, string[]> = {
@@ -20,6 +20,7 @@ export default function SkillsApp() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [hoveredSkill, setHoveredSkill] = useState<Skill | null>(null);
   const [activeSkill, setActiveSkill] = useState<Skill | null>(skills[0] || null);
+  const [viewType, setViewType] = useState<'constellation' | 'grid'>('constellation');
   const theme = useOSStore((state) => state.theme);
 
   // Zoom/Pan State
@@ -152,22 +153,44 @@ export default function SkillsApp() {
             })}
           </div>
 
-          {/* Zoom Controls */}
-          <div className="flex items-center space-x-1.5 bg-slate-900 border border-white/5 rounded-lg p-0.5 shrink-0">
-            <button onClick={() => setScale(Math.min(2.5, scale + 0.15))} className="p-1 text-gray-400 hover:text-white transition" title="Zoom In">
-              <ZoomIn className="w-3.5 h-3.5" />
-            </button>
-            <button onClick={() => setScale(Math.max(0.6, scale - 0.15))} className="p-1 text-gray-400 hover:text-white transition" title="Zoom Out">
-              <ZoomOut className="w-3.5 h-3.5" />
-            </button>
-            <button onClick={resetZoomPan} className="p-1 text-gray-400 hover:text-white transition" title="Reset View">
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
+          {/* Zoom Controls + View Toggle */}
+          <div className="flex items-center space-x-1.5 shrink-0">
+            {viewType === 'constellation' && (
+              <div className="flex items-center space-x-1 bg-slate-900 border border-white/5 rounded-lg p-0.5">
+                <button onClick={() => setScale(Math.min(2.5, scale + 0.15))} className="p-1 text-gray-400 hover:text-white transition" title="Zoom In">
+                  <ZoomIn className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => setScale(Math.max(0.6, scale - 0.15))} className="p-1 text-gray-400 hover:text-white transition" title="Zoom Out">
+                  <ZoomOut className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={resetZoomPan} className="p-1 text-gray-400 hover:text-white transition" title="Reset View">
+                  <RotateCcw className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+            <div className="flex items-center bg-slate-900 border border-white/5 rounded-lg p-0.5">
+              <button
+                onClick={() => setViewType('constellation')}
+                className={`p-1.5 rounded-md transition ${viewType === 'constellation' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                title="Constellation View"
+              >
+                <GitBranch className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setViewType('grid')}
+                className={`p-1.5 rounded-md transition ${viewType === 'grid' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                title="Grid View"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Constellation Chart (SVG Canvas with Zoom & Pan) */}
-        <div className="flex-grow flex items-center justify-center relative overflow-hidden mt-2 min-h-[300px]">
+          {/* Constellation Chart (SVG Canvas) */}
+          {viewType === 'constellation' ? (
+            <>
+          <div className="flex-grow flex items-center justify-center relative overflow-hidden mt-2 min-h-[300px]">
           <svg 
             viewBox={`0 0 ${width} ${height}`} 
             className="w-full max-w-[480px] h-auto drop-shadow-[0_0_10px_rgba(99,102,241,0.1)] touch-none cursor-grab active:cursor-grabbing"
@@ -315,15 +338,64 @@ export default function SkillsApp() {
             </g>
           </svg>
 
-          <span className="absolute bottom-2 left-2 text-[9px] text-gray-500 italic">
-            Drag to pan, Scroll/pinch to zoom, Click nodes to details
-          </span>
+          </div>
+          </>
+          ) : (
+            /* ── Grid View ─────────────────────────────────────────────────── */
+            <div className="flex-grow overflow-y-auto mt-3 custom-scrollbar">
+              {categories.slice(1).map((cat) => {
+                const catSkills = skills.filter((s) =>
+                  (selectedCategory === 'All' || selectedCategory === cat) && s.category === cat
+                );
+                if (catSkills.length === 0) return null;
+                return (
+                  <div key={cat} className="mb-5">
+                    <h4 className="text-[9px] font-black uppercase tracking-widest text-purple-400 mb-2 flex items-center space-x-1">
+                      <span className="w-4 h-0.5 bg-purple-500 inline-block" />
+                      <span>{cat}</span>
+                    </h4>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {catSkills.map((skill) => {
+                        const projCount = projects.filter((p) =>
+                          p.technologies.some((t) => t.toLowerCase().includes(skill.name.toLowerCase()) || skill.name.toLowerCase().includes(t.toLowerCase()))
+                        ).length;
+                        return (
+                          <button
+                            key={skill.name}
+                            onClick={() => setActiveSkill(skill)}
+                            className={`text-left p-2.5 rounded-xl border transition text-xs ${
+                              activeSkill?.name === skill.name
+                                ? 'border-purple-500 bg-purple-600/10'
+                                : isLight ? 'border-gray-200 bg-white hover:border-purple-300' : 'border-white/8 bg-white/3 hover:border-purple-500/40'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="font-bold text-[11px] truncate">{skill.name}</span>
+                              {projCount > 0 && (
+                                <span className="text-[8px] text-emerald-400 font-bold shrink-0">{projCount}P</span>
+                              )}
+                            </div>
+                            <div className="h-1 rounded-full bg-white/5 overflow-hidden">
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-400"
+                                style={{ width: `${skill.proficiency}%` }}
+                              />
+                            </div>
+                            <p className="text-[8px] text-gray-500 mt-1">{skill.proficiency}%</p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
-      </div>
 
       {/* Details sidebar pane */}
       {targetSkill && (
-        <div className={`w-full md:w-72 flex-shrink-0 p-5 flex flex-col space-y-4 select-none ${sidebarBg} custom-scrollbar`}>
+        <div className={`w-full md:w-72 flex-shrink-0 p-5 flex flex-col space-y-4 select-none ${sidebarBg} overflow-y-auto max-h-full custom-scrollbar`}>
           <div className="flex items-center space-x-2.5 pb-2.5 border-b border-white/5">
             <div className="p-2 rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/25">
               <Sparkles className="w-4 h-4" />

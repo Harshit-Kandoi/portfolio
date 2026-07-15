@@ -10,6 +10,12 @@ export default function BlogApp() {
   const [selectedCat, setSelectedCat] = useState('All');
   const [bookmarks, setBookmarks] = useState<number[]>([]);
   const theme = useOSStore((state) => state.theme);
+  const unlockAchievement = useOSStore((state) => state.unlockAchievement);
+
+  const handleSelectPost = (post: BlogPost) => {
+    setSelectedPost(post);
+    unlockAchievement('blog_reader');
+  };
 
   const categories = ['All', 'Mojo', 'LLM', 'Docker', 'Python'];
 
@@ -158,7 +164,7 @@ export default function BlogApp() {
               return (
                 <div
                   key={post.id}
-                  onClick={() => setSelectedPost(post)}
+                  onClick={() => handleSelectPost(post)}
                   className={`p-4 rounded-2xl border flex flex-col space-y-3 cursor-pointer transition select-none ${cardBg}`}
                 >
                   <div className="w-full h-32 rounded-xl overflow-hidden relative shadow">

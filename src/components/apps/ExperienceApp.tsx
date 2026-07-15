@@ -55,7 +55,8 @@ export default function ExperienceApp() {
         {filteredItems.length === 0 ? (
           <p className={`text-center text-xs py-12 ${textMuted}`}>No records found.</p>
         ) : (
-          <div className="relative border-l-2 border-purple-900/30 ml-4 md:ml-6 pl-6 md:pl-8 space-y-8 max-w-3xl">
+          <div className="max-w-3xl mx-auto">
+          <div className="relative border-l-2 border-purple-900/30 ml-4 md:ml-6 pl-6 md:pl-8 space-y-8">
             {/* Pulsing Vertical Timeline line */}
             <div className="absolute top-0 bottom-0 left-[-2px] w-[2px] bg-gradient-to-b from-purple-500 via-pink-500 to-indigo-500" />
 
@@ -142,6 +143,7 @@ export default function ExperienceApp() {
                 </div>
               );
             })}
+          </div>
           </div>
         )}
       </div>

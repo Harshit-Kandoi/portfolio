@@ -4,7 +4,7 @@ import {
   Wifi, Signal, Battery, Search, Bell, Settings as GearIcon, 
   Volume2, Sun, Palette, Trash2, Bluetooth, Zap, ChevronLeft, Gamepad2,
   User, Folder, Briefcase, Award, FileText, Terminal as TermIcon,
-  MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon
+  MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon, Heart, Coffee
 } from 'lucide-react';
 import AboutApp from '../apps/AboutApp';
 import ProjectsApp from '../apps/ProjectsApp';
@@ -18,7 +18,19 @@ import AchievementsApp from '../apps/AchievementsApp';
 import GamingApp from '../apps/GamingApp';
 import ContactApp from '../apps/ContactApp';
 import SettingsApp from '../apps/SettingsApp';
+import SnakeGame from '../apps/SnakeGame';
+import PortfolioSwipe from '../apps/PortfolioSwipe';
+import BuyMeCoffeeApp from '../apps/BuyMeCoffeeApp';
 import { playWindowSound } from '../../utils/sounds';
+
+// Custom Snake Icon SVG
+const SnakeIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M8.5 10c-1.5-1.5-2.5-2.5-2.5-4a4 4 0 1 1 8 0v4a4 4 0 0 0 8 0V6" />
+    <path d="M12 12c1.5 1.5 2.5 2.5 2.5 4a4 4 0 1 1-8 0v-4a4 4 0 0 0-8 0v2" />
+    <circle cx="10" cy="4" r="1" fill="currentColor" />
+  </svg>
+);
 
 interface AndroidOSProps {
   isFullscreen: boolean;
@@ -27,7 +39,7 @@ interface AndroidOSProps {
 export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
   const {
     theme, setTheme,
-    notifications, dismissNotification, clearNotifications,
+    notifications, dismissNotification, clearNotifications, addNotification, unlockAchievement,
     activeMobileApp, openMobileApp, closeMobileApp, mobileRecents, clearMobileRecents,
     showMobileDrawer, setShowMobileDrawer,
     showMobileSettings, setShowMobileSettings,
@@ -110,6 +122,9 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
     { id: 'blog', title: 'Tech Blog', icon: BookOpen, color: 'from-sky-500 to-blue-600', category: 'social' },
     { id: 'achievements', title: 'Badges', icon: Trophy, color: 'from-yellow-400 to-amber-500', category: 'game' },
     { id: 'gaming', title: 'Gaming OS', icon: Gamepad2, color: 'from-red-500 to-pink-500', category: 'game' },
+    { id: 'snake', title: 'Snake 3310', icon: SnakeIcon, color: 'from-green-600 to-emerald-500', category: 'game' },
+    { id: 'swipe', title: 'Swipe Match', icon: Heart, color: 'from-rose-500 to-pink-500', category: 'social' },
+    { id: 'coffee', title: 'Buy Coffee', icon: Coffee, color: 'from-amber-600 to-yellow-500', category: 'system' },
     { id: 'contact', title: 'Say Hello', icon: Send, color: 'from-teal-400 to-emerald-500', category: 'social' },
     { id: 'settings', title: 'Settings', icon: GearIcon, color: 'from-slate-400 to-slate-600', category: 'system' },
   ];
@@ -201,14 +216,20 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
       case 'blog': return <BlogApp />;
       case 'achievements': return <AchievementsApp />;
       case 'gaming': return <GamingApp />;
+      case 'snake': return <SnakeGame />;
+      case 'swipe': return <PortfolioSwipe />;
+      case 'coffee': return <BuyMeCoffeeApp />;
       case 'contact': return <ContactApp />;
-      case 'settings': return <SettingsApp />;
+      case 'settings': return <SettingsApp isMobileView={true} />;
       default: return <div className="p-4 text-center text-white">App is currently building...</div>;
     }
   };
 
   return (
-    <div className={`relative w-full ${isFullscreen ? 'h-dvh' : 'h-full'} flex flex-col select-none overflow-hidden ${getBackgroundStyle()} ${theme === 'light' ? 'text-gray-800' : 'text-white'} font-sans`}>
+    <div 
+      className={`relative w-full ${isFullscreen ? 'h-dvh' : 'h-full'} flex flex-col select-none overflow-hidden ${getBackgroundStyle()} ${theme === 'light' ? 'text-gray-800' : 'text-white'} font-sans`}
+      style={{ touchAction: 'none' }}
+    >
       
       {/* Dynamic Brightness Dimming Overlay */}
       <div 
@@ -296,7 +317,17 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
             <div className="grid grid-cols-3 gap-3">
               {/* Wi-Fi Toggle */}
               <button 
-                onClick={() => !airplaneMode && setWifiEnabled(!wifiEnabled)}
+                onClick={() => {
+                  if (airplaneMode) return;
+                  const nextVal = !wifiEnabled;
+                  setWifiEnabled(nextVal);
+                  addNotification(
+                    nextVal ? '📶 Wi-Fi Active' : '📶 Wi-Fi Disabled',
+                    nextVal ? 'Connected to local high-speed gateway.' : 'Radio receiver powered off.',
+                    'info',
+                    'system'
+                  );
+                }}
                 disabled={airplaneMode}
                 className={`p-3 rounded-2xl flex flex-col items-center justify-center space-y-1.5 border transition ${
                   wifiEnabled && !airplaneMode 
@@ -310,7 +341,16 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
 
               {/* Bluetooth Toggle */}
               <button 
-                onClick={() => setBluetoothEnabled(!bluetoothEnabled)}
+                onClick={() => {
+                  const nextVal = !bluetoothEnabled;
+                  setBluetoothEnabled(nextVal);
+                  addNotification(
+                    nextVal ? '🔹 Bluetooth Enabled' : '🔹 Bluetooth Disabled',
+                    nextVal ? 'Scanning for peripheral devices...' : 'Bluetooth adapter shut down.',
+                    'info',
+                    'system'
+                  );
+                }}
                 className={`p-3 rounded-2xl flex flex-col items-center justify-center space-y-1.5 border transition ${
                   bluetoothEnabled 
                     ? 'bg-purple-600 border-purple-500 text-white shadow-md' 
@@ -324,8 +364,17 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
               {/* Airplane Mode Toggle */}
               <button 
                 onClick={() => {
-                  setAirplaneMode(!airplaneMode);
-                  if(!airplaneMode) setWifiEnabled(false);
+                  const nextVal = !airplaneMode;
+                  setAirplaneMode(nextVal);
+                  if (nextVal) {
+                    setWifiEnabled(false);
+                  }
+                  addNotification(
+                    nextVal ? '✈️ Airplane Mode Active' : '✈️ Airplane Mode Disabled',
+                    nextVal ? 'All wireless network bridges disabled.' : 'Restoring radio channels.',
+                    'warning',
+                    'system'
+                  );
                 }}
                 className={`p-3 rounded-2xl flex flex-col items-center justify-center space-y-1.5 border transition ${
                   airplaneMode 
@@ -339,7 +388,16 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
 
               {/* Dark Theme Toggle */}
               <button 
-                onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                onClick={() => {
+                  const nextTheme = theme === 'light' ? 'dark' : 'light';
+                  setTheme(nextTheme);
+                  addNotification(
+                    nextTheme === 'light' ? '☀️ Light Mode Active' : '🌙 Dark Mode Active',
+                    `Interface theme changed to ${nextTheme}.`,
+                    'info',
+                    'system'
+                  );
+                }}
                 className={`p-3 rounded-2xl flex flex-col items-center justify-center space-y-1.5 border transition ${
                   theme !== 'light' 
                     ? 'bg-indigo-600 border-indigo-500 text-white shadow-md' 
@@ -352,7 +410,16 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
 
               {/* System Sound Toggle */}
               <button 
-                onClick={() => setSoundEnabled(!soundEnabled)}
+                onClick={() => {
+                  const nextVal = !soundEnabled;
+                  setSoundEnabled(nextVal);
+                  addNotification(
+                    nextVal ? '🔊 Audio Restored' : '🔇 System Muted',
+                    nextVal ? 'Retro sound cues and chirps enabled.' : 'All system sounds disabled.',
+                    'info',
+                    'system'
+                  );
+                }}
                 className={`p-3 rounded-2xl flex flex-col items-center justify-center space-y-1.5 border transition ${
                   soundEnabled 
                     ? 'bg-[#38bdf8] border-[#0ea5e9] text-black font-semibold shadow-md' 
@@ -370,6 +437,12 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                   const currentIdx = themes.indexOf(theme);
                   const nextTheme = themes[(currentIdx + 1) % themes.length];
                   setTheme(nextTheme);
+                  addNotification(
+                    '🎨 Theme Switched',
+                    `Applied ${nextTheme.toUpperCase()} style override.`,
+                    'success',
+                    'system'
+                  );
                 }}
                 className={`p-3 rounded-2xl border flex flex-col items-center justify-center space-y-1.5 active:scale-95 transition ${
                   theme === 'light' 
@@ -512,16 +585,16 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
 
               {/* Launcher App Grid (Home icons) */}
               <div className="grid grid-cols-4 gap-y-5 gap-x-3 justify-items-center pt-2">
-                {filteredApps.slice(0, 8).map((app) => (
+                {filteredApps.slice(0, 12).map((app) => (
                   <button
                     key={app.id}
                     onClick={() => handleLaunchApp(app.id)}
                     className="flex flex-col items-center space-y-1 focus:outline-none transition group hover:scale-[1.05]"
                   >
-                    <div className={`w-10.5 h-10.5 rounded-[14px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md shadow-black/15 group-active:scale-95 transition-transform`}>
-                      <app.icon className="w-5 h-5" />
+                    <div className={`w-12 h-12 rounded-[16px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md shadow-black/15 group-active:scale-95 transition-transform`}>
+                      <app.icon className="w-6 h-6" />
                     </div>
-                    <span className={`text-[8.5px] font-medium tracking-wide ${theme === 'light' ? 'text-gray-700' : 'text-gray-200'} truncate w-14 text-center`}>
+                    <span className={`text-[9px] font-semibold tracking-wide ${theme === 'light' ? 'text-gray-700' : 'text-gray-200'} truncate w-14 text-center mt-1`}>
                       {app.title}
                     </span>
                   </button>
@@ -549,8 +622,8 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     className="flex flex-col items-center transition hover:scale-[1.1] active:scale-90"
                     title={app.title}
                   >
-                    <div className={`w-10 h-10 rounded-[14px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-sm`}>
-                      <app.icon className="w-5 h-5" />
+                    <div className={`w-12 h-12 rounded-[16px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-sm`}>
+                      <app.icon className="w-6 h-6" />
                     </div>
                   </button>
                 ))}
@@ -606,7 +679,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                         className={`flex-grow mt-3 rounded-xl ${theme === 'light' ? 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-800' : 'bg-slate-950/50 border-white/5 text-purple-100 hover:bg-slate-950/70'} border flex items-center justify-center cursor-pointer transition overflow-hidden`}
                       >
                         <div className="text-center p-3 space-y-1">
-                          <appMeta.icon className="w-8 h-8 mx-auto opacity-40 text-purple-400" />
+                           <appMeta.icon className="w-8 h-8 mx-auto opacity-40 text-purple-400" />
                           <span className={`text-[9px] ${theme === 'light' ? 'text-gray-650' : 'text-gray-500'} block uppercase tracking-wide`}>Tap to Resume</span>
                         </div>
                       </div>
@@ -630,10 +703,17 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
 
         {/* ================= FULLSCREEN PORTRAIT APP VIEWER ================= */}
         {activeMobileApp && !showRecents && (
-          <div className={`absolute inset-x-0 top-9 bottom-12 ${theme === 'light' ? 'bg-white text-gray-800' : 'bg-slate-950 text-white'} z-[40] flex flex-col overflow-hidden animate-slide-up`}>
+          <div 
+            onPointerDown={(e) => e.stopPropagation()}
+            onPointerUp={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
+            className={`absolute inset-x-0 top-9 bottom-12 ${theme === 'light' ? 'bg-white text-gray-800' : 'bg-slate-950 text-white'} z-[40] flex flex-col overflow-hidden animate-slide-up`}
+          >
             
             {/* App Action Bar (Header) */}
-            <div className={`h-11 w-full ${theme === 'light' ? 'bg-gray-105 border-b border-gray-200 text-gray-800' : 'bg-slate-900 border-b border-white/10 text-white'} px-4 flex items-center justify-between shrink-0 select-none z-[45]`}>
+            <div className={`h-11 w-full ${theme === 'light' ? 'bg-gray-100 border-b border-gray-200 text-gray-800' : 'bg-slate-900 border-b border-white/10 text-white'} px-4 flex items-center justify-between shrink-0 select-none z-[45]`}>
               <div className="flex items-center space-x-2">
                 <button 
                   onClick={() => closeMobileApp(activeMobileApp)}
@@ -653,7 +733,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
             </div>
 
             {/* Render app contents scrollable */}
-            <div className="flex-grow overflow-hidden relative">
+            <div className="flex-grow w-full h-full overflow-hidden relative flex flex-col">
               {renderAppContent(activeMobileApp)}
             </div>
           </div>
@@ -676,7 +756,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
               <span className={`text-xs font-bold uppercase tracking-wider ${theme === 'light' ? 'text-purple-700' : 'text-purple-300'}`}>All Applications</span>
               <button 
                 onClick={() => setShowMobileDrawer(false)}
-                className={`text-xs ${theme === 'light' ? 'text-gray-500 hover:text-gray-700' : 'text-gray-550 hover:text-white'}`}
+                className={`text-xs ${theme === 'light' ? 'text-gray-500 hover:text-gray-700' : 'text-gray-555 hover:text-white'}`}
               >
                 ✕ Close
               </button>
@@ -703,10 +783,10 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     onClick={() => handleLaunchApp(app.id)}
                     className="flex flex-col items-center space-y-1.5 focus:outline-none transition group"
                   >
-                    <div className={`w-11 h-11 rounded-[16px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md group-active:scale-90 transition-transform`}>
-                      <app.icon className="w-5 h-5" />
+                    <div className={`w-12 h-12 rounded-[16px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md group-active:scale-90 transition-transform`}>
+                      <app.icon className="w-6 h-6" />
                     </div>
-                    <span className={`text-[9px] font-medium tracking-wide ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'} truncate w-14 text-center`}>
+                    <span className={`text-[9px] font-semibold tracking-wide ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'} truncate w-14 text-center mt-1`}>
                       {app.title}
                     </span>
                   </button>

@@ -3,12 +3,13 @@ import { useOSStore, ChatMessage } from '../../store/useOSStore';
 import { Send, Bot, User } from 'lucide-react';
 import { playTerminalClick } from '../../utils/sounds';
 
-const WITTY_RESPONSES = [
-  "I'm not sure about that query, but you can explore Harshit's apps using the start menu or double clicking desktop shortcuts!",
-  "Still not matching anything in my database. Are you testing my limits? Try asking about 'GCP', 'Resume', or 'ASL Sign Detection'.",
-  "Okay, you're definitely playing with me now. 🤖 I'm a portfolio guide, not a general-purpose oracle! Feel free to ask 'Why hire him?'.",
-  "Error 404: Answer not found. Please insert coffee to continue. ☕ Or maybe just try clicking on 'Projects' in the taskbar!",
-  "I've initiated self-destruction sequence in T-minus 10... Just kidding! But seriously, let's talk about Harshit's software skills."
+// 5-stage witty response sequence for unsupported queries
+const WITTY_STAGES = [
+  "I'm not sure about that, but you can explore Harshit's apps using the desktop shortcuts!",
+  "Still not matching anything in my database. Try asking about 'GCP', 'Resume', or 'ASL Sign Detection'. I'm patient — for now. 😑",
+  "I already told you I'm a portfolio guide, not an oracle. 😅 Let's keep it professional, shall we?",
+  "Okay this is the 4th unsupported query. You are REALLY testing me. Initiating... self... destruct... just kidding. MAYBE.",
+  "⚠️ CRITICAL SYSTEM FAILURE ⚠️  Initiating self-destruction in T-5... 4... 3... 2... 1... 💥 (Just kidding. But this window will close now. Goodbye.) 👋",
 ];
 
 const SKILL_ALIASES = ["gcp", "resume", "cv", "ai project", "movie recommender", "yolo", "doom", "cloud project", "emulator", "backend", "why hire", "hire him", "strength", "github", "skills", "technologies", "contact", "email", "hire", "about", "who is", "tell me about"];
@@ -23,20 +24,41 @@ const getBubbleShortcuts = (text: string, openWindow: (id: string) => void) => {
   if (textLower.includes("resume viewer") || textLower.includes("resume.pdf")) {
     actions.push({ label: "Open Resume.pdf", action: () => openWindow('resume') });
   }
-  if (textLower.includes("projects app") || textLower.includes("projects file explorer")) {
+  if (textLower.includes("projects app") || textLower.includes("projects file explorer") || textLower.includes("projects")) {
     actions.push({ label: "Open Projects.exe", action: () => openWindow('projects') });
   }
   if (textLower.includes("skills constellation") || textLower.includes("skills")) {
     actions.push({ label: "Open Skills.exe", action: () => openWindow('skills') });
   }
-  if (textLower.includes("contact.exe") || textLower.includes("contact box")) {
+  if (textLower.includes("contact.exe") || textLower.includes("contact box") || textLower.includes("contact") || textLower.includes("email")) {
     actions.push({ label: "Open Contact.exe", action: () => openWindow('contact') });
   }
-  if (textLower.includes("github profile")) {
+  if (textLower.includes("github")) {
     actions.push({ label: "Launch GitHub", action: () => window.open('https://github.com/Harshit-Kandoi', '_blank') });
   }
-  if (textLower.includes("experience app")) {
+  if (textLower.includes("experience app") || textLower.includes("experience") || textLower.includes("hire")) {
     actions.push({ label: "Open Experience.exe", action: () => openWindow('experience') });
+  }
+  if (textLower.includes("terminal")) {
+    actions.push({ label: "Open Terminal.exe", action: () => openWindow('terminal') });
+  }
+  if (textLower.includes("blog")) {
+    actions.push({ label: "Open Blog Reader", action: () => openWindow('blog') });
+  }
+  if (textLower.includes("gaming") || textLower.includes("game")) {
+    actions.push({ label: "Open Gaming Profile", action: () => openWindow('gaming') });
+  }
+  if (textLower.includes("snake")) {
+    actions.push({ label: "Play Snake 🐍", action: () => openWindow('snake') });
+  }
+  if (textLower.includes("swipe") || textLower.includes("match") || textLower.includes("role")) {
+    actions.push({ label: "Open Portfolio Swipe ❤️", action: () => openWindow('swipe') });
+  }
+  if (textLower.includes("coffee") || textLower.includes("support")) {
+    actions.push({ label: "Buy Me Coffee ☕", action: () => openWindow('coffee') });
+  }
+  if (textLower.includes("achievements")) {
+    actions.push({ label: "Open Achievements", action: () => openWindow('achievements') });
   }
 
   return actions;
@@ -45,9 +67,17 @@ const getBubbleShortcuts = (text: string, openWindow: (id: string) => void) => {
 const AssistantBubble = ({ text, onComplete }: { text: string; onComplete?: () => void }) => {
   const [displayText, setDisplayText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const words = text.split(' ');
+  
+  const wordsRef = useRef(text.split(' '));
+  const onCompleteRef = useRef(onComplete);
+  const completedRef = useRef(false);
 
   useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  useEffect(() => {
+    const words = wordsRef.current;
     if (currentIndex < words.length) {
       const delay = 50; // fast word-by-word typing
       const timer = setTimeout(() => {
@@ -55,12 +85,13 @@ const AssistantBubble = ({ text, onComplete }: { text: string; onComplete?: () =
         setCurrentIndex((prev) => prev + 1);
       }, delay);
       return () => clearTimeout(timer);
-    } else {
-      if (onComplete) onComplete();
+    } else if (!completedRef.current) {
+      completedRef.current = true;
+      if (onCompleteRef.current) onCompleteRef.current();
     }
-  }, [currentIndex, words, onComplete]);
+  }, [currentIndex]);
 
-  const isTyping = currentIndex < words.length;
+  const isTyping = currentIndex < wordsRef.current.length;
 
   return (
     <p className="leading-relaxed text-justify">
@@ -114,9 +145,11 @@ const AssistantBubbleWrapper = ({ msg, openWindow, isNew }: { msg: ChatMessage; 
 };
 
 export default function AIAssistantApp() {
-  const { chatMessages, addChatMessage, openWindow } = useOSStore();
+  const { chatMessages, addChatMessage, openWindow, closeWindow, unlockAchievement } = useOSStore();
   const [inputText, setInputText] = useState('');
   const [unsupportedCount, setUnsupportedCount] = useState(0);
+  const [selfDestructActive, setSelfDestructActive] = useState(false);
+  const [countdown, setCountdown] = useState(5);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const theme = useOSStore((state) => state.theme);
 
@@ -125,6 +158,23 @@ export default function AIAssistantApp() {
       chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [chatMessages]);
+
+  // Self-destruct countdown – fires after stage 5 unsupported query
+  useEffect(() => {
+    if (!selfDestructActive) return;
+    setCountdown(5);
+    const interval = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) {
+          clearInterval(interval);
+          closeWindow('ai');
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [selfDestructActive, closeWindow]);
 
   const suggestions = [
     "Tell me about Harshit",
@@ -148,13 +198,11 @@ export default function AIAssistantApp() {
 
   const processAssistantResponse = (query: string) => {
     const q = query.toLowerCase();
-    
-    // Check if the query is supported
     const isSupported = SKILL_ALIASES.some(keyword => q.includes(keyword));
     
     let reply = "";
     if (isSupported) {
-      setUnsupportedCount(0); // Reset logic!
+      setUnsupportedCount(0); // Reset counter on valid query
       
       if (q.includes('about') || q.includes('who is') || q.includes('tell me about')) {
         reply = "Harshit Kandoi is an Associate Software Engineer at ThoughtIn Solutions. He specializes in Python backend APIs, Google Cloud Platform integrations, and AI models. I've prepared shortcuts below to open his About Me window.";
@@ -168,7 +216,7 @@ export default function AIAssistantApp() {
       else if (q.includes('cloud project') || q.includes('emulator') || q.includes('gcp') || q.includes('backend')) {
         reply = "Harshit's flagship cloud project is the 'Local GCP Emulator' simulating Firestore and Pub/Sub offline. I've prepared a shortcut to open the Projects app where you can view it.";
       } 
-      else if (q.includes('why hire') || q.includes('hire him') || q.includes('strength')) {
+      else if (q.includes('why hire') || q.includes('hire him') || q.includes('strength') || q.includes('hire')) {
         reply = "Harshit is a Google Cloud Associate Cloud Engineer (ACE), experienced in building production microservices, containerizing with Docker, and setting up automated CI/CD pipelines. Open the Experience app showing his professional timeline.";
       } 
       else if (q.includes('github')) {
@@ -177,14 +225,35 @@ export default function AIAssistantApp() {
       else if (q.includes('skills') || q.includes('technologies')) {
         reply = "Use the shortcut below to inspect Harshit's interactive Skills constellation. You can hover over skill points to reveal projects built using them.";
       }
-      else if (q.includes('contact') || q.includes('email') || q.includes('hire')) {
+      else if (q.includes('contact') || q.includes('email')) {
         reply = "Use the shortcut below to open Contact.exe so you can send Harshit an email or copy contact info.";
       }
+      else if (q.includes('snake')) {
+        reply = "Feeling nostalgic? Launch Snake.exe — a Nokia 3310 inspired retro game built right into the OS! 🐍";
+      }
+      else if (q.includes('swipe') || q.includes('match') || q.includes('role')) {
+        reply = "Try Portfolio Swipe — a Tinder-style experience where you swipe through Harshit's different role profiles to find the perfect match! ❤️";
+      }
+      else if (q.includes('coffee') || q.includes('support')) {
+        reply = "If the portfolio impressed you, consider buying Harshit a coffee ☕ — it powers more late-night features!";
+      }
+      else if (q.includes('gaming') || q.includes('game')) {
+        reply = "Gaming Profile has Harshit's RPG character, skills, combat system, and gaming inventory! Open it for some fun.";
+      }
+      else if (q.includes('terminal') || q.includes('blog') || q.includes('achievements')) {
+        reply = "Got it! Use the shortcut below to open the requested app.";
+      }
     } else {
-      // Unsupported query logic
-      const index = Math.min(unsupportedCount, WITTY_RESPONSES.length - 1);
-      reply = WITTY_RESPONSES[index];
-      setUnsupportedCount(prev => prev + 1);
+      const stage = unsupportedCount;
+      reply = WITTY_STAGES[Math.min(stage, WITTY_STAGES.length - 1)];
+      const newCount = unsupportedCount + 1;
+      setUnsupportedCount(newCount);
+
+      // Stage 5 = self-destruct sequence
+      if (stage >= 4) {
+        unlockAchievement('easter_egg');
+        setSelfDestructActive(true);
+      }
     }
 
     addChatMessage('assistant', reply);
@@ -196,8 +265,18 @@ export default function AIAssistantApp() {
 
   return (
     <div className={`flex flex-col flex-grow h-full overflow-hidden ${chatBg} custom-scrollbar`}>
+      {/* Self-Destruct Countdown Banner */}
+      {selfDestructActive && countdown > 0 && (
+        <div className="bg-red-900 border-b border-red-500 px-4 py-2 flex items-center justify-between animate-pulse shrink-0">
+          <span className="text-red-300 text-[10px] font-black uppercase tracking-widest">⚠️ SELF-DESTRUCT ACTIVE</span>
+          <span className="text-red-200 text-sm font-black font-mono">T-{countdown}s</span>
+        </div>
+      )}
       {/* Scrollable messages area */}
-      <div className="flex-grow overflow-y-auto p-4 space-y-4 custom-scrollbar">
+      <div 
+        className="flex-grow flex-shrink min-h-0 overflow-y-auto p-4 space-y-4 overscroll-contain custom-scrollbar"
+        style={{ overscrollBehavior: 'contain', touchAction: 'pan-y' }}
+      >
         {chatMessages.map((msg, idx) => {
           const isBot = msg.sender === 'assistant';
           // Check if this message was just added in the current turn
@@ -258,7 +337,7 @@ export default function AIAssistantApp() {
           placeholder="Ask me anything..."
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          className={`flex-grow px-3.5 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 bg-white/5 border border-white/10 placeholder-gray-400 ${
+          className={`flex-grow px-3.5 py-2 rounded-xl text-base sm:text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 bg-white/5 border border-white/10 placeholder-gray-400 ${
             isLight ? 'bg-black/5 border-black/10 text-gray-800' : ''
           }`}
         />

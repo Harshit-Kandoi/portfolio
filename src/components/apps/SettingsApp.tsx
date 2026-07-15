@@ -1,12 +1,12 @@
 import React from 'react';
 import { useOSStore, AppTheme, WallpaperType } from '../../store/useOSStore';
-import { Monitor, Volume2, Palette, ShieldAlert, Smartphone } from 'lucide-react';
+import { Monitor, Volume2, Palette, ShieldAlert, Smartphone, Cpu, CheckCircle2, Sun } from 'lucide-react';
 import { playThemeSwitchSound } from '../../utils/sounds';
 
-export default function SettingsApp() {
+export default function SettingsApp({ isMobileView = false }: { isMobileView?: boolean }) {
   const { 
     theme, setTheme, wallpaper, setWallpaper, soundEnabled, setSoundEnabled, volume, setVolume,
-    layoutOverride, setLayoutOverride
+    layoutOverride, setLayoutOverride, mobileBrightness, setMobileBrightness
   } = useOSStore();
 
   const handleThemeChange = (newTheme: AppTheme) => {
@@ -16,6 +16,118 @@ export default function SettingsApp() {
 
   const isLight = theme === 'light';
   const boxBg = isLight ? 'bg-gray-150 text-gray-800' : 'bg-slate-900/40 border-white/5 text-purple-100';
+
+  if (isMobileView) {
+    return (
+      <div className={`flex flex-col flex-grow h-full overflow-y-auto p-4 space-y-5 ${isLight ? 'bg-white text-gray-800' : 'bg-slate-950 text-purple-100'} custom-scrollbar`}>
+        {/* Mobile Header */}
+        <div className="flex items-center space-x-2.5 pb-2.5 border-b border-white/5">
+          <div className="p-2 rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/25">
+            <Smartphone className="w-4 h-4" />
+          </div>
+          <div>
+            <h3 className="text-xs font-bold leading-snug">Phone Settings</h3>
+            <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">Device Configuration</p>
+          </div>
+        </div>
+
+        {/* Sliders: Brightness and Sound Volume */}
+        <div className={`p-4 rounded-xl border space-y-4 ${boxBg}`}>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1.5">
+            <Sun className="w-4 h-4 text-yellow-400 animate-pulse" />
+            <span>Display & Audio</span>
+          </h3>
+          
+          {/* Brightness Slider */}
+          <div className="space-y-1.5">
+            <div className="flex justify-between items-center text-[10px] font-semibold text-gray-400">
+              <span>Screen Brightness</span>
+              <span>{Math.round(mobileBrightness * 100)}%</span>
+            </div>
+            <input 
+              type="range"
+              min="0.15"
+              max="1.0"
+              step="0.05"
+              value={mobileBrightness}
+              onChange={(e) => setMobileBrightness(parseFloat(e.target.value))}
+              className="w-full accent-purple-500 cursor-pointer"
+            />
+          </div>
+
+          {/* Sound Volume Slider */}
+          <div className="space-y-1.5 pt-2">
+            <div className="flex justify-between items-center text-[10px] font-semibold text-gray-400">
+              <span>System Volume</span>
+              <span>{Math.round(volume * 100)}%</span>
+            </div>
+            <input 
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={volume}
+              onChange={(e) => setVolume(parseFloat(e.target.value))}
+              className="w-full accent-purple-500 cursor-pointer"
+              disabled={!soundEnabled}
+            />
+          </div>
+
+          <label className="flex items-center space-x-2.5 text-xs font-semibold cursor-pointer pt-1">
+            <input
+              type="checkbox"
+              checked={soundEnabled}
+              onChange={(e) => setSoundEnabled(e.target.checked)}
+              className="rounded text-purple-600 focus:ring-purple-500 bg-black/20 border-white/10"
+            />
+            <span>Enable System Sound Effects</span>
+          </label>
+        </div>
+
+        {/* Mobile Storage Simulation */}
+        <div className={`p-4 rounded-xl border space-y-3 ${boxBg}`}>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1.5">
+            <ShieldAlert className="w-4 h-4 text-sky-400" />
+            <span>Device Storage</span>
+          </h3>
+          <div className="space-y-2">
+            <div className="flex justify-between text-[10px] font-bold text-gray-400">
+              <span>Internal Memory Used</span>
+              <span>98.4 GB / 128 GB</span>
+            </div>
+            <div className="w-full bg-slate-900 border border-white/5 h-2 rounded-full overflow-hidden">
+              <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-full rounded-full" style={{ width: '76.8%' }} />
+            </div>
+            <p className="text-[9px] text-gray-500">Free space: 29.6 GB · System cache is optimal</p>
+          </div>
+        </div>
+
+        {/* System Info & Update */}
+        <div className={`p-4 rounded-xl border space-y-4 ${boxBg}`}>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1.5">
+            <Cpu className="w-4 h-4 text-emerald-400" />
+            <span>System Update</span>
+          </h3>
+          <div className="flex flex-col justify-between gap-3 bg-emerald-500/5 border border-emerald-500/10 p-3 rounded-xl">
+            <div className="space-y-1">
+              <div className="flex items-center space-x-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <h4 className="text-[11px] font-bold text-white">Android OS 13 / Portfolio OS v2.2</h4>
+              </div>
+              <p className="text-[9.5px] text-emerald-300 font-semibold">System is up to date</p>
+              <p className="text-[9px] text-gray-500">Checked: Today 17:16 · Jaipur, India</p>
+            </div>
+            <button 
+              onClick={() => alert("Checking for updates... \nYour phone is already running the latest version of Portfolio OS (v2.2).")}
+              className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-[10px] font-bold py-1.5 px-3 rounded-lg transition self-start"
+            >
+              Check Update
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const themesList: { id: AppTheme; label: string; desc: string; color: string }[] = [
     { id: 'midnight', label: 'Midnight Purple', desc: 'Default galactic deep purples and violet accent glows', color: 'from-[#03001e] to-[#7303c0]' },
@@ -203,6 +315,30 @@ export default function SettingsApp() {
             </div>
           </div>
         )}
+
+        {/* System Update & Device Info Panel */}
+        <div className={`p-4 rounded-xl border space-y-4 md:col-span-2 ${boxBg}`}>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1.5">
+            <Cpu className="w-4 h-4 text-emerald-400" />
+            <span>System Update & Device Info</span>
+          </h3>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-emerald-500/5 border border-emerald-500/10 p-4 rounded-xl">
+            <div className="space-y-1">
+              <div className="flex items-center space-x-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                <h4 className="text-xs font-bold text-white">Android OS 13 / Portfolio OS v2.2</h4>
+              </div>
+              <p className="text-[10px] text-emerald-300 font-medium font-semibold">System is up to date</p>
+              <p className="text-[9.5px] text-gray-500">Security patch level: July 2026 · Jaipur, Rajasthan</p>
+            </div>
+            <button 
+              onClick={() => alert("Checking for updates... \nYour system is already running the latest version of Portfolio OS (v2.2).")}
+              className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-[11px] font-bold py-2 px-4 rounded-xl transition"
+            >
+              Check for Update
+            </button>
+          </div>
+        </div>
 
       </div>
 

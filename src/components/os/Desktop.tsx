@@ -4,40 +4,64 @@ import {
   Folder, Terminal as TermIcon, MessageSquare, BookOpen, Trophy, 
   Settings as GearIcon, User, Briefcase, Award, FileText, Send, 
   Search, Cpu, HardDrive, Wifi, Volume2, Bell, LogOut, Moon, Sun, 
-  Gamepad2, Github, Linkedin, CheckCircle, Smartphone, Mail, Phone, Database
+  Gamepad2, Github, Linkedin, Smartphone, Mail, Phone, Database,
+  Gamepad, Coffee, Heart
 } from 'lucide-react';
 import Window from './Window';
+import NotificationPanel from './NotificationPanel';
 import { playWindowSound, playNotificationSound } from '../../utils/sounds';
 
+// Custom Snake Icon SVG
+const SnakeIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M8.5 10c-1.5-1.5-2.5-2.5-2.5-4a4 4 0 1 1 8 0v4a4 4 0 0 0 8 0V6" />
+    <path d="M12 12c1.5 1.5 2.5 2.5 2.5 4a4 4 0 1 1-8 0v-4a4 4 0 0 0-8 0v2" />
+    <circle cx="10" cy="4" r="1" fill="currentColor" />
+  </svg>
+);
+
 // Lazy load app modules to reduce initial JS bundle size and improve SEO / LCP metrics
-const AboutApp = lazy(() => import('../apps/AboutApp'));
-const ProjectsApp = lazy(() => import('../apps/ProjectsApp'));
-const ExperienceApp = lazy(() => import('../apps/ExperienceApp'));
-const SkillsApp = lazy(() => import('../apps/SkillsApp'));
-const ResumeApp = lazy(() => import('../apps/ResumeApp'));
+const AboutApp       = lazy(() => import('../apps/AboutApp'));
+const ProjectsApp    = lazy(() => import('../apps/ProjectsApp'));
+const ExperienceApp  = lazy(() => import('../apps/ExperienceApp'));
+const SkillsApp      = lazy(() => import('../apps/SkillsApp'));
+const ResumeApp      = lazy(() => import('../apps/ResumeApp'));
 const TerminalWindow = lazy(() => import('../apps/TerminalWindow'));
 const AIAssistantApp = lazy(() => import('../apps/AIAssistantApp'));
-const BlogApp = lazy(() => import('../apps/BlogApp'));
-const AchievementsApp = lazy(() => import('../apps/AchievementsApp'));
-const GamingApp = lazy(() => import('../apps/GamingApp'));
-const ContactApp = lazy(() => import('../apps/ContactApp'));
-const SettingsApp = lazy(() => import('../apps/SettingsApp'));
+const BlogApp        = lazy(() => import('../apps/BlogApp'));
+const AchievementsApp= lazy(() => import('../apps/AchievementsApp'));
+const GamingApp      = lazy(() => import('../apps/GamingApp'));
+const ContactApp     = lazy(() => import('../apps/ContactApp'));
+const SettingsApp    = lazy(() => import('../apps/SettingsApp'));
+const SnakeGame      = lazy(() => import('../apps/SnakeGame'));
+const PortfolioSwipe = lazy(() => import('../apps/PortfolioSwipe'));
+const BuyMeCoffeeApp = lazy(() => import('../apps/BuyMeCoffeeApp'));
 
 export default function Desktop() {
   const { 
-    windows, theme, setTheme, openWindow, startMenuOpen, setStartMenuOpen, 
-    notifications, dismissNotification, addNotification, closeAllWindows, setBootState,
-    viewMode, isSimulatingMobile, setIsSimulatingMobile, xp
+    windows, theme, setTheme, openWindow, startMenuOpen, setStartMenuOpen,
+    notifications, addNotification, closeAllWindows, setBootState,
+    viewMode, isSimulatingMobile, setIsSimulatingMobile, xp,
+    hasVisited, isShuttingDown, initiateShutdown,
   } = useOSStore();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [cpuUsage, setCpuUsage] = useState(24);
   const [ramUsage, setRamUsage] = useState(48);
-
   const [showVolumePopup, setShowVolumePopup] = useState(false);
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
   const [sysTime, setSysTime] = useState(new Date());
   const [bouncingApp, setBouncingApp] = useState<string | null>(null);
+  const [shutdownStep, setShutdownStep] = useState(0);
+
+  const SHUTDOWN_LINES = [
+    'Shutting down Portfolio OS...',
+    'Saving visitor progress...',
+    'Closing active sessions...',
+    'Thanks for exploring.',
+    'Hope to work with you soon.',
+    'System halted.',
+  ];
 
   // Update clocks and system monitors
   useEffect(() => {
@@ -96,21 +120,56 @@ export default function Desktop() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Dispatch a random toast notification every 45-60 seconds for immersive activity
+  // Welcome-back notification for returning visitors
+  useEffect(() => {
+    if (hasVisited) {
+      setTimeout(() => {
+        addNotification('👋 Welcome Back!', 'Continuing your previous session...', 'info', 'system');
+        playNotificationSound();
+      }, 1500);
+    } else {
+      setTimeout(() => {
+        addNotification('🚀 Welcome to Portfolio OS!', "You're exploring Harshit Kandoi's interactive developer portfolio.", 'info', 'system');
+        playNotificationSound();
+      }, 2000);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Shutdown sequence animator
+  useEffect(() => {
+    if (!isShuttingDown) return;
+    let step = 0;
+    setShutdownStep(0);
+    const interval = setInterval(() => {
+      step++;
+      setShutdownStep(step);
+      if (step >= SHUTDOWN_LINES.length) {
+        clearInterval(interval);
+        setTimeout(() => {
+          closeAllWindows();
+          setBootState('booting');
+        }, 900);
+      }
+    }, 600);
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isShuttingDown]);
+
+  // Dispatch a random toast notification every 55 seconds for immersive activity
   useEffect(() => {
     const randomToasts = [
-      { title: '💼 Open to Work', message: 'Harshit is currently active and looking for new roles!', type: 'info' as const },
-      { title: '⭐ GitHub Update', message: 'Repository "movie-recommender" starred!', type: 'success' as const },
-      { title: '🚀 Deployment Active', message: 'Local GCP Emulator offline container built successfully.', type: 'success' as const },
-      { title: '🏆 Cert Unlocked', message: 'TensorFlow Developer Certificate completed!', type: 'achievement' as const },
+      { title: '💼 Open to Work', message: 'Harshit is currently active and looking for new roles!', type: 'info' as const, category: 'career' as const },
+      { title: '⭐ GitHub Star', message: 'Repository "local-gcp-emulator" starred!', type: 'success' as const, category: 'portfolio' as const },
+      { title: '🚀 Deployment Active', message: 'Local GCP Emulator offline container built successfully.', type: 'success' as const, category: 'portfolio' as const },
+      { title: '☕ Coffee Levels Low', message: 'Harshit may need a refill soon. Consider buying him a coffee!', type: 'info' as const, category: 'funny' as const },
+      { title: '💼 Recruiter Detected', message: 'Potential hiring signal detected. Resume.pdf is ready!', type: 'info' as const, category: 'career' as const },
     ];
-
     const interval = setInterval(() => {
       const selected = randomToasts[Math.floor(Math.random() * randomToasts.length)];
-      addNotification(selected.title, selected.message, selected.type);
+      addNotification(selected.title, selected.message, selected.type, selected.category);
       playNotificationSound();
     }, 55000);
-
     return () => clearInterval(interval);
   }, [addNotification]);
 
@@ -149,18 +208,21 @@ export default function Desktop() {
   };
 
   const appIcons = [
-    { id: 'about', title: 'About.exe', icon: User, color: 'from-blue-500 to-cyan-400' },
-    { id: 'projects', title: 'Projects.exe', icon: Folder, color: 'from-purple-500 to-indigo-500' },
-    { id: 'experience', title: 'Experience.exe', icon: Briefcase, color: 'from-emerald-500 to-teal-500' },
-    { id: 'skills', title: 'Skills.exe', icon: Award, color: 'from-amber-500 to-orange-500' },
-    { id: 'resume', title: 'Resume.pdf', icon: FileText, color: 'from-rose-500 to-red-500' },
-    { id: 'terminal', title: 'Terminal.exe', icon: TermIcon, color: 'from-slate-700 to-slate-900' },
-    { id: 'ai', title: 'AI Assistant', icon: MessageSquare, color: 'from-pink-500 to-rose-400' },
-    { id: 'blog', title: 'Blog Reader.exe', icon: BookOpen, color: 'from-sky-500 to-blue-600' },
-    { id: 'achievements', title: 'Achievements.exe', icon: Trophy, color: 'from-yellow-400 to-amber-500' },
-    { id: 'gaming', title: 'Gaming Profile', icon: Gamepad2, color: 'from-red-500 to-pink-500' },
-    { id: 'contact', title: 'Contact.exe', icon: Send, color: 'from-teal-400 to-emerald-500' },
-    { id: 'settings', title: 'Settings.exe', icon: GearIcon, color: 'from-slate-400 to-slate-600' },
+    { id: 'about',        title: 'About.exe',        icon: User,        color: 'from-blue-500 to-cyan-400'     },
+    { id: 'projects',     title: 'Projects.exe',     icon: Folder,      color: 'from-purple-500 to-indigo-500' },
+    { id: 'experience',   title: 'Experience.exe',   icon: Briefcase,   color: 'from-emerald-500 to-teal-500' },
+    { id: 'skills',       title: 'Skills.exe',       icon: Award,       color: 'from-amber-500 to-orange-500' },
+    { id: 'resume',       title: 'Resume.pdf',       icon: FileText,    color: 'from-rose-500 to-red-500'     },
+    { id: 'terminal',     title: 'Terminal.exe',     icon: TermIcon,    color: 'from-slate-700 to-slate-900'  },
+    { id: 'ai',           title: 'AI Assistant',     icon: MessageSquare,color: 'from-pink-500 to-rose-400'  },
+    { id: 'blog',         title: 'Blog Reader.exe',  icon: BookOpen,    color: 'from-sky-500 to-blue-600'     },
+    { id: 'achievements', title: 'Achievements.exe', icon: Trophy,      color: 'from-yellow-400 to-amber-500' },
+    { id: 'gaming',       title: 'Gaming Profile',   icon: Gamepad2,    color: 'from-red-500 to-pink-500'     },
+    { id: 'contact',      title: 'Contact.exe',      icon: Send,        color: 'from-teal-400 to-emerald-500' },
+    { id: 'settings',     title: 'Settings.exe',     icon: GearIcon,    color: 'from-slate-400 to-slate-600'  },
+    { id: 'snake',        title: 'Snake.exe',        icon: SnakeIcon,   color: 'from-green-500 to-emerald-700' },
+    { id: 'swipe',        title: 'Portfolio Swipe',  icon: Heart,       color: 'from-rose-500 to-red-600'     },
+    { id: 'coffee',       title: 'Buy Me Coffee ☕', icon: Coffee,      color: 'from-amber-600 to-yellow-700' },
   ];
 
   // Filters search query for App icons
@@ -173,8 +235,7 @@ export default function Desktop() {
 
   // Handle system powers
   const handleShutdown = () => {
-    closeAllWindows();
-    setBootState('booting');
+    initiateShutdown();
   };
 
   const handleSleep = () => {
@@ -432,43 +493,9 @@ export default function Desktop() {
         </div>
       )}
 
-      {/* Notifications Side Drawer */}
+      {/* Notifications Side Drawer – delegated to NotificationPanel */}
       {showNotificationDrawer && (
-        <div id="notification-drawer" className={`fixed right-4 top-14 w-80 max-h-[80vh] p-4 rounded-2xl border shadow-2xl z-[10000] ${cardBg} backdrop-blur-3xl overflow-y-auto flex flex-col space-y-3 animate-slide-up`}>
-          <div className="flex justify-between items-center border-b border-white/10 pb-2">
-            <h3 className="text-xs font-bold uppercase tracking-wider">Notifications</h3>
-            <button 
-              onClick={() => useOSStore.getState().clearNotifications()} 
-              className="text-[10px] text-gray-400 hover:text-white transition"
-            >
-              Clear All
-            </button>
-          </div>
-          {notifications.length === 0 ? (
-            <p className="text-center text-xs text-gray-400 py-6">No new notifications</p>
-          ) : (
-            notifications.map((notif) => (
-              <div 
-                key={notif.id} 
-                className={`p-3 rounded-xl border flex flex-col space-y-1 relative bg-white/5 border-white/10`}
-              >
-                <button 
-                  onClick={() => dismissNotification(notif.id)}
-                  className="absolute top-2 right-2 text-gray-400 hover:text-white text-xs font-bold"
-                >
-                  &times;
-                </button>
-                <div className="flex items-center space-x-1.5">
-                  {notif.type === 'achievement' && <Trophy className="w-3.5 h-3.5 text-yellow-400" />}
-                  {notif.type === 'success' && <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />}
-                  <span className="text-xs font-bold">{notif.title}</span>
-                </div>
-                <p className="text-[10px] text-gray-300">{notif.message}</p>
-                <span className="text-[8px] text-gray-500 self-end">{notif.timestamp}</span>
-              </div>
-            ))
-          )}
-        </div>
+        <NotificationPanel onClose={() => setShowNotificationDrawer(false)} />
       )}
 
       {/* Active Workspaces - Icons on Desktop / Tablet */}
@@ -507,18 +534,21 @@ export default function Desktop() {
               <p className="text-xs text-purple-300 font-mono animate-pulse">Launching {win.title}...</p>
             </div>
           }>
-            {win.id === 'about' && <AboutApp />}
-            {win.id === 'projects' && <ProjectsApp />}
-            {win.id === 'experience' && <ExperienceApp />}
-            {win.id === 'skills' && <SkillsApp />}
-            {win.id === 'resume' && <ResumeApp />}
-            {win.id === 'terminal' && <TerminalWindow />}
-            {win.id === 'ai' && <AIAssistantApp />}
-            {win.id === 'blog' && <BlogApp />}
+            {win.id === 'about'        && <AboutApp />}
+            {win.id === 'projects'     && <ProjectsApp />}
+            {win.id === 'experience'   && <ExperienceApp />}
+            {win.id === 'skills'       && <SkillsApp />}
+            {win.id === 'resume'       && <ResumeApp />}
+            {win.id === 'terminal'     && <TerminalWindow />}
+            {win.id === 'ai'           && <AIAssistantApp />}
+            {win.id === 'blog'         && <BlogApp />}
             {win.id === 'achievements' && <AchievementsApp />}
-            {win.id === 'gaming' && <GamingApp />}
-            {win.id === 'contact' && <ContactApp />}
-            {win.id === 'settings' && <SettingsApp />}
+            {win.id === 'gaming'       && <GamingApp />}
+            {win.id === 'contact'      && <ContactApp />}
+            {win.id === 'settings'     && <SettingsApp />}
+            {win.id === 'snake'        && <SnakeGame />}
+            {win.id === 'swipe'        && <PortfolioSwipe />}
+            {win.id === 'coffee'       && <BuyMeCoffeeApp />}
           </Suspense>
         </Window>
       ))}
@@ -531,7 +561,7 @@ export default function Desktop() {
       }`}>
         {appIcons.filter((app) => {
           if (viewMode === 'tablet') {
-            return ['about', 'projects', 'experience', 'skills', 'resume', 'ai', 'contact', 'settings'].includes(app.id);
+            return ['about', 'projects', 'experience', 'skills', 'resume', 'ai', 'contact', 'settings', 'swipe', 'coffee'].includes(app.id);
           }
           return true;
         }).map((app) => {
@@ -558,8 +588,10 @@ export default function Desktop() {
               
               {/* Dot Indicators */}
               {isRunning && (
-                <span className={`w-1.5 h-1.5 rounded-full absolute -bottom-1.5 ${
-                  isCurrentActive ? 'bg-primary-400 shadow-[0_0_5px_rgba(99,102,241,0.8)]' : 'bg-gray-400'
+                <span className={`absolute -bottom-1.5 transition-all duration-250 ${
+                  isCurrentActive 
+                    ? 'w-3.5 h-1 bg-purple-400 shadow-[0_0_8px_#c084fc] rounded-full' 
+                    : 'w-1.5 h-1.5 bg-gray-500 rounded-full'
                 }`} />
               )}
             </button>
@@ -567,7 +599,30 @@ export default function Desktop() {
         })}
       </div>
 
-      {/* Tablet and Mobile are natively supported - no banner needed */}
+      {/* Shutdown Overlay */}
+      {isShuttingDown && (
+        <div className="fixed inset-0 z-[99999] bg-black flex flex-col items-center justify-center font-mono">
+          <div className="space-y-2 text-left max-w-md w-full px-8">
+            {SHUTDOWN_LINES.slice(0, shutdownStep + 1).map((line, i) => (
+              <p
+                key={i}
+                className={`text-sm ${
+                  i === SHUTDOWN_LINES.length - 1
+                    ? 'text-gray-600'
+                    : i >= SHUTDOWN_LINES.length - 3
+                    ? 'text-gray-400'
+                    : 'text-green-400'
+                } animate-fade-in`}
+              >
+                {i < SHUTDOWN_LINES.length - 3 ? `> ${line}` : line}
+              </p>
+            ))}
+            {shutdownStep >= SHUTDOWN_LINES.length - 1 && (
+              <p className="text-[10px] text-gray-700 mt-4 italic">Session Saved. See you next deployment.</p>
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   );

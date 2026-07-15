@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useOSStore } from '../../store/useOSStore';
-import { Sword, Shield, Zap, Sparkles, Trophy, Backpack, Flame, X } from 'lucide-react';
+import { Sword, Shield, Zap, Sparkles, Trophy, Backpack, Flame, X, RotateCcw, Check } from 'lucide-react';
 import { playNotificationSound, playTerminalClick } from '../../utils/sounds';
 import { initialCombatLogs, inventoryItems, InventoryItem } from '../../data/gamingData';
 
@@ -8,61 +8,84 @@ export default function GamingApp() {
   const xp = useOSStore((state) => state.xp);
   const addXP = useOSStore((state) => state.addXP);
   const theme = useOSStore((state) => state.theme);
+  const incrementCombatCount = useOSStore((state) => state.incrementCombatCount);
 
   const [combatLogs, setCombatLogs] = useState<string[]>(initialCombatLogs);
   const [isFighting, setIsFighting] = useState(false);
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+  const combatLogRef = useRef<HTMLDivElement>(null);
+
+  // Preview allocation (sandboxed — does NOT change real stats)
+  const [allocationMode, setAllocationMode] = useState(false);
+  const [previewBonus, setPreviewBonus] = useState({ strength: 0, magic: 0, defense: 0, speed: 0 });
+  const PREVIEW_POOL = 5;  // preview points to distribute
+  const usedPreview = Object.values(previewBonus).reduce((s, v) => s + v, 0);
+  const remainingPreview = PREVIEW_POOL - usedPreview;
+
+  const adjustPreview = (key: keyof typeof previewBonus, delta: number) => {
+    setPreviewBonus((prev) => {
+      const next = { ...prev, [key]: Math.max(0, prev[key] + delta) };
+      const total = Object.values(next).reduce((s, v) => s + v, 0);
+      return total <= PREVIEW_POOL ? next : prev;
+    });
+  };
+
+  const resetPreview = () => setPreviewBonus({ strength: 0, magic: 0, defense: 0, speed: 0 });
+  const applyPreview = () => {
+    // Apply = just exit preview mode. Stats are cosmetic only.
+    setAllocationMode(false);
+    resetPreview();
+  };
+
+  // Auto-scroll combat log on new entries
+  useEffect(() => {
+    if (combatLogRef.current) {
+      combatLogRef.current.scrollTop = combatLogRef.current.scrollHeight;
+    }
+  }, [combatLogs]);
 
   const currentLevel = Math.floor(xp / 100) + 1;
 
-  // RPG attributes scales with level
-  const strength = 18 + currentLevel * 2; // React
-  const magic = 22 + currentLevel * 3; // AI/ML
-  const defense = 15 + currentLevel * 2; // Cloud/Infra
-  const speed = 25 + currentLevel * 1; // Problem Solving
+  // RPG attributes scale with level (real — not user-editable)
+  const strength = 18 + currentLevel * 2;
+  const magic    = 22 + currentLevel * 3;
+  const defense  = 15 + currentLevel * 2;
+  const speed    = 25 + currentLevel * 1;
+
+  // Preview values (cosmetic preview, never persisted)
+  const previewStrength = strength + previewBonus.strength;
+  const previewMagic    = magic    + previewBonus.magic;
+  const previewDefense  = defense  + previewBonus.defense;
+  const previewSpeed    = speed    + previewBonus.speed;
 
   const handleFight = () => {
     if (isFighting) return;
     setIsFighting(true);
     playTerminalClick();
+    incrementCombatCount();
 
     const enemies = [
       { name: "Production Crash Outage", hp: 120, xpReward: 25 },
-      { name: "Complex Memory Leak", hp: 80, xpReward: 15 },
-      { name: "Unoptimized SQL Queries", hp: 50, xpReward: 10 },
-      { name: "Missing ARIA accessibility tag", hp: 30, xpReward: 5 }
+      { name: "Complex Memory Leak",     hp: 80,  xpReward: 15 },
+      { name: "Unoptimized SQL Queries", hp: 50,  xpReward: 10 },
+      { name: "Missing ARIA tag",        hp: 30,  xpReward: 5  },
+      { name: "Infinite Render Loop",    hp: 60,  xpReward: 12 },
     ];
 
     const enemy = enemies[Math.floor(Math.random() * enemies.length)];
-    
-    setCombatLogs((prev) => [
-      ...prev,
-      `⚔️ Encountered a wild [${enemy.name}]!`
-    ]);
+    setCombatLogs((prev) => [...prev, `⚔️ Encountered a wild [${enemy.name}]!`]);
 
     setTimeout(() => {
-      // Fight sequence 1
       const attackPower = strength + magic;
-      setCombatLogs((prev) => [
-        ...prev,
-        `💥 Harshit casts Generative API spell! Deals ${attackPower} damage.`
-      ]);
+      setCombatLogs((prev) => [...prev, `💥 Harshit casts Generative API spell! Deals ${attackPower} damage.`]);
     }, 600);
 
     setTimeout(() => {
-      // Fight sequence 2
-      setCombatLogs((prev) => [
-        ...prev,
-        `🛡️ Harshit's Docker shield absorbs ${enemy.name}'s bugs!`
-      ]);
+      setCombatLogs((prev) => [...prev, `🛡️ Harshit's Docker shield absorbs ${enemy.name}'s bugs!`]);
     }, 1200);
 
     setTimeout(() => {
-      // Fight outcome
-      setCombatLogs((prev) => [
-        ...prev,
-        `🎉 Defeated [${enemy.name}]! Unlocked +${enemy.xpReward} XP.`
-      ]);
+      setCombatLogs((prev) => [...prev, `🎉 Defeated [${enemy.name}]! Earned +${enemy.xpReward} XP.`]);
       addXP(enemy.xpReward);
       playNotificationSound();
       setIsFighting(false);
@@ -98,43 +121,67 @@ export default function GamingApp() {
           </button>
         </div>
 
-        {/* Character Attributes Stats */}
-        <div className={`p-4 rounded-xl border space-y-3.5 ${boxBg}`}>
-          <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-400">Attributes Stats</h4>
-          
-          <div className="space-y-2.5 text-[11px] sm:text-xs">
-            <div className="flex justify-between items-center">
-              <span className="flex items-center space-x-1.5 text-gray-300 font-medium">
-                <Sword className="w-3.5 h-3.5 text-red-400" />
-                <span>Strength (React Frontend)</span>
-              </span>
-              <span className="font-bold text-white">{strength}</span>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="flex items-center space-x-1.5 text-gray-300 font-medium">
-                <Sparkles className="w-3.5 h-3.5 text-yellow-400 animate-pulse" />
-                <span>Magic (AI Engineering)</span>
-              </span>
-              <span className="font-bold text-white">{magic}</span>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="flex items-center space-x-1.5 text-gray-300 font-medium">
-                <Shield className="w-3.5 h-3.5 text-blue-400" />
-                <span>Defense (Cloud Infrastructure)</span>
-              </span>
-              <span className="font-bold text-white">{defense}</span>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="flex items-center space-x-1.5 text-gray-300 font-medium">
-                <Zap className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Speed (Problem Solving)</span>
-              </span>
-              <span className="font-bold text-white">{speed}</span>
-            </div>
+        {/* Character Attributes Stats – with Preview Allocation */}
+        <div className={`p-4 rounded-xl border space-y-3 ${boxBg}`}>
+          <div className="flex items-center justify-between">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-400">Attributes</h4>
+            {!allocationMode ? (
+              <button
+                onClick={() => setAllocationMode(true)}
+                className="text-[9px] text-purple-400 hover:text-purple-300 border border-purple-500/25 hover:border-purple-500/50 px-2 py-0.5 rounded-full transition"
+              >
+                Preview Allocation
+              </button>
+            ) : (
+              <div className="flex items-center space-x-1">
+                <span className="text-[9px] text-amber-400 font-bold">{remainingPreview} pts left</span>
+                <button onClick={resetPreview} className="p-1 rounded-md hover:bg-white/10 text-gray-400 hover:text-white transition" title="Reset">
+                  <RotateCcw className="w-3 h-3" />
+                </button>
+                <button onClick={applyPreview} className="p-1 rounded-md bg-purple-600 hover:bg-purple-700 text-white transition" title="Apply Preview">
+                  <Check className="w-3 h-3" />
+                </button>
+              </div>
+            )}
           </div>
+
+          {[
+            { key: 'strength' as const, label: 'Strength', sub: 'React Frontend', icon: Sword, color: 'text-red-400',     base: strength,  preview: previewStrength },
+            { key: 'magic'    as const, label: 'Magic',    sub: 'AI Engineering', icon: Sparkles, color: 'text-yellow-400', base: magic,     preview: previewMagic    },
+            { key: 'defense'  as const, label: 'Defense',  sub: 'Cloud Infra',    icon: Shield, color: 'text-blue-400',   base: defense,   preview: previewDefense  },
+            { key: 'speed'    as const, label: 'Speed',    sub: 'Problem Solving',icon: Zap, color: 'text-emerald-400',  base: speed,     preview: previewSpeed    },
+          ].map(({ key, label, sub, icon: Icon, color, base, preview }) => (
+            <div key={key} className="flex items-center space-x-2 text-[11px]">
+              <Icon className={`w-3.5 h-3.5 shrink-0 ${color}`} />
+              <div className="flex-grow">
+                <div className="flex justify-between mb-0.5">
+                  <span className="text-gray-300 font-medium">{label} <span className="text-[9px] text-gray-500">({sub})</span></span>
+                  <span className="font-black text-white">
+                    {allocationMode ? preview : base}
+                    {allocationMode && previewBonus[key] > 0 && (
+                      <span className="text-emerald-400 text-[9px] ml-1">+{previewBonus[key]}</span>
+                    )}
+                  </span>
+                </div>
+                <div className="h-1 rounded-full bg-white/5 overflow-hidden">
+                  <div className={`h-full rounded-full ${color.replace('text-', 'bg-')}/60 transition-all duration-300`}
+                    style={{ width: `${Math.min(100, (allocationMode ? preview : base) / 1.2)}%` }} />
+                </div>
+              </div>
+              {allocationMode && (
+                <div className="flex items-center space-x-1 shrink-0">
+                  <button onClick={() => adjustPreview(key, -1)} disabled={previewBonus[key] <= 0}
+                    className="w-4 h-4 rounded bg-white/10 text-gray-400 hover:text-white text-xs disabled:opacity-30 transition flex items-center justify-center">−</button>
+                  <button onClick={() => adjustPreview(key, 1)} disabled={remainingPreview <= 0}
+                    className="w-4 h-4 rounded bg-white/10 text-gray-400 hover:text-white text-xs disabled:opacity-30 transition flex items-center justify-center">+</button>
+                </div>
+              )}
+            </div>
+          ))}
+
+          {allocationMode && (
+            <p className="text-[8px] text-gray-600 italic text-center pt-1">Preview only — stats are not permanently changed.</p>
+          )}
         </div>
 
         {/* RPG Inventory Items */}
@@ -177,10 +224,13 @@ export default function GamingApp() {
       {/* Combat Activity logs terminal */}
       <div className="flex-grow flex flex-col min-h-[140px] space-y-2">
         <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-400">Combat Log</h4>
-        <div className="flex-grow bg-black rounded-xl p-4 font-mono text-[11px] text-emerald-400 border border-white/10 overflow-y-auto space-y-1.5 h-44 custom-scrollbar">
+        <div
+          ref={combatLogRef}
+          className="flex-grow bg-black rounded-xl p-4 font-mono text-[11px] text-emerald-400 border border-white/10 overflow-y-auto space-y-1.5 h-44 custom-scrollbar"
+        >
           {combatLogs.map((log, idx) => (
-            <div key={idx} className="flex items-center space-x-1 animate-fade-in">
-              <span>&gt;</span>
+            <div key={idx} className="flex items-start space-x-1 animate-fade-in">
+              <span className="opacity-40 shrink-0">&gt;</span>
               <span>{log}</span>
             </div>
           ))}

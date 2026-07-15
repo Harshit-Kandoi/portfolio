@@ -45,9 +45,12 @@ export default function LockScreen() {
         }}
       >
         {/* Mobile Top Bar */}
-        <div className="flex justify-between items-center w-full px-2 pt-2 text-xs text-gray-400">
-          <span>Harshit's Mobile</span>
-          <div className="flex items-center space-x-1">
+        <div className="flex justify-between items-start w-full px-2 pt-2 text-xs text-gray-400">
+          <div className="flex flex-col">
+            <span className="font-bold text-white text-xs">Harshit's Phone</span>
+            <span className="text-[9px] text-gray-500 font-medium">Jaipur, Rajasthan, India</span>
+          </div>
+          <div className="flex items-center space-x-1 mt-0.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Open to Work</span>
           </div>
