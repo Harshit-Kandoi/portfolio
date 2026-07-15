@@ -4,7 +4,7 @@ import { Project } from '../../types';
 import { Folder, Grid, List, Search, Github, ExternalLink, X, Star } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 
-export default function ProjectsApp() {
+export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }) {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -12,6 +12,8 @@ export default function ProjectsApp() {
   const [favorites, setFavorites] = useState<number[]>([]);
   const theme = useOSStore((state) => state.theme);
   const unlockAchievement = useOSStore((state) => state.unlockAchievement);
+  const globalViewMode = useOSStore((state) => state.viewMode);
+  const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
 
   // Fire project_browser achievement once on first open
   useEffect(() => { unlockAchievement('project_browser'); }, [unlockAchievement]);
@@ -27,11 +29,15 @@ export default function ProjectsApp() {
 
   useEffect(() => {
     const mql = window.matchMedia('(max-width: 767px)');
-    setIsMobile(mql.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    const checkIsMobile = () => {
+      return !!(isMobileView || isSimulatingMobile || mql.matches || globalViewMode === 'mobile');
+    };
+    setIsMobile(checkIsMobile());
+
+    const handler = () => setIsMobile(checkIsMobile());
     mql.addEventListener('change', handler);
     return () => mql.removeEventListener('change', handler);
-  }, []);
+  }, [isMobileView, isSimulatingMobile, globalViewMode]);
 
   const handlePointerDownResize = (e: React.PointerEvent) => {
     e.preventDefault();
@@ -84,8 +90,8 @@ export default function ProjectsApp() {
 
   return (
     <div className={`flex flex-grow h-full overflow-hidden ${explorerBg} custom-scrollbar`}>
-      {/* Sidebar Categories */}
-      <div className={`hidden md:flex w-48 flex-shrink-0 p-4 flex flex-col space-y-2 select-none ${sidebarBg}`}>
+      {/* Sidebar Categories - desktop only */}
+      {!isMobile && <div className={`flex w-48 flex-shrink-0 p-4 flex-col space-y-2 select-none ${sidebarBg}`}>
         <h3 className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${textMuted}`}>Categories</h3>
         {categories.map((cat) => {
           const isSelected = selectedCategory === cat;
@@ -107,13 +113,13 @@ export default function ProjectsApp() {
             </button>
           );
         })}
-      </div>
+      </div>}
 
       {/* Explorer Central Container */}
       <div className="flex-grow flex flex-col min-w-0">
         
         {/* Mobile Categories Bar */}
-        <div className="flex md:hidden px-3 py-2 border-b border-white/5 space-x-1.5 overflow-x-auto shrink-0 select-none custom-scrollbar bg-black/10">
+        {isMobile && <div className="flex px-3 py-2 border-b border-white/5 space-x-1.5 overflow-x-auto shrink-0 select-none custom-scrollbar bg-black/10">
           {categories.map((cat) => {
             const isSelected = selectedCategory === cat;
             return (
@@ -137,7 +143,7 @@ export default function ProjectsApp() {
               </button>
             );
           })}
-        </div>
+        </div>}
 
         {/* Explorer Address Bar / Search & Controls */}
         <div className={`p-3 border-b flex items-center justify-between space-x-4 ${isLight ? 'border-gray-200' : 'border-white/5'}`}>
@@ -178,7 +184,7 @@ export default function ProjectsApp() {
             {filteredProjects.length === 0 ? (
               <p className={`text-center text-xs py-12 ${textMuted}`}>No projects match search filters</p>
             ) : viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
                 {filteredProjects.map((project) => (
                   <div
                     key={project.id}
@@ -234,7 +240,7 @@ export default function ProjectsApp() {
                       <span className="text-xs font-semibold truncate">{project.title}</span>
                     </div>
                     <div className="flex items-center space-x-2 text-[9px] text-gray-400">
-                      <span className="hidden md:inline truncate">{project.category[0]}</span>
+                      {!isMobile && <span className="truncate">{project.category[0]}</span>}
                       <span className="bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-[8px]">{project.technologies[0]}</span>
                     </div>
                   </div>
@@ -246,19 +252,19 @@ export default function ProjectsApp() {
           {/* Details Sidebar Pane */}
           {selectedProject && (
             <>
-              {/* Resize Handle */}
-              <div
+              {/* Resize Handle - desktop only */}
+              {!isMobile && <div
                 onPointerDown={handlePointerDownResize}
                 onPointerMove={handlePointerMoveResize}
                 onPointerUp={handlePointerUpResize}
-                className="hidden md:block w-1 cursor-col-resize hover:bg-purple-500/40 active:bg-purple-600 transition-colors self-stretch flex-shrink-0 relative z-10"
+                className="w-1 cursor-col-resize hover:bg-purple-500/40 active:bg-purple-600 transition-colors self-stretch flex-shrink-0 relative z-10"
                 style={{ marginLeft: '-2px' }}
-              />
+              />}
               <div 
                 style={{ width: isMobile ? '100%' : `${sidebarWidth}px` }}
                 className={`flex-shrink-0 p-5 border-l flex flex-col space-y-4 overflow-y-auto select-none ${
                   isLight ? 'bg-white border-gray-200' : 'bg-slate-900 border-white/10'
-                } custom-scrollbar absolute inset-y-0 right-0 z-30 md:static w-full md:w-auto`}
+                } custom-scrollbar ${isMobile ? 'absolute inset-y-0 right-0 z-30' : 'relative'}`}
               >
               <div className="flex items-center justify-between border-b border-white/10 pb-2">
                 <span className="text-[9px] font-bold text-purple-400 uppercase tracking-wider">{selectedProject.category.join(' / ')}</span>

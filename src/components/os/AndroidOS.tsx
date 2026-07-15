@@ -216,7 +216,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
     let content;
     switch (appId) {
       case 'about': content = <AboutApp />; break;
-      case 'projects': content = <ProjectsApp />; break;
+      case 'projects': content = <ProjectsApp isMobileView={true} />; break;
       case 'experience': content = <ExperienceApp />; break;
       case 'skills': content = <SkillsApp />; break;
       case 'resume': content = <ResumeApp />; break;

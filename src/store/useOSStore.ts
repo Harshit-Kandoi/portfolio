@@ -175,6 +175,7 @@ interface OSState {
 
   // Android OS / Tablet State
   viewMode: 'desktop' | 'mobile' | 'tablet';
+  physicalDeviceType: 'desktop' | 'tablet' | 'mobile';
   isSimulatingMobile: boolean;
   activeMobileApp: string | null;
   mobileRecents: string[];
@@ -220,6 +221,30 @@ const normalizeZIndices = (windows: WindowInstance[], activeId: string): { windo
   };
 };
 
+const getInitialPhysicalDeviceType = (): 'desktop' | 'tablet' | 'mobile' => {
+  if (typeof window === 'undefined') return 'desktop';
+  
+  const userAgent = navigator.userAgent || '';
+  const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
+  const isTabletUA = /iPad|PlayBook|Silk/i.test(userAgent) || (isMobileUA && /tablet/i.test(userAgent));
+  
+  if (isTabletUA) return 'tablet';
+  if (isMobileUA) return 'mobile';
+  
+  if (typeof window.screen !== 'undefined') {
+    const w = window.screen.width;
+    const h = window.screen.height;
+    const maxDim = Math.max(w, h);
+    if (maxDim < 1024) {
+      return 'mobile';
+    } else if (maxDim < 1366) {
+      return 'tablet';
+    }
+  }
+  
+  return 'desktop';
+};
+
 // ─── Store ───────────────────────────────────────────────────────────────────
 export const useOSStore = create<OSState>((set, get) => ({
   // OS System States
@@ -237,6 +262,7 @@ export const useOSStore = create<OSState>((set, get) => ({
 
   // Mobile / Tablet States
   viewMode: 'desktop',
+  physicalDeviceType: getInitialPhysicalDeviceType(),
   isSimulatingMobile: false,
   activeMobileApp: null,
   mobileRecents: [],

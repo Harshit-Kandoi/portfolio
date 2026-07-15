@@ -77,8 +77,8 @@ function App() {
               <Wallpaper type={wallpaper} />
               <Desktop />
               
-              {/* Android Smartphone Simulator Frame Overlay on Desktop */}
-              {viewMode === 'desktop' && isSimulatingMobile && (
+              {/* Android Smartphone Simulator Frame Overlay on Desktop + Tablet landscape */}
+              {(viewMode === 'desktop' || viewMode === 'tablet') && isSimulatingMobile && (
                 <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in">
                   
                   {/* Floating Action Button to close simulator */}
@@ -108,7 +108,13 @@ function App() {
 
                     {/* Simulated Screen Inner Container */}
                     <div className="w-full h-full rounded-[42px] overflow-hidden relative bg-black border border-white/5">
-                      <AndroidOS isFullscreen={false} />
+                      <Suspense fallback={
+                        <div className="flex flex-col items-center justify-center h-full bg-[#0c0d12] text-purple-400 font-mono text-xs">
+                          <span className="animate-pulse">Booting Mobile OS...</span>
+                        </div>
+                      }>
+                        <AndroidOS isFullscreen={false} />
+                      </Suspense>
                     </div>
                   </div>
                 </div>

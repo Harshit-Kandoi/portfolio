@@ -1,13 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOSStore, AppTheme, WallpaperType } from '../../store/useOSStore';
-import { Monitor, Volume2, Palette, ShieldAlert, Smartphone, Cpu, CheckCircle2, Sun } from 'lucide-react';
+import { Monitor, Volume2, Palette, ShieldAlert, Smartphone, Cpu, CheckCircle2, Sun, RefreshCw, Sparkles, Zap } from 'lucide-react';
 import { playThemeSwitchSound } from '../../utils/sounds';
 
+type UpdateState = 'idle' | 'checking' | 'done';
+
 export default function SettingsApp({ isMobileView = false }: { isMobileView?: boolean }) {
+  const [updateState, setUpdateState] = useState<UpdateState>('idle');
+
+  const handleCheckUpdate = () => {
+    if (updateState !== 'idle') return;
+    setUpdateState('checking');
+    setTimeout(() => setUpdateState('done'), 2200);
+  };
+
   const { 
     theme, setTheme, wallpaper, setWallpaper, soundEnabled, setSoundEnabled, volume, setVolume,
-    layoutOverride, setLayoutOverride, mobileBrightness, setMobileBrightness
+    layoutOverride, setLayoutOverride, mobileBrightness, setMobileBrightness,
+    viewMode, isSimulatingMobile, setIsSimulatingMobile, physicalDeviceType
   } = useOSStore();
+
+  const toggleSimulator = () => {
+    setIsSimulatingMobile(!isSimulatingMobile);
+  };
 
   const handleThemeChange = (newTheme: AppTheme) => {
     setTheme(newTheme);
@@ -118,13 +133,68 @@ export default function SettingsApp({ isMobileView = false }: { isMobileView?: b
               <p className="text-[9px] text-gray-500">Checked: Today 17:16 · Jaipur, India</p>
             </div>
             <button 
-              onClick={() => alert("Checking for updates... \nYour phone is already running the latest version of Portfolio OS (v2.2).")}
-              className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-[10px] font-bold py-1.5 px-3 rounded-lg transition self-start"
+              onClick={handleCheckUpdate}
+              disabled={updateState !== 'idle'}
+              className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-white text-[10px] font-bold py-1.5 px-3 rounded-lg transition self-start flex items-center space-x-1.5"
             >
-              Check Update
+              {updateState === 'checking' && <RefreshCw className="w-3 h-3 animate-spin" />}
+              {updateState === 'done' && <CheckCircle2 className="w-3 h-3 text-white" />}
+              <span>{updateState === 'checking' ? 'Checking…' : updateState === 'done' ? 'All Good!' : 'Check Update'}</span>
             </button>
           </div>
+
+          {/* Animated status after check */}
+          {updateState === 'done' && (
+            <div className="mt-3 bg-emerald-900/20 border border-emerald-500/20 rounded-xl p-3 animate-fade-in">
+              <div className="flex items-start space-x-2">
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0 animate-pulse" />
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold text-emerald-300">✅ All up to date!</p>
+                  <p className="text-[9.5px] text-gray-400 leading-relaxed">
+                    Harshit is constantly building himself — new skills, projects & ideas are always in progress. Come back soon!
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* escape hatch for laptop/tablet users inside mobile view */}
+        {physicalDeviceType !== 'mobile' && (
+          <div className={`p-4 rounded-xl border space-y-3.5 ${boxBg}`}>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1.5">
+              <Monitor className="w-4 h-4 text-pink-400 animate-pulse" />
+              <span>Viewing on a Larger Device</span>
+            </h3>
+            <p className="text-[10px] text-gray-400 leading-relaxed">
+              You are simulating or forcing the mobile layout on a physical {physicalDeviceType}. Switch back to your native layout below:
+            </p>
+            <div className="grid grid-cols-2 gap-2 pt-1">
+              {[
+                { id: 'auto',    label: 'Auto (Responsive)',    icon: '🔄' },
+                { id: 'desktop', label: 'Desktop Mode', icon: '🖥️' },
+                { id: 'tablet',  label: 'Tablet Mode',  icon: '📱' },
+                { id: 'mobile',  label: 'Mobile OS',  icon: '📲' },
+              ].map((opt) => {
+                const isSelected = layoutOverride === opt.id;
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => setLayoutOverride(opt.id as 'auto' | 'desktop' | 'tablet' | 'mobile')}
+                    className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                      isSelected
+                        ? 'bg-purple-600/25 border-purple-500 text-white font-semibold shadow-md shadow-purple-500/10'
+                        : 'bg-black/20 border-white/5 hover:bg-white/5 text-gray-300'
+                    }`}
+                  >
+                    <span className="text-sm">{opt.icon}</span>
+                    <span className="text-[10px] font-bold mt-1 leading-tight">{opt.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -253,43 +323,10 @@ export default function SettingsApp({ isMobileView = false }: { isMobileView?: b
           </div>
         </div>
 
-        {/* System Layout Override Control Panel */}
-        <div className={`p-4 rounded-xl border space-y-4 md:col-span-2 ${boxBg}`}>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1.5">
-            <Monitor className="w-4 h-4 text-pink-400" />
-            <span>System Layout Profile</span>
-          </h3>
-          <p className="text-[10px] text-gray-400 mt-1 max-w-xl leading-normal">
-            Force a specific screen layout mode to preview how the portfolio displays on different devices, or keep it set to Auto to react to your browser window width.
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
-            {[
-              { id: 'auto', label: 'Auto (Responsive)', desc: 'Responsive width check' },
-              { id: 'desktop', label: 'Desktop Mode', desc: 'Standard windows layout' },
-              { id: 'tablet', label: 'Tablet Mode', desc: 'Auto-maximized touch' },
-              { id: 'mobile', label: 'Mobile Android', desc: 'Android OS interface' }
-            ].map((opt) => {
-              const isSelected = layoutOverride === opt.id;
-              return (
-                <button
-                  key={opt.id}
-                  onClick={() => setLayoutOverride(opt.id as 'auto' | 'desktop' | 'tablet' | 'mobile')}
-                  className={`p-3 rounded-xl border text-left flex flex-col justify-between transition-all ${
-                    isSelected
-                      ? 'bg-purple-600/25 border-purple-500 text-white font-semibold shadow-md shadow-purple-500/10'
-                      : 'bg-black/20 border-white/5 hover:bg-white/5 text-gray-300'
-                  }`}
-                >
-                  <span className="text-xs font-bold">{opt.label}</span>
-                  <span className="text-[9px] text-gray-400 mt-1 leading-tight">{opt.desc}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
 
-        {/* Mobile Simulator Control Panel (Desktop only) */}
-        {useOSStore.getState().viewMode === 'desktop' && (
+
+        {/* Simulator Control Panel — shown on Desktop & Tablet landscape (both use the windowed Desktop OS) */}
+        {(viewMode === 'desktop' || viewMode === 'tablet') && (
           <div className={`p-4 rounded-xl border space-y-4 md:col-span-2 ${boxBg}`}>
             <h3 className="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1.5">
               <Smartphone className="w-4 h-4 text-purple-400" />
@@ -299,19 +336,50 @@ export default function SettingsApp({ isMobileView = false }: { isMobileView?: b
               <div>
                 <h4 className="text-xs font-bold text-white">Toggle Simulated View</h4>
                 <p className="text-[10px] text-gray-400 mt-1 max-w-md leading-normal">
-                  Renders a hyper-realistic virtual smartphone device frame running our custom Android-style OS. Allows you to test the mobile layout right from your desktop.
+                  Renders a hyper-realistic virtual smartphone device frame running our custom Android-style OS. Works on both Desktop and Tablet landscape — lets you preview the full mobile experience without leaving your current view.
                 </p>
               </div>
               <button
-                onClick={() => useOSStore.setState({ isSimulatingMobile: !useOSStore.getState().isSimulatingMobile })}
-                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all border ${
-                  useOSStore.getState().isSimulatingMobile
-                    ? 'bg-purple-600 border-purple-500 hover:bg-purple-700 text-white'
+                onClick={toggleSimulator}
+                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center space-x-2 ${
+                  isSimulatingMobile
+                    ? 'bg-purple-600 border-purple-500 hover:bg-purple-700 text-white shadow-md shadow-purple-500/20'
                     : 'bg-white/5 border-white/10 hover:bg-white/10 text-gray-300'
                 }`}
               >
-                {useOSStore.getState().isSimulatingMobile ? 'Disable Simulator' : 'Enable Simulator'}
+                {isSimulatingMobile && <Zap className="w-3 h-3 animate-pulse" />}
+                <span>{isSimulatingMobile ? 'Disable Simulator' : 'Enable Simulator'}</span>
               </button>
+            </div>
+
+            {/* Quick Layout Mode Switcher inside Simulator panel */}
+            <div className="border-t border-white/5 pt-3 space-y-2">
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Run layout mode</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  { id: 'auto',    label: 'Auto',    icon: '🔄', desc: 'Responsive' },
+                  { id: 'desktop', label: 'Desktop', icon: '🖥️', desc: 'Full window' },
+                  { id: 'tablet',  label: 'Tablet',  icon: '📱', desc: 'Touch layout' },
+                  { id: 'mobile',  label: 'Mobile',  icon: '📲', desc: 'Android OS' },
+                ].map((opt) => {
+                  const isSelected = layoutOverride === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      onClick={() => setLayoutOverride(opt.id as 'auto' | 'desktop' | 'tablet' | 'mobile')}
+                      className={`p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all ${
+                        isSelected
+                          ? 'bg-purple-600/25 border-purple-500 text-white shadow-md shadow-purple-500/10'
+                          : 'bg-black/20 border-white/5 hover:bg-white/5 text-gray-300'
+                      }`}
+                    >
+                      <span className="text-base">{opt.icon}</span>
+                      <span className="text-[10px] font-bold mt-1 block">{opt.label}</span>
+                      <span className="text-[9px] text-gray-400 leading-tight">{opt.desc}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
         )}
@@ -332,12 +400,31 @@ export default function SettingsApp({ isMobileView = false }: { isMobileView?: b
               <p className="text-[9.5px] text-gray-500">Security patch level: July 2026 · Jaipur, Rajasthan</p>
             </div>
             <button 
-              onClick={() => alert("Checking for updates... \nYour system is already running the latest version of Portfolio OS (v2.2).")}
-              className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-[11px] font-bold py-2 px-4 rounded-xl transition"
+              onClick={handleCheckUpdate}
+              disabled={updateState !== 'idle'}
+              className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-white text-[11px] font-bold py-2 px-4 rounded-xl transition flex items-center space-x-2 shrink-0"
             >
-              Check for Update
+              {updateState === 'checking' && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
+              {updateState === 'done' && <CheckCircle2 className="w-3.5 h-3.5" />}
+              <span>{updateState === 'checking' ? 'Checking…' : updateState === 'done' ? 'All Good!' : 'Check for Update'}</span>
             </button>
           </div>
+
+          {/* Animated result after check */}
+          {updateState === 'done' && (
+            <div className="bg-emerald-950/30 border border-emerald-500/15 rounded-xl p-4 flex items-start space-x-3 animate-fade-in">
+              <div className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0">
+                <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs font-bold text-emerald-300">✅ You're all up to date!</p>
+                <p className="text-[10.5px] text-gray-400 leading-relaxed max-w-sm">
+                  Harshit is working on building himself regularly — continuously shipping new skills, projects, and ideas. Check back soon for the next update!
+                </p>
+                <p className="text-[9.5px] text-gray-500 italic">Last sync: Portfolio OS v2.2 · July 2026</p>
+              </div>
+            </div>
+          )}
         </div>
 
       </div>

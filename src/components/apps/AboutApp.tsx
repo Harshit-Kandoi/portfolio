@@ -12,6 +12,9 @@ const QUOTES = [
 
 export default function AboutApp() {
   const theme = useOSStore((state) => state.theme);
+  const globalViewMode = useOSStore((state) => state.viewMode);
+  const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
+  const isMobile = globalViewMode === 'mobile' || isSimulatingMobile;
   const [activeQuote, setActiveQuote] = useState(QUOTES[0]);
 
   useEffect(() => {
@@ -31,13 +34,13 @@ export default function AboutApp() {
     : 'bg-white/5 border-white/10 backdrop-blur-md';
 
   return (
-    <div className={`flex flex-col flex-grow h-full overflow-y-auto p-5 md:p-6 space-y-6 ${isLight ? 'bg-gray-50 text-gray-800' : 'bg-slate-950 text-purple-100'} custom-scrollbar`}>
+    <div className={`flex flex-col flex-grow h-full overflow-y-auto p-5 space-y-6 ${isLight ? 'bg-gray-50 text-gray-800' : 'bg-slate-950 text-purple-100'} custom-scrollbar`}>
       
       {/* Bio and Card Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+      <div className={`grid gap-6 items-start ${isMobile ? 'grid-cols-1' : 'grid-cols-3'}`}>
         
         {/* Profile Card */}
-        <div className={`md:col-span-1 border p-6 rounded-2xl flex flex-col items-center text-center space-y-4 shadow-xl ${boxBg}`}>
+        <div className={`${isMobile ? '' : 'col-span-1'} border p-6 rounded-2xl flex flex-col items-center text-center space-y-4 shadow-xl ${boxBg}`}>
           <div className="relative group">
             <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-purple-500/50 flex items-center justify-center shadow-lg shadow-purple-500/10">
               <img src="/profile.webp" alt="Harshit Kandoi" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
@@ -67,7 +70,7 @@ export default function AboutApp() {
         </div>
 
         {/* Professional Bio */}
-        <div className="md:col-span-2 space-y-4">
+        <div className={`${isMobile ? '' : 'col-span-2'} space-y-4`}>
           <div className="flex items-center space-x-2">
             <span className="h-1.5 w-1.5 rounded-full bg-purple-500 animate-ping" />
             <h3 className="text-sm font-bold tracking-wider uppercase text-purple-400">Bio Profile</h3>
@@ -94,39 +97,41 @@ export default function AboutApp() {
       </div>
 
       {/* Widgets & Live Updates Panel */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
         
-        {/* Spotify Now Playing Widget (Desktop / Tablet only) */}
-        <div className={`hidden md:flex p-4 rounded-xl border flex-col space-y-2.5 ${boxBg}`}>
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1.5">
-              <Music className="w-3.5 h-3.5 text-pink-400 animate-pulse" />
-              <span>Now Playing (Spotify)</span>
-            </span>
-            <span className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">{SPOTIFY_CONFIG.label}</span>
+        {/* Spotify Now Playing Widget (Desktop only) / Mobile placeholder */}
+        {!isMobile ? (
+          <div className={`flex p-4 rounded-xl border flex-col space-y-2.5 ${boxBg}`}>
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1.5">
+                <Music className="w-3.5 h-3.5 text-pink-400 animate-pulse" />
+                <span>Now Playing (Spotify)</span>
+              </span>
+              <span className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">{SPOTIFY_CONFIG.label}</span>
+            </div>
+            <div className="w-full rounded-xl overflow-hidden shadow-md">
+              <iframe 
+                style={{ borderRadius: '12px' }} 
+                src={SPOTIFY_CONFIG.embedUrl}
+                width="100%" 
+                height="80" 
+                frameBorder="0" 
+                allowFullScreen
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+                loading="lazy"
+              ></iframe>
+            </div>
           </div>
-          <div className="w-full rounded-xl overflow-hidden shadow-md">
-            <iframe 
-              style={{ borderRadius: '12px' }} 
-              src={SPOTIFY_CONFIG.embedUrl}
-              width="100%" 
-              height="80" 
-              frameBorder="0" 
-              allowFullScreen
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
-              loading="lazy"
-            ></iframe>
+        ) : (
+          /* Mobile placeholder */
+          <div className={`flex p-4 rounded-xl border flex-col space-y-3 justify-center items-center text-center ${boxBg}`}>
+            <Music className="w-6 h-6 text-pink-400 animate-bounce" />
+            <div className="space-y-1">
+              <p className="text-xs font-bold text-white">Lofi Coding Vibes</p>
+              <p className="text-[10px] text-gray-400">Spotify embed is disabled on mobile for performance speedups.</p>
+            </div>
           </div>
-        </div>
-
-        {/* Mobile placeholder */}
-        <div className={`flex md:hidden p-4 rounded-xl border flex-col space-y-3 justify-center items-center text-center ${boxBg}`}>
-          <Music className="w-6 h-6 text-pink-400 animate-bounce" />
-          <div className="space-y-1">
-            <p className="text-xs font-bold text-white">Lofi Coding Vibes</p>
-            <p className="text-[10px] text-gray-400">Spotify embed is disabled on mobile for performance speedups.</p>
-          </div>
-        </div>
+        )}
 
         {/* Career Goals & Random Quote */}
         <div className={`p-4 rounded-xl border flex flex-col justify-between ${boxBg} shadow-lg`}>

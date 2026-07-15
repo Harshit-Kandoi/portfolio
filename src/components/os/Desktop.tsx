@@ -375,7 +375,7 @@ export default function Desktop() {
 
           {/* WiFi & Sound */}
           <div className="flex items-center space-x-2 border-l border-white/10 pl-4">
-            {viewMode === 'desktop' && (
+            {(viewMode === 'desktop' || viewMode === 'tablet') && (
               <button 
                 onClick={() => setIsSimulatingMobile(!isSimulatingMobile)} 
                 className={`p-1 rounded-md transition hover:scale-105 active:scale-95 ${

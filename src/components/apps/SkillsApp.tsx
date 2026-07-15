@@ -22,6 +22,9 @@ export default function SkillsApp() {
   const [activeSkill, setActiveSkill] = useState<Skill | null>(skills[0] || null);
   const [viewType, setViewType] = useState<'constellation' | 'grid'>('constellation');
   const theme = useOSStore((state) => state.theme);
+  const globalViewMode = useOSStore((state) => state.viewMode);
+  const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
+  const isMobile = globalViewMode === 'mobile' || isSimulatingMobile;
 
   // Zoom/Pan State
   const [scale, setScale] = useState(1);
@@ -127,7 +130,7 @@ export default function SkillsApp() {
   };
 
   return (
-    <div className={`flex flex-col md:flex-row flex-grow h-full overflow-hidden ${appBg} custom-scrollbar`}>
+    <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} flex-grow h-full overflow-hidden ${appBg} custom-scrollbar`}>
       {/* Constellation Workspace */}
       <div className="flex-grow flex flex-col min-w-0 p-4 select-none relative">
         {/* Navigation Categories tab */}
@@ -395,7 +398,7 @@ export default function SkillsApp() {
 
       {/* Details sidebar pane */}
       {targetSkill && (
-        <div className={`w-full md:w-72 flex-shrink-0 p-5 flex flex-col space-y-4 select-none ${sidebarBg} overflow-y-auto max-h-full custom-scrollbar`}>
+        <div className={`${isMobile ? 'w-full' : 'w-72'} flex-shrink-0 p-5 flex flex-col space-y-4 select-none ${sidebarBg} overflow-y-auto max-h-full custom-scrollbar`}>
           <div className="flex items-center space-x-2.5 pb-2.5 border-b border-white/5">
             <div className="p-2 rounded-xl bg-purple-600/20 text-purple-400 border border-purple-500/25">
               <Sparkles className="w-4 h-4" />
