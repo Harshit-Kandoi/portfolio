@@ -1,4 +1,4 @@
-import React, { useRef, useCallback } from 'react';
+import React, { useRef, useCallback, useEffect } from 'react';
 import { motion, useDragControls, PanInfo } from 'framer-motion';
 import { useOSStore } from '../../store/useOSStore';
 import { playWindowSound } from '../../utils/sounds';
@@ -34,6 +34,7 @@ export default function Window({ id, title, children }: WindowProps) {
 
   // ── Resize state ─────────────────────────────────────────────────────────
   const resizeStart = useRef<{ x: number; y: number; w: number; h: number } | null>(null);
+  const resizeRafId = useRef<number | null>(null);
 
   const handleResizePointerDown = useCallback((e: React.PointerEvent) => {
     e.stopPropagation();
@@ -45,20 +46,42 @@ export default function Window({ id, title, children }: WindowProps) {
 
   const handleResizePointerMove = useCallback((e: React.PointerEvent) => {
     if (!resizeStart.current || !windowInstance) return;
-    const dx = e.clientX - resizeStart.current.x;
-    const dy = e.clientY - resizeStart.current.y;
-    const maxW = window.innerWidth  * 0.95;
-    const maxH = window.innerHeight * 0.90;
-    const newW = Math.max(MIN_W, Math.min(maxW, resizeStart.current.w + dx));
-    const newH = Math.max(MIN_H, Math.min(maxH, resizeStart.current.h + dy));
-    updateWindowSize(id, newW, newH);
+
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    if (resizeRafId.current !== null) {
+      cancelAnimationFrame(resizeRafId.current);
+    }
+
+    resizeRafId.current = requestAnimationFrame(() => {
+      if (!resizeStart.current) return;
+      const dx = clientX - resizeStart.current.x;
+      const dy = clientY - resizeStart.current.y;
+      const maxW = window.innerWidth  * 0.95;
+      const maxH = window.innerHeight * 0.90;
+      const newW = Math.max(MIN_W, Math.min(maxW, resizeStart.current.w + dx));
+      const newH = Math.max(MIN_H, Math.min(maxH, resizeStart.current.h + dy));
+      updateWindowSize(id, newW, newH);
+    });
   }, [id, windowInstance, updateWindowSize]);
 
   const handleResizePointerUp = useCallback((e: React.PointerEvent) => {
+    if (resizeRafId.current !== null) {
+      cancelAnimationFrame(resizeRafId.current);
+      resizeRafId.current = null;
+    }
     resizeStart.current = null;
     (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
     persistWindowState();
   }, [persistWindowState]);
+
+  // Focus window container when opened or focused for keyboard navigators
+  useEffect(() => {
+    if (activeWindowId === id && windowRef.current) {
+      windowRef.current.focus();
+    }
+  }, [activeWindowId, id]);
 
   if (!windowInstance || !windowInstance.isOpen || windowInstance.isMinimized) return null;
 
@@ -92,8 +115,20 @@ export default function Window({ id, title, children }: WindowProps) {
   const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     if (isMaximized) return;
     const screenWidth = window.innerWidth;
-    const currentX = windowInstance.x + info.offset.x;
-    const currentY = windowInstance.y + info.offset.y;
+    const screenHeight = window.innerHeight;
+
+    let currentX = windowInstance.x + info.offset.x;
+    let currentY = windowInstance.y + info.offset.y;
+
+    // Viewport boundaries constraints
+    const minX = -windowInstance.width + 100;
+    const maxX = screenWidth - 100;
+    const minY = 48; // Taskbar height is 48px
+    const maxY = screenHeight - 80;
+
+    currentX = Math.max(minX, Math.min(maxX, currentX));
+    currentY = Math.max(minY, Math.min(maxY, currentY));
+
     if (info.point.x < 30) {
       updateWindowPosition(id, 0, 48);
       updateWindowSize(id, screenWidth / 2, window.innerHeight - 96);
@@ -135,6 +170,9 @@ export default function Window({ id, title, children }: WindowProps) {
   return (
     <motion.div
       ref={windowRef}
+      tabIndex={-1}
+      role="dialog"
+      aria-labelledby={`${id}-window-title`}
       {...dragProps}
       initial={{ scale: 0.95, opacity: 0 }}
       animate={{
@@ -161,21 +199,21 @@ export default function Window({ id, title, children }: WindowProps) {
       >
         <div className="flex items-center space-x-2">
           <div className={`w-2.5 h-2.5 rounded-full ${isActive ? 'bg-purple-400 shadow-[0_0_6px_rgba(168,85,247,0.8)] animate-pulse' : 'bg-purple-500/40'}`} />
-          <span className={`text-xs font-semibold tracking-wide ${theme === 'retro' ? 'uppercase font-mono' : ''}`}>
+          <span id={`${id}-window-title`} className={`text-xs font-semibold tracking-wide ${theme === 'retro' ? 'uppercase font-mono' : ''}`}>
             {title}
           </span>
         </div>
 
         <div className="flex items-center space-x-2">
-          <button onClick={handleMinimize} className="p-1 rounded-md hover:bg-white/10 transition text-gray-400 hover:text-white" title="Minimize">
+          <button onClick={handleMinimize} className="p-1 rounded-md hover:bg-white/10 transition text-gray-400 hover:text-white" title="Minimize" aria-label="Minimize Window">
             <Minus className="w-3.5 h-3.5" />
           </button>
           {viewMode !== 'tablet' && (
-            <button onClick={handleMaximizeToggle} className="p-1 rounded-md hover:bg-white/10 transition text-gray-400 hover:text-white" title={isMaximized ? 'Restore' : 'Maximize'}>
+            <button onClick={handleMaximizeToggle} className="p-1 rounded-md hover:bg-white/10 transition text-gray-400 hover:text-white" title={isMaximized ? 'Restore' : 'Maximize'} aria-label={isMaximized ? 'Restore Window Size' : 'Maximize Window'}>
               {isMaximized ? <Copy className="w-3 h-3" /> : <Square className="w-3 h-3" />}
             </button>
           )}
-          <button onClick={handleClose} className="p-1 rounded-md hover:bg-red-500/80 hover:text-white transition text-gray-400" title="Close">
+          <button onClick={handleClose} className="p-1 rounded-md hover:bg-red-500/80 hover:text-white transition text-gray-400" title="Close" aria-label="Close Window">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -187,7 +225,7 @@ export default function Window({ id, title, children }: WindowProps) {
       </div>
 
       {/* ── Resize Handle (bottom-right corner) ─────────────────────────── */}
-      {!isMaximized && viewMode !== 'tablet' && (
+      {!isMaximized && (
         <div
           onPointerDown={handleResizePointerDown}
           onPointerMove={handleResizePointerMove}

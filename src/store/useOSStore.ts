@@ -197,6 +197,29 @@ interface OSState {
   setLayoutOverride: (override: 'auto' | 'desktop' | 'tablet' | 'mobile') => void;
 }
 
+// Helper to normalize zIndices of open windows to prevent infinite drift
+const normalizeZIndices = (windows: WindowInstance[], activeId: string): { windows: WindowInstance[]; maxZIndex: number } => {
+  const openWindows = windows
+    .filter((w) => w.isOpen && w.id !== activeId)
+    .sort((a, b) => a.zIndex - b.zIndex);
+
+  const normalized = windows.map((w) => {
+    if (w.id === activeId) {
+      return { ...w, isOpen: true, isMinimized: false, zIndex: 10 + openWindows.length };
+    }
+    const idx = openWindows.findIndex((o) => o.id === w.id);
+    if (idx !== -1) {
+      return { ...w, zIndex: 10 + idx };
+    }
+    return w;
+  });
+
+  return {
+    windows: normalized,
+    maxZIndex: 10 + openWindows.length,
+  };
+};
+
 // ─── Store ───────────────────────────────────────────────────────────────────
 export const useOSStore = create<OSState>((set, get) => ({
   // OS System States
@@ -263,19 +286,14 @@ export const useOSStore = create<OSState>((set, get) => ({
     set({ isShuttingDown: true });
   },
 
-  // ─── Window Management Actions ──────────────────────────────────────────
   openWindow: (id) => {
-    const { windows, maxZIndex } = get();
-    const nextZIndex = maxZIndex + 1;
+    const { windows } = get();
+    const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(windows, id);
     set({
       startMenuOpen: false,
       activeWindowId: id,
-      maxZIndex: nextZIndex,
-      windows: windows.map((win) =>
-        win.id === id
-          ? { ...win, isOpen: true, isMinimized: false, zIndex: nextZIndex }
-          : win
-      ),
+      maxZIndex: nextMax,
+      windows: normalizedWindows,
     });
     // Dispatch contextual notification
     const labels: Record<string, [string, string, ToastNotification['category']]> = {
@@ -310,7 +328,13 @@ export const useOSStore = create<OSState>((set, get) => ({
       .filter((w) => w.isOpen && !w.isMinimized)
       .sort((a, b) => b.zIndex - a.zIndex);
     const nextFocusId = openAndNotMinimized.length > 0 ? openAndNotMinimized[0].id : null;
-    set({ windows: newWindows, activeWindowId: nextFocusId });
+    
+    if (nextFocusId) {
+      const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(newWindows, nextFocusId);
+      set({ windows: normalizedWindows, activeWindowId: nextFocusId, maxZIndex: nextMax });
+    } else {
+      set({ windows: newWindows, activeWindowId: null });
+    }
   },
 
   minimizeWindow: (id) => {
@@ -322,7 +346,13 @@ export const useOSStore = create<OSState>((set, get) => ({
       .filter((w) => w.isOpen && !w.isMinimized)
       .sort((a, b) => b.zIndex - a.zIndex);
     const nextFocusId = openAndNotMinimized.length > 0 ? openAndNotMinimized[0].id : null;
-    set({ windows: newWindows, activeWindowId: nextFocusId });
+    
+    if (nextFocusId) {
+      const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(newWindows, nextFocusId);
+      set({ windows: normalizedWindows, activeWindowId: nextFocusId, maxZIndex: nextMax });
+    } else {
+      set({ windows: newWindows, activeWindowId: null });
+    }
   },
 
   maximizeWindow: (id) => {
@@ -345,15 +375,13 @@ export const useOSStore = create<OSState>((set, get) => ({
   },
 
   focusWindow: (id) => {
-    const { windows, maxZIndex, activeWindowId } = get();
+    const { windows, activeWindowId } = get();
     if (activeWindowId === id) return;
-    const nextZIndex = maxZIndex + 1;
+    const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(windows, id);
     set({
       activeWindowId: id,
-      maxZIndex: nextZIndex,
-      windows: windows.map((win) =>
-        win.id === id ? { ...win, isMinimized: false, zIndex: nextZIndex } : win
-      ),
+      maxZIndex: nextMax,
+      windows: normalizedWindows,
     });
   },
 

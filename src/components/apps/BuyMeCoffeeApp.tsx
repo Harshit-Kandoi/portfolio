@@ -129,7 +129,7 @@ export default function BuyMeCoffeeApp() {
                     return (
                       <button
                         key={m.id}
-                        onClick={() => setPaymentMethod(m.id as any)}
+                        onClick={() => setPaymentMethod(m.id as 'card' | 'upi' | 'apple' | 'paypal')}
                         className={`p-3 rounded-xl border flex items-center space-x-2 transition text-left text-xs font-bold ${
                           isSel 
                             ? 'bg-amber-500/15 border-amber-500 text-white shadow-sm shadow-amber-500/10' 

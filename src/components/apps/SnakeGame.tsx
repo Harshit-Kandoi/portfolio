@@ -28,7 +28,6 @@ export default function SnakeGame() {
 
   const [snake, setSnake]     = useState<Cell[]>(INITIAL_SNAKE);
   const [food, setFood]       = useState<Cell>(() => randFood(INITIAL_SNAKE));
-  const [dir, setDir]         = useState<Dir>('RIGHT');
   const [nextDir, setNextDir] = useState<Dir>('RIGHT');
   const [score, setScore]     = useState(0);
   const [highScore, setHighScore] = useState(() => {
@@ -37,11 +36,26 @@ export default function SnakeGame() {
   const [running, setRunning] = useState(false);
   const [dead, setDead]       = useState(false);
   const [muted, setMuted]     = useState(!soundEnabled);
-  const [foodPicked, setFoodPicked] = useState(0);
 
   const tickMs = useRef(SNAKE_CONFIG.initialSpeed);
   const loopRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Prevent browser window/drawer scroll while playing on mobile
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const handleTouchMove = (e: TouchEvent) => {
+      if (running) {
+        e.preventDefault();
+      }
+    };
+    el.addEventListener('touchmove', handleTouchMove, { passive: false });
+    return () => {
+      el.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [running]);
 
   // Sound helpers
   const beep = useCallback((freq: number, dur: number) => {
@@ -116,7 +130,6 @@ export default function SnakeGame() {
     if (!running || dead) return;
 
     loopRef.current = setTimeout(() => {
-      setDir(nextDir);
       setSnake((prev) => {
         const head = prev[0];
         const DELTAS: Record<Dir, Cell> = { UP: { x: 0, y: -1 }, DOWN: { x: 0, y: 1 }, LEFT: { x: -1, y: 0 }, RIGHT: { x: 1, y: 0 } };
@@ -150,13 +163,11 @@ export default function SnakeGame() {
             }
             return ns;
           });
-          setFoodPicked((fp) => {
-            const nfp = fp + 1;
-            if (nfp % SNAKE_CONFIG.speedThreshold === 0) {
-              tickMs.current = Math.max(60, tickMs.current - SNAKE_CONFIG.speedIncrement);
-            }
-            return nfp;
-          });
+          
+          const nfp = next.length - 3;
+          if (nfp > 0 && nfp % SNAKE_CONFIG.speedThreshold === 0) {
+            tickMs.current = Math.max(60, tickMs.current - SNAKE_CONFIG.speedIncrement);
+          }
         }
         return next;
       });
@@ -182,7 +193,7 @@ export default function SnakeGame() {
   const boardSize = GRID * cellPx;
 
   return (
-    <div className={`flex flex-col flex-grow h-full items-center justify-center p-4 space-y-4 select-none ${bg}`}
+    <div ref={containerRef} className={`flex flex-col flex-grow h-full items-center justify-center p-4 space-y-4 select-none ${bg}`}
       onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
 
       {/* Header */}

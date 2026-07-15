@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useOSStore, AppTheme } from '../../store/useOSStore';
 import { 
   Wifi, Signal, Battery, Search, Bell, Settings as GearIcon, 
@@ -6,22 +6,24 @@ import {
   User, Folder, Briefcase, Award, FileText, Terminal as TermIcon,
   MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon, Heart, Coffee
 } from 'lucide-react';
-import AboutApp from '../apps/AboutApp';
-import ProjectsApp from '../apps/ProjectsApp';
-import ExperienceApp from '../apps/ExperienceApp';
-import SkillsApp from '../apps/SkillsApp';
-import ResumeApp from '../apps/ResumeApp';
-import TerminalWindow from '../apps/TerminalWindow';
-import AIAssistantApp from '../apps/AIAssistantApp';
-import BlogApp from '../apps/BlogApp';
-import AchievementsApp from '../apps/AchievementsApp';
-import GamingApp from '../apps/GamingApp';
-import ContactApp from '../apps/ContactApp';
-import SettingsApp from '../apps/SettingsApp';
-import SnakeGame from '../apps/SnakeGame';
-import PortfolioSwipe from '../apps/PortfolioSwipe';
-import BuyMeCoffeeApp from '../apps/BuyMeCoffeeApp';
 import { playWindowSound } from '../../utils/sounds';
+
+// Lazy load app modules to reduce initial mobile JS bundle size and improve load speed
+const AboutApp       = lazy(() => import('../apps/AboutApp'));
+const ProjectsApp    = lazy(() => import('../apps/ProjectsApp'));
+const ExperienceApp  = lazy(() => import('../apps/ExperienceApp'));
+const SkillsApp      = lazy(() => import('../apps/SkillsApp'));
+const ResumeApp      = lazy(() => import('../apps/ResumeApp'));
+const TerminalWindow = lazy(() => import('../apps/TerminalWindow'));
+const AIAssistantApp = lazy(() => import('../apps/AIAssistantApp'));
+const BlogApp        = lazy(() => import('../apps/BlogApp'));
+const AchievementsApp= lazy(() => import('../apps/AchievementsApp'));
+const GamingApp      = lazy(() => import('../apps/GamingApp'));
+const ContactApp     = lazy(() => import('../apps/ContactApp'));
+const SettingsApp    = lazy(() => import('../apps/SettingsApp'));
+const SnakeGame      = lazy(() => import('../apps/SnakeGame'));
+const PortfolioSwipe = lazy(() => import('../apps/PortfolioSwipe'));
+const BuyMeCoffeeApp = lazy(() => import('../apps/BuyMeCoffeeApp'));
 
 // Custom Snake Icon SVG
 const SnakeIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -39,7 +41,7 @@ interface AndroidOSProps {
 export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
   const {
     theme, setTheme,
-    notifications, dismissNotification, clearNotifications, addNotification, unlockAchievement,
+    notifications, dismissNotification, clearNotifications, addNotification,
     activeMobileApp, openMobileApp, closeMobileApp, mobileRecents, clearMobileRecents,
     showMobileDrawer, setShowMobileDrawer,
     showMobileSettings, setShowMobileSettings,
@@ -205,24 +207,37 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
 
   // Render content of opened app
   const renderAppContent = (appId: string) => {
+    const fallback = (
+      <div className="flex flex-col items-center justify-center h-full p-6 text-purple-400 font-mono text-[10px] sm:text-xs">
+        <span className="animate-pulse">Loading app components...</span>
+      </div>
+    );
+
+    let content;
     switch (appId) {
-      case 'about': return <AboutApp />;
-      case 'projects': return <ProjectsApp />;
-      case 'experience': return <ExperienceApp />;
-      case 'skills': return <SkillsApp />;
-      case 'resume': return <ResumeApp />;
-      case 'terminal': return <TerminalWindow />;
-      case 'ai': return <AIAssistantApp />;
-      case 'blog': return <BlogApp />;
-      case 'achievements': return <AchievementsApp />;
-      case 'gaming': return <GamingApp />;
-      case 'snake': return <SnakeGame />;
-      case 'swipe': return <PortfolioSwipe />;
-      case 'coffee': return <BuyMeCoffeeApp />;
-      case 'contact': return <ContactApp />;
-      case 'settings': return <SettingsApp isMobileView={true} />;
-      default: return <div className="p-4 text-center text-white">App is currently building...</div>;
+      case 'about': content = <AboutApp />; break;
+      case 'projects': content = <ProjectsApp />; break;
+      case 'experience': content = <ExperienceApp />; break;
+      case 'skills': content = <SkillsApp />; break;
+      case 'resume': content = <ResumeApp />; break;
+      case 'terminal': content = <TerminalWindow />; break;
+      case 'ai': content = <AIAssistantApp />; break;
+      case 'blog': content = <BlogApp />; break;
+      case 'achievements': content = <AchievementsApp />; break;
+      case 'gaming': content = <GamingApp />; break;
+      case 'snake': content = <SnakeGame />; break;
+      case 'swipe': content = <PortfolioSwipe />; break;
+      case 'coffee': content = <BuyMeCoffeeApp />; break;
+      case 'contact': content = <ContactApp />; break;
+      case 'settings': content = <SettingsApp isMobileView={true} />; break;
+      default: content = <div className="p-4 text-center text-white">App is currently building...</div>;
     }
+
+    return (
+      <Suspense fallback={fallback}>
+        {content}
+      </Suspense>
+    );
   };
 
   return (

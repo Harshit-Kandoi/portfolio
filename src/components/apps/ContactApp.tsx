@@ -28,18 +28,23 @@ export default function ContactApp() {
 
     setSending(true);
 
-    // Simulate network dispatch delay
+    const mailtoUrl = `mailto:${PORTFOLIO_META.email}?subject=${encodeURIComponent(subject || 'Portfolio OS Connection')}&body=${encodeURIComponent(`From: ${email}\n\n${message}`)}`;
+
+    // Simulate network dispatch delay and open mail client
     setTimeout(() => {
       setSending(false);
       setSuccess(true);
-      addNotification('✉️ Message Dispatched', 'Your email inquiry was successfully sent to Harshit!', 'success', 'career');
+      addNotification('✉️ Mail Client Opened', 'Opening default mail client to send message to Harshit!', 'success', 'career');
       playNotificationSound();
       
+      // Redirect to mailto link
+      window.location.href = mailtoUrl;
+
       // Reset form
       setEmail('');
       setSubject('');
       setMessage('');
-    }, 1500);
+    }, 1200);
   };
 
   const isLight = theme === 'light';

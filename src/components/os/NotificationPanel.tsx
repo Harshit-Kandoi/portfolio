@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useOSStore, ToastNotification } from '../../store/useOSStore';
-import { Bell, Trophy, CheckCircle, Info, AlertTriangle, Gamepad2, Briefcase, Coffee, Globe, Laugh, X, Trash2 } from 'lucide-react';
+import { Bell, Trophy, CheckCircle, Info, AlertTriangle, Gamepad2, Briefcase, Globe, Laugh, X, Trash2 } from 'lucide-react';
 
 const CATEGORY_META: Record<ToastNotification['category'], { label: string; icon: React.ElementType; color: string }> = {
   system:    { label: 'System',    icon: Info,       color: 'text-blue-400'   },

@@ -5,7 +5,7 @@ import {
   Settings as GearIcon, User, Briefcase, Award, FileText, Send, 
   Search, Cpu, HardDrive, Wifi, Volume2, Bell, LogOut, Moon, Sun, 
   Gamepad2, Github, Linkedin, Smartphone, Mail, Phone, Database,
-  Gamepad, Coffee, Heart
+  Coffee, Heart
 } from 'lucide-react';
 import Window from './Window';
 import NotificationPanel from './NotificationPanel';
@@ -453,7 +453,7 @@ export default function Desktop() {
         }`}>
           <div className="flex items-center space-x-3 pb-3 border-b border-white/10 dark:border-gray-800">
             <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-tr from-purple-500 to-indigo-500 border border-white/20 flex items-center justify-center">
-              <img src="/profile.jpg" alt="HK" className="w-full h-full object-cover" />
+              <img src="/profile.webp" alt="HK" className="w-full h-full object-cover" />
             </div>
             <div>
               <h3 className="text-xs font-bold">Harshit Kandoi</h3>
@@ -505,13 +505,20 @@ export default function Desktop() {
           : 'grid grid-flow-col auto-cols-max grid-rows-[repeat(auto-fill,96px)] gap-4 max-h-[calc(100vh-112px)]'
       }`}>
         {filteredApps.map((app) => (
-          <div
+          <button
             key={app.id}
             onDoubleClick={() => handleIconDoubleClick(app.id)}
             onTouchEnd={() => handleIconDoubleClick(app.id)} // Mobile-friendly trigger
-            className={`flex flex-col items-center justify-center rounded-xl cursor-pointer hover:bg-white/5 border border-transparent hover:border-white/10 active:bg-white/10 transition-all select-none group text-center ${
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleIconDoubleClick(app.id);
+              }
+            }}
+            className={`flex flex-col items-center justify-center rounded-xl cursor-pointer hover:bg-white/5 border border-transparent hover:border-white/10 active:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all select-none group text-center ${
               viewMode === 'tablet' ? 'w-24 h-24' : 'w-20 h-20'
             }`}
+            aria-label={`Open ${app.title.replace('.exe', '')}`}
           >
             <div className={`rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-lg shadow-black/20 group-hover:scale-105 transition-transform ${
               viewMode === 'tablet' ? 'w-12 h-12' : 'w-11 h-11'
@@ -521,7 +528,7 @@ export default function Desktop() {
             <span className="text-[10px] font-medium tracking-wide mt-2 text-gray-200 truncate w-18 text-shadow">
               {app.title}
             </span>
-          </div>
+          </button>
         ))}
       </div>
 

@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useOSStore } from '../../store/useOSStore';
-import { Heart, X, Star, MapPin, Briefcase, ArrowLeft, CheckCircle, Clock, ChevronRight, Code2, MessageCircle, Sparkles } from 'lucide-react';
+import { Heart, X, Star, Briefcase, ArrowLeft, CheckCircle, Clock, ChevronRight, Code2, MessageCircle, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 // ─── Role Definitions ────────────────────────────────────────────────────────
 interface Role {
@@ -145,7 +146,6 @@ export default function PortfolioSwipe() {
   const [swipeCount, setSwipeCount] = useState(0);
 
   const cardRef = useRef<HTMLDivElement>(null);
-  const dragStart = useRef<{ x: number; y: number } | null>(null);
 
   const isLight = theme === 'light';
   const bg = isLight ? 'bg-gray-50 text-gray-900' : 'bg-gradient-to-b from-slate-950 via-purple-950/10 to-slate-950 text-white';
@@ -331,9 +331,20 @@ export default function PortfolioSwipe() {
             )}
 
             {/* Main Card */}
-            <div
+            <motion.div
               ref={cardRef}
-              className={`relative w-72 rounded-3xl overflow-hidden shadow-2xl border border-white/10 cursor-pointer transition-all duration-300 ${
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.7}
+              onDragEnd={(event, info) => {
+                const threshold = 120;
+                if (info.offset.x > threshold) {
+                  swipe('right');
+                } else if (info.offset.x < -threshold) {
+                  swipe('left');
+                }
+              }}
+              className={`relative w-72 rounded-3xl overflow-hidden shadow-2xl border border-white/10 cursor-grab active:cursor-grabbing transition-all duration-300 ${
                 swiping === 'right' ? 'translate-x-32 rotate-12 opacity-0' :
                 swiping === 'left'  ? '-translate-x-32 -rotate-12 opacity-0' : ''
               }`}
@@ -376,7 +387,7 @@ export default function PortfolioSwipe() {
                   <span>⏱ {currentRole.availability}</span>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Swipe Buttons (High Fidelity Tinder Style) */}
             <div className="flex items-center space-x-6 mt-6">

@@ -104,7 +104,7 @@ export default function GamingApp() {
         {/* Pixel Character Avatar */}
         <div className={`p-4 rounded-xl border flex flex-col items-center text-center space-y-3 ${boxBg}`}>
           <div className="w-20 h-20 bg-gradient-to-tr from-purple-800 to-indigo-600 rounded-2xl flex items-center justify-center relative overflow-hidden border border-white/20 select-none shadow-lg">
-            <img src="/gaming profile.png" alt="Harshit Character" className="w-full h-full object-cover" />
+            <img src="/gaming profile.webp" alt="Harshit Character" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_40%,_rgba(0,0,0,0.4))] animate-pulse" />
           </div>
           <div>

@@ -4,8 +4,6 @@ import { ArrowRight, Clock, ArrowUp } from 'lucide-react';
 
 export default function LockScreen() {
   const setBootState = useOSStore((state) => state.setBootState);
-  const soundEnabled = useOSStore((state) => state.soundEnabled);
-  const setSoundEnabled = useOSStore((state) => state.setSoundEnabled);
   const viewMode = useOSStore((state) => state.viewMode);
   
   const [time, setTime] = useState(new Date());
@@ -16,11 +14,8 @@ export default function LockScreen() {
   }, []);
 
   const handleUnlock = useCallback(() => {
-    if (!soundEnabled) {
-      setSoundEnabled(true);
-    }
     setBootState('desktop');
-  }, [soundEnabled, setSoundEnabled, setBootState]);
+  }, [setBootState]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -41,7 +36,7 @@ export default function LockScreen() {
       <div
         className="fixed inset-0 select-none z-[9990] flex flex-col justify-between p-6 text-white bg-[#03001e] bg-cover bg-center"
         style={{
-          backgroundImage: `radial-gradient(circle at center, rgba(13, 10, 49, 0.5) 0%, rgba(3, 0, 30, 0.95) 100%), url('/wallpaper.jpeg')`,
+          backgroundImage: `radial-gradient(circle at center, rgba(13, 10, 49, 0.5) 0%, rgba(3, 0, 30, 0.95) 100%), url('/wallpaper.webp')`,
         }}
       >
         {/* Mobile Top Bar */}
@@ -86,7 +81,7 @@ export default function LockScreen() {
     <div
       className="fixed inset-0 select-none z-[9990] flex flex-col justify-between p-8 text-white bg-[#03001e] bg-cover bg-center"
       style={{
-        backgroundImage: `radial-gradient(circle at center, rgba(13, 10, 49, 0.4) 0%, rgba(3, 0, 30, 0.95) 100%), url('/wallpaper.jpeg')`,
+        backgroundImage: `radial-gradient(circle at center, rgba(13, 10, 49, 0.4) 0%, rgba(3, 0, 30, 0.95) 100%), url('/wallpaper.webp')`,
       }}
     >
       {/* Top Bar with Time & Weather status info */}
@@ -118,7 +113,7 @@ export default function LockScreen() {
       <div className="flex flex-col items-center justify-center mb-8 max-w-md mx-auto w-full">
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-3xl w-full flex flex-col items-center text-center shadow-2xl animate-slide-up">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-tr from-purple-500 to-indigo-500 border border-white/30 flex items-center justify-center mb-4">
-            <img src="/profile.jpg" alt="Harshit Kandoi" className="w-full h-full object-cover" />
+            <img src="/profile.webp" alt="Harshit Kandoi" className="w-full h-full object-cover" />
           </div>
           <h2 className="text-lg font-semibold tracking-wide">Harshit Kandoi</h2>
           <p className="text-xs text-purple-200 mt-1 mb-6">Software & AI Engineer</p>

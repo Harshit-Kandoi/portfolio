@@ -12,7 +12,6 @@ const QUOTES = [
 
 export default function AboutApp() {
   const theme = useOSStore((state) => state.theme);
-  const viewMode = useOSStore((state) => state.viewMode);
   const [activeQuote, setActiveQuote] = useState(QUOTES[0]);
 
   useEffect(() => {
@@ -26,7 +25,6 @@ export default function AboutApp() {
   }, []);
 
   const isLight = theme === 'light';
-  const isMobile = viewMode === 'mobile';
   const textMuted = isLight ? 'text-gray-500' : 'text-gray-400';
   const boxBg = isLight 
     ? 'bg-white border-gray-200/80 shadow-sm' 
@@ -42,7 +40,7 @@ export default function AboutApp() {
         <div className={`md:col-span-1 border p-6 rounded-2xl flex flex-col items-center text-center space-y-4 shadow-xl ${boxBg}`}>
           <div className="relative group">
             <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-purple-500/50 flex items-center justify-center shadow-lg shadow-purple-500/10">
-              <img src="/profile.jpg" alt="Harshit Kandoi" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+              <img src="/profile.webp" alt="Harshit Kandoi" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
             </div>
             <span className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-slate-950 animate-pulse" />
           </div>
