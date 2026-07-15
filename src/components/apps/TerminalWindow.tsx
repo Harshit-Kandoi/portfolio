@@ -8,7 +8,7 @@ interface HistoryItem {
 }
 
 export default function TerminalWindow() {
-  const { openWindow, setTheme, addTerminalCommand } = useOSStore();
+  const { openWindow, setTheme, addTerminalCommand, viewMode, isSimulatingMobile } = useOSStore();
   const [history, setHistory] = useState<HistoryItem[]>([
     {
       command: 'system_init',
@@ -34,6 +34,48 @@ export default function TerminalWindow() {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
   }, [history, isMatrixActive]);
+
+  // Prevent parent scroll-chaining on swipe boundary hits
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let touchStartY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        touchStartY = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+
+      const target = e.currentTarget as HTMLElement;
+      const currentY = e.touches[0].clientY;
+      const deltaY = currentY - touchStartY;
+      const isScrollable = target.scrollHeight > target.clientHeight;
+
+      if (isScrollable) {
+        const isAtTop = target.scrollTop <= 0 && deltaY > 0;
+        const isAtBottom = 
+          target.scrollHeight - target.scrollTop - target.clientHeight <= 1 && deltaY < 0;
+
+        if ((isAtTop || isAtBottom) && e.cancelable) {
+          e.preventDefault();
+        }
+      } else {
+        if (e.cancelable) e.preventDefault();
+      }
+    };
+
+    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    container.addEventListener('touchmove', handleTouchMove, { passive: false });
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, []);
 
   // Handle matrix canvas animation
   useEffect(() => {
@@ -333,7 +375,7 @@ export default function TerminalWindow() {
             onChange={(e) => setInputVal(e.target.value)}
             onKeyDown={handleKeyDown}
             className="absolute bottom-2 left-2 z-10 opacity-0 w-1 text-base"
-            autoFocus
+            autoFocus={viewMode === 'desktop' && !isSimulatingMobile}
           />
         </div>
       ) : (
@@ -357,7 +399,7 @@ export default function TerminalWindow() {
               onChange={(e) => setInputVal(e.target.value)}
               onKeyDown={handleKeyDown}
               className="flex-grow bg-transparent focus:outline-none text-green-400 font-mono caret-green-400 border-none p-0 text-base sm:text-xs md:text-sm"
-              autoFocus
+              autoFocus={viewMode === 'desktop' && !isSimulatingMobile}
             />
           </div>
         </div>

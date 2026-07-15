@@ -151,13 +151,59 @@ export default function AIAssistantApp() {
   const [selfDestructActive, setSelfDestructActive] = useState(false);
   const [countdown, setCountdown] = useState(5);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const theme = useOSStore((state) => state.theme);
 
   useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTo({
+        top: chatContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   }, [chatMessages]);
+
+  // Prevent scroll propagation on touchmove boundaries
+  useEffect(() => {
+    const container = chatContainerRef.current;
+    if (!container) return;
+
+    let touchStartY = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        touchStartY = e.touches[0].clientY;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length !== 1) return;
+
+      const target = e.currentTarget as HTMLElement;
+      const currentY = e.touches[0].clientY;
+      const deltaY = currentY - touchStartY;
+      const isScrollable = target.scrollHeight > target.clientHeight;
+
+      if (isScrollable) {
+        const isAtTop = target.scrollTop <= 0 && deltaY > 0;
+        const isAtBottom = 
+          target.scrollHeight - target.scrollTop - target.clientHeight <= 1 && deltaY < 0;
+
+        if ((isAtTop || isAtBottom) && e.cancelable) {
+          e.preventDefault();
+        }
+      } else {
+        if (e.cancelable) e.preventDefault();
+      }
+    };
+
+    container.addEventListener('touchstart', handleTouchStart, { passive: true });
+    container.addEventListener('touchmove', handleTouchMove, { passive: false });
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, []);
 
   // Self-destruct countdown – fires after stage 5 unsupported query
   useEffect(() => {
@@ -274,6 +320,7 @@ export default function AIAssistantApp() {
       )}
       {/* Scrollable messages area */}
       <div 
+        ref={chatContainerRef}
         className="flex-grow flex-shrink min-h-0 overflow-y-auto p-4 space-y-4 overscroll-contain custom-scrollbar"
         style={{ overscrollBehavior: 'contain', touchAction: 'pan-y' }}
       >
