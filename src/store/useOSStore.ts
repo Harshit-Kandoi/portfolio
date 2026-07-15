@@ -121,7 +121,7 @@ interface OSState {
   wallpaper: WallpaperType;
   soundEnabled: boolean;
   volume: number;
-  bootState: 'booting' | 'locked' | 'desktop';
+  bootState: 'booting' | 'locked' | 'desktop' | 'powered_off';
   isShuttingDown: boolean;
   hasVisited: boolean;
   startMenuOpen: boolean;
@@ -142,9 +142,10 @@ interface OSState {
   setWallpaper: (wallpaper: WallpaperType) => void;
   setSoundEnabled: (enabled: boolean) => void;
   setVolume: (volume: number) => void;
-  setBootState: (state: 'booting' | 'locked' | 'desktop') => void;
+  setBootState: (state: 'booting' | 'locked' | 'desktop' | 'powered_off') => void;
   setStartMenuOpen: (open: boolean) => void;
   initiateShutdown: () => void;
+  resetShutdown: () => void;
 
   // Window Actions
   openWindow: (id: string) => void;
@@ -310,6 +311,10 @@ export const useOSStore = create<OSState>((set, get) => ({
     safeSet(SESSION_KEYS.achievements, state.unlockedAchievements);
     get().persistWindowState();
     set({ isShuttingDown: true });
+  },
+
+  resetShutdown: () => {
+    set({ isShuttingDown: false });
   },
 
   openWindow: (id) => {

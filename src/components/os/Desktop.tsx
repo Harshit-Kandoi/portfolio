@@ -148,7 +148,7 @@ export default function Desktop() {
         clearInterval(interval);
         setTimeout(() => {
           closeAllWindows();
-          setBootState('booting');
+          setBootState('powered_off');
         }, 900);
       }
     }, 600);

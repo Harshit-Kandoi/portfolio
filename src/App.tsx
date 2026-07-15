@@ -4,6 +4,7 @@ import BootScreen from './components/os/BootScreen';
 import LockScreen from './components/os/LockScreen';
 import Desktop from './components/os/Desktop';
 import Wallpaper from './components/os/Wallpaper';
+import PoweredOffScreen from './components/os/PoweredOffScreen';
 
 const AndroidOS = lazy(() => import('./components/os/AndroidOS'));
 
@@ -63,6 +64,7 @@ function App() {
     <div className={`h-dvh w-screen overflow-hidden font-sans select-none relative ${themeWrapperClass}`}>
       {bootState === 'booting' && <BootScreen />}
       {bootState === 'locked' && <LockScreen />}
+      {bootState === 'powered_off' && <PoweredOffScreen />}
       
       {bootState === 'desktop' && (
         <Suspense fallback={
