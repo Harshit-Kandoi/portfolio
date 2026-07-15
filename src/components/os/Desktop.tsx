@@ -448,7 +448,7 @@ export default function Desktop() {
       {startMenuOpen && (
         <div id="start-menu" className={`fixed border shadow-2xl z-[10000] ${cardBg} backdrop-blur-3xl flex flex-col space-y-4 animate-slide-up transition-all duration-300 ${
           viewMode === 'tablet'
-            ? 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[85vw] max-w-md p-8 rounded-3xl'
+            ? 'left-6 top-14 w-[85vw] max-w-md p-8 rounded-3xl'
             : 'left-4 top-14 w-80 p-6 rounded-2xl'
         }`}>
           <div className="flex items-center space-x-3 pb-3 border-b border-white/10 dark:border-gray-800">
