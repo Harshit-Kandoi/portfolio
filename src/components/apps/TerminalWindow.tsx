@@ -226,11 +226,14 @@ export default function TerminalWindow() {
             <div className="space-y-1">
               <div><span className="text-blue-400 font-bold">harshit@portfolio-os</span></div>
               <div>-------------------------</div>
-              <div><span className="text-blue-400">OS</span>: Developer Portfolio OS v2</div>
-              <div><span className="text-blue-400">Kernel</span>: React 18 / Zustand / Vite</div>
-              <div><span className="text-blue-400">Shell</span>: Antigravity Shell 1.0</div>
+              <div><span className="text-blue-400">OS</span>: Developer Portfolio OS v2.4.0</div>
+              <div><span className="text-blue-400">Kernel</span>: React 18 / Zustand / Tailwind v3</div>
+              <div><span className="text-blue-400">Uptime</span>: 1h 43m</div>
+              <div><span className="text-blue-400">Shell</span>: zsh 5.9</div>
               <div><span className="text-blue-400">Resolution</span>: {window.innerWidth}x{window.innerHeight}</div>
               <div><span className="text-blue-400">Theme</span>: {useOSStore.getState().theme.toUpperCase()}</div>
+              <div><span className="text-blue-400">CPU</span>: Apple M2 Max (12 Cores)</div>
+              <div><span className="text-blue-400">GPU</span>: Apple M2 Max (30 Cores)</div>
               <div><span className="text-blue-400">Developer</span>: Harshit Kandoi</div>
               <div><span className="text-blue-400">Role</span>: Software & AI Engineer</div>
             </div>
@@ -240,9 +243,12 @@ export default function TerminalWindow() {
 
       case 'whoami':
         output = (
-          <p className="text-gray-300">
-            guest@portfolio-os. Level: Code Warrior. Open to interview inquiries.
-          </p>
+          <div className="space-y-1 text-gray-300">
+            <p><span className="text-yellow-300 font-bold">User</span>: guest (External Recruiter/Visitor)</p>
+            <p><span className="text-yellow-300 font-bold">Permissions</span>: Read-Only (Interactive Sandbox)</p>
+            <p><span className="text-yellow-300 font-bold">Active Shell</span>: zsh (simulated)</p>
+            <p><span className="text-yellow-300 font-bold">Status</span>: Connected from {window.location.hostname || "local-recruiters"}</p>
+          </div>
         );
         break;
 

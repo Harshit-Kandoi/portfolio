@@ -1,23 +1,30 @@
 import React, { useState } from 'react';
 import { projects } from '../../data/projects';
 import { Project } from '../../types';
-import { Folder, Grid, List, Search, Github, ExternalLink } from 'lucide-react';
+import { Folder, Grid, List, Search, Github, ExternalLink, X } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 
 export default function ProjectsApp() {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedProject, setSelectedProject] = useState<Project | null>(projects[0] || null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null); // Hide preview panel by default
   const theme = useOSStore((state) => state.theme);
 
   // Categorize
-  const categories = ['All', 'AI & Machine Learning', 'Cloud & Backend', 'Data & Automation'];
+  const categories = ['All', 'AI & ML', 'Cloud & Backend', 'Data & Automation'];
 
   const filteredProjects = projects.filter((project) => {
     const matchesCategory =
       selectedCategory === 'All' ||
-      project.category.some((cat) => cat.includes(selectedCategory) || selectedCategory.includes(cat));
+      project.category.some((cat) => {
+        const pCat = cat.toLowerCase();
+        const sCat = selectedCategory.toLowerCase();
+        if (sCat === 'ai & ml') {
+          return pCat.includes('ai') || pCat.includes('machine learning');
+        }
+        return pCat.includes(sCat) || sCat.includes(pCat);
+      });
     
     const matchesSearch =
       project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -34,7 +41,7 @@ export default function ProjectsApp() {
   const textMuted = isLight ? 'text-gray-500' : 'text-gray-400';
 
   return (
-    <div className={`flex flex-grow h-full overflow-hidden ${explorerBg}`}>
+    <div className={`flex flex-grow h-full overflow-hidden ${explorerBg} custom-scrollbar`}>
       {/* Sidebar Categories */}
       <div className={`w-48 flex-shrink-0 p-4 flex flex-col space-y-2 select-none ${sidebarBg}`}>
         <h3 className={`text-[10px] font-bold uppercase tracking-wider mb-2 ${textMuted}`}>Categories</h3>
@@ -45,11 +52,7 @@ export default function ProjectsApp() {
               key={cat}
               onClick={() => {
                 setSelectedCategory(cat);
-                // Auto reset selected project to first match of category
-                const matched = projects.find((p) =>
-                  cat === 'All' || p.category.some((c) => c.includes(cat) || cat.includes(c))
-                );
-                setSelectedProject(matched || null);
+                setSelectedProject(null); // Hide preview on category switch
               }}
               className={`flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-left transition ${
                 isSelected 
@@ -58,7 +61,7 @@ export default function ProjectsApp() {
               } ${isLight && isSelected ? 'bg-purple-50 text-purple-600 border-purple-600' : ''} ${isLight && !isSelected ? 'text-gray-600 hover:bg-gray-100 hover:text-gray-900' : ''}`}
             >
               <Folder className={`w-4 h-4 ${isSelected ? 'text-purple-400' : 'text-gray-400'}`} />
-              <span className="truncate">{cat.replace('& Machine Learning', 'AI').replace('& Automation', 'Data')}</span>
+              <span className="truncate">{cat}</span>
             </button>
           );
         })}
@@ -102,7 +105,7 @@ export default function ProjectsApp() {
 
         {/* Content Folder Grid */}
         <div className="flex-grow flex overflow-hidden">
-          <div className="flex-grow overflow-y-auto p-4 min-w-0">
+          <div className="flex-grow overflow-y-auto p-4 min-w-0 custom-scrollbar">
             {filteredProjects.length === 0 ? (
               <p className={`text-center text-xs py-12 ${textMuted}`}>No projects match search filters</p>
             ) : viewMode === 'grid' ? (
@@ -118,8 +121,8 @@ export default function ProjectsApp() {
                     <div className="w-full h-28 rounded-lg overflow-hidden relative">
                       <img src={project.image} alt={project.title} className="w-full h-full object-cover transition transform hover:scale-105" loading="lazy" />
                       {project.featured && (
-                        <span className="absolute top-2 left-2 bg-purple-600 text-white font-bold text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded-md">
-                          Featured
+                        <span className="absolute top-2 left-2 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-900 font-bold text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow">
+                          Favorite
                         </span>
                       )}
                     </div>
@@ -168,14 +171,36 @@ export default function ProjectsApp() {
           {selectedProject && (
             <div className={`w-72 flex-shrink-0 p-5 border-l flex flex-col space-y-4 overflow-y-auto select-none ${
               isLight ? 'bg-white border-gray-200' : 'bg-slate-900/40 border-white/5'
-            }`}>
+            } custom-scrollbar`}>
+              <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                <span className="text-[9px] font-bold text-purple-400 uppercase tracking-wider">{selectedProject.category.join(' / ')}</span>
+                <button 
+                  onClick={() => setSelectedProject(null)}
+                  className="p-1 rounded-md hover:bg-white/10 text-gray-400 hover:text-white transition"
+                  title="Close Preview"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
               <div className="w-full h-36 rounded-xl overflow-hidden shadow-inner">
                 <img src={selectedProject.image} alt={selectedProject.title} className="w-full h-full object-cover" />
               </div>
               
               <div className="space-y-1">
                 <h3 className="text-sm font-bold leading-snug">{selectedProject.title}</h3>
-                <p className="text-[9px] font-bold text-purple-400 uppercase tracking-wider">{selectedProject.category.join(' / ')}</p>
+              </div>
+
+              {/* Duration and Status metadata widgets */}
+              <div className="grid grid-cols-2 gap-2 text-[10px]">
+                <div className={`p-2.5 rounded-lg border ${isLight ? 'bg-gray-100 border-gray-200' : 'bg-white/5 border-white/5'}`}>
+                  <span className="text-gray-400 block text-[8px] uppercase tracking-wider">Duration</span>
+                  <span className="font-bold text-white mt-0.5 block">{selectedProject.duration || 'N/A'}</span>
+                </div>
+                <div className={`p-2.5 rounded-lg border ${isLight ? 'bg-gray-100 border-gray-200' : 'bg-white/5 border-white/5'}`}>
+                  <span className="text-gray-400 block text-[8px] uppercase tracking-wider">Status</span>
+                  <span className="font-bold text-emerald-400 mt-0.5 block">{selectedProject.status || 'Completed'}</span>
+                </div>
               </div>
 
               <div className="space-y-2">

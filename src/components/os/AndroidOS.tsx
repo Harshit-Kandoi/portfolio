@@ -271,7 +271,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
         onPointerDown={handlePointerDown}
         onPointerUp={(e) => handlePointerUp(e, 'settings')}
         className={`absolute inset-0 ${
-          theme === 'light' ? 'bg-[#f4f7f6]/95 text-gray-800' : 'bg-slate-950/95 text-white'
+          theme === 'light' ? 'bg-[#f4f7f6] text-gray-800' : 'bg-slate-950 text-white'
         } z-[600] flex flex-col justify-between px-6 pt-10 pb-4 transition-transform duration-300 ease-out ${
           showMobileSettings ? 'translate-y-0 pointer-events-auto opacity-100' : '-translate-y-full pointer-events-none opacity-0 invisible'
         }`}
@@ -511,17 +511,17 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
               </div>
 
               {/* Launcher App Grid (Home icons) */}
-              <div className="grid grid-cols-4 gap-y-4.5 gap-x-2 pt-2">
+              <div className="grid grid-cols-4 gap-y-5 gap-x-3 justify-items-center pt-2">
                 {filteredApps.slice(0, 8).map((app) => (
                   <button
                     key={app.id}
                     onClick={() => handleLaunchApp(app.id)}
-                    className="flex flex-col items-center space-y-1.5 focus:outline-none transition group hover:scale-[1.05]"
+                    className="flex flex-col items-center space-y-1 focus:outline-none transition group hover:scale-[1.05]"
                   >
-                    <div className={`w-12 h-12 rounded-[18px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md shadow-black/15 group-active:scale-95 transition-transform`}>
-                      <app.icon className="w-5.5 h-5.5" />
+                    <div className={`w-10.5 h-10.5 rounded-[14px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md shadow-black/15 group-active:scale-95 transition-transform`}>
+                      <app.icon className="w-5 h-5" />
                     </div>
-                    <span className={`text-[9px] font-medium tracking-wide ${theme === 'light' ? 'text-gray-700' : 'text-gray-200'} truncate w-14 text-center`}>
+                    <span className={`text-[8.5px] font-medium tracking-wide ${theme === 'light' ? 'text-gray-700' : 'text-gray-200'} truncate w-14 text-center`}>
                       {app.title}
                     </span>
                   </button>
@@ -534,14 +534,14 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
               {/* App Drawer Swiper Indicator */}
               <button 
                 onClick={() => setShowMobileDrawer(true)}
-                className="flex flex-col items-center space-y-1 hover:opacity-80 transition cursor-pointer mb-2.5"
+                className="flex flex-col items-center space-y-1 hover:opacity-80 transition cursor-pointer mb-2"
               >
                 <div className={`w-8 h-1 ${theme === 'light' ? 'bg-gray-300' : 'bg-white/25'} rounded-full animate-bounce`} />
                 <span className={`text-[8px] font-bold uppercase tracking-widest ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>All Apps</span>
               </button>
 
               {/* Standard Dock Apps */}
-              <div className={`w-full ${theme === 'light' ? 'bg-white/70 border-white shadow-lg' : 'bg-white/10 border-white/10 shadow-lg'} backdrop-blur-xl border p-3 rounded-[26px] flex justify-around items-center`}>
+              <div className={`w-full ${theme === 'light' ? 'bg-white/70 border-white shadow-lg' : 'bg-white/10 border-white/10 shadow-lg'} backdrop-blur-xl border p-2.5 rounded-[22px] flex justify-around items-center`}>
                 {appIcons.filter(a => ['about', 'ai', 'projects', 'settings'].includes(a.id)).map((app) => (
                   <button
                     key={app.id}
@@ -549,7 +549,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     className="flex flex-col items-center transition hover:scale-[1.1] active:scale-90"
                     title={app.title}
                   >
-                    <div className={`w-11 h-11 rounded-[16px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-sm`}>
+                    <div className={`w-10 h-10 rounded-[14px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-sm`}>
                       <app.icon className="w-5 h-5" />
                     </div>
                   </button>
@@ -664,7 +664,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
           onPointerDown={handlePointerDown}
           onPointerUp={(e) => handlePointerUp(e, 'drawer')}
           className={`absolute inset-0 ${
-            theme === 'light' ? 'bg-[#f4f7f6]/95 border-r border-gray-250 text-gray-800' : 'bg-slate-950/95 text-white'
+            theme === 'light' ? 'bg-[#f4f7f6] border-r border-gray-250 text-gray-800' : 'bg-slate-950 text-white'
           } z-[550] flex flex-col justify-between px-6 pt-10 pb-4 transition-transform duration-300 ease-out ${
             showMobileDrawer ? 'translate-y-0 pointer-events-auto opacity-100' : 'translate-y-full pointer-events-none opacity-0 invisible'
           }`}

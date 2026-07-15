@@ -133,16 +133,17 @@ export default function Window({ id, title, children }: WindowProps) {
         x: isMaximized ? 0 : windowInstance.x,
         y: isMaximized ? 48 : windowInstance.y,
         width: isMaximized ? '100vw' : windowInstance.width,
-        height: isMaximized ? 'calc(100vh - 96px)' : windowInstance.height, // Account for top and bottom bars
+        height: viewMode === 'tablet' ? 'calc(100vh - 144px)' : (isMaximized ? 'calc(100vh - 96px)' : windowInstance.height),
         zIndex: windowInstance.zIndex,
       }}
       transition={{ type: 'spring', stiffness: 350, damping: 28 }}
       onPointerDown={() => focusWindow(id)}
       className={`fixed rounded-xl overflow-hidden border flex flex-col backdrop-blur-md ${windowThemeClass} ${activeBorder}`}
       style={{
-        maxHeight: 'calc(100vh - 96px)',
+        maxHeight: viewMode === 'tablet' ? 'calc(100vh - 144px)' : 'calc(100vh - 96px)',
       }}
     >
+
       {/* Window Title Bar / Drag Handler */}
       <div
         onPointerDown={startDrag}

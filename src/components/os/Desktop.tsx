@@ -4,7 +4,7 @@ import {
   Folder, Terminal as TermIcon, MessageSquare, BookOpen, Trophy, 
   Settings as GearIcon, User, Briefcase, Award, FileText, Send, 
   Search, Cpu, HardDrive, Wifi, Volume2, Bell, LogOut, Moon, Sun, 
-  Gamepad2, Github, Linkedin, CheckCircle, Smartphone
+  Gamepad2, Github, Linkedin, CheckCircle, Smartphone, Mail, Phone, Database
 } from 'lucide-react';
 import Window from './Window';
 import { playWindowSound, playNotificationSound } from '../../utils/sounds';
@@ -27,7 +27,7 @@ export default function Desktop() {
   const { 
     windows, theme, setTheme, openWindow, startMenuOpen, setStartMenuOpen, 
     notifications, dismissNotification, addNotification, closeAllWindows, setBootState,
-    viewMode, isSimulatingMobile, setIsSimulatingMobile
+    viewMode, isSimulatingMobile, setIsSimulatingMobile, xp
   } = useOSStore();
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -203,16 +203,31 @@ export default function Desktop() {
     cardBg = 'bg-black border border-green-500 text-green-500';
   }
 
+  const handleDesktopClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const isStartMenuClick = target.closest('#start-menu-button') || target.closest('#start-menu');
+    const isNotificationClick = target.closest('#notification-button') || target.closest('#notification-drawer');
+    const isVolumeClick = target.closest('#volume-button') || target.closest('#volume-popup');
+    
+    if (!isStartMenuClick && startMenuOpen) setStartMenuOpen(false);
+    if (!isNotificationClick && showNotificationDrawer) setShowNotificationDrawer(false);
+    if (!isVolumeClick && showVolumePopup) setShowVolumePopup(false);
+  };
+
   return (
-    <div className={`fixed inset-0 select-none overflow-hidden flex flex-col h-screen w-screen font-sans ${shellTheme}`}>
+    <div 
+      onClick={handleDesktopClick}
+      className={`fixed inset-0 select-none overflow-hidden flex flex-col h-screen w-screen font-sans ${shellTheme}`}
+    >
       
       {/* Top Taskbar */}
-      <div className={`h-12 w-full flex items-center justify-between border-b z-[50] ${barBg} ${
+      <div className={`h-12 w-full flex items-center justify-between border-b z-[9995] ${barBg} ${
         viewMode === 'tablet' ? 'px-6' : 'px-4'
       }`}>
         <div className="flex items-center space-x-4">
           {/* Start Menu Button */}
           <button
+            id="start-menu-button"
             onClick={() => setStartMenuOpen(!startMenuOpen)}
             className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-all ${
               theme === 'cyberpunk' 
@@ -263,13 +278,37 @@ export default function Desktop() {
             <span className="font-semibold">{ramUsage}%</span>
           </div>
 
-          {/* Socials Shortcuts */}
-          <div className="hidden sm:flex items-center space-x-2 border-l border-white/10 pl-4">
-            <a href="https://github.com/Harshit-Kandoi" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition text-purple-300">
+          {/* Socials Shortcuts Tray */}
+          <div className="hidden lg:flex items-center space-x-3 border-l border-white/10 pl-4">
+            {/* GitHub */}
+            <a href="https://github.com/Harshit-Kandoi" target="_blank" rel="noopener noreferrer" className="hover:scale-115 active:scale-95 transition-all text-purple-300 relative group" title="GitHub">
               <Github className="w-4 h-4" />
+              <span className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 border border-gray-800 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap text-white z-[10005]">GitHub</span>
             </a>
-            <a href="https://linkedin.com/in/harshit-kandoi" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition text-blue-400">
+            {/* LinkedIn */}
+            <a href="https://linkedin.com/in/harshit-kandoi" target="_blank" rel="noopener noreferrer" className="hover:scale-115 active:scale-95 transition-all text-blue-400 relative group" title="LinkedIn">
               <Linkedin className="w-4 h-4" />
+              <span className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 border border-gray-800 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap text-white z-[10005]">LinkedIn</span>
+            </a>
+            {/* Gmail */}
+            <a href="mailto:kandoiharshitsdlp@gmail.com" className="hover:scale-115 active:scale-95 transition-all text-rose-400 relative group" title="Gmail">
+              <Mail className="w-4 h-4" />
+              <span className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 border border-gray-800 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap text-white z-[10005]">Gmail</span>
+            </a>
+            {/* Phone */}
+            <a href="tel:+917850098453" className="hover:scale-115 active:scale-95 transition-all text-emerald-400 relative group" title="Phone">
+              <Phone className="w-4 h-4" />
+              <span className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 border border-gray-800 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap text-white z-[10005]">Phone</span>
+            </a>
+            {/* Medium */}
+            <a href="https://medium.com/@kandoiharshitsdlp" target="_blank" rel="noopener noreferrer" className="hover:scale-115 active:scale-95 transition-all text-cyan-400 relative group" title="Medium">
+              <BookOpen className="w-4 h-4" />
+              <span className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 border border-gray-800 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap text-white z-[10005]">Medium</span>
+            </a>
+            {/* Kaggle */}
+            <a href="https://kaggle.com/harshitkandoi" target="_blank" rel="noopener noreferrer" className="hover:scale-115 active:scale-95 transition-all text-amber-400 relative group" title="Kaggle">
+              <Database className="w-4 h-4" />
+              <span className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 border border-gray-800 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap text-white z-[10005]">Kaggle</span>
             </a>
           </div>
 
@@ -294,10 +333,11 @@ export default function Desktop() {
               {theme === 'light' ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-yellow-400" />}
             </button>
             <Wifi className="w-4 h-4 text-emerald-400" />
-            <button onClick={() => setShowVolumePopup(!showVolumePopup)} className="hover:opacity-80 transition relative">
+            
+            <button id="volume-button" onClick={() => setShowVolumePopup(!showVolumePopup)} className="hover:opacity-80 transition relative">
               <Volume2 className="w-4 h-4 text-sky-400" />
               {showVolumePopup && (
-                <div className="absolute right-0 top-6 bg-slate-900 border border-gray-800 p-3 rounded-lg shadow-xl w-32 flex flex-col z-[100] text-white">
+                <div id="volume-popup" className="absolute right-0 top-6 bg-slate-900 border border-gray-800 p-3 rounded-lg shadow-xl w-32 flex flex-col z-[10000] text-white">
                   <span className="text-[10px] text-gray-400 mb-1">Volume Control</span>
                   <input
                     type="range"
@@ -323,6 +363,7 @@ export default function Desktop() {
             
             {/* Notification Count Trigger */}
             <button 
+              id="notification-button"
               onClick={() => setShowNotificationDrawer(!showNotificationDrawer)} 
               className="hover:opacity-80 transition relative"
             >
@@ -342,19 +383,20 @@ export default function Desktop() {
           </div>
         </div>
       </div>
-
       {/* Start Menu Popup */}
       {startMenuOpen && (
-        <div className={`fixed border shadow-2xl z-[90] ${cardBg} backdrop-blur-3xl flex flex-col space-y-4 animate-slide-up transition-all duration-300 ${
+        <div id="start-menu" className={`fixed border shadow-2xl z-[10000] ${cardBg} backdrop-blur-3xl flex flex-col space-y-4 animate-slide-up transition-all duration-300 ${
           viewMode === 'tablet'
             ? 'left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[85vw] max-w-md p-8 rounded-3xl'
             : 'left-4 top-14 w-80 p-6 rounded-2xl'
         }`}>
           <div className="flex items-center space-x-3 pb-3 border-b border-white/10 dark:border-gray-800">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 border border-white/20 flex items-center justify-center text-xs font-bold text-white">HK</div>
+            <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-tr from-purple-500 to-indigo-500 border border-white/20 flex items-center justify-center">
+              <img src="/profile.jpg" alt="HK" className="w-full h-full object-cover" />
+            </div>
             <div>
               <h3 className="text-xs font-bold">Harshit Kandoi</h3>
-              <p className="text-[10px] text-gray-400">Level {Math.floor(useOSStore.getState().xp / 100) + 1} Code Warrior</p>
+              <p className="text-[10px] text-gray-400">Level {Math.floor(xp / 100) + 1} Code Warrior</p>
             </div>
           </div>
           
@@ -392,7 +434,7 @@ export default function Desktop() {
 
       {/* Notifications Side Drawer */}
       {showNotificationDrawer && (
-        <div className={`fixed right-4 top-14 w-80 max-h-[80vh] p-4 rounded-2xl border shadow-2xl z-[90] ${cardBg} backdrop-blur-3xl overflow-y-auto flex flex-col space-y-3 animate-slide-up`}>
+        <div id="notification-drawer" className={`fixed right-4 top-14 w-80 max-h-[80vh] p-4 rounded-2xl border shadow-2xl z-[10000] ${cardBg} backdrop-blur-3xl overflow-y-auto flex flex-col space-y-3 animate-slide-up`}>
           <div className="flex justify-between items-center border-b border-white/10 pb-2">
             <h3 className="text-xs font-bold uppercase tracking-wider">Notifications</h3>
             <button 
@@ -482,12 +524,17 @@ export default function Desktop() {
       ))}
 
       {/* Bottom Dock */}
-      <div className={`absolute left-1/2 transform -translate-x-1/2 z-[40] flex items-end bg-black/35 backdrop-blur-2xl border border-white/15 rounded-3xl shadow-2xl transition-all duration-300 ${
+      <div className={`absolute left-1/2 transform -translate-x-1/2 z-[9990] flex items-end bg-black/35 backdrop-blur-2xl border border-white/15 rounded-3xl shadow-2xl transition-all duration-300 ${
         viewMode === 'tablet' 
-          ? 'bottom-6 px-6 py-3 space-x-4.5' 
+          ? 'bottom-6 px-8 py-3 space-x-6' 
           : 'bottom-4 px-4 py-2.5 space-x-3.5'
       }`}>
-        {appIcons.map((app) => {
+        {appIcons.filter((app) => {
+          if (viewMode === 'tablet') {
+            return ['about', 'projects', 'experience', 'skills', 'resume', 'ai', 'contact', 'settings'].includes(app.id);
+          }
+          return true;
+        }).map((app) => {
           const win = windows.find((w) => w.id === app.id);
           const isRunning = win?.isOpen;
           const isCurrentActive = useOSStore.getState().activeWindowId === app.id;
@@ -497,8 +544,12 @@ export default function Desktop() {
               key={app.id}
               onClick={() => handleDockClick(app.id)}
               className="relative flex flex-col items-center group transition"
-              title={app.title}
             >
+              {/* Custom tooltip with 200ms delay on entry and smooth disappear */}
+              <span className="absolute bottom-14 px-2 py-1 bg-slate-900/90 border border-gray-800 text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 translate-y-0 group-hover:-translate-y-1.5 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap text-white shadow-xl z-[10001] delay-0 group-hover:delay-200">
+                {app.title}
+              </span>
+
               <div className={`rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md transform hover:scale-[1.2] hover:-translate-y-2 transition duration-200 active:scale-[0.95] ${
                 viewMode === 'tablet' ? 'w-12 h-12' : 'w-11 h-11'
               } ${bouncingApp === app.id ? 'animate-bounce-dock' : ''}`}>

@@ -183,3 +183,33 @@ body {
 .animate-bounce-dock {
   animation: bounceDock 0.75s ease-out;
 }
+
+/* Custom premium scrollbars utility */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 99px;
+  transition: background-color 0.2s ease;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.25);
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.45);
+}
+
+/* Firefox compatibility */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s ease;
+}
+.custom-scrollbar:hover {
+  scrollbar-color: rgba(156, 163, 175, 0.25) transparent;
+}

@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useOSStore } from '../../store/useOSStore';
-import { ArrowRight, Clock } from 'lucide-react';
+import { ArrowRight, Clock, ArrowUp } from 'lucide-react';
 
 export default function LockScreen() {
   const setBootState = useOSStore((state) => state.setBootState);
   const soundEnabled = useOSStore((state) => state.soundEnabled);
   const setSoundEnabled = useOSStore((state) => state.setSoundEnabled);
+  const viewMode = useOSStore((state) => state.viewMode);
   
   const [time, setTime] = useState(new Date());
 
@@ -15,7 +16,6 @@ export default function LockScreen() {
   }, []);
 
   const handleUnlock = useCallback(() => {
-    // If sounds are not enabled, enable them on first click/enter to allow Web Audio API
     if (!soundEnabled) {
       setSoundEnabled(true);
     }
@@ -34,12 +34,56 @@ export default function LockScreen() {
 
   const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const formattedDate = time.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+  const isMobile = viewMode === 'mobile';
+
+  if (isMobile) {
+    return (
+      <div
+        className="fixed inset-0 select-none z-[9990] flex flex-col justify-between p-6 text-white bg-[#03001e] bg-cover bg-center"
+        style={{
+          backgroundImage: `radial-gradient(circle at center, rgba(13, 10, 49, 0.5) 0%, rgba(3, 0, 30, 0.95) 100%), url('/wallpaper.jpeg')`,
+        }}
+      >
+        {/* Mobile Top Bar */}
+        <div className="flex justify-between items-center w-full px-2 pt-2 text-xs text-gray-400">
+          <span>Harshit's Mobile</span>
+          <div className="flex items-center space-x-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Open to Work</span>
+          </div>
+        </div>
+
+        {/* Mobile Vertical Clock & Date */}
+        <div className="flex flex-col items-center justify-center text-center mt-12 space-y-2">
+          <div className="text-6xl font-extralight tracking-tighter filter drop-shadow-md">
+            {time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+          </div>
+          <div className="text-sm font-light text-purple-300 tracking-wide">
+            {formattedDate}
+          </div>
+        </div>
+
+        {/* Mobile Unlock Trigger (Tap/Swipe-up action) */}
+        <div className="flex flex-col items-center justify-center mb-10 w-full space-y-4">
+          <button
+            onClick={handleUnlock}
+            className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white transition active:scale-95 shadow-lg animate-bounce"
+          >
+            <ArrowUp className="w-6 h-6" />
+          </button>
+          <span onClick={handleUnlock} className="text-xs text-gray-300 font-medium tracking-widest cursor-pointer uppercase animate-pulse">
+            Swipe up or Tap to Unlock
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
       className="fixed inset-0 select-none z-[9990] flex flex-col justify-between p-8 text-white bg-[#03001e] bg-cover bg-center"
       style={{
-        backgroundImage: `radial-gradient(circle at center, rgba(13, 10, 49, 0.4) 0%, rgba(3, 0, 30, 0.95) 100%), url('https://images.pexels.com/photos/1624496/pexels-photo-1624496.jpeg?auto=compress&cs=tinysrgb&w=1920&fit=crop')`,
+        backgroundImage: `radial-gradient(circle at center, rgba(13, 10, 49, 0.4) 0%, rgba(3, 0, 30, 0.95) 100%), url('/wallpaper.jpeg')`,
       }}
     >
       {/* Top Bar with Time & Weather status info */}
@@ -71,7 +115,7 @@ export default function LockScreen() {
       <div className="flex flex-col items-center justify-center mb-8 max-w-md mx-auto w-full">
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-3xl w-full flex flex-col items-center text-center shadow-2xl animate-slide-up">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-tr from-purple-500 to-indigo-500 border border-white/30 flex items-center justify-center mb-4">
-            <span className="text-xl font-bold tracking-wider">HK</span>
+            <img src="/profile.jpg" alt="Harshit Kandoi" className="w-full h-full object-cover" />
           </div>
           <h2 className="text-lg font-semibold tracking-wide">Harshit Kandoi</h2>
           <p className="text-xs text-purple-200 mt-1 mb-6">Software & AI Engineer</p>

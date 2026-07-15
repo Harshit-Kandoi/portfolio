@@ -13,16 +13,16 @@ export default function ExperienceApp() {
   });
 
   const isLight = theme === 'light';
-  const containerBg = isLight ? 'bg-white text-gray-800' : 'bg-slate-950 text-purple-100';
+  const containerBg = isLight ? 'bg-gray-50 text-gray-800' : 'bg-slate-950 text-purple-100';
   const headerBg = isLight ? 'bg-gray-100 border-b border-gray-200' : 'bg-slate-900/50 border-b border-white/5';
   const cardBg = isLight ? 'bg-white border-gray-200 shadow-sm' : 'bg-slate-900/40 border-white/5 shadow-lg';
   const textMuted = isLight ? 'text-gray-500' : 'text-gray-400';
 
   return (
-    <div className={`flex flex-col flex-grow h-full overflow-hidden ${containerBg}`}>
+    <div className={`flex flex-col flex-grow h-full overflow-hidden ${containerBg} custom-scrollbar`}>
       {/* Navigation Headers */}
       <div className={`p-4 flex items-center justify-between space-x-2 shrink-0 ${headerBg}`}>
-        <div className="flex space-x-1.5 overflow-x-auto">
+        <div className="flex space-x-1.5 overflow-x-auto custom-scrollbar flex-grow mr-2">
           {(['all', 'work', 'education', 'Course'] as const).map((type) => {
             const label = type === 'all' ? 'All History' : type === 'work' ? 'Work Experience' : type === 'education' ? 'Education' : 'Certifications';
             const isSelected = filterType === type;
@@ -36,8 +36,8 @@ export default function ExperienceApp() {
                       ? 'bg-purple-600 border-purple-600 text-white shadow-sm'
                       : 'bg-purple-600/20 border-purple-500 text-purple-300 shadow-[0_0_10px_rgba(168,85,247,0.15)]'
                     : isLight
-                      ? 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'
-                      : 'bg-slate-900/40 border-white/5 text-gray-400 hover:bg-white/5 hover:text-white'
+                      ? 'bg-white border-gray-200 text-gray-600 hover:bg-gray-100'
+                      : 'bg-slate-900/40 border-white/5 text-gray-400 hover:text-white'
                 }`}
               >
                 {label}
@@ -51,7 +51,7 @@ export default function ExperienceApp() {
       </div>
 
       {/* Timeline Scroll Area */}
-      <div className="flex-grow overflow-y-auto p-6 md:p-8 relative">
+      <div className="flex-grow overflow-y-auto p-6 md:p-8 relative custom-scrollbar">
         {filteredItems.length === 0 ? (
           <p className={`text-center text-xs py-12 ${textMuted}`}>No records found.</p>
         ) : (
@@ -111,7 +111,7 @@ export default function ExperienceApp() {
                     {/* Description Paragraphs */}
                     <div className="mt-4 text-xs leading-relaxed space-y-2 text-justify">
                       {Array.isArray(item.description) ? (
-                        <ul className={`list-disc list-inside space-y-1.5 ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>
+                        <ul className={`list-disc list-inside space-y-1.5 ${isLight ? 'text-gray-700' : 'text-gray-300'}`}>
                           {item.description.map((bullet, bIdx) => (
                             <li key={bIdx} className="leading-relaxed pl-1">
                               {bullet}
@@ -119,7 +119,7 @@ export default function ExperienceApp() {
                           ))}
                         </ul>
                       ) : (
-                        <p className={isLight ? 'text-gray-600' : 'text-gray-300'}>{item.description}</p>
+                        <p className={isLight ? 'text-gray-750' : 'text-gray-300'}>{item.description}</p>
                       )}
                     </div>
 

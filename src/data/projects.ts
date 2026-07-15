@@ -9,7 +9,9 @@ export const projects: Project[] = [
     category: ["Cloud & Backend"],
     technologies: ["Python", "Flask", "Firestore", "Pub/Sub", "GCP"],
     github: "https://github.com/Harshit-Kandoi/Local-GCP-Emulator",
-    featured: true
+    featured: true,
+    duration: "2 Months",
+    status: "Active"
   },
   {
     id: 2,
@@ -19,7 +21,9 @@ export const projects: Project[] = [
     category: ["AI & Machine Learning"],
     technologies: ["Python", "YOLOv5", "PyTorch", "OpenCV"],
     github: "https://github.com/Harshit-Kandoi/ASL-letter-detection",
-    featured: true
+    featured: true,
+    duration: "3 Months",
+    status: "Completed"
   },
   {
     id: 3,
@@ -29,7 +33,9 @@ export const projects: Project[] = [
     category: ["AI & Machine Learning", "Cloud & Backend"],
     technologies: ["Python", "Flask", "Whisper AI", "JavaScript", "HTML", "CSS"],
     github: "https://github.com/Harshit-Kandoi/Transcription",
-    featured: false
+    featured: false,
+    duration: "1 Month",
+    status: "Completed"
   },
   {
     id: 4,
@@ -39,7 +45,9 @@ export const projects: Project[] = [
     category: ["AI & Machine Learning"],
     technologies: ["Python", "Machine Learning", "Streamlit", "SQLAlchemy", "Pandas"],
     github: "https://github.com/Harshit-Kandoi/movie-recommender",
-    featured: true
+    featured: true,
+    duration: "1 Month",
+    status: "Completed"
   },
   {
     id: 5,
@@ -49,7 +57,9 @@ export const projects: Project[] = [
     category: ["Data & Automation"],
     technologies: ["Python", "BeautifulSoup4", "Selenium", "Pandas"],
     github: "https://github.com/Harshit-Kandoi/web-image-scrapper",
-    featured: false
+    featured: false,
+    duration: "2 Months",
+    status: "Active"
   },
   {
     id: 6,
@@ -59,7 +69,9 @@ export const projects: Project[] = [
     category: ["AI & Machine Learning"],
     technologies: ["Python", "PyTorch", "NumPy", "OpenCV", "ViZDoom"],
     github: "https://github.com/Harshit-Kandoi/doom_reinforcement_learning",
-    featured: false
+    featured: false,
+    duration: "2 Months",
+    status: "Completed"
   },
   {
     id: 7,
@@ -69,7 +81,9 @@ export const projects: Project[] = [
     category: ["AI & Machine Learning"],
     technologies: ["Python", "Google Gemini", "Pillow", "GenerativeAI"],
     github: "https://github.com/Harshit-Kandoi/Ghibli",
-    featured: false
+    featured: false,
+    duration: "3 Weeks",
+    status: "Completed"
   },
   {
     id: 8,
@@ -79,7 +93,9 @@ export const projects: Project[] = [
     category: ["AI & Machine Learning"],
     technologies: ["Python", "Scikit-learn", "Flask", "Pandas"],
     github: "https://github.com/Harshit-Kandoi/crops",
-    featured: false
+    featured: false,
+    duration: "2 Months",
+    status: "Completed"
   },
   {
     id: 9,
@@ -89,6 +105,8 @@ export const projects: Project[] = [
     category: ["Data & Automation"],
     technologies: ["Power BI", "SQL", "Python", "Excel"],
     github: "https://github.com/Harshit-Kandoi/Credit-Card-Financial-Dashboard",
-    featured: false
+    featured: false,
+    duration: "1 Month",
+    status: "Completed"
   }
 ];
