@@ -8,6 +8,8 @@ export interface Project {
   github?: string;
   demo?: string;
   featured: boolean;
+  duration?: string;
+  status?: string;
 }
 
 export interface Skill {

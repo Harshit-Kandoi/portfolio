@@ -60,13 +60,16 @@
 
 html {
   scroll-behavior: smooth;
-  overflow-x: hidden;
-  max-width: 100vw;
+  overflow: hidden;
+  height: 100dvh;
+  width: 100vw;
 }
 
 body {
-  overflow-x: hidden;
-  max-width: 100vw;
+  overflow: hidden;
+  height: 100dvh;
+  width: 100vw;
+  position: fixed;
 }
 
 * {
@@ -92,4 +95,131 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-400 dark:bg-gray-600;
+}
+
+/* Custom theme overrides and scanline effects */
+.scanlines-overlay {
+  background: repeating-linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50%
+  ), linear-gradient(
+    90deg,
+    rgba(255, 0, 0, 0.06),
+    rgba(0, 255, 0, 0.02),
+    rgba(0, 0, 255, 0.06)
+  );
+  background-size: 100% 3px, 6px 100%;
+  animation: crt-flicker 0.15s infinite;
+}
+
+@keyframes crt-flicker {
+  0% { opacity: 0.985; }
+  50% { opacity: 0.995; }
+  100% { opacity: 0.985; }
+}
+
+.retro-crt-theme {
+  font-family: 'Courier New', Courier, monospace !important;
+}
+
+.retro-crt-theme * {
+  text-shadow: 0 0 4px rgba(34, 197, 94, 0.6);
+}
+
+.cyberpunk-theme * {
+  text-shadow: 0 0 5px rgba(234, 179, 8, 0.3);
+}
+
+.text-shadow {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Glassmorphism custom helpers */
+.glass-theme {
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+/* Android OS Specific Animations & UI Styling */
+@keyframes androidSlideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes androidSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: androidSlideDown 0.35s cubic-bezier(0.05, 0.7, 0.1, 1.0) forwards;
+}
+
+.animate-slide-up {
+  animation: androidSlideUp 0.35s cubic-bezier(0.05, 0.7, 0.1, 1.0) forwards;
+}
+
+/* macOS style dock icon bounce animation */
+@keyframes bounceDock {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-16px);
+  }
+  60% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-bounce-dock {
+  animation: bounceDock 0.75s ease-out;
+}
+
+/* Custom premium scrollbars utility */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 99px;
+  transition: background-color 0.2s ease;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.25);
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.45);
+}
+
+/* Firefox compatibility */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.2s ease;
+}
+.custom-scrollbar:hover {
+  scrollbar-color: rgba(156, 163, 175, 0.25) transparent;
+}
+
+/* Touch Action & Scroll Chaining containment overrides */
+.overflow-y-auto {
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+.overflow-x-auto {
+  overscroll-behavior: contain;
+  touch-action: pan-x;
 }
