@@ -24,6 +24,7 @@ export interface ToastNotification {
   type: 'success' | 'info' | 'warning' | 'achievement';
   category: 'system' | 'career' | 'portfolio' | 'gaming' | 'social' | 'funny';
   timestamp: string;
+  action?: 'resume' | 'projects' | 'blog' | 'contact' | 'coffee' | 'swipe' | 'snake' | 'github' | 'linkedin';
 }
 
 export interface ChatMessage {
@@ -160,7 +161,7 @@ interface OSState {
   persistWindowState: () => void;
 
   // Notification Actions
-  addNotification: (title: string, message: string, type: ToastNotification['type'], category?: ToastNotification['category']) => void;
+  addNotification: (title: string, message: string, type: ToastNotification['type'], category?: ToastNotification['category'], action?: ToastNotification['action']) => void;
   dismissNotification: (id: string) => void;
   clearNotifications: () => void;
 
@@ -327,18 +328,18 @@ export const useOSStore = create<OSState>((set, get) => ({
       windows: normalizedWindows,
     });
     // Dispatch contextual notification
-    const labels: Record<string, [string, string, ToastNotification['category']]> = {
-      resume:   ['📄 Resume Viewed', 'Visitor opened Resume.pdf', 'career'],
-      projects: ['📂 Projects Opened', 'Browsing through project files...', 'portfolio'],
-      blog:     ['📖 Blog Reader Active', 'Reading tech articles...', 'portfolio'],
-      contact:  ['💌 Contact Opened', 'Potential connection incoming!', 'career'],
-      coffee:   ['☕ Coffee Time!', 'Opening the coffee shop...', 'funny'],
-      swipe:    ['❤️ Hiring Swipe Launched', 'Time to find the perfect match!', 'career'],
-      snake:    ['🐍 Snake Activated', 'Retro gaming mode on.', 'gaming'],
+    const labels: Record<string, [string, string, ToastNotification['category'], ToastNotification['action']]> = {
+      resume:   ['📄 Resume Viewed', 'Visitor opened Resume.pdf', 'career', 'resume'],
+      projects: ['📂 Projects Opened', 'Browsing through project files...', 'portfolio', 'projects'],
+      blog:     ['📖 Blog Reader Active', 'Reading tech articles...', 'portfolio', 'blog'],
+      contact:  ['💌 Contact Opened', 'Potential connection incoming!', 'career', 'contact'],
+      coffee:   ['☕ Coffee Time!', 'Opening the coffee shop...', 'funny', 'coffee'],
+      swipe:    ['❤️ Hiring Swipe Launched', 'Time to find the perfect match!', 'career', 'swipe'],
+      snake:    ['🐍 Snake Activated', 'Retro gaming mode on.', 'gaming', 'snake'],
     };
     if (labels[id]) {
-      const [title, message, category] = labels[id];
-      setTimeout(() => get().addNotification(title, message, 'info', category), 800);
+      const [title, message, category, action] = labels[id];
+      setTimeout(() => get().addNotification(title, message, 'info', category, action), 800);
     }
     // Check explorer achievement
     const openedCount = windows.filter((w) => w.isOpen && w.id !== id).length + 1;
@@ -446,10 +447,19 @@ export const useOSStore = create<OSState>((set, get) => ({
   },
 
   // ─── Toast System ───────────────────────────────────────────────────────
-  addNotification: (title, message, type, category = 'system') => {
+  addNotification: (title, message, type, category = 'system', action) => {
+    // Prevent duplicate same notification (same title and message)
+    const currentNotifications = get().notifications;
+    if (currentNotifications.length > 0) {
+      const lastNotif = currentNotifications[0];
+      if (lastNotif.title === title && lastNotif.message === message) {
+        return; // Skip duplicate
+      }
+    }
+    
     const id = Math.random().toString(36).substring(2, 9);
     const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const newNotif: ToastNotification = { id, title, message, type, category, timestamp };
+    const newNotif: ToastNotification = { id, title, message, type, category, timestamp, action };
     set((state) => ({
       notifications: [newNotif, ...state.notifications].slice(0, 25),
     }));

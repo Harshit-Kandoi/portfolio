@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from 'react';
+import { useEffect, useState, lazy, Suspense, useRef } from 'react';
 import { useOSStore, AppTheme } from '../../store/useOSStore';
 import { 
   Folder, Terminal as TermIcon, MessageSquare, BookOpen, Trophy, 
@@ -44,6 +44,7 @@ export default function Desktop() {
     viewMode, isSimulatingMobile, setIsSimulatingMobile, xp,
     hasVisited, isShuttingDown, initiateShutdown,
   } = useOSStore();
+  const welcomeNotifSent = useRef(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [cpuUsage, setCpuUsage] = useState(24);
@@ -122,6 +123,8 @@ export default function Desktop() {
 
   // Welcome-back notification for returning visitors
   useEffect(() => {
+    if (welcomeNotifSent.current) return;
+    welcomeNotifSent.current = true;
     if (hasVisited) {
       setTimeout(() => {
         addNotification('👋 Welcome Back!', 'Continuing your previous session...', 'info', 'system');
@@ -159,15 +162,15 @@ export default function Desktop() {
   // Dispatch a random toast notification every 55 seconds for immersive activity
   useEffect(() => {
     const randomToasts = [
-      { title: '💼 Open to Work', message: 'Harshit is currently active and looking for new roles!', type: 'info' as const, category: 'career' as const },
-      { title: '⭐ GitHub Star', message: 'Repository "local-gcp-emulator" starred!', type: 'success' as const, category: 'portfolio' as const },
-      { title: '🚀 Deployment Active', message: 'Local GCP Emulator offline container built successfully.', type: 'success' as const, category: 'portfolio' as const },
-      { title: '☕ Coffee Levels Low', message: 'Harshit may need a refill soon. Consider buying him a coffee!', type: 'info' as const, category: 'funny' as const },
-      { title: '💼 Recruiter Detected', message: 'Potential hiring signal detected. Resume.pdf is ready!', type: 'info' as const, category: 'career' as const },
+      { title: '💼 Open to Work', message: 'Harshit is currently active and looking for new roles!', type: 'info' as const, category: 'career' as const, action: 'contact' as const },
+      { title: '⭐ GitHub Star', message: 'Repository "local-gcp-emulator" starred!', type: 'success' as const, category: 'portfolio' as const, action: 'github' as const },
+      { title: '🚀 Deployment Active', message: 'Local GCP Emulator offline container built successfully.', type: 'success' as const, category: 'portfolio' as const, action: 'projects' as const },
+      { title: '☕ Coffee Levels Low', message: 'Harshit may need a refill soon. Consider buying him a coffee!', type: 'info' as const, category: 'funny' as const, action: 'coffee' as const },
+      { title: '💼 Recruiter Detected', message: 'Potential hiring signal detected. Resume.pdf is ready!', type: 'info' as const, category: 'career' as const, action: 'resume' as const },
     ];
     const interval = setInterval(() => {
       const selected = randomToasts[Math.floor(Math.random() * randomToasts.length)];
-      addNotification(selected.title, selected.message, selected.type, selected.category);
+      addNotification(selected.title, selected.message, selected.type, selected.category, selected.action);
       playNotificationSound();
     }, 55000);
     return () => clearInterval(interval);

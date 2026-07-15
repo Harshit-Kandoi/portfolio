@@ -1,15 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useOSStore, ToastNotification } from '../../store/useOSStore';
-import { Bell, Trophy, CheckCircle, Info, AlertTriangle, Gamepad2, Briefcase, Globe, Laugh, X, Trash2 } from 'lucide-react';
-
-const CATEGORY_META: Record<ToastNotification['category'], { label: string; icon: React.ElementType; color: string }> = {
-  system:    { label: 'System',    icon: Info,       color: 'text-blue-400'   },
-  career:    { label: 'Career',    icon: Briefcase,  color: 'text-cyan-400'   },
-  portfolio: { label: 'Portfolio', icon: Globe,      color: 'text-purple-400' },
-  gaming:    { label: 'Gaming',    icon: Gamepad2,   color: 'text-emerald-400'},
-  social:    { label: 'Social',    icon: Bell,       color: 'text-pink-400'   },
-  funny:     { label: 'Funny',     icon: Laugh,      color: 'text-amber-400'  },
-};
+import { Bell, Trophy, CheckCircle, Info, AlertTriangle, X, Trash2, ExternalLink } from 'lucide-react';
 
 const TYPE_ICON: Record<ToastNotification['type'], React.ElementType> = {
   achievement: Trophy,
@@ -23,8 +14,7 @@ interface Props {
 }
 
 export default function NotificationPanel({ onClose }: Props) {
-  const { notifications, dismissNotification, clearNotifications, theme } = useOSStore();
-  const [activeFilter, setActiveFilter] = useState<'all' | ToastNotification['category']>('all');
+  const { notifications, dismissNotification, clearNotifications, theme, openWindow } = useOSStore();
 
   const isLight = theme === 'light';
   const panelBg = isLight
@@ -34,11 +24,19 @@ export default function NotificationPanel({ onClose }: Props) {
     ? 'bg-gray-50 border-gray-200 hover:bg-gray-100'
     : 'bg-white/5 border-white/8 hover:bg-white/10';
 
-  const filtered = activeFilter === 'all'
-    ? notifications
-    : notifications.filter((n) => n.category === activeFilter);
-
-  const categories = Array.from(new Set(notifications.map((n) => n.category)));
+  const handleNotificationClick = (notif: ToastNotification) => {
+    if (notif.action) {
+      if (notif.action === 'github') {
+        window.open('https://github.com/Harshit-Kandoi', '_blank');
+      } else if (notif.action === 'linkedin') {
+        window.open('https://linkedin.com/in/harshit-kandoi', '_blank');
+      } else {
+        openWindow(notif.action);
+      }
+    }
+    dismissNotification(notif.id);
+    onClose();
+  };
 
   return (
     <div
@@ -74,44 +72,9 @@ export default function NotificationPanel({ onClose }: Props) {
         </div>
       </div>
 
-      {/* Category Filter Tabs */}
-      {categories.length > 0 && (
-        <div className={`flex items-center space-x-1 px-3 py-2 overflow-x-auto border-b ${isLight ? 'border-gray-100' : 'border-white/5'} shrink-0`}>
-          <button
-            onClick={() => setActiveFilter('all')}
-            className={`px-2.5 py-1 rounded-full text-[9px] font-bold whitespace-nowrap transition ${
-              activeFilter === 'all'
-                ? 'bg-purple-600 text-white'
-                : isLight ? 'bg-gray-100 text-gray-500 hover:bg-gray-200' : 'bg-white/5 text-gray-400 hover:text-white'
-            }`}
-          >
-            All ({notifications.length})
-          </button>
-          {categories.map((cat) => {
-            const meta = CATEGORY_META[cat];
-            const Icon = meta.icon;
-            const count = notifications.filter((n) => n.category === cat).length;
-            return (
-              <button
-                key={cat}
-                onClick={() => setActiveFilter(cat)}
-                className={`flex items-center space-x-1 px-2.5 py-1 rounded-full text-[9px] font-bold whitespace-nowrap transition ${
-                  activeFilter === cat
-                    ? 'bg-purple-600 text-white'
-                    : isLight ? 'bg-gray-100 text-gray-500 hover:bg-gray-200' : 'bg-white/5 text-gray-400 hover:text-white'
-                }`}
-              >
-                <Icon className={`w-2.5 h-2.5 ${activeFilter === cat ? 'text-white' : meta.color}`} />
-                <span>{meta.label} ({count})</span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-
       {/* Notification List */}
       <div className="flex-grow overflow-y-auto p-3 space-y-2 custom-scrollbar">
-        {filtered.length === 0 ? (
+        {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 space-y-3 text-center">
             <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
               <Bell className="w-5 h-5 text-purple-400 opacity-50" />
@@ -119,20 +82,22 @@ export default function NotificationPanel({ onClose }: Props) {
             <p className="text-xs text-gray-500">No notifications yet.<br />Explore the OS to unlock events.</p>
           </div>
         ) : (
-          filtered.map((notif) => {
+          notifications.map((notif) => {
             const TypeIcon = TYPE_ICON[notif.type];
-            const catMeta  = CATEGORY_META[notif.category];
-            const CatIcon  = catMeta.icon;
             return (
               <div
                 key={notif.id}
-                className={`relative p-3 rounded-xl border flex flex-col space-y-1.5 group transition ${itemBg} ${
+                onClick={() => handleNotificationClick(notif)}
+                className={`relative p-3 rounded-xl border flex flex-col space-y-1.5 group transition cursor-pointer ${itemBg} ${
                   notif.type === 'achievement' ? 'border-yellow-500/25 shadow-[0_0_10px_rgba(234,179,8,0.05)]' : ''
-                }`}
+                } ${notif.action ? 'hover:ring-1 hover:ring-purple-400/30' : ''}`}
               >
                 {/* Dismiss button */}
                 <button
-                  onClick={() => dismissNotification(notif.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    dismissNotification(notif.id);
+                  }}
                   className="absolute top-2 right-2 p-0.5 rounded-md opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white hover:bg-white/10 transition"
                 >
                   <X className="w-3 h-3" />
@@ -146,17 +111,14 @@ export default function NotificationPanel({ onClose }: Props) {
                     notif.type === 'warning'     ? 'text-amber-400' : 'text-blue-400'
                   }`} />
                   <span className="text-[11px] font-bold leading-tight">{notif.title}</span>
+                  {notif.action && <ExternalLink className="w-2.5 h-2.5 text-gray-400 ml-auto" />}
                 </div>
 
                 {/* Message */}
                 <p className="text-[10px] text-gray-400 leading-normal pl-5">{notif.message}</p>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between pl-5 pt-0.5">
-                  <div className="flex items-center space-x-1">
-                    <CatIcon className={`w-2.5 h-2.5 ${catMeta.color}`} />
-                    <span className={`text-[8px] font-bold uppercase tracking-wider ${catMeta.color}`}>{catMeta.label}</span>
-                  </div>
+                <div className="flex items-center justify-end pl-5 pt-0.5">
                   <span className="text-[8px] text-gray-500">{notif.timestamp}</span>
                 </div>
               </div>

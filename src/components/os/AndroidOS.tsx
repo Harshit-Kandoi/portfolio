@@ -4,7 +4,7 @@ import {
   Wifi, Signal, Battery, Search, Bell, Settings as GearIcon, 
   Volume2, Sun, Palette, Trash2, Bluetooth, Zap, ChevronLeft, Gamepad2,
   User, Folder, Briefcase, Award, FileText, Terminal as TermIcon,
-  MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon, Heart, Coffee
+  MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon, Heart, Coffee, ExternalLink
 } from 'lucide-react';
 import { playWindowSound } from '../../utils/sounds';
 
@@ -529,26 +529,46 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     No active notifications
                   </div>
                 ) : (
-                  notifications.map((n) => (
-                    <div 
-                      key={n.id}
-                      className={`p-3 ${theme === 'light' ? 'bg-white border-gray-200 shadow-sm text-gray-800' : 'bg-white/5 border-white/10 text-white'} border rounded-2xl flex items-start justify-between relative group hover:bg-white/10 transition`}
-                    >
-                      <div className="space-y-0.5 min-w-0 pr-6">
-                        <div className="flex items-center space-x-1">
-                          {n.type === 'achievement' && <Trophy className="w-3.5 h-3.5 text-yellow-400 shrink-0" />}
-                          <span className={`text-[11px] font-bold ${theme === 'light' ? 'text-gray-800' : 'text-white'} leading-tight truncate`}>{n.title}</span>
-                        </div>
-                        <p className={`text-[10px] ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'} leading-normal`}>{n.message}</p>
-                      </div>
-                      <button 
-                        onClick={() => dismissNotification(n.id)}
-                        className={`text-gray-500 ${theme === 'light' ? 'hover:text-red-650' : 'hover:text-red-400'} absolute top-2 right-2 text-xs`}
+                  notifications.map((n) => {
+                    const handleNotifClick = () => {
+                      if (n.action) {
+                        if (n.action === 'github') {
+                          window.open('https://github.com/Harshit-Kandoi', '_blank');
+                        } else if (n.action === 'linkedin') {
+                          window.open('https://linkedin.com/in/harshit-kandoi', '_blank');
+                        } else {
+                          openMobileApp(n.action);
+                        }
+                        setShowMobileSettings(false);
+                      }
+                      dismissNotification(n.id);
+                    };
+                    return (
+                      <div 
+                        key={n.id}
+                        onClick={handleNotifClick}
+                        className={`p-3 ${theme === 'light' ? 'bg-white border-gray-200 shadow-sm text-gray-800' : 'bg-white/5 border-white/10 text-white'} border rounded-2xl flex items-start justify-between relative group hover:bg-white/10 transition cursor-pointer ${n.action ? 'hover:ring-1 hover:ring-purple-500/30' : ''}`}
                       >
-                        ✕
-                      </button>
-                    </div>
-                  ))
+                        <div className="space-y-0.5 min-w-0 pr-6">
+                          <div className="flex items-center space-x-1">
+                            {n.type === 'achievement' && <Trophy className="w-3.5 h-3.5 text-yellow-400 shrink-0" />}
+                            <span className={`text-[11px] font-bold ${theme === 'light' ? 'text-gray-800' : 'text-white'} leading-tight truncate`}>{n.title}</span>
+                            {n.action && <ExternalLink className="w-3 h-3 text-gray-400" />}
+                          </div>
+                          <p className={`text-[10px] ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'} leading-normal`}>{n.message}</p>
+                        </div>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            dismissNotification(n.id);
+                          }}
+                          className={`text-gray-500 ${theme === 'light' ? 'hover:text-red-650' : 'hover:text-red-400'} absolute top-2 right-2 text-xs`}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </div>
