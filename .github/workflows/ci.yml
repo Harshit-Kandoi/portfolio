@@ -66,7 +66,8 @@ jobs:
 
       - name: Deploy preview to Netlify (PR only)
         if: github.event_name == 'pull_request'
-        run: npx netlify-cli deploy --dir=dist --alias="pr-$PR_NUMBER" --message="PR #$PR_NUMBER — $PR_TITLE"
+        run: |
+          npx netlify-cli deploy --dir=dist --alias="pr-$PR_NUMBER" --message="PR #$PR_NUMBER — $PR_TITLE"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -75,7 +76,8 @@ jobs:
 
       - name: Deploy production to Netlify (main only)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: npx netlify-cli deploy --dir=dist --prod --message="Deploy @ ${{ github.sha }}"
+        run: |
+          npx netlify-cli deploy --dir=dist --prod --message="Deploy @ ${{ github.sha }}"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
