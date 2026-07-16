@@ -23,7 +23,7 @@ test.describe('SEO and Meta Tags Verification', () => {
     const viewport = page.locator('meta[name="viewport"]');
     await expect(viewport).toHaveAttribute(
       'content',
-      'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
+      'width=device-width, initial-scale=1.0'
     );
 
     // Robots indexing metadata
@@ -74,8 +74,8 @@ test.describe('SEO and Meta Tags Verification', () => {
   });
 
   test('should render proper noscript crawler fallback text content', async ({ page }) => {
-    // Check noscript tag exists
-    const noscript = page.locator('noscript');
+    // Check noscript tag exists — use body noscript to avoid matching the font-fallback noscript in head
+    const noscript = page.locator('body noscript');
     await expect(noscript).toBeAttached();
 
     const noscriptContent = await noscript.innerHTML();

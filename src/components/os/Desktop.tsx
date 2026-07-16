@@ -300,6 +300,7 @@ export default function Desktop() {
                   ? 'bg-green-500 text-black hover:bg-green-600'
                   : 'bg-white/10 hover:bg-white/20 border border-white/15'
             }`}
+            aria-label={startMenuOpen ? "Close start menu" : "Open start menu"}
           >
             <div className="flex flex-wrap w-4 h-4 justify-between content-between gap-0.5">
               <div className="w-1.5 h-1.5 bg-current rounded-sm" />
@@ -385,6 +386,7 @@ export default function Desktop() {
                   isSimulatingMobile ? 'bg-purple-600/35 border border-purple-500/50 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`}
                 title="Toggle Android OS Simulator"
+                aria-label="Toggle Android OS simulator"
               >
                 <Smartphone className="w-4 h-4" />
               </button>
@@ -393,12 +395,13 @@ export default function Desktop() {
               onClick={handleThemeCycle} 
               className="p-1 rounded-md transition hover:scale-105 active:scale-95 text-gray-400 hover:text-white hover:bg-white/10"
               title={`Cycle Theme (Current: ${theme})`}
+              aria-label="Cycle theme"
             >
               {theme === 'light' ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-yellow-400" />}
             </button>
             <Wifi className="w-4 h-4 text-emerald-400" />
             
-            <button id="volume-button" onClick={() => setShowVolumePopup(!showVolumePopup)} className="hover:opacity-80 transition relative">
+            <button id="volume-button" onClick={() => setShowVolumePopup(!showVolumePopup)} className="hover:opacity-80 transition relative" aria-label={showVolumePopup ? "Close volume controls" : "Open volume controls"}>
               <Volume2 className="w-4 h-4 text-sky-400" />
               {showVolumePopup && (
                 <div id="volume-popup" className="absolute right-0 top-6 bg-slate-900 border border-gray-800 p-3 rounded-lg shadow-xl w-32 flex flex-col z-[10000] text-white">
@@ -430,6 +433,7 @@ export default function Desktop() {
               id="notification-button"
               onClick={() => setShowNotificationDrawer(!showNotificationDrawer)} 
               className="hover:opacity-80 transition relative"
+              aria-label={showNotificationDrawer ? "Close notifications panel" : "Open notifications panel"}
             >
               <Bell className="w-4 h-4 text-amber-400" />
               {notifications.length > 0 && (
@@ -472,6 +476,7 @@ export default function Desktop() {
                 className={`flex items-center p-2 rounded-xl hover:bg-white/5 transition text-left ${
                   viewMode === 'tablet' ? 'space-x-3.5' : 'space-x-2.5'
                 }`}
+                aria-label={`Open ${app.title.replace('.exe', '')} from start menu`}
               >
                 <div className={`rounded-lg bg-gradient-to-br ${app.color} text-white ${
                   viewMode === 'tablet' ? 'p-2' : 'p-1.5'
@@ -484,11 +489,11 @@ export default function Desktop() {
           </div>
 
           <div className="flex justify-between items-center pt-3 border-t border-white/10 dark:border-gray-800 text-[10px] text-gray-400">
-            <button onClick={handleSleep} className="flex items-center space-x-1.5 hover:text-white transition">
+            <button onClick={handleSleep} className="flex items-center space-x-1.5 hover:text-white transition" aria-label="Put system to sleep">
               <Moon className="w-3.5 h-3.5" />
               <span>Sleep</span>
             </button>
-            <button onClick={handleShutdown} className="flex items-center space-x-1.5 hover:text-red-400 transition">
+            <button onClick={handleShutdown} className="flex items-center space-x-1.5 hover:text-red-400 transition" aria-label="Shut down system">
               <LogOut className="w-3.5 h-3.5" />
               <span>Power Off</span>
             </button>
@@ -521,7 +526,7 @@ export default function Desktop() {
             className={`flex flex-col items-center justify-center rounded-xl cursor-pointer hover:bg-white/5 border border-transparent hover:border-white/10 active:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all select-none group text-center ${
               viewMode === 'tablet' ? 'w-24 h-24' : 'w-20 h-20'
             }`}
-            aria-label={`Open ${app.title.replace('.exe', '')}`}
+            aria-label={`Open ${app.title.replace('.exe', '')} from desktop`}
           >
             <div className={`rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-lg shadow-black/20 group-hover:scale-105 transition-transform ${
               viewMode === 'tablet' ? 'w-12 h-12' : 'w-11 h-11'
@@ -584,6 +589,7 @@ export default function Desktop() {
               key={app.id}
               onClick={() => handleDockClick(app.id)}
               className="relative flex flex-col items-center group transition"
+              aria-label={`${isRunning ? (isCurrentActive ? "Minimize" : "Restore") : "Open"} ${app.title} from dock`}
             >
               {/* Custom tooltip with 200ms delay on entry and smooth disappear */}
               <span className="absolute bottom-14 px-2 py-1 bg-slate-900/90 border border-gray-800 text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 translate-y-0 group-hover:-translate-y-1.5 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap text-white shadow-xl z-[10001] delay-0 group-hover:delay-200">

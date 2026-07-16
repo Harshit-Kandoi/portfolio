@@ -87,6 +87,7 @@ function App() {
                   <button 
                     onClick={() => setIsSimulatingMobile(false)}
                     className="absolute top-6 right-6 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-full text-xs shadow-xl flex items-center space-x-1.5 transition duration-200 hover:scale-[1.05] active:scale-[0.95] z-[600]"
+                    aria-label="Exit Mobile OS Simulator"
                   >
                     <span>✕ Exit Mobile OS Simulator</span>
                   </button>

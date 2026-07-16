@@ -323,6 +323,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
               <button 
                 onClick={() => setShowMobileSettings(false)}
                 className={`p-1.5 rounded-full ${theme === 'light' ? 'bg-black/5 hover:bg-black/10 text-gray-600' : 'bg-white/5 hover:bg-white/10 text-gray-400'}`}
+                aria-label="Close quick settings"
               >
                 <ChevronLeft className="w-5 h-5 rotate-275" />
               </button>
@@ -349,6 +350,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     ? 'bg-emerald-600 border-emerald-500 text-white shadow-md' 
                     : (theme === 'light' ? 'bg-gray-200/60 border-gray-300/40 text-gray-600 hover:bg-gray-200' : 'bg-white/5 border-white/5 text-gray-400')
                 }`}
+                aria-label="Toggle Wi-Fi"
               >
                 <Wifi className="w-5 h-5" />
                 <span className="text-[10px] font-semibold">Wi-Fi</span>
@@ -371,6 +373,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     ? 'bg-purple-600 border-purple-500 text-white shadow-md' 
                     : (theme === 'light' ? 'bg-gray-200/60 border-gray-300/40 text-gray-600 hover:bg-gray-200' : 'bg-white/5 border-white/5 text-gray-400')
                 }`}
+                aria-label="Toggle Bluetooth"
               >
                 <Bluetooth className="w-5 h-5" />
                 <span className="text-[10px] font-semibold">Bluetooth</span>
@@ -396,6 +399,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     ? 'bg-red-600 border-red-500 text-white shadow-md' 
                     : (theme === 'light' ? 'bg-gray-200/60 border-gray-300/40 text-gray-600 hover:bg-gray-200' : 'bg-white/5 border-white/5 text-gray-400')
                 }`}
+                aria-label="Toggle Airplane Mode"
               >
                 <Zap className="w-5 h-5 rotate-45" />
                 <span className="text-[10px] font-semibold">Airplane</span>
@@ -418,6 +422,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     ? 'bg-indigo-600 border-indigo-500 text-white shadow-md' 
                     : (theme === 'light' ? 'bg-gray-200/60 border-gray-300/40 text-gray-600 hover:bg-gray-200' : 'bg-white/5 border-white/5 text-gray-400')
                 }`}
+                aria-label="Toggle Dark Theme"
               >
                 {theme !== 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
                 <span className="text-[10px] font-semibold">Dark Theme</span>
@@ -440,6 +445,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     ? 'bg-[#38bdf8] border-[#0ea5e9] text-black font-semibold shadow-md' 
                     : (theme === 'light' ? 'bg-gray-200/60 border-gray-300/40 text-gray-600 hover:bg-gray-200' : 'bg-white/5 border-white/5 text-gray-400')
                 }`}
+                aria-label="Toggle System Sounds"
               >
                 {soundEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
                 <span className="text-[10px] font-semibold">Sounds</span>
@@ -464,6 +470,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     ? 'bg-gray-200/60 border-gray-300/40 text-purple-700 hover:bg-gray-200' 
                     : 'bg-white/5 border-white/5 text-purple-300 hover:bg-white/10'
                 }`}
+                aria-label="Cycle Theme"
               >
                 <Palette className="w-5 h-5" />
                 <span className="text-[10px] font-semibold truncate capitalize w-16 text-center">{theme}</span>
@@ -517,6 +524,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                   <button 
                     onClick={clearNotifications}
                     className={`text-[10px] ${theme === 'light' ? 'text-purple-700 hover:text-purple-900' : 'text-gray-500 hover:text-white'} flex items-center space-x-1`}
+                    aria-label="Dismiss all notifications"
                   >
                     <Trash2 className="w-3.5 h-3.5" /> <span>Dismiss All</span>
                   </button>
@@ -563,6 +571,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                             dismissNotification(n.id);
                           }}
                           className={`text-gray-500 ${theme === 'light' ? 'hover:text-red-650' : 'hover:text-red-400'} absolute top-2 right-2 text-xs`}
+                          aria-label="Dismiss notification"
                         >
                           ✕
                         </button>
@@ -579,6 +588,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
           <button 
             onClick={() => setShowMobileSettings(false)}
             className={`w-full py-2.5 ${theme === 'light' ? 'bg-gray-200 hover:bg-gray-300 text-gray-700' : 'bg-white/10 hover:bg-white/15 text-white'} active:scale-95 border border-white/10 rounded-2xl text-xs font-semibold text-center mt-4 transition`}
+            aria-label="Close quick settings panel"
           >
             Close Panel
           </button>
@@ -625,6 +635,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     key={app.id}
                     onClick={() => handleLaunchApp(app.id)}
                     className="flex flex-col items-center space-y-1 focus:outline-none transition group hover:scale-[1.05]"
+                    aria-label={`Open ${app.title}`}
                   >
                     <div className={`w-12 h-12 rounded-[16px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md shadow-black/15 group-active:scale-95 transition-transform`}>
                       <app.icon className="w-6 h-6" />
@@ -643,6 +654,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
               <button 
                 onClick={() => setShowMobileDrawer(true)}
                 className="flex flex-col items-center space-y-1 hover:opacity-80 transition cursor-pointer mb-2"
+                aria-label="Open all apps drawer"
               >
                 <div className={`w-8 h-1 ${theme === 'light' ? 'bg-gray-300' : 'bg-white/25'} rounded-full animate-bounce`} />
                 <span className={`text-[8px] font-bold uppercase tracking-widest ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'}`}>All Apps</span>
@@ -656,6 +668,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     onClick={() => handleLaunchApp(app.id)}
                     className="flex flex-col items-center transition hover:scale-[1.1] active:scale-90"
                     title={app.title}
+                    aria-label={`Open ${app.title}`}
                   >
                     <div className={`w-12 h-12 rounded-[16px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-sm`}>
                       <app.icon className="w-6 h-6" />
@@ -703,6 +716,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                         <button 
                           onClick={() => closeMobileApp(appId)}
                           className={`text-[10px] ${theme === 'light' ? 'text-red-700 bg-red-50 hover:bg-red-650 hover:text-white border border-red-200' : 'text-red-400 bg-red-950/20 hover:bg-red-500 hover:text-white'} px-2 py-0.5 rounded-full transition`}
+                          aria-label={`Dismiss ${appMeta?.title}`}
                         >
                           Dismiss
                         </button>
@@ -729,6 +743,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
               <button
                 onClick={clearMobileRecents}
                 className={`w-fit self-center py-2 px-6 ${theme === 'light' ? 'bg-red-100 hover:bg-red-600 hover:text-white text-red-700 border-red-200' : 'bg-red-600/20 hover:bg-red-600 text-red-200 hover:text-white'} border font-semibold rounded-full tracking-wide transition active:scale-95 shadow-md text-xs`}
+                aria-label="Clear all recent apps"
               >
                 Clear All Apps
               </button>
@@ -754,6 +769,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                   onClick={() => closeMobileApp(activeMobileApp)}
                   className={`p-1 rounded-full ${theme === 'light' ? 'hover:bg-gray-200 text-purple-700' : 'hover:bg-white/10 text-purple-400'} transition`}
                   title="Close App"
+                  aria-label="Close app"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>

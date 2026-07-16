@@ -1,0 +1,79 @@
+name: CI · Lighthouse · Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Grant least-privilege: read repo + write PR comments + write commit statuses
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
+
+jobs:
+  pipeline:
+    name: Build · Test · Audit · Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Setup ────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ── 2. Quality Gates ─────────────────────────────────────────────────
+      - name: ESLint
+        run: npm run lint
+
+      - name: Vitest unit tests
+        run: npm run test
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Playwright E2E tests
+        run: npm run test:e2e
+
+      # ── 3. Build ─────────────────────────────────────────────────────────
+      - name: Vite production build
+        run: npm run build
+
+      # ── 4. Lighthouse CI ─────────────────────────────────────────────────
+      # LHCI_GITHUB_APP_TOKEN enables:
+      #   • Commit status checks on every push/PR
+      #   • A Lighthouse score comment posted directly on the PR thread
+      # Get the token at: https://github.com/apps/lighthouse-ci → Install → Copy token
+      # Then add it as a repo secret: Settings → Secrets → Actions → LHCI_GITHUB_APP_TOKEN
+      - name: Lighthouse CI audit
+        run: npm run lighthouse
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      # ── 5. Deploy ─────────────────────────────────────────────────────────
+      # Requires two repo secrets:
+      #   NETLIFY_AUTH_TOKEN  → Netlify › User Settings › Applications › New access token
+      #   NETLIFY_SITE_ID     → Netlify › Site Settings › General › Site ID
+
+      - name: Deploy preview to Netlify (PR only)
+        if: github.event_name == 'pull_request'
+        run: npx netlify-cli deploy --dir=dist --alias=pr-${{ github.event.pull_request.number }} --message="PR #${{ github.event.pull_request.number }} — ${{ github.event.pull_request.title }}"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+      - name: Deploy production to Netlify (main only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: npx netlify-cli deploy --dir=dist --prod --message="Deploy @ ${{ github.sha }}"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
