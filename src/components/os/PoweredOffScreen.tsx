@@ -14,11 +14,13 @@ export default function PoweredOffScreen() {
 
   useEffect(() => {
     const handleKeyDown = () => {
-      handleRestart();
+      resetShutdown();
+      playBootSound();
+      setBootState('booting');
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [resetShutdown, setBootState]);
 
   return (
     <div className="fixed inset-0 bg-[#07070a] flex flex-col items-center justify-center select-none z-[9999]">
@@ -34,6 +36,7 @@ export default function PoweredOffScreen() {
           <button
             onClick={handleRestart}
             className="group relative px-8 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl shadow-lg hover:from-purple-500 hover:to-indigo-500 transition-all duration-300 transform hover:scale-105 active:scale-95"
+            aria-label="Power On System"
           >
             <span className="flex items-center space-x-2">
               <svg className="w-5 h-5 group-hover:animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">

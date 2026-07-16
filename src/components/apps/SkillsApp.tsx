@@ -149,6 +149,7 @@ export default function SkillsApp() {
                         ? 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200'
                         : 'bg-slate-900 border-white/5 text-gray-400 hover:text-white'
                   }`}
+                  aria-label={`Select category ${cat}`}
                 >
                   {cat}
                 </button>
@@ -160,13 +161,13 @@ export default function SkillsApp() {
           <div className="flex items-center space-x-1.5 shrink-0">
             {viewType === 'constellation' && (
               <div className="flex items-center space-x-1 bg-slate-900 border border-white/5 rounded-lg p-0.5">
-                <button onClick={() => setScale(Math.min(2.5, scale + 0.15))} className="p-1 text-gray-400 hover:text-white transition" title="Zoom In">
+                <button onClick={() => setScale(Math.min(2.5, scale + 0.15))} className="p-1 text-gray-400 hover:text-white transition" title="Zoom In" aria-label="Zoom in">
                   <ZoomIn className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={() => setScale(Math.max(0.6, scale - 0.15))} className="p-1 text-gray-400 hover:text-white transition" title="Zoom Out">
+                <button onClick={() => setScale(Math.max(0.6, scale - 0.15))} className="p-1 text-gray-400 hover:text-white transition" title="Zoom Out" aria-label="Zoom out">
                   <ZoomOut className="w-3.5 h-3.5" />
                 </button>
-                <button onClick={resetZoomPan} className="p-1 text-gray-400 hover:text-white transition" title="Reset View">
+                <button onClick={resetZoomPan} className="p-1 text-gray-400 hover:text-white transition" title="Reset View" aria-label="Reset zoom and pan">
                   <RotateCcw className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -176,6 +177,7 @@ export default function SkillsApp() {
                 onClick={() => setViewType('constellation')}
                 className={`p-1.5 rounded-md transition ${viewType === 'constellation' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}
                 title="Constellation View"
+                aria-label="Switch to constellation view"
               >
                 <GitBranch className="w-3.5 h-3.5" />
               </button>
@@ -183,6 +185,7 @@ export default function SkillsApp() {
                 onClick={() => setViewType('grid')}
                 className={`p-1.5 rounded-md transition ${viewType === 'grid' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}
                 title="Grid View"
+                aria-label="Switch to grid view"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
               </button>
@@ -371,6 +374,7 @@ export default function SkillsApp() {
                                 ? 'border-purple-500 bg-purple-600/10'
                                 : isLight ? 'border-gray-200 bg-white hover:border-purple-300' : 'border-white/8 bg-white/3 hover:border-purple-500/40'
                             }`}
+                            aria-label={`Select skill ${skill.name}`}
                           >
                             <div className="flex items-center justify-between mb-1.5">
                               <span className="font-bold text-[11px] truncate">{skill.name}</span>

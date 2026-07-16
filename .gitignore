@@ -47,3 +47,5 @@ eslint-report.html
 coverage/
 .nyc_output/
 .tap/
+.lighthouseci/
+test-results/

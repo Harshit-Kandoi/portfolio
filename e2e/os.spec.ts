@@ -17,16 +17,18 @@ test.describe('Desktop Workspace OS Core Functionality', () => {
   });
 
   test('should render all 15 app icons and taskbar components correctly', async ({ page }) => {
-    // Verify specific icons exist on desktop
+    // Verify specific icons exist on desktop — aria-labels use "Open {name} from desktop" format
     const appIcons = [
       'About.exe', 'Projects.exe', 'Experience.exe', 'Skills.exe', 'Resume.pdf',
       'Terminal.exe', 'AI Assistant', 'Blog Reader.exe', 'Achievements.exe',
       'Gaming Profile', 'Contact.exe', 'Settings.exe', 'Snake.exe',
-      'Portfolio Swipe', 'Buy Me Coffee'
+      'Portfolio Swipe', 'Buy Me Coffee ☕'
     ];
 
     for (const app of appIcons) {
-      const button = page.locator(`button[aria-label^="Open ${app.split('.')[0]}"]`);
+      // Mirror Desktop.tsx: aria-label uses title.replace('.exe', '') only
+      const name = app.replace('.exe', '');
+      const button = page.locator(`button[aria-label="Open ${name} from desktop"]`);
       await expect(button).toBeVisible();
     }
 
@@ -42,18 +44,18 @@ test.describe('Desktop Workspace OS Core Functionality', () => {
     // Type "terminal"
     await searchInput.fill('terminal');
 
-    // Only terminal should be visible
-    await expect(page.locator('button[aria-label="Open Terminal"]')).toBeVisible();
-    await expect(page.locator('button[aria-label="Open About"]')).toBeHidden();
+    // Only terminal desktop icon should be visible; About desktop icon should be hidden
+    await expect(page.locator('button[aria-label="Open Terminal from desktop"]')).toBeVisible();
+    await expect(page.locator('button[aria-label="Open About from desktop"]')).toBeHidden();
 
     // Clear search
     await searchInput.fill('');
-    await expect(page.locator('button[aria-label="Open About"]')).toBeVisible();
+    await expect(page.locator('button[aria-label="Open About from desktop"]')).toBeVisible();
   });
 
   test('should open, focus, minimize, maximize, and close windows', async ({ page }) => {
-    // Open About app via double click simulation
-    const aboutIcon = page.locator('button[aria-label="Open About"]');
+    // Open About app via double click simulation (desktop icon)
+    const aboutIcon = page.locator('button[aria-label="Open About from desktop"]');
     await aboutIcon.dblclick();
 
     // Check window appears with title About.exe
@@ -96,7 +98,7 @@ test.describe('Desktop Workspace OS Core Functionality', () => {
 
   test('should support Terminal commands execution and matrix mode toggle', async ({ page }) => {
     // Open Terminal
-    await page.locator('button[aria-label="Open Terminal"]').dblclick();
+    await page.locator('button[aria-label="Open Terminal from desktop"]').dblclick();
     await expect(page.locator('#terminal-window-title')).toBeVisible();
 
     const termInput = page.locator('div[role="dialog"]:has-text("Terminal.exe") input[type="text"]');
@@ -125,7 +127,7 @@ test.describe('Desktop Workspace OS Core Functionality', () => {
 
   test('should cycle themes from the settings app swatches', async ({ page }) => {
     // Open settings app
-    await page.locator('button[aria-label="Open Settings"]').dblclick();
+    await page.locator('button[aria-label="Open Settings from desktop"]').dblclick();
     await expect(page.locator('#settings-window-title')).toBeVisible();
 
     // Default theme wrapper check
@@ -143,7 +145,7 @@ test.describe('Desktop Workspace OS Core Functionality', () => {
 
   test('should converse with the AI Assistant and trigger shortcut actions', async ({ page }) => {
     // Open AI Assistant
-    await page.locator('button[aria-label="Open AI Assistant"]').dblclick();
+    await page.locator('button[aria-label="Open AI Assistant from desktop"]').dblclick();
     await expect(page.locator('#ai-window-title')).toBeVisible();
 
     const chatInput = page.locator('input[placeholder="Ask me anything..."]');

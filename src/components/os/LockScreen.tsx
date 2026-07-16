@@ -66,6 +66,7 @@ export default function LockScreen() {
           <button
             onClick={handleUnlock}
             className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white transition active:scale-95 shadow-lg animate-bounce"
+            aria-label="Unlock Mobile OS"
           >
             <ArrowUp className="w-6 h-6" />
           </button>
@@ -121,6 +122,7 @@ export default function LockScreen() {
           <button
             onClick={handleUnlock}
             className="w-full bg-white text-[#03001e] hover:bg-white/90 font-medium py-3 px-6 rounded-2xl flex items-center justify-center space-x-2 transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-white/10"
+            aria-label="Unlock Workspace"
           >
             <span>Unlock Workspace</span>
             <ArrowRight className="w-4 h-4" />

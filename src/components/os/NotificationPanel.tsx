@@ -61,12 +61,13 @@ export default function NotificationPanel({ onClose }: Props) {
               onClick={() => clearNotifications()}
               className="flex items-center space-x-1 text-[10px] text-gray-400 hover:text-red-400 transition"
               title="Clear all"
+              aria-label="Clear all notifications"
             >
               <Trash2 className="w-3 h-3" />
               <span>Clear</span>
             </button>
           )}
-          <button onClick={onClose} className="p-1 rounded-md hover:bg-white/10 text-gray-400 hover:text-white transition">
+          <button onClick={onClose} className="p-1 rounded-md hover:bg-white/10 text-gray-400 hover:text-white transition" aria-label="Close notifications panel">
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -99,6 +100,7 @@ export default function NotificationPanel({ onClose }: Props) {
                     dismissNotification(notif.id);
                   }}
                   className="absolute top-2 right-2 p-0.5 rounded-md opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white hover:bg-white/10 transition"
+                  aria-label="Dismiss notification"
                 >
                   <X className="w-3 h-3" />
                 </button>
