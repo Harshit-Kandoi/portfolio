@@ -56,8 +56,9 @@ describe('Centralized Analytics Service Tests', () => {
 
     // Clear global window variables
     if (typeof window !== 'undefined') {
-      delete (window as any).gtag;
-      delete (window as any).dataLayer;
+      const w = window as { gtag?: unknown; dataLayer?: unknown };
+      delete w.gtag;
+      delete w.dataLayer;
     }
     
     // Reset DNT status on navigator/window
