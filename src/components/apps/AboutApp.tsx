@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useOSStore } from '../../store/useOSStore';
 import { SPOTIFY_CONFIG } from '../../data/config';
 import { Music, Award, MapPin, Code2, Sparkles, BookOpen, Quote } from 'lucide-react';
+import { trackEvent } from '../../utils/analytics';
 
 const QUOTES = [
   "Simplify, then add lightness. — Colin Chapman",
@@ -16,6 +17,12 @@ export default function AboutApp() {
   const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
   const isMobile = globalViewMode === 'mobile' || isSimulatingMobile;
   const [activeQuote, setActiveQuote] = useState(QUOTES[0]);
+
+  useEffect(() => {
+    if (!isMobile) {
+      trackEvent('about_spotify_open');
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     const quoteTimer = setInterval(() => {

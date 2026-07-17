@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Download, Printer, ExternalLink, FileText } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 import { resumeLink } from '../../data/navigation';
+import { trackEvent } from '../../utils/analytics';
 
 export default function ResumeApp() {
   const theme = useOSStore((state) => state.theme);
@@ -9,6 +10,7 @@ export default function ResumeApp() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const handlePrint = () => {
+    trackEvent('resume_print');
     if (iframeRef.current) {
       try {
         iframeRef.current.contentWindow?.focus();
@@ -49,6 +51,7 @@ export default function ResumeApp() {
             <a
               href="/Resume.pdf"
               download="Harshit_Kandoi_Resume.pdf"
+              onClick={() => trackEvent('resume_download')}
               className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center space-x-2 transition shadow-lg shadow-purple-500/10"
             >
               <Download className="w-4 h-4" />
@@ -84,6 +87,7 @@ export default function ResumeApp() {
           <a
             href="/Resume.pdf"
             download="Harshit_Kandoi_Resume.pdf"
+            onClick={() => trackEvent('resume_download')}
             className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-white flex items-center space-x-1.5 text-xs font-semibold transition"
             title="Download PDF"
           >

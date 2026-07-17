@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { blogPosts } from '../../data/blogs';
 import { BlogPost } from '../../types';
-import { Search, Bookmark, Calendar, Clock, ExternalLink, ArrowLeft } from 'lucide-react';
+import { Search, Bookmark, Calendar, Clock, ExternalLink, ArrowLeft, Share2 } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
+import { trackEvent } from '../../utils/analytics';
 
 export default function BlogApp() {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
@@ -11,9 +12,22 @@ export default function BlogApp() {
   const [bookmarks, setBookmarks] = useState<number[]>([]);
   const theme = useOSStore((state) => state.theme);
   const unlockAchievement = useOSStore((state) => state.unlockAchievement);
+  const addNotification = useOSStore((state) => state.addNotification);
+
+  const handleShare = () => {
+    if (!selectedPost) return;
+    try {
+      navigator.clipboard.writeText(selectedPost.link);
+      addNotification('🔗 Link Copied', 'Article link copied to clipboard!', 'success', 'portfolio');
+      trackEvent('blog_article_share', { article_title: selectedPost.title, article_id: selectedPost.id });
+    } catch {
+      // Fallback
+    }
+  };
 
   const handleSelectPost = (post: BlogPost) => {
     setSelectedPost(post);
+    trackEvent('blog_article_open', { article_title: post.title, article_id: post.id });
     unlockAchievement('blog_reader');
   };
 
@@ -60,12 +74,23 @@ export default function BlogApp() {
             <span>Back to feed</span>
           </button>
           
-          <button
-            onClick={(e) => toggleBookmark(selectedPost.id, e)}
-            className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white"
-          >
-            <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-yellow-500 text-yellow-500' : ''}`} />
-          </button>
+          <div className="flex items-center space-x-1.5">
+            <button
+              onClick={handleShare}
+              className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white"
+              title="Share Article"
+            >
+              <Share2 className="w-4 h-4" />
+            </button>
+            
+            <button
+              onClick={(e) => toggleBookmark(selectedPost.id, e)}
+              className="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white"
+              title="Bookmark Article"
+            >
+              <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+            </button>
+          </div>
         </div>
 
         {/* Read Article Details Container */}
@@ -103,6 +128,7 @@ export default function BlogApp() {
               href={selectedPost.link}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackEvent('blog_article_complete', { article_title: selectedPost.title, article_id: selectedPost.id })}
               className="w-full bg-purple-650 hover:bg-purple-700 text-white font-semibold text-xs py-3 px-4 rounded-xl flex items-center justify-center space-x-1.5 transition shadow-lg shadow-purple-500/10 active:scale-[0.98]"
             >
               <span>Read Full Article on Medium</span>

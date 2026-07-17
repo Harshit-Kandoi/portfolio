@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useOSStore } from '../../store/useOSStore';
 import { SNAKE_CONFIG } from '../../data/config';
 import { RotateCcw, Pause, Play, Volume2, VolumeX } from 'lucide-react';
+import { trackEvent } from '../../utils/analytics';
 
 type Dir = 'UP' | 'DOWN' | 'LEFT' | 'RIGHT';
 type Cell = { x: number; y: number };
@@ -80,6 +81,7 @@ export default function SnakeGame() {
   };
 
   const reset = () => {
+    trackEvent('snake_game_start');
     setSnake(INITIAL_SNAKE);
     setFood(randFood(INITIAL_SNAKE));
     setDir('RIGHT');
@@ -176,13 +178,23 @@ export default function SnakeGame() {
     return () => { if (loopRef.current) clearTimeout(loopRef.current); };
   }, [running, dead, snake, nextDir, food, highScore, beep]);
 
-  // Achievements on death
+  // Achievements and analytics on death
   useEffect(() => {
-    if (dead && score >= 50) {
-      unlockAchievement('snake_champion');
-      addNotification('🐍 Snake Champion!', `You scored ${score} points on Snake!`, 'achievement', 'gaming');
-    } else if (dead && score > highScore - 10) {
-      addNotification('🐍 Snake Game Over', `Score: ${score} | High Score: ${highScore}`, 'info', 'gaming');
+    if (dead) {
+      trackEvent('snake_game_over', { score });
+      const prevHighScore = (() => {
+        try { return parseInt(localStorage.getItem(SNAKE_CONFIG.localStorageKey) || '0', 10); } catch { return 0; }
+      })();
+      if (score > prevHighScore) {
+        trackEvent('snake_high_score', { score });
+      }
+
+      if (score >= 50) {
+        unlockAchievement('snake_champion');
+        addNotification('🐍 Snake Champion!', `You scored ${score} points on Snake!`, 'achievement', 'gaming');
+      } else {
+        addNotification('🐍 Snake Game Over', `Score: ${score} | High Score: ${highScore}`, 'info', 'gaming');
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dead]);

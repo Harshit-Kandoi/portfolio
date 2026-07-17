@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useOSStore } from '../../store/useOSStore';
 import { PORTFOLIO_META } from '../../data/config';
 import { Coffee, Heart, Zap, Star, ExternalLink, CheckCircle, Sparkles, CreditCard, Lock, ArrowLeft, Smartphone } from 'lucide-react';
+import { trackEvent } from '../../utils/analytics';
 
 interface CoffeeItem {
   id: string;
@@ -52,6 +53,8 @@ export default function BuyMeCoffeeApp() {
 
   const handleBuy = () => {
     if (!selected && !custom) return;
+    const finalAmount = selected ? selected.price : `$${custom}`;
+    trackEvent('coffee_support_click', { price: finalAmount });
     setShowPayment(true);
     setPaymentMethod('card'); // default select
     setPaymentStep('select');
@@ -281,7 +284,11 @@ export default function BuyMeCoffeeApp() {
             {COFFEE_ITEMS.map((item) => (
               <button
                 key={item.id}
-                onClick={() => { setSelected(item); setCustom(''); }}
+                onClick={() => {
+                  setSelected(item);
+                  setCustom('');
+                  trackEvent('coffee_select', { tier_id: item.id, price: item.price });
+                }}
                 className={`rounded-2xl p-3 text-left border transition active:scale-95 ${
                   selected?.id === item.id
                     ? 'border-amber-500 bg-amber-500/10 shadow-[0_0_12px_rgba(245,158,11,0.15)]'

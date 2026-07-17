@@ -3,6 +3,7 @@ import { projects } from '../../data/projects';
 import { Project } from '../../types';
 import { Folder, Grid, List, Search, Github, ExternalLink, X, Star } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
+import { trackEvent, trackSearch } from '../../utils/analytics';
 
 export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }) {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
@@ -17,6 +18,11 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
 
   // Fire project_browser achievement once on first open
   useEffect(() => { unlockAchievement('project_browser'); }, [unlockAchievement]);
+
+  // Track search query with debouncing
+  useEffect(() => {
+    trackSearch('projects', searchQuery);
+  }, [searchQuery]);
 
   const toggleFavorite = (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -100,6 +106,7 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
               key={cat}
               onClick={() => {
                 setSelectedCategory(cat);
+                trackEvent('project_category_change', { category: cat });
                 setSelectedProject(null); // Hide preview on category switch
               }}
               className={`flex items-center space-x-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-left transition ${
@@ -127,12 +134,13 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
                 key={cat}
                 onClick={() => {
                   setSelectedCategory(cat);
+                  trackEvent('project_category_change', { category: cat });
                   setSelectedProject(null);
                 }}
                 className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition whitespace-nowrap border shrink-0 ${
                   isSelected
                     ? isLight
-                      ? 'bg-purple-50 border-purple-600 text-purple-600'
+                      ? 'bg-purple-50 border-purple-650 text-purple-650'
                       : 'bg-purple-600/20 border-purple-500 text-purple-300'
                     : isLight
                       ? 'bg-white border-gray-200 text-gray-600'
@@ -188,7 +196,10 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
                 {filteredProjects.map((project) => (
                   <div
                     key={project.id}
-                    onClick={() => setSelectedProject(project)}
+                    onClick={() => {
+                      setSelectedProject(project);
+                      trackEvent('project_open', { project_title: project.title, project_id: project.id });
+                    }}
                     className={`p-4 rounded-xl border flex flex-col space-y-3 cursor-pointer transition select-none ${cardBg} ${
                       selectedProject?.id === project.id ? 'ring-1 ring-purple-500 border-purple-500/40 bg-purple-500/5' : ''
                     }`}
@@ -230,7 +241,10 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
                 {filteredProjects.map((project) => (
                   <div
                     key={project.id}
-                    onClick={() => setSelectedProject(project)}
+                    onClick={() => {
+                      setSelectedProject(project);
+                      trackEvent('project_open', { project_title: project.title, project_id: project.id });
+                    }}
                     className={`p-3 rounded-lg border flex items-center justify-between cursor-pointer transition ${cardBg} ${
                       selectedProject?.id === project.id ? 'border-purple-500 bg-purple-500/5' : ''
                     }`}
@@ -320,6 +334,7 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
                     href={selectedProject.github}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackEvent('project_github_click', { project_title: selectedProject.title })}
                     className="flex-grow bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-2 px-3 rounded-lg border border-gray-800 flex items-center justify-center space-x-1.5 transition"
                   >
                     <Github className="w-3.5 h-3.5" />
@@ -331,6 +346,7 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
                     href={selectedProject.demo}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackEvent('project_demo_click', { project_title: selectedProject.title })}
                     className="flex-grow bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs py-2 px-3 rounded-lg flex items-center justify-center space-x-1.5 transition"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />

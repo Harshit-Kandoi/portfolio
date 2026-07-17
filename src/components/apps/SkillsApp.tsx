@@ -4,6 +4,7 @@ import { projects } from '../../data/projects';
 import { Skill } from '../../types';
 import { Info, Sparkles, Target, Library, ZoomIn, ZoomOut, RotateCcw, LayoutGrid, GitBranch } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
+import { trackEvent } from '../../utils/analytics';
 
 const SKILL_ALIASES: Record<string, string[]> = {
   'GCP': ['cloud', 'gcp', 'firestore', 'pub/sub', 'serverless'],
@@ -311,7 +312,10 @@ export default function SkillsApp() {
                           key={sk.name}
                           onMouseEnter={() => setHoveredSkill(sk)}
                           onMouseLeave={() => setHoveredSkill(null)}
-                          onClick={() => setActiveSkill(sk)}
+                          onClick={() => {
+                            setActiveSkill(sk);
+                            trackEvent('skills_node_click', { skill_name: sk.name, view: 'constellation' });
+                          }}
                           className="cursor-pointer"
                         >
                           <circle
@@ -368,7 +372,10 @@ export default function SkillsApp() {
                         return (
                           <button
                             key={skill.name}
-                            onClick={() => setActiveSkill(skill)}
+                            onClick={() => {
+                              setActiveSkill(skill);
+                              trackEvent('skills_node_click', { skill_name: skill.name, view: 'grid' });
+                            }}
                             className={`text-left p-2.5 rounded-xl border transition text-xs ${
                               activeSkill?.name === skill.name
                                 ? 'border-purple-500 bg-purple-600/10'

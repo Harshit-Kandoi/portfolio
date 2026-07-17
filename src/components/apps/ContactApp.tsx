@@ -3,6 +3,7 @@ import { Mail, Send, Linkedin, Github, CheckCircle, Phone, Copy, ExternalLink, B
 import { useOSStore } from '../../store/useOSStore';
 import { PORTFOLIO_META } from '../../data/config';
 import { playNotificationSound } from '../../utils/sounds';
+import { trackEvent } from '../../utils/analytics';
 
 export default function ContactApp() {
   const theme              = useOSStore((state) => state.theme);
@@ -20,6 +21,9 @@ export default function ContactApp() {
     addNotification('📋 Copied to Clipboard', `${label} copied!`, 'info', 'social');
     playNotificationSound();
     unlockAchievement('social_butterfly');
+    if (label === 'Email') {
+      trackEvent('contact_email_click', { action: 'copy' });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -36,6 +40,7 @@ export default function ContactApp() {
       setSuccess(true);
       addNotification('✉️ Mail Client Opened', 'Opening default mail client to send message to Harshit!', 'success', 'career');
       playNotificationSound();
+      trackEvent('contact_submit');
       
       // Redirect to mailto link
       window.location.href = mailtoUrl;
@@ -86,6 +91,7 @@ export default function ContactApp() {
                   </button>
                   <a 
                     href={`mailto:${PORTFOLIO_META.email}`}
+                    onClick={() => trackEvent('contact_email_click', { action: 'open' })}
                     className="py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-[9px] font-bold flex items-center justify-center space-x-1 text-center transition"
                   >
                     <ExternalLink className="w-2.5 h-2.5" />
@@ -129,6 +135,7 @@ export default function ContactApp() {
                     href={PORTFOLIO_META.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackEvent('contact_linkedin_click')}
                     className="flex items-center space-x-1.5 p-2 rounded-lg bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 transition"
                   >
                     <Linkedin className="w-3.5 h-3.5" />
@@ -138,6 +145,7 @@ export default function ContactApp() {
                     href={PORTFOLIO_META.github}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackEvent('contact_github_click')}
                     className="flex items-center space-x-1.5 p-2 rounded-lg bg-gray-600/15 hover:bg-gray-600/25 text-gray-300 transition"
                   >
                     <Github className="w-3.5 h-3.5" />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useOSStore, AppTheme } from '../../store/useOSStore';
 import { playTerminalClick } from '../../utils/sounds';
+import { trackEvent } from '../../utils/analytics';
 
 interface HistoryItem {
   command: string;
@@ -251,6 +252,7 @@ export default function TerminalWindow() {
         break;
 
       case 'matrix':
+        trackEvent('terminal_easter_egg', { easter_egg: 'matrix' });
         setIsMatrixActive(true);
         return;
 
