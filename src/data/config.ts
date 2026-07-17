@@ -42,3 +42,6 @@ export const SESSION_KEYS = {
   lastApps: 'portfolio-os-last-apps',
   hasVisited: 'portfolio-os-has-visited',
 };
+
+export const APP_VERSION = import.meta.env.VITE_APP_VERSION || '2.4.0';
+export const ANALYTICS_VERSION = import.meta.env.VITE_ANALYTICS_VERSION || 'v1.0';

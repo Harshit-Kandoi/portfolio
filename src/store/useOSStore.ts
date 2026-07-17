@@ -1,5 +1,43 @@
 import { create } from 'zustand';
 import { SESSION_KEYS } from '../data/config';
+import { trackEvent, trackPageView } from '../utils/analytics';
+
+let lastFocusAppId: string | null = null;
+let lastFocusAppStartTime: number | null = null;
+
+const trackAppDuration = () => {
+  if (lastFocusAppId && lastFocusAppStartTime) {
+    const duration = (Date.now() - lastFocusAppStartTime) / 1000;
+    if (duration > 0.5) {
+      trackEvent('app_duration', {
+        app_id: lastFocusAppId,
+        duration: Math.round(duration * 100) / 100,
+      });
+    }
+  }
+};
+
+const recordFocusStart = (id: string | null) => {
+  if (id === lastFocusAppId) return;
+  trackAppDuration();
+  lastFocusAppId = id;
+  lastFocusAppStartTime = id ? Date.now() : null;
+  if (id) {
+    trackPageView(`App: ${id}`, `/apps/${id}`);
+  } else {
+    trackPageView('Desktop', '/');
+  }
+};
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeunload', () => {
+    trackAppDuration();
+  });
+  window.addEventListener('pagehide', () => {
+    trackAppDuration();
+  });
+}
+
 
 export type AppTheme = 'dark' | 'light' | 'cyberpunk' | 'midnight' | 'nord' | 'glass' | 'retro';
 export type WallpaperType = 'nebula' | 'particles' | 'matrix' | 'grid';
@@ -321,12 +359,17 @@ export const useOSStore = create<OSState>((set, get) => ({
   openWindow: (id) => {
     const { windows } = get();
     const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(windows, id);
+    const prevWin = windows.find((w) => w.id === id);
+    if (prevWin && !prevWin.isOpen) {
+      trackEvent('app_open', { app_id: id });
+    }
     set({
       startMenuOpen: false,
       activeWindowId: id,
       maxZIndex: nextMax,
       windows: normalizedWindows,
     });
+    recordFocusStart(id);
     // Dispatch contextual notification
     const labels: Record<string, [string, string, ToastNotification['category'], ToastNotification['action']]> = {
       resume:   ['📄 Resume Viewed', 'Visitor opened Resume.pdf', 'career', 'resume'],
@@ -353,6 +396,7 @@ export const useOSStore = create<OSState>((set, get) => ({
 
   closeWindow: (id) => {
     const { windows } = get();
+    trackEvent('app_close', { app_id: id });
     const newWindows = windows.map((win) =>
       win.id === id ? { ...win, isOpen: false, isMinimized: false, isMaximized: false } : win
     );
@@ -364,12 +408,15 @@ export const useOSStore = create<OSState>((set, get) => ({
     if (nextFocusId) {
       const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(newWindows, nextFocusId);
       set({ windows: normalizedWindows, activeWindowId: nextFocusId, maxZIndex: nextMax });
+      recordFocusStart(nextFocusId);
     } else {
       set({ windows: newWindows, activeWindowId: null });
+      recordFocusStart(null);
     }
   },
 
   minimizeWindow: (id) => {
+    trackEvent('app_minimize', { app_id: id });
     const { windows } = get();
     const newWindows = windows.map((win) =>
       win.id === id ? { ...win, isMinimized: true } : win
@@ -382,12 +429,15 @@ export const useOSStore = create<OSState>((set, get) => ({
     if (nextFocusId) {
       const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(newWindows, nextFocusId);
       set({ windows: normalizedWindows, activeWindowId: nextFocusId, maxZIndex: nextMax });
+      recordFocusStart(nextFocusId);
     } else {
       set({ windows: newWindows, activeWindowId: null });
+      recordFocusStart(null);
     }
   },
 
   maximizeWindow: (id) => {
+    trackEvent('app_maximize', { app_id: id });
     set((state) => ({
       windows: state.windows.map((win) =>
         win.id === id ? { ...win, isMaximized: true, isMinimized: false } : win
@@ -397,6 +447,7 @@ export const useOSStore = create<OSState>((set, get) => ({
   },
 
   restoreWindow: (id) => {
+    trackEvent('app_restore', { app_id: id });
     // Restore preserves last custom width/height (already stored in the window instance)
     set((state) => ({
       windows: state.windows.map((win) =>
@@ -415,7 +466,9 @@ export const useOSStore = create<OSState>((set, get) => ({
       maxZIndex: nextMax,
       windows: normalizedWindows,
     });
+    recordFocusStart(id);
   },
+
 
   updateWindowPosition: (id, x, y) => {
     set((state) => ({
@@ -434,10 +487,12 @@ export const useOSStore = create<OSState>((set, get) => ({
   },
 
   closeAllWindows: () => {
+    trackEvent('app_close', { app_id: 'all' });
     set((state) => ({
       activeWindowId: null,
       windows: state.windows.map((win) => ({ ...win, isOpen: false, isMinimized: false, isMaximized: false })),
     }));
+    recordFocusStart(null);
   },
 
   persistWindowState: () => {
@@ -501,6 +556,8 @@ export const useOSStore = create<OSState>((set, get) => ({
     const def = VISITOR_ACHIEVEMENTS.find((a) => a.id === id);
     if (!def) return;
 
+    trackEvent('achievement_unlock', { achievement_id: id, achievement_title: def.title });
+
     const newAchievements = [...unlockedAchievements, id];
     safeSet(SESSION_KEYS.achievements, newAchievements);
     set({ unlockedAchievements: newAchievements });
@@ -527,17 +584,25 @@ export const useOSStore = create<OSState>((set, get) => ({
   },
 
   // ─── Android OS Actions ─────────────────────────────────────────────────
-  setViewMode: (viewMode) => set({ viewMode }),
+  setViewMode: (viewMode) => {
+    set({ viewMode });
+    const activeId = viewMode === 'mobile' ? get().activeMobileApp : get().activeWindowId;
+    recordFocusStart(activeId);
+  },
   setIsSimulatingMobile: (isSimulatingMobile) => set({ isSimulatingMobile }),
 
   openMobileApp: (appId) => {
-    const { mobileRecents } = get();
+    const { mobileRecents, activeMobileApp } = get();
+    if (activeMobileApp !== appId) {
+      trackEvent('app_open', { app_id: appId });
+    }
     const filtered = mobileRecents.filter((id) => id !== appId);
     set({
       activeMobileApp: appId,
       mobileRecents: [appId, ...filtered],
       showMobileDrawer: false,
     });
+    recordFocusStart(appId);
     // Trigger same notifications/achievements as desktop
     if (appId === 'resume') get().unlockAchievement('resume_viewer');
     if (appId === 'projects') get().unlockAchievement('project_browser');
@@ -546,15 +611,20 @@ export const useOSStore = create<OSState>((set, get) => ({
   },
 
   closeMobileApp: (appId) => {
+    trackEvent('app_close', { app_id: appId });
     const { mobileRecents, activeMobileApp } = get();
     const newRecents = mobileRecents.filter((id) => id !== appId);
     const nextActive = activeMobileApp === appId
       ? (newRecents.length > 0 ? newRecents[0] : null)
       : activeMobileApp;
     set({ mobileRecents: newRecents, activeMobileApp: nextActive });
+    recordFocusStart(nextActive);
   },
 
-  clearMobileRecents: () => set({ mobileRecents: [], activeMobileApp: null }),
+  clearMobileRecents: () => {
+    set({ mobileRecents: [], activeMobileApp: null });
+    recordFocusStart(null);
+  },
   setShowMobileDrawer: (showMobileDrawer) => set({ showMobileDrawer }),
   setShowMobileSettings: (showMobileSettings) => set({ showMobileSettings }),
   setMobileBrightness: (mobileBrightness) => set({ mobileBrightness }),

@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useOSStore } from '../../store/useOSStore';
 import { Heart, X, Star, Briefcase, ArrowLeft, CheckCircle, Clock, ChevronRight, Code2, MessageCircle, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { trackEvent } from '../../utils/analytics';
 
 // ─── Role Definitions ────────────────────────────────────────────────────────
 interface Role {
@@ -141,6 +142,12 @@ export default function PortfolioSwipe() {
   const [stack, setStack]         = useState<Role[]>(ROLES);
   const [liked, setLiked]         = useState<Role[]>([]);
   const [selected, setSelected]   = useState<Role | null>(null);
+
+  const handleViewProfile = (role: Role) => {
+    setSelected(role);
+    trackEvent('swipe_profile_open', { role_title: role.title });
+  };
+
   const [botMsg, setBotMsg]       = useState(BOT_MESSAGES[0]);
   const [swiping, setSwiping]     = useState<'left' | 'right' | null>(null);
   const [swipeCount, setSwipeCount] = useState(0);
@@ -168,8 +175,11 @@ export default function PortfolioSwipe() {
 
       if (direction === 'right') {
         setLiked((l) => [current, ...l]);
+        trackEvent('swipe_role_like', { role_title: current.title, match_percentage: current.match });
+        trackEvent('swipe_match_create', { role_title: current.title, match_percentage: current.match });
         addNotification(`❤️ Liked: ${current.title}`, `${current.match}% match!`, 'success', 'career');
       } else {
+        trackEvent('swipe_role_pass', { role_title: current.title });
         addNotification(`👋 Passed on: ${current.title}`, 'Maybe next time!', 'info', 'portfolio');
       }
 
@@ -349,7 +359,7 @@ export default function PortfolioSwipe() {
                 swiping === 'left'  ? '-translate-x-32 -rotate-12 opacity-0' : ''
               }`}
               style={{ height: 380 }}
-              onClick={() => setSelected(currentRole)}
+              onClick={() => handleViewProfile(currentRole)}
             >
               {/* Hero Gradient */}
               <div className={`h-44 bg-gradient-to-br ${currentRole.heroGradient} flex flex-col items-center justify-center relative`}>
@@ -402,7 +412,7 @@ export default function PortfolioSwipe() {
 
               {/* View Profile Button (Super Like) */}
               <button
-                onClick={() => setSelected(currentRole)}
+                onClick={() => handleViewProfile(currentRole)}
                 className="w-14 h-14 rounded-full bg-slate-900 border border-purple-500/30 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10 flex items-center justify-center shadow-xl hover:scale-110 active:scale-95 transition"
                 title="Super Like / View Profile"
               >

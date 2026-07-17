@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useOSStore, ChatMessage } from '../../store/useOSStore';
 import { Send, Bot, User } from 'lucide-react';
 import { playTerminalClick } from '../../utils/sounds';
+import { trackEvent } from '../../utils/analytics';
 
 // 5-stage witty response sequence for unsupported queries
 const WITTY_STAGES = [
@@ -132,7 +133,10 @@ const AssistantBubbleWrapper = ({ msg, openWindow, isNew }: { msg: ChatMessage; 
           {shortcuts.map((btn) => (
             <button
               key={btn.label}
-              onClick={btn.action}
+              onClick={() => {
+                trackEvent('ai_suggestion_click', { suggestion: btn.label });
+                btn.action();
+              }}
               className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-[9px] px-2.5 py-1.5 rounded-lg border border-purple-500/30 transition active:scale-95 shadow"
             >
               {btn.label}
@@ -297,6 +301,7 @@ export default function AIAssistantApp() {
 
       // Stage 5 = self-destruct sequence
       if (stage >= 4) {
+        trackEvent('ai_self_destruct');
         unlockAchievement('easter_egg');
         setSelfDestructActive(true);
       }
@@ -358,7 +363,10 @@ export default function AIAssistantApp() {
         {suggestions.map((sug) => (
           <button
             key={sug}
-            onClick={() => handleSend(sug)}
+            onClick={() => {
+              trackEvent('ai_suggestion_click', { suggestion: sug });
+              handleSend(sug);
+            }}
             className={`px-2.5 py-1 rounded-full text-[10px] font-bold transition border ${
               isLight 
                 ? 'bg-gray-50 hover:bg-gray-100 text-gray-655 border-gray-200' 
@@ -374,6 +382,21 @@ export default function AIAssistantApp() {
       <form 
         onSubmit={(e) => {
           e.preventDefault();
+          
+          // Anonymized query category matching
+          const q = inputText.toLowerCase();
+          let category = 'unsupported';
+          if (q.includes('about') || q.includes('who is') || q.includes('tell me about')) category = 'about';
+          else if (q.includes('resume') || q.includes('cv')) category = 'resume';
+          else if (q.includes('project') || q.includes('yolo') || q.includes('doom') || q.includes('emulator') || q.includes('gcp') || q.includes('backend') || q.includes('github')) category = 'projects';
+          else if (q.includes('contact') || q.includes('email') || q.includes('hire')) category = 'contact';
+          else if (q.includes('snake') || q.includes('game') || q.includes('swipe') || q.includes('match') || q.includes('coffee') || q.includes('support')) category = 'engagement';
+          
+          trackEvent('ai_query_submit', {
+            query_length: inputText.length,
+            query_category: category,
+          });
+
           handleSend(inputText);
           setInputText('');
         }}
