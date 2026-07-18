@@ -14,8 +14,10 @@ export const experience: ExperienceItem[] = [
       "Integrated APIs, deployment workflows, and cloud services while supporting testing, debugging, monitoring, and production releases.",
       "Collaborated with cross-functional teams using Agile practices and Jira to deliver reliable software solutions across frontend, backend, and cloud environments."
     ],
+    skills: ["React", "Python", "Java", "GCP", "Cloud Functions", "Firestore", "Pub/Sub"],
     type: "work"
   },
+
   {
     id: 2,
     role: "Software Engineer Intern",
@@ -26,8 +28,10 @@ export const experience: ExperienceItem[] = [
       "Developed backend services and cloud-native workflows using Python, Cloud Functions, Pub/Sub, Firestore, and App Engine.",
       "Executed deployment automation using Docker, GitHub Actions, and API integration workflows across development and testing environments."
     ],
+    skills: ["Python", "Docker", "GitHub Actions", "App Engine", "Firestore"],
     type: "work"
   },
+
   {
     id: 3,
     role: "AI Intern (Computer Vision)",
@@ -38,8 +42,10 @@ export const experience: ExperienceItem[] = [
       "Implemented a YOLO-based computer vision solution for plastic waste classification, achieving ~75% detection accuracy on custom datasets.",
       "Managed dataset preparation, image preprocessing, model evaluation, and deployment workflows for sustainability-focused applications."
     ],
+    skills: ["Python", "YOLOv5", "OpenCV", "PyTorch", "Computer Vision"],
     type: "work"
   },
+
   {
     id: 4,
     role: "Data Science Intern",
@@ -50,8 +56,10 @@ export const experience: ExperienceItem[] = [
       "Trained crop classification models achieving ~95% accuracy using structured agricultural datasets and feature-engineered inputs.",
       "Performed data preprocessing, feature engineering, model evaluation, and performance analysis across end-to-end ML workflows."
     ],
+    skills: ["Python", "Scikit-learn", "Pandas", "XGBoost", "Data Science"],
     type: "work"
   },
+
 
   // Education
   {

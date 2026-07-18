@@ -31,6 +31,7 @@ export interface ExperienceItem {
   description: string[] | string;
   type: 'work' | 'education' | 'Course' | 'Participation';
   link?: string;
+  skills?: string[];
 }
 
 export interface BlogPost {

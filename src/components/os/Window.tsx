@@ -174,17 +174,19 @@ export default function Window({ id, title, children }: WindowProps) {
       role="dialog"
       aria-labelledby={`${id}-window-title`}
       {...dragProps}
-      initial={{ scale: 0.95, opacity: 0 }}
+      initial={{ scale: 0.93, opacity: 0, y: 12, filter: 'blur(4px)' }}
       animate={{
         scale: 1,
         opacity: 1,
+        y: 0,
+        filter: 'blur(0px)',
         x: isMaximized ? 0 : windowInstance.x,
-        y: isMaximized ? 48 : windowInstance.y,
+        translateY: isMaximized ? 48 : windowInstance.y,
         width:  isMaximized ? '100vw' : windowInstance.width,
         height: viewMode === 'tablet' ? 'calc(100vh - 144px)' : (isMaximized ? 'calc(100vh - 96px)' : windowInstance.height),
         zIndex: windowInstance.zIndex,
       }}
-      transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+      transition={{ type: 'spring', stiffness: 380, damping: 30, mass: 0.8 }}
       onPointerDown={() => focusWindow(id)}
       className={`fixed rounded-xl overflow-hidden border flex flex-col backdrop-blur-md ${windowThemeClass} ${activeBorder}`}
       style={{ maxHeight: viewMode === 'tablet' ? 'calc(100vh - 144px)' : 'calc(100vh - 96px)' }}

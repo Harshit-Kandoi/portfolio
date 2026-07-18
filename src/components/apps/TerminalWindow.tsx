@@ -186,6 +186,13 @@ export default function TerminalWindow() {
             <div><span className="text-yellow-300 font-bold">whoami</span> - developer level</div>
             <div><span className="text-yellow-300 font-bold">fortune</span> - developer quote</div>
             <div><span className="text-yellow-300 font-bold">ascii</span> - retro logos</div>
+            {/* Phase 3 new commands */}
+            <div><span className="text-yellow-300 font-bold">library</span> - view books read</div>
+            <div><span className="text-yellow-300 font-bold">notes</span> - tech notes/wiki</div>
+            <div><span className="text-yellow-300 font-bold">gallery</span> - photo gallery</div>
+            <div><span className="text-yellow-300 font-bold">products</span> - product list</div>
+            <div><span className="text-yellow-300 font-bold">publications</span> - articles written</div>
+            <div><span className="text-yellow-300 font-bold">marketplace</span> - tools & services</div>
           </div>
         );
         break;
@@ -249,6 +256,37 @@ export default function TerminalWindow() {
       case 'contact':
         output = <p className="text-gray-300">Opening Contact.exe app...</p>;
         setTimeout(() => openWindow('contact'), 600);
+        break;
+
+      // Phase 3 commands
+      case 'library':
+        output = <p className="text-gray-300">Opening Library.exe app...</p>;
+        setTimeout(() => openWindow('library'), 600);
+        break;
+
+      case 'notes':
+        output = <p className="text-gray-300">Opening Notes.exe app...</p>;
+        setTimeout(() => openWindow('notes'), 600);
+        break;
+
+      case 'gallery':
+        output = <p className="text-gray-300">Opening Gallery.exe app...</p>;
+        setTimeout(() => openWindow('gallery'), 600);
+        break;
+
+      case 'products':
+        output = <p className="text-gray-300">Opening Products.exe app...</p>;
+        setTimeout(() => openWindow('products'), 600);
+        break;
+
+      case 'publications':
+        output = <p className="text-gray-300">Opening Publications.exe app...</p>;
+        setTimeout(() => openWindow('publications'), 600);
+        break;
+
+      case 'marketplace':
+        output = <p className="text-gray-300">Opening Marketplace.exe app...</p>;
+        setTimeout(() => openWindow('marketplace'), 600);
         break;
 
       case 'matrix':
@@ -325,11 +363,15 @@ export default function TerminalWindow() {
 
       case 'ls':
         output = (
-          <div className="grid grid-cols-4 gap-2 text-blue-400 font-bold">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-blue-400 font-bold">
             <div>about.txt</div>
             <div>projects/</div>
             <div>resume_pdf</div>
             <div>contact_info/</div>
+            <div>library/</div>
+            <div>notes/</div>
+            <div>publications/</div>
+            <div>marketplace/</div>
           </div>
         );
         break;

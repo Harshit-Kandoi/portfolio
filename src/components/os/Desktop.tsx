@@ -5,11 +5,14 @@ import {
   Settings as GearIcon, User, Briefcase, Award, FileText, Send, 
   Search, Cpu, HardDrive, Wifi, Volume2, Bell, LogOut, Moon, Sun, 
   Gamepad2, Github, Linkedin, Smartphone, Mail, Phone, Database,
-  Coffee, Heart
+  Coffee, Heart, BookMarked, StickyNote, Image as ImageIcon, Package, ShoppingBag
 } from 'lucide-react';
+
 import Window from './Window';
 import NotificationPanel from './NotificationPanel';
+import DashboardWidgets from './DashboardWidgets';
 import { playWindowSound, playNotificationSound } from '../../utils/sounds';
+
 
 // Custom Snake Icon SVG
 const SnakeIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -36,6 +39,14 @@ const SettingsApp    = lazy(() => import('../apps/SettingsApp'));
 const SnakeGame      = lazy(() => import('../apps/SnakeGame'));
 const PortfolioSwipe = lazy(() => import('../apps/PortfolioSwipe'));
 const BuyMeCoffeeApp = lazy(() => import('../apps/BuyMeCoffeeApp'));
+// Phase 3 New Apps
+const LibraryApp     = lazy(() => import('../apps/LibraryApp'));
+const NotesApp       = lazy(() => import('../apps/NotesApp'));
+const GalleryApp     = lazy(() => import('../apps/GalleryApp'));
+const ProductsApp    = lazy(() => import('../apps/ProductsApp'));
+const PublicationsApp= lazy(() => import('../apps/PublicationsApp'));
+const MarketplaceApp = lazy(() => import('../apps/MarketplaceApp'));
+
 
 export default function Desktop() {
   const { 
@@ -51,7 +62,9 @@ export default function Desktop() {
   const [ramUsage, setRamUsage] = useState(48);
   const [showVolumePopup, setShowVolumePopup] = useState(false);
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
   const [sysTime, setSysTime] = useState(new Date());
+
   const [bouncingApp, setBouncingApp] = useState<string | null>(null);
   const [shutdownStep, setShutdownStep] = useState(0);
 
@@ -211,22 +224,30 @@ export default function Desktop() {
   };
 
   const appIcons = [
-    { id: 'about',        title: 'About.exe',        icon: User,        color: 'from-blue-500 to-cyan-400'     },
-    { id: 'projects',     title: 'Projects.exe',     icon: Folder,      color: 'from-purple-500 to-indigo-500' },
-    { id: 'experience',   title: 'Experience.exe',   icon: Briefcase,   color: 'from-emerald-500 to-teal-500' },
-    { id: 'skills',       title: 'Skills.exe',       icon: Award,       color: 'from-amber-500 to-orange-500' },
-    { id: 'resume',       title: 'Resume.pdf',       icon: FileText,    color: 'from-rose-500 to-red-500'     },
-    { id: 'terminal',     title: 'Terminal.exe',     icon: TermIcon,    color: 'from-slate-700 to-slate-900'  },
-    { id: 'ai',           title: 'AI Assistant',     icon: MessageSquare,color: 'from-pink-500 to-rose-400'  },
-    { id: 'blog',         title: 'Blog Reader.exe',  icon: BookOpen,    color: 'from-sky-500 to-blue-600'     },
-    { id: 'achievements', title: 'Achievements.exe', icon: Trophy,      color: 'from-yellow-400 to-amber-500' },
-    { id: 'gaming',       title: 'Gaming Profile',   icon: Gamepad2,    color: 'from-red-500 to-pink-500'     },
-    { id: 'contact',      title: 'Contact.exe',      icon: Send,        color: 'from-teal-400 to-emerald-500' },
-    { id: 'settings',     title: 'Settings.exe',     icon: GearIcon,    color: 'from-slate-400 to-slate-600'  },
-    { id: 'snake',        title: 'Snake.exe',        icon: SnakeIcon,   color: 'from-green-500 to-emerald-700' },
-    { id: 'swipe',        title: 'Portfolio Swipe',  icon: Heart,       color: 'from-rose-500 to-red-600'     },
-    { id: 'coffee',       title: 'Buy Me Coffee ☕', icon: Coffee,      color: 'from-amber-600 to-yellow-700' },
+    { id: 'about',        title: 'About.exe',        icon: User,          color: 'from-blue-500 to-cyan-400'     },
+    { id: 'projects',     title: 'Projects.exe',     icon: Folder,        color: 'from-purple-500 to-indigo-500' },
+    { id: 'experience',   title: 'Experience.exe',   icon: Briefcase,     color: 'from-emerald-500 to-teal-500' },
+    { id: 'skills',       title: 'Skills.exe',       icon: Award,         color: 'from-amber-500 to-orange-500' },
+    { id: 'resume',       title: 'Resume.pdf',       icon: FileText,      color: 'from-rose-500 to-red-500'     },
+    { id: 'terminal',     title: 'Terminal.exe',     icon: TermIcon,      color: 'from-slate-700 to-slate-900'  },
+    { id: 'ai',           title: 'AI Assistant',     icon: MessageSquare, color: 'from-pink-500 to-rose-400'    },
+    { id: 'blog',         title: 'Blog Reader.exe',  icon: BookOpen,      color: 'from-sky-500 to-blue-600'     },
+    { id: 'achievements', title: 'Achievements.exe', icon: Trophy,        color: 'from-yellow-400 to-amber-500' },
+    { id: 'gaming',       title: 'Gaming Profile',   icon: Gamepad2,      color: 'from-red-500 to-pink-500'     },
+    { id: 'contact',      title: 'Contact.exe',      icon: Send,          color: 'from-teal-400 to-emerald-500' },
+    { id: 'settings',     title: 'Settings.exe',     icon: GearIcon,      color: 'from-slate-400 to-slate-600'  },
+    { id: 'snake',        title: 'Snake.exe',        icon: SnakeIcon,     color: 'from-green-500 to-emerald-700' },
+    { id: 'swipe',        title: 'Portfolio Swipe',  icon: Heart,         color: 'from-rose-500 to-red-600'     },
+    { id: 'coffee',       title: 'Buy Me Coffee ☕', icon: Coffee,        color: 'from-amber-600 to-yellow-700' },
+    // Phase 3 New Apps
+    { id: 'library',      title: 'Library.exe',      icon: BookMarked,    color: 'from-amber-500 to-orange-400' },
+    { id: 'notes',        title: 'Notes.exe',        icon: StickyNote,    color: 'from-violet-500 to-purple-600'},
+    { id: 'gallery',      title: 'Gallery.exe',      icon: ImageIcon,     color: 'from-pink-500 to-rose-500'    },
+    { id: 'products',     title: 'Products.exe',     icon: Package,       color: 'from-violet-600 to-indigo-600'},
+    { id: 'publications', title: 'Publications.exe', icon: BookMarked,    color: 'from-green-500 to-emerald-600'},
+    { id: 'marketplace',  title: 'Marketplace.exe',  icon: ShoppingBag,   color: 'from-rose-500 to-pink-600'    },
   ];
+
 
   // Filters search query for App icons
   const filteredApps = searchQuery 
@@ -272,10 +293,13 @@ export default function Desktop() {
     const isStartMenuClick = target.closest('#start-menu-button') || target.closest('#start-menu');
     const isNotificationClick = target.closest('#notification-button') || target.closest('#notification-drawer');
     const isVolumeClick = target.closest('#volume-button') || target.closest('#volume-popup');
+    const isDashboardClick = target.closest('#dashboard-button') || target.closest('#dashboard-widgets');
     
     if (!isStartMenuClick && startMenuOpen) setStartMenuOpen(false);
     if (!isNotificationClick && showNotificationDrawer) setShowNotificationDrawer(false);
     if (!isVolumeClick && showVolumePopup) setShowVolumePopup(false);
+    if (!isDashboardClick && showDashboard) setShowDashboard(false);
+
   };
 
   return (
@@ -342,6 +366,23 @@ export default function Desktop() {
             <span className="hidden sm:inline">RAM</span>
             <span className="font-semibold">{ramUsage}%</span>
           </div>
+
+          {/* Dashboard Widget Toggle */}
+          <button
+            id="dashboard-button"
+            onClick={() => setShowDashboard(!showDashboard)}
+            className={`hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-xs border transition-all ${
+              showDashboard
+                ? 'bg-purple-600/30 border-purple-500/50 text-purple-300'
+                : 'bg-white/5 border-white/10 hover:bg-white/10 text-gray-300'
+            }`}
+            aria-label={showDashboard ? 'Close dashboard' : 'Open dashboard'}
+            title="Dashboard"
+          >
+            <Database className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">Dashboard</span>
+          </button>
+
 
           {/* Socials Shortcuts Tray */}
           <div className="hidden lg:flex items-center space-x-3 border-l border-white/10 pl-4">
@@ -506,6 +547,11 @@ export default function Desktop() {
         <NotificationPanel onClose={() => setShowNotificationDrawer(false)} />
       )}
 
+      {/* Dashboard Widgets Panel */}
+      {showDashboard && (
+        <DashboardWidgets onClose={() => setShowDashboard(false)} />
+      )}
+
       {/* Active Workspaces - Icons on Desktop / Tablet */}
       <div className={`flex-grow p-6 z-10 select-none overflow-y-auto mt-4 ${
         viewMode === 'tablet' 
@@ -564,6 +610,13 @@ export default function Desktop() {
             {win.id === 'snake'        && <SnakeGame />}
             {win.id === 'swipe'        && <PortfolioSwipe />}
             {win.id === 'coffee'       && <BuyMeCoffeeApp />}
+            {/* Phase 3 New Apps */}
+            {win.id === 'library'      && <LibraryApp />}
+            {win.id === 'notes'        && <NotesApp />}
+            {win.id === 'gallery'      && <GalleryApp />}
+            {win.id === 'products'     && <ProductsApp />}
+            {win.id === 'publications' && <PublicationsApp />}
+            {win.id === 'marketplace'  && <MarketplaceApp />}
           </Suspense>
         </Window>
       ))}

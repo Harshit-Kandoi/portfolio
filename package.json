@@ -16,6 +16,7 @@
     "build:lighthouse": "npm run build && npm run lighthouse"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.110.7",
     "framer-motion": "^12.42.2",
     "lucide-react": "^0.344.0",
     "posthog-js": "^1.404.0",

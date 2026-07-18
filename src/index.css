@@ -223,3 +223,107 @@ body {
   overscroll-behavior: contain;
   touch-action: pan-x;
 }
+
+/* ─── Typography: Fira Code as monospace ────────────────────────────────── */
+:root {
+  --font-mono: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', 'Courier New', monospace;
+  --font-sans: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+.font-mono, pre, code, kbd, samp, .terminal-font {
+  font-family: var(--font-mono) !important;
+  font-feature-settings: "liga" 1, "calt" 1; /* Fira Code ligatures */
+}
+
+/* ─── Window Open / Close Micro-animations ──────────────────────────────── */
+@keyframes windowOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(8px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes windowClose {
+  from {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+    filter: blur(3px);
+  }
+}
+
+.window-open-anim {
+  animation: windowOpen 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.window-close-anim {
+  animation: windowClose 0.18s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  pointer-events: none;
+}
+
+/* ─── Fade-In Utility ─────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* ─── Dock Icon Glow on Hover ─────────────────────────────────────────────── */
+.dock-icon-glow:hover {
+  filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.6));
+}
+
+/* ─── Desktop Icon Hover Scale ─────────────────────────────────────────────── */
+@keyframes iconPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1.08); }
+}
+
+/* ─── Glassmorphism Window Enhancement ─────────────────────────────────────── */
+.window-glass {
+  background: rgba(10, 11, 18, 0.85);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ─── Typing Cursor Blink ────────────────────────────────────────────────── */
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.terminal-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: #22c55e;
+  animation: cursorBlink 1s step-end infinite;
+  vertical-align: text-bottom;
+  margin-left: 2px;
+}
+
+/* ─── Theme: Midnight accent glow ───────────────────────────────────────── */
+.midnight-theme .window-active-ring {
+  box-shadow:
+    0 0 0 1px rgba(168, 85, 247, 0.3),
+    0 8px 40px rgba(88, 28, 135, 0.35),
+    0 2px 8px rgba(0, 0, 0, 0.5);
+}

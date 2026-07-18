@@ -4,7 +4,8 @@ import {
   Wifi, Signal, Battery, Search, Bell, Settings as GearIcon, 
   Volume2, Sun, Palette, Trash2, Bluetooth, Zap, ChevronLeft, Gamepad2,
   User, Folder, Briefcase, Award, FileText, Terminal as TermIcon,
-  MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon, Heart, Coffee, ExternalLink
+  MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon, Heart, Coffee, ExternalLink,
+  BookMarked, StickyNote, Image as ImageIcon, Package, ShoppingBag
 } from 'lucide-react';
 import { playWindowSound } from '../../utils/sounds';
 
@@ -24,6 +25,14 @@ const SettingsApp    = lazy(() => import('../apps/SettingsApp'));
 const SnakeGame      = lazy(() => import('../apps/SnakeGame'));
 const PortfolioSwipe = lazy(() => import('../apps/PortfolioSwipe'));
 const BuyMeCoffeeApp = lazy(() => import('../apps/BuyMeCoffeeApp'));
+// Phase 3 New Apps
+const LibraryApp     = lazy(() => import('../apps/LibraryApp'));
+const NotesApp       = lazy(() => import('../apps/NotesApp'));
+const GalleryApp     = lazy(() => import('../apps/GalleryApp'));
+const ProductsApp    = lazy(() => import('../apps/ProductsApp'));
+const PublicationsApp= lazy(() => import('../apps/PublicationsApp'));
+const MarketplaceApp = lazy(() => import('../apps/MarketplaceApp'));
+
 
 // Custom Snake Icon SVG
 const SnakeIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -129,6 +138,13 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
     { id: 'coffee', title: 'Buy Coffee', icon: Coffee, color: 'from-amber-600 to-yellow-500', category: 'system' },
     { id: 'contact', title: 'Say Hello', icon: Send, color: 'from-teal-400 to-emerald-500', category: 'social' },
     { id: 'settings', title: 'Settings', icon: GearIcon, color: 'from-slate-400 to-slate-600', category: 'system' },
+    // Phase 3 New Apps
+    { id: 'library', title: 'Library', icon: BookMarked, color: 'from-amber-500 to-orange-400', category: 'system' },
+    { id: 'notes', title: 'Notes', icon: StickyNote, color: 'from-violet-500 to-purple-600', category: 'work' },
+    { id: 'gallery', title: 'Gallery', icon: ImageIcon, color: 'from-pink-500 to-rose-500', category: 'system' },
+    { id: 'products', title: 'Products', icon: Package, color: 'from-violet-600 to-indigo-600', category: 'work' },
+    { id: 'publications', title: 'Publications', icon: BookMarked, color: 'from-green-500 to-emerald-600', category: 'social' },
+    { id: 'marketplace', title: 'Marketplace', icon: ShoppingBag, color: 'from-rose-500 to-pink-600', category: 'system' },
   ];
 
   // Quick App Search filter
@@ -230,6 +246,13 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
       case 'coffee': content = <BuyMeCoffeeApp />; break;
       case 'contact': content = <ContactApp />; break;
       case 'settings': content = <SettingsApp isMobileView={true} />; break;
+      // Phase 3 New Apps
+      case 'library': content = <LibraryApp />; break;
+      case 'notes': content = <NotesApp />; break;
+      case 'gallery': content = <GalleryApp />; break;
+      case 'products': content = <ProductsApp />; break;
+      case 'publications': content = <PublicationsApp />; break;
+      case 'marketplace': content = <MarketplaceApp />; break;
       default: content = <div className="p-4 text-center text-white">App is currently building...</div>;
     }
 
