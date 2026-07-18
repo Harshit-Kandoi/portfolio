@@ -1,6 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
-import { X, GitBranch, GitMerge, Star, Upload, Zap, TrendingUp, Users, Folder, FileText, ExternalLink } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { X, GitBranch, GitMerge, Star, Upload, Zap, TrendingUp, Users, Folder, FileText, ExternalLink, Linkedin, Award, Briefcase, MessageSquare, Share2 } from 'lucide-react';
 import { fetchGitHubStats, fetchGitHubActivity, GitHubStats, ActivityItem } from '../../services/github';
+import { fetchMediumStats, MediumStats } from '../../services/medium';
 import { projects } from '../../data/projects';
 import { blogPosts } from '../../data/blogs';
 import { useOSStore } from '../../store/useOSStore';
@@ -8,6 +9,45 @@ import { useOSStore } from '../../store/useOSStore';
 interface DashboardWidgetsProps {
   onClose: () => void;
 }
+
+const LINKEDIN_ACTIVITIES = [
+  {
+    id: '1',
+    type: 'cert',
+    icon: <Award className="w-3.5 h-3.5 text-amber-400" />,
+    text: 'Earned Google Cloud ACE Certification',
+    sub: 'Verified Associate Cloud Engineer',
+    time: '1mo ago',
+    url: 'https://www.linkedin.com/in/harshit-kandoi/',
+  },
+  {
+    id: '2',
+    type: 'article',
+    icon: <FileText className="w-3.5 h-3.5 text-cyan-400" />,
+    text: 'Published article on UV Package Manager',
+    sub: 'Featured in Towards AI · 1.2k reads',
+    time: '2w ago',
+    url: 'https://pub.towardsai.net/from-pip-to-uv-a-modern-take-on-python-project-management-part-1-2f4a7fdec860',
+  },
+  {
+    id: '3',
+    type: 'role',
+    icon: <Briefcase className="w-3.5 h-3.5 text-blue-400" />,
+    text: 'Software & AI Engineer at ThoughtIn Solutions',
+    sub: 'Building GCP backend workflows & ML tools',
+    time: '2mo ago',
+    url: 'https://www.linkedin.com/in/harshit-kandoi/',
+  },
+  {
+    id: '4',
+    type: 'project',
+    icon: <Zap className="w-3.5 h-3.5 text-emerald-400" />,
+    text: 'Released YOLOv5 ASL Real-time Detector',
+    sub: 'Custom dataset & OpenCV webcam pipeline',
+    time: '3w ago',
+    url: 'https://github.com/Harshit-Kandoi/asl-detection',
+  },
+];
 
 const activityIconMap: Record<string, React.ReactNode> = {
   '⬆️': <Upload className="w-3.5 h-3.5" />,
@@ -62,9 +102,9 @@ function StatCard({
 export default function DashboardWidgets({ onClose }: DashboardWidgetsProps) {
   const theme = useOSStore((state) => state.theme);
   const [stats, setStats] = useState<GitHubStats | null>(null);
-  const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [mediumStats, setMediumStats] = useState<MediumStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
-  const [loadingActivity, setLoadingActivity] = useState(true);
+  const [loadingMedium, setLoadingMedium] = useState(true);
   const panelRef = useRef<HTMLDivElement>(null);
 
   const isLight = theme === 'light';
@@ -74,9 +114,9 @@ export default function DashboardWidgets({ onClose }: DashboardWidgetsProps) {
       setStats(s);
       setLoadingStats(false);
     });
-    fetchGitHubActivity(6).then((a) => {
-      setActivity(a);
-      setLoadingActivity(false);
+    fetchMediumStats().then((ms) => {
+      setMediumStats(ms);
+      setLoadingMedium(false);
     });
   }, []);
 
@@ -132,123 +172,102 @@ export default function DashboardWidgets({ onClose }: DashboardWidgetsProps) {
             loading={loadingStats}
           />
           <StatCard
-            icon={<Star className="w-4.5 h-4.5" />}
-            label="Total Stars"
-            value={stats?.total_stars ?? '—'}
-            badge={stats?.total_stars ? '+' + stats.total_stars : undefined}
-            badgeColor="text-amber-400"
+            icon={<GitBranch className="w-4.5 h-4.5" />}
+            label="Total Commits"
+            value={stats?.total_commits ?? '—'}
+            badge={stats?.total_commits ? 'Active' : undefined}
+            badgeColor="text-emerald-400"
             gradient="from-amber-500 to-orange-400"
             loading={loadingStats}
           />
           <StatCard
             icon={<Users className="w-4.5 h-4.5" />}
-            label="Followers"
-            value={stats?.followers ?? '—'}
-            badge={stats ? `+${stats.following} following` : undefined}
+            label="Followers (Medium)"
+            value={mediumStats?.followers ?? 98}
+            badge={mediumStats ? 'Popular' : undefined}
             badgeColor="text-purple-400"
             gradient="from-purple-500 to-indigo-500"
-            loading={loadingStats}
+            loading={loadingMedium}
           />
           <StatCard
             icon={<FileText className="w-4.5 h-4.5" />}
-            label="Articles"
-            value={articleCount}
-            badge="+5%"
+            label="Articles (Medium)"
+            value={mediumStats?.articlesCount ?? articleCount}
+            badge={mediumStats ? 'Tech/AI' : undefined}
             badgeColor="text-pink-400"
             gradient="from-pink-500 to-rose-400"
-            loading={false}
+            loading={loadingMedium}
           />
         </div>
 
-        {/* Latest Activity */}
+        {/* LinkedIn Professional Activity Feed */}
         <div className="bg-[#0f1019]/80 border border-white/5 rounded-2xl p-4">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-xs font-bold text-white">Latest Activity</h3>
+            <div className="flex items-center gap-1.5">
+              <div className="w-5 h-5 rounded-md bg-[#0a66c2] flex items-center justify-center text-white">
+                <Linkedin className="w-3 h-3 fill-current" />
+              </div>
+              <h3 className="text-xs font-bold text-white">Professional Updates</h3>
+            </div>
             <a
-              href={`https://github.com/Harshit-Kandoi`}
+              href="https://www.linkedin.com/in/harshit-kandoi/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] text-purple-400 hover:text-purple-300 flex items-center gap-1 transition"
+              className="text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1 transition"
             >
-              GitHub <ExternalLink className="w-2.5 h-2.5" />
+              LinkedIn <ExternalLink className="w-2.5 h-2.5" />
             </a>
           </div>
 
-          {loadingActivity ? (
-            <div className="space-y-3">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="flex items-center gap-3 animate-pulse">
-                  <div className="w-6 h-6 bg-white/5 rounded-lg shrink-0" />
-                  <div className="flex-1 space-y-1">
-                    <div className="h-2.5 bg-white/5 rounded w-3/4" />
-                    <div className="h-2 bg-white/5 rounded w-1/3" />
+          <div className="space-y-2">
+            {LINKEDIN_ACTIVITIES.map((item) => (
+              <a
+                key={item.id}
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start justify-between hover:bg-white/5 -mx-2 px-2 py-1.5 rounded-xl transition group"
+              >
+                <div className="flex items-start gap-2.5 min-w-0">
+                  <div className="w-7 h-7 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center shrink-0 mt-0.5">
+                    {item.icon}
+                  </div>
+                  <div className="min-w-0 pr-1">
+                    <p className="text-[11px] font-medium text-gray-200 group-hover:text-blue-300 transition leading-tight line-clamp-1">
+                      {item.text}
+                    </p>
+                    <p className="text-[9px] text-gray-500 truncate mt-0.5">{item.sub}</p>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : activity.length === 0 ? (
-            <div className="space-y-2.5">
-              {/* Fallback simulated activity */}
-              {[
-                { icon: '⬆️', text: 'Pushed to portfolio-os', time: '2h ago' },
-                { icon: '🔀', text: 'Merged PR in local-gcp-emulator', time: '1d ago' },
-                { icon: '✨', text: 'Created branch in asl-detection', time: '3d ago' },
-                { icon: '⭐', text: 'Starred torvalds/linux', time: '1w ago' },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between group cursor-default">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center shrink-0 text-xs">
-                      {item.icon}
-                    </div>
-                    <span className="text-[11px] text-gray-300">{item.text}</span>
-                  </div>
-                  <span className="text-[10px] text-gray-600 shrink-0 ml-2">{item.time}</span>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-2.5">
-              {activity.map((item) => (
-                <a
-                  key={item.id}
-                  href={item.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between hover:bg-white/5 -mx-2 px-2 py-1 rounded-lg transition group"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
-                      {activityIconMap[item.icon] ?? <TrendingUp className="w-3.5 h-3.5" />}
-                    </div>
-                    <span className="text-[11px] text-gray-300 group-hover:text-white transition truncate max-w-[180px]">{item.text}</span>
-                  </div>
-                  <span className="text-[10px] text-gray-600 shrink-0 ml-2">{item.timeAgo}</span>
-                </a>
-              ))}
-            </div>
-          )}
+                <span className="text-[9px] text-gray-600 shrink-0 mt-0.5">{item.time}</span>
+              </a>
+            ))}
+          </div>
         </div>
 
-        {/* GitHub Profile Mini Card */}
-        {stats && (
-          <a
-            href="https://github.com/Harshit-Kandoi"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 bg-[#0f1019]/80 border border-white/5 rounded-2xl p-3 hover:border-purple-500/30 transition group"
-          >
-            <img
-              src={stats.avatar_url || '/profile.webp'}
-              alt="GitHub Avatar"
-              className="w-10 h-10 rounded-xl object-cover border border-white/10"
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-bold text-white truncate">{stats.name}</p>
-              <p className="text-[10px] text-gray-500 truncate">{stats.bio || 'Software & AI Engineer'}</p>
+        {/* LinkedIn Profile Mini Card */}
+        <a
+          href="https://www.linkedin.com/in/harshit-kandoi/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 bg-[#0f1019]/80 border border-blue-500/10 rounded-2xl p-3 hover:border-blue-500/40 transition group"
+        >
+          <img
+            src={stats?.avatar_url || '/profile.webp'}
+            alt="LinkedIn Profile Avatar"
+            className="w-10 h-10 rounded-xl object-cover border border-white/10"
+          />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs font-bold text-white truncate">{stats?.name || 'Harshit Kandoi'}</p>
+              <div className="w-3.5 h-3.5 rounded bg-[#0a66c2] flex items-center justify-center text-white shrink-0">
+                <Linkedin className="w-2.5 h-2.5 fill-current" />
+              </div>
             </div>
-            <ExternalLink className="w-3.5 h-3.5 text-gray-600 group-hover:text-purple-400 transition shrink-0" />
-          </a>
-        )}
+            <p className="text-[10px] text-gray-500 truncate">Software & AI Engineer · ThoughtIn Solutions</p>
+          </div>
+          <ExternalLink className="w-3.5 h-3.5 text-gray-600 group-hover:text-blue-400 transition shrink-0" />
+        </a>
       </div>
     </div>
   );

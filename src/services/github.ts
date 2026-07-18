@@ -9,10 +9,13 @@ const GITHUB_USER = 'Harshit-Kandoi';
 const CACHE_TTL = 1000 * 60 * 30; // 30 minutes
 
 function getAuthHeaders(): HeadersInit {
-  const token = (import.meta.env as Record<string, string>).VITE_GITHUB_TOKEN;
-  return token
-    ? { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
-    : { Accept: 'application/vnd.github+json' };
+  let token = (import.meta.env as Record<string, string>).VITE_GITHUB_TOKEN;
+  if (token) {
+    // Strip quotes if they exist in the raw environment value
+    token = token.trim().replace(/^["']|["']$/g, '');
+    return { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' };
+  }
+  return { Accept: 'application/vnd.github+json' };
 }
 
 interface CacheEntry<T> {
@@ -20,7 +23,7 @@ interface CacheEntry<T> {
   ts: number;
 }
 
-function cacheGet<T>(key: string): T | null {
+export function cacheGet<T>(key: string): T | null {
   try {
     const raw = sessionStorage.getItem(key);
     if (!raw) return null;
@@ -32,11 +35,12 @@ function cacheGet<T>(key: string): T | null {
   }
 }
 
-function cacheSet<T>(key: string, data: T) {
+export function cacheSet<T>(key: string, data: T) {
   try {
     sessionStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
   } catch { /* ignore quota */ }
 }
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -125,8 +129,8 @@ function eventToActivity(event: GitHubEvent): ActivityItem | null {
 // ─── API Calls ────────────────────────────────────────────────────────────────
 
 async function fetchTotalCommits(repoNames: string[]): Promise<number> {
-  // Sample up to 12 repos to stay within rate limits
   const sample = repoNames.slice(0, 12);
+  console.log('[GitHub Service] Starting contributor fetch for repos:', sample);
   const counts = await Promise.all(
     sample.map(async (repo) => {
       try {
@@ -134,11 +138,20 @@ async function fetchTotalCommits(repoNames: string[]): Promise<number> {
           `https://api.github.com/repos/${GITHUB_USER}/${repo}/contributors?per_page=100&anon=true`,
           { headers: getAuthHeaders() }
         );
-        if (!res.ok) return 0;
+        if (!res.ok) {
+          console.warn(`[GitHub Service] Contributors fetch for ${repo} returned non-200:`, res.status);
+          return 0;
+        }
         const contributors = (await res.json()) as Array<{ contributions: number }>;
-        if (!Array.isArray(contributors)) return 0;
-        return contributors.reduce((sum, c) => sum + (c.contributions ?? 0), 0);
-      } catch {
+        if (!Array.isArray(contributors)) {
+          console.warn(`[GitHub Service] Contributors for ${repo} is not an array:`, contributors);
+          return 0;
+        }
+        const cCount = contributors.reduce((sum, c) => sum + (c.contributions ?? 0), 0);
+        console.log(`[GitHub Service] Repo ${repo} has ${cCount} commits`);
+        return cCount;
+      } catch (err) {
+        console.error(`[GitHub Service] Failed contributors fetch for ${repo}:`, err);
         return 0;
       }
     })
@@ -148,15 +161,35 @@ async function fetchTotalCommits(repoNames: string[]): Promise<number> {
 
 export async function fetchGitHubStats(): Promise<GitHubStats | null> {
   const cached = cacheGet<GitHubStats>('gh_stats');
-  if (cached) return cached;
+  if (cached) {
+    console.log('[GitHub Service] Using cached stats:', cached);
+    return cached;
+  }
+
+  console.log('[GitHub Service] Fetching fresh stats from GitHub API...');
+  const headers = getAuthHeaders();
+  // Check token presence without printing the whole token for security
+  const hasToken = !!(import.meta.env as Record<string, string>).VITE_GITHUB_TOKEN;
+  console.log('[GitHub Service] VITE_GITHUB_TOKEN configured in browser:', hasToken);
 
   try {
     const [userRes, reposRes] = await Promise.all([
-      fetch(`https://api.github.com/users/${GITHUB_USER}`, { headers: getAuthHeaders() }),
-      fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&type=public`, { headers: getAuthHeaders() }),
+      fetch(`https://api.github.com/users/${GITHUB_USER}`, { headers }),
+      fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&type=public`, { headers }),
     ]);
 
-    if (!userRes.ok) return null;
+    console.log('[GitHub Service] User response status:', userRes.status, userRes.statusText);
+    console.log('[GitHub Service] Repos response status:', reposRes.status, reposRes.statusText);
+
+    const remaining = userRes.headers.get('x-ratelimit-remaining');
+    const limit = userRes.headers.get('x-ratelimit-limit');
+    console.log(`[GitHub Service] Rate Limit: ${remaining}/${limit}`);
+
+    if (!userRes.ok) {
+      const errText = await userRes.text();
+      console.error('[GitHub Service] User fetch failed:', errText);
+      return null;
+    }
 
     const user = await userRes.json();
     const repos = reposRes.ok ? await reposRes.json() : [];
@@ -166,7 +199,10 @@ export async function fetchGitHubStats(): Promise<GitHubStats | null> {
       : 0;
 
     const repoNames: string[] = Array.isArray(repos) ? repos.map((r: { name: string }) => r.name) : [];
+    console.log('[GitHub Service] Fetched repos list:', repoNames);
+    
     const total_commits = await fetchTotalCommits(repoNames);
+    console.log('[GitHub Service] Total calculated commits:', total_commits);
 
     const stats: GitHubStats = {
       public_repos: user.public_repos ?? 0,
@@ -184,7 +220,8 @@ export async function fetchGitHubStats(): Promise<GitHubStats | null> {
 
     cacheSet('gh_stats', stats);
     return stats;
-  } catch {
+  } catch (err) {
+    console.error('[GitHub Service] Exception caught during fetch:', err);
     return null;
   }
 }
@@ -220,21 +257,40 @@ export function useGitHubStats(): UseGitHubStatsResult {
 
 export async function fetchGitHubActivity(limit = 8): Promise<ActivityItem[]> {
   const cached = cacheGet<ActivityItem[]>('gh_activity');
-  if (cached) return cached;
+  if (cached) {
+    console.log('[GitHub Service] Using cached activity:', cached);
+    return cached;
+  }
 
+  console.log('[GitHub Service] Fetching fresh activity from GitHub...');
   try {
-    const res = await fetch(`https://api.github.com/users/${GITHUB_USER}/events/public?per_page=30`);
-    if (!res.ok) return [];
+    const res = await fetch(
+      `https://api.github.com/users/${GITHUB_USER}/events/public?per_page=30`,
+      { headers: getAuthHeaders() }
+    );
+
+    console.log('[GitHub Service] Activity response status:', res.status, res.statusText);
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error('[GitHub Service] Activity fetch failed:', errText);
+      return [];
+    }
 
     const events: GitHubEvent[] = await res.json();
+    console.log('[GitHub Service] Raw public events count:', events.length);
+
     const items = events
       .map(eventToActivity)
       .filter((item): item is ActivityItem => item !== null)
       .slice(0, limit);
 
+    console.log('[GitHub Service] Processed activity items count:', items.length);
+
     cacheSet('gh_activity', items);
     return items;
-  } catch {
+  } catch (err) {
+    console.error('[GitHub Service] Exception during activity fetch:', err);
     return [];
   }
 }

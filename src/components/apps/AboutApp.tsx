@@ -116,7 +116,7 @@ export default function AboutApp() {
         <div className={`${isMobile ? '' : 'col-span-1'} border p-6 rounded-2xl flex flex-col items-center text-center space-y-4 shadow-xl ${boxBg}`}>
           <div className="relative group">
             <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-purple-500/50 flex items-center justify-center shadow-lg shadow-purple-500/10">
-              <img src="/profile.webp" alt="Harshit Kandoi" className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+              <img src={ghStats?.avatar_url || '/profile.webp'} alt={ghStats?.name || 'Harshit Kandoi'} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
             </div>
             <span
               className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-slate-950 animate-pulse cursor-default"
@@ -125,7 +125,7 @@ export default function AboutApp() {
           </div>
 
           <div className="w-full">
-            <h2 className="text-sm font-bold text-white tracking-wide text-center">Harshit Kandoi</h2>
+            <h2 className="text-sm font-bold text-white tracking-wide text-center">{ghStats?.name || 'Harshit Kandoi'}</h2>
             <p className="text-[10px] text-purple-400 font-semibold mt-0.5 text-center">Software &amp; AI Engineer</p>
             <p className="text-[9px] text-emerald-400 font-bold mt-1 animate-pulse text-center">● Available for interesting projects</p>
           </div>
@@ -133,7 +133,7 @@ export default function AboutApp() {
           <div className={`w-full space-y-2 text-[10px] sm:text-xs pt-3 border-t border-white/10 text-left ${textMuted}`}>
             <div className="flex items-center space-x-2">
               <MapPin className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-              <span>Jaipur, Rajasthan, India</span>
+              <span>{ghStats?.location || 'Jaipur, Rajasthan, India'}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Code2 className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
