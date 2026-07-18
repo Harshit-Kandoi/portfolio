@@ -1,9 +1,19 @@
 // ─── GitHub API Service ──────────────────────────────────────────────────────
 // Uses the public GitHub REST API (no auth required for public profiles).
-// Rate limit: 60 req/hour unauthenticated. Cache results in sessionStorage.
+// Rate limit: 60 req/hour unauthenticated, 5000/hr with VITE_GITHUB_TOKEN.
+// To unlock higher limits: add VITE_GITHUB_TOKEN=ghp_... to your .env file.
+
+import { useEffect, useState } from 'react';
 
 const GITHUB_USER = 'Harshit-Kandoi';
 const CACHE_TTL = 1000 * 60 * 30; // 30 minutes
+
+function getAuthHeaders(): HeadersInit {
+  const token = (import.meta.env as Record<string, string>).VITE_GITHUB_TOKEN;
+  return token
+    ? { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json' }
+    : { Accept: 'application/vnd.github+json' };
+}
 
 interface CacheEntry<T> {
   data: T;
@@ -36,11 +46,18 @@ export interface GitHubStats {
   followers: number;
   following: number;
   total_stars: number;
+  total_commits: number;
   avatar_url: string;
   name: string;
   bio: string;
   location: string;
   blog: string;
+}
+
+export interface UseGitHubStatsResult {
+  stats: GitHubStats | null;
+  loading: boolean;
+  error: string | null;
 }
 
 export interface GitHubEvent {
@@ -107,14 +124,36 @@ function eventToActivity(event: GitHubEvent): ActivityItem | null {
 
 // ─── API Calls ────────────────────────────────────────────────────────────────
 
+async function fetchTotalCommits(repoNames: string[]): Promise<number> {
+  // Sample up to 12 repos to stay within rate limits
+  const sample = repoNames.slice(0, 12);
+  const counts = await Promise.all(
+    sample.map(async (repo) => {
+      try {
+        const res = await fetch(
+          `https://api.github.com/repos/${GITHUB_USER}/${repo}/contributors?per_page=100&anon=true`,
+          { headers: getAuthHeaders() }
+        );
+        if (!res.ok) return 0;
+        const contributors = (await res.json()) as Array<{ contributions: number }>;
+        if (!Array.isArray(contributors)) return 0;
+        return contributors.reduce((sum, c) => sum + (c.contributions ?? 0), 0);
+      } catch {
+        return 0;
+      }
+    })
+  );
+  return counts.reduce((a, b) => a + b, 0);
+}
+
 export async function fetchGitHubStats(): Promise<GitHubStats | null> {
   const cached = cacheGet<GitHubStats>('gh_stats');
   if (cached) return cached;
 
   try {
     const [userRes, reposRes] = await Promise.all([
-      fetch(`https://api.github.com/users/${GITHUB_USER}`),
-      fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&type=public`),
+      fetch(`https://api.github.com/users/${GITHUB_USER}`, { headers: getAuthHeaders() }),
+      fetch(`https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&type=public`, { headers: getAuthHeaders() }),
     ]);
 
     if (!userRes.ok) return null;
@@ -126,12 +165,16 @@ export async function fetchGitHubStats(): Promise<GitHubStats | null> {
       ? repos.reduce((sum: number, r: { stargazers_count: number }) => sum + (r.stargazers_count || 0), 0)
       : 0;
 
+    const repoNames: string[] = Array.isArray(repos) ? repos.map((r: { name: string }) => r.name) : [];
+    const total_commits = await fetchTotalCommits(repoNames);
+
     const stats: GitHubStats = {
       public_repos: user.public_repos ?? 0,
       public_gists: user.public_gists ?? 0,
       followers: user.followers ?? 0,
       following: user.following ?? 0,
       total_stars,
+      total_commits,
       avatar_url: user.avatar_url ?? '',
       name: user.name ?? GITHUB_USER,
       bio: user.bio ?? '',
@@ -144,6 +187,35 @@ export async function fetchGitHubStats(): Promise<GitHubStats | null> {
   } catch {
     return null;
   }
+}
+
+// ─── React Hook ───────────────────────────────────────────────────────────────
+
+export function useGitHubStats(): UseGitHubStatsResult {
+  const [stats, setStats] = useState<GitHubStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    fetchGitHubStats()
+      .then((s) => {
+        if (!cancelled) {
+          setStats(s);
+          setLoading(false);
+        }
+      })
+      .catch((err: Error) => {
+        if (!cancelled) {
+          setError(err.message ?? 'GitHub API error');
+          setLoading(false);
+        }
+      });
+    return () => { cancelled = true; };
+  }, []);
+
+  return { stats, loading, error };
 }
 
 export async function fetchGitHubActivity(limit = 8): Promise<ActivityItem[]> {

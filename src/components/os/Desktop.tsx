@@ -134,6 +134,27 @@ export default function Desktop() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Global Konami Code easter egg
+  useEffect(() => {
+    const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+    let progress: string[] = [];
+    const handleKonami = (e: KeyboardEvent) => {
+      if (e.key === KONAMI[progress.length]) {
+        progress = [...progress, e.key];
+        if (progress.length === KONAMI.length) {
+          progress = [];
+          addNotification('🔓 Developer Mode Unlocked', 'Welcome, engineer. You found the Konami Code. XP +999.', 'success', 'system');
+          playNotificationSound();
+        }
+      } else {
+        progress = e.key === KONAMI[0] ? [e.key] : [];
+      }
+    };
+    window.addEventListener('keydown', handleKonami);
+    return () => window.removeEventListener('keydown', handleKonami);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Welcome-back notification for returning visitors
   useEffect(() => {
     if (welcomeNotifSent.current) return;

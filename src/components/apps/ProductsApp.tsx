@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Package, Star, Github, ExternalLink, Zap, Tag, CheckCircle2, Clock, Archive } from 'lucide-react';
+import { Package, Star, Github, ExternalLink, Zap, CheckCircle2, Clock, Archive, Terminal as TerminalIcon } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 import { Product, fetchProducts } from '../../services/supabase';
 import { PRODUCTS_SEED } from '../../data/products';
 
 const STATUS_CONFIG = {
-  live: { label: 'Live', color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/30', icon: CheckCircle2 },
-  beta: { label: 'Beta', color: 'text-blue-400', bg: 'bg-blue-500/10 border-blue-500/30', icon: Zap },
-  wip: { label: 'WIP', color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/30', icon: Clock },
-  archived: { label: 'Archived', color: 'text-gray-500', bg: 'bg-gray-500/10 border-gray-500/30', icon: Archive },
+  live:     { label: 'Live',     color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/30', icon: CheckCircle2 },
+  beta:     { label: 'Beta',     color: 'text-blue-400',    bg: 'bg-blue-500/10 border-blue-500/30',       icon: Zap },
+  wip:      { label: 'WIP',      color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/30',     icon: Clock },
+  archived: { label: 'Archived', color: 'text-gray-500',    bg: 'bg-gray-500/10 border-gray-500/30',       icon: Archive },
 };
 
 const ICON_EMOJI_MAP: Record<string, string> = {
@@ -19,6 +19,34 @@ const ICON_EMOJI_MAP: Record<string, string> = {
   '5': '🌾',
   '6': '💻',
 };
+
+// Mocked progress percentages for WIP products
+const WIP_PROGRESS: Record<string, number> = {
+  '3': 35,
+  '5': 60,
+};
+
+// Mocked last-commit labels for live/beta products
+const LAST_COMMIT: Record<string, string> = {
+  '1': '3h ago',
+  '2': '2d ago',
+  '4': '5d ago',
+  '6': '1h ago',
+};
+
+function AnimatedProgress({ percent }: { percent: number }) {
+  const filled = Math.round(percent / 10);
+  const bar = '█'.repeat(filled) + '░'.repeat(10 - filled);
+  return (
+    <div className="mt-3 font-mono text-[10px] text-amber-400 space-y-0.5">
+      <div className="flex items-center justify-between">
+        <span className="text-gray-500">Currently Building...</span>
+        <span className="text-amber-300 font-bold">{percent}%</span>
+      </div>
+      <div className="tracking-tight">{bar}</div>
+    </div>
+  );
+}
 
 export default function ProductsApp() {
   const theme = useOSStore((s) => s.theme);
@@ -100,6 +128,17 @@ export default function ProductsApp() {
                         <span key={tag} className="text-[10px] bg-white/5 border border-white/5 text-gray-400 px-2 py-0.5 rounded-md">{tag}</span>
                       ))}
                     </div>
+                    {/* Terminal snippet for featured live products */}
+                    {(p.status === 'live' || p.status === 'beta') && (
+                      <div className="mt-3 bg-black/40 border border-white/5 rounded-lg px-3 py-2 font-mono text-[10px] text-emerald-400 flex items-center gap-2">
+                        <TerminalIcon className="w-3 h-3 text-green-500 shrink-0" />
+                        <span>$ kubectl get pods <span className="text-gray-500 ml-2">Running ✓</span></span>
+                        {LAST_COMMIT[p.id] && <span className="ml-auto text-gray-600">last commit: {LAST_COMMIT[p.id]}</span>}
+                      </div>
+                    )}
+                    {p.status === 'wip' && WIP_PROGRESS[p.id] !== undefined && (
+                      <AnimatedProgress percent={WIP_PROGRESS[p.id]} />
+                    )}
                     <div className="flex gap-2 mt-4">
                       {p.repo_url && (
                         <a href={p.repo_url} target="_blank" rel="noopener noreferrer"
@@ -148,6 +187,14 @@ export default function ProductsApp() {
                       <span key={tag} className="text-[9px] bg-white/5 border border-white/5 text-gray-500 px-1.5 py-0.5 rounded-md">{tag}</span>
                     ))}
                   </div>
+                  {/* WIP progress bar */}
+                  {p.status === 'wip' && WIP_PROGRESS[p.id] !== undefined && (
+                    <AnimatedProgress percent={WIP_PROGRESS[p.id]} />
+                  )}
+                  {/* Last commit for live */}
+                  {(p.status === 'live' || p.status === 'beta') && LAST_COMMIT[p.id] && (
+                    <p className="text-[9px] text-gray-600 font-mono mt-2">⬆ last commit: {LAST_COMMIT[p.id]}</p>
+                  )}
                   <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
                     {p.repo_url && (
                       <a href={p.repo_url} target="_blank" rel="noopener noreferrer"

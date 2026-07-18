@@ -116,8 +116,8 @@ export default function LockScreen() {
           <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-tr from-purple-500 to-indigo-500 border border-white/30 flex items-center justify-center mb-4">
             <img src="/profile.webp" alt="Harshit Kandoi" className="w-full h-full object-cover" />
           </div>
-          <h2 className="text-lg font-semibold tracking-wide">Harshit Kandoi</h2>
-          <p className="text-xs text-purple-200 mt-1 mb-6">Software & AI Engineer</p>
+          <h2 className="w-full text-center text-lg font-semibold tracking-wide">Harshit Kandoi</h2>
+          <p className="w-full text-center text-xs text-purple-200 mt-1 mb-8">Software &amp; AI Engineer</p>
 
           <button
             onClick={handleUnlock}

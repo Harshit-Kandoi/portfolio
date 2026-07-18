@@ -83,8 +83,9 @@ export default function Window({ id, title, children }: WindowProps) {
     }
   }, [activeWindowId, id]);
 
-  if (!windowInstance || !windowInstance.isOpen || windowInstance.isMinimized) return null;
+  if (!windowInstance || !windowInstance.isOpen) return null;
 
+  const isMinimized = windowInstance.isMinimized;
   const isActive    = activeWindowId === id;
   const isMaximized = windowInstance.isMaximized || viewMode === 'tablet';
 
@@ -189,7 +190,12 @@ export default function Window({ id, title, children }: WindowProps) {
       transition={{ type: 'spring', stiffness: 380, damping: 30, mass: 0.8 }}
       onPointerDown={() => focusWindow(id)}
       className={`fixed rounded-xl overflow-hidden border flex flex-col backdrop-blur-md ${windowThemeClass} ${activeBorder}`}
-      style={{ maxHeight: viewMode === 'tablet' ? 'calc(100vh - 144px)' : 'calc(100vh - 96px)' }}
+      style={{
+        maxHeight: viewMode === 'tablet' ? 'calc(100vh - 144px)' : 'calc(100vh - 96px)',
+        visibility: isMinimized ? 'hidden' : 'visible',
+        pointerEvents: isMinimized ? 'none' : 'auto',
+      }}
+      aria-hidden={isMinimized}
     >
       {/* Window Title Bar */}
       <div
