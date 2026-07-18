@@ -26,10 +26,17 @@ export default function SnakeGame() {
   const unlockAchievement = useOSStore((s) => s.unlockAchievement);
   const addNotification   = useOSStore((s) => s.addNotification);
   const soundEnabled      = useOSStore((s) => s.soundEnabled);
+  const activeWindowId    = useOSStore((s) => s.activeWindowId);
+  const viewMode          = useOSStore((s) => s.viewMode);
 
   const [snake, setSnake]     = useState<Cell[]>(INITIAL_SNAKE);
   const [food, setFood]       = useState<Cell>(() => randFood(INITIAL_SNAKE));
-  const [nextDir, setNextDir] = useState<Dir>('RIGHT');
+  const foodRef               = useRef<Cell>(INITIAL_SNAKE[0]); // placeholder, will sync in useEffect or immediately
+  
+  // Keep foodRef in sync with initial food state on mount
+  useEffect(() => {
+    foodRef.current = food;
+  }, []);
   const [score, setScore]     = useState(0);
   const [highScore, setHighScore] = useState(() => {
     try { return parseInt(localStorage.getItem(SNAKE_CONFIG.localStorageKey) || '0', 10); } catch { return 0; }
@@ -38,10 +45,25 @@ export default function SnakeGame() {
   const [dead, setDead]       = useState(false);
   const [muted, setMuted]     = useState(!soundEnabled);
 
+  const nextDirRef = useRef<Dir>('RIGHT');
+  const lastTickedDirRef = useRef<Dir>('RIGHT');
   const tickMs = useRef(SNAKE_CONFIG.initialSpeed);
   const loopRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const changeDirection = useCallback((newDir: Dir) => {
+    const opposites: Record<Dir, Dir> = { UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT' };
+    if (newDir !== opposites[lastTickedDirRef.current]) {
+      nextDirRef.current = newDir;
+    }
+    setRunning((r) => {
+      if (!r && !dead) {
+        return true;
+      }
+      return r;
+    });
+  }, [dead]);
 
   // Prevent browser window/drawer scroll while playing on mobile
   useEffect(() => {
@@ -74,39 +96,52 @@ export default function SnakeGame() {
     } catch { /* noop */ }
   }, [muted]);
 
-  const handleControl = (newDir: Dir) => {
-    const opposites: Record<Dir, Dir> = { UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT' };
-    setNextDir((prev) => (newDir !== opposites[prev] ? newDir : prev));
-    if (!running && !dead) setRunning(true);
+  const handleControl = (newDir: Dir, e?: React.PointerEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+    changeDirection(newDir);
   };
 
-  const reset = () => {
+  const reset = useCallback(() => {
     trackEvent('snake_game_start');
     setSnake(INITIAL_SNAKE);
-    setFood(randFood(INITIAL_SNAKE));
-    setDir('RIGHT');
-    setNextDir('RIGHT');
+    const newFood = randFood(INITIAL_SNAKE);
+    foodRef.current = newFood;
+    setFood(newFood);
+    nextDirRef.current = 'RIGHT';
+    lastTickedDirRef.current = 'RIGHT';
     setScore(0);
-    setFoodPicked(0);
     tickMs.current = SNAKE_CONFIG.initialSpeed;
     setDead(false);
     setRunning(true);
-  };
+  }, []);
 
   // Keyboard controls
   useEffect(() => {
-    const map: Record<string, Dir> = { ArrowUp: 'UP', ArrowDown: 'DOWN', ArrowLeft: 'LEFT', ArrowRight: 'RIGHT', w: 'UP', s: 'DOWN', a: 'LEFT', d: 'RIGHT' };
-    const opposites: Record<Dir, Dir> = { UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT' };
+    if (activeWindowId !== 'snake') return;
+
+    const map: Record<string, Dir> = {
+      ArrowUp: 'UP', ArrowDown: 'DOWN', ArrowLeft: 'LEFT', ArrowRight: 'RIGHT',
+      w: 'UP', s: 'DOWN', a: 'LEFT', d: 'RIGHT',
+      W: 'UP', S: 'DOWN', A: 'LEFT', D: 'RIGHT'
+    };
     const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        if (dead || (!running && score === 0)) {
+          e.preventDefault();
+          reset();
+        }
+        return;
+      }
       const newDir = map[e.key];
       if (!newDir) return;
       e.preventDefault();
-      setNextDir((prev) => (newDir !== opposites[prev] ? newDir : prev));
-      if (!running && !dead) setRunning(true);
+      changeDirection(newDir);
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [running, dead]);
+  }, [activeWindowId, changeDirection, dead, running, score, reset]);
 
   // Touch controls
   const onTouchStart = (e: React.TouchEvent) => {
@@ -116,14 +151,18 @@ export default function SnakeGame() {
     if (!touchStart.current) return;
     const dx = e.changedTouches[0].clientX - touchStart.current.x;
     const dy = e.changedTouches[0].clientY - touchStart.current.y;
-    const opposites: Record<Dir, Dir> = { UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT' };
+    const minSwipeDistance = 30;
+    if (Math.abs(dx) < minSwipeDistance && Math.abs(dy) < minSwipeDistance) {
+      touchStart.current = null;
+      return;
+    }
     let newDir: Dir;
     if (Math.abs(dx) > Math.abs(dy)) {
       newDir = dx > 0 ? 'RIGHT' : 'LEFT';
     } else {
       newDir = dy > 0 ? 'DOWN' : 'UP';
     }
-    setNextDir((prev) => (newDir !== opposites[prev] ? newDir : prev));
+    changeDirection(newDir);
     touchStart.current = null;
   };
 
@@ -131,11 +170,14 @@ export default function SnakeGame() {
   useEffect(() => {
     if (!running || dead) return;
 
-    loopRef.current = setTimeout(() => {
+    const tick = () => {
+      const currentDir = nextDirRef.current;
+      lastTickedDirRef.current = currentDir;
+
       setSnake((prev) => {
         const head = prev[0];
         const DELTAS: Record<Dir, Cell> = { UP: { x: 0, y: -1 }, DOWN: { x: 0, y: 1 }, LEFT: { x: -1, y: 0 }, RIGHT: { x: 1, y: 0 } };
-        const d = DELTAS[nextDir];
+        const d = DELTAS[currentDir];
         const newHead = { x: head.x + d.x, y: head.y + d.y };
 
         // Wall collision
@@ -151,12 +193,14 @@ export default function SnakeGame() {
           return prev;
         }
         // Food
-        const ateFood = newHead.x === food.x && newHead.y === food.y;
+        const ateFood = newHead.x === foodRef.current.x && newHead.y === foodRef.current.y;
         const next = ateFood ? [newHead, ...prev] : [newHead, ...prev.slice(0, -1)];
 
         if (ateFood) {
           beep(880, 80);
-          setFood(randFood(next));
+          const newFood = randFood(next);
+          foodRef.current = newFood;
+          setFood(newFood);
           setScore((s) => {
             const ns = s + 10;
             if (ns > highScore) {
@@ -173,10 +217,14 @@ export default function SnakeGame() {
         }
         return next;
       });
-    }, tickMs.current);
+
+      loopRef.current = setTimeout(tick, tickMs.current);
+    };
+
+    loopRef.current = setTimeout(tick, tickMs.current);
 
     return () => { if (loopRef.current) clearTimeout(loopRef.current); };
-  }, [running, dead, snake, nextDir, food, highScore, beep]);
+  }, [running, dead, highScore, beep]);
 
   // Achievements and analytics on death
   useEffect(() => {
@@ -205,7 +253,7 @@ export default function SnakeGame() {
   const boardSize = GRID * cellPx;
 
   return (
-    <div ref={containerRef} className={`flex flex-col flex-grow h-full items-center justify-center p-4 space-y-4 select-none ${bg}`}
+    <div ref={containerRef} className={`flex flex-col flex-grow h-full items-center justify-center p-2 sm:p-4 space-y-2 sm:space-y-4 select-none ${bg}`}
       onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
 
       {/* Header */}
@@ -226,7 +274,7 @@ export default function SnakeGame() {
 
       {/* Game Board */}
       <div className="relative border-2 border-purple-500/30 rounded-lg overflow-hidden shadow-[0_0_30px_rgba(168,85,247,0.1)]"
-        style={{ width: boardSize, height: boardSize, background: isLight ? '#f0fdf4' : '#020c04' }}>
+        style={{ boxSizing: 'content-box', width: boardSize, height: boardSize, background: isLight ? '#f0fdf4' : '#020c04' }}>
 
         {/* CRT Scanline Overlay */}
         <div className="absolute inset-0 pointer-events-none opacity-5"
@@ -311,45 +359,49 @@ export default function SnakeGame() {
       </div>
 
       {/* Nokia style controller keypad */}
-      <div className="flex flex-col items-center bg-slate-900/40 p-4 rounded-3xl border border-white/5 shadow-inner w-full max-w-[220px]">
-        <div className="grid grid-cols-3 gap-2 w-full">
-          <div></div>
-          <button
-            onClick={() => handleControl('UP')}
-            className="h-10 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white border border-white/10 font-bold flex flex-col items-center justify-center transition"
-          >
-            <span className="text-[8px] text-gray-500 uppercase">▲</span>
-          </button>
-          <div></div>
+      {viewMode !== 'desktop' && (
+        <div className="flex flex-col items-center bg-slate-900/40 p-4 rounded-3xl border border-white/5 shadow-inner w-full max-w-[220px] touch-none">
+          <div className="grid grid-cols-3 gap-2 w-full touch-none">
+            <div></div>
+            <button
+              onPointerDown={(e) => handleControl('UP', e)}
+              className="h-10 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white border border-white/10 font-bold flex flex-col items-center justify-center transition touch-none select-none"
+            >
+              <span className="text-[8px] text-gray-500 uppercase">▲</span>
+            </button>
+            <div></div>
 
-          <button
-            onClick={() => handleControl('LEFT')}
-            className="h-10 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white border border-white/10 font-bold flex flex-col items-center justify-center transition"
-          >
-            <span className="text-[8px] text-gray-500 uppercase">◀</span>
-          </button>
-          <div className="h-10 rounded-xl bg-slate-950 flex items-center justify-center font-bold text-gray-700 border border-white/5 text-xs font-mono select-none">
-            ●
+            <button
+              onPointerDown={(e) => handleControl('LEFT', e)}
+              className="h-10 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white border border-white/10 font-bold flex flex-col items-center justify-center transition touch-none select-none"
+            >
+              <span className="text-[8px] text-gray-500 uppercase">◀</span>
+            </button>
+            <div className="h-10 rounded-xl bg-slate-950 flex items-center justify-center font-bold text-gray-700 border border-white/5 text-xs font-mono select-none">
+              ●
+            </div>
+            <button
+              onPointerDown={(e) => handleControl('RIGHT', e)}
+              className="h-10 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white border border-white/10 font-bold flex flex-col items-center justify-center transition touch-none select-none"
+            >
+              <span className="text-[8px] text-gray-500 uppercase">▶</span>
+            </button>
+
+            <div></div>
+            <button
+              onPointerDown={(e) => handleControl('DOWN', e)}
+              className="h-10 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white border border-white/10 font-bold flex flex-col items-center justify-center transition touch-none select-none"
+            >
+              <span className="text-[8px] text-gray-500 uppercase">▼</span>
+            </button>
+            <div></div>
           </div>
-          <button
-            onClick={() => handleControl('RIGHT')}
-            className="h-10 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white border border-white/10 font-bold flex flex-col items-center justify-center transition"
-          >
-            <span className="text-[8px] text-gray-500 uppercase">▶</span>
-          </button>
-
-          <div></div>
-          <button
-            onClick={() => handleControl('DOWN')}
-            className="h-10 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-white border border-white/10 font-bold flex flex-col items-center justify-center transition"
-          >
-            <span className="text-[8px] text-gray-500 uppercase">▼</span>
-          </button>
-          <div></div>
         </div>
-      </div>
-
-      <p className="text-[9px] text-gray-600 text-center">Use D-pad, Swipe, or Keyboard to control</p>
+      )}
+ 
+      <p className="text-[9px] text-gray-600 text-center">
+        {viewMode === 'desktop' ? 'Use Keyboard (WASD / Arrows & Enter) to control' : 'Use D-pad, Swipe, or Keyboard to control'}
+      </p>
     </div>
   );
 }

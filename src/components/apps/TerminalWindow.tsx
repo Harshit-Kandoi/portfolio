@@ -280,12 +280,12 @@ export default function TerminalWindow() {
         break;
 
       case 'publications':
-        output = <p className="text-gray-300">Opening Publications.exe app...</p>;
+        output = <p className="text-gray-300">Opening Papers.exe app...</p>;
         setTimeout(() => openWindow('publications'), 600);
         break;
 
       case 'marketplace':
-        output = <p className="text-gray-300">Opening Marketplace.exe app...</p>;
+        output = <p className="text-gray-300">Opening Store.exe app...</p>;
         setTimeout(() => openWindow('marketplace'), 600);
         break;
 

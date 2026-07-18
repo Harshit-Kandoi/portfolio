@@ -6,8 +6,8 @@
 export const SPOTIFY_CONFIG = {
   // Rajasthani / Indie playlist – swap the playlist ID here anytime
   playlistId: '37i9dQZF1DXaG2kO5QJp52',
-  embedUrl: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXaG2kO5QJp52?utm_source=generator&theme=0',
-  label: 'Rajasthani Vibes',
+  embedUrl: 'https://open.spotify.com/embed/playlist/2WSmlNi6hcFutn7q5samOV',
+  label: 'Chill Vibes',
 };
 
 export const PORTFOLIO_META = {
@@ -25,9 +25,9 @@ export const PORTFOLIO_META = {
 
 export const SNAKE_CONFIG = {
   localStorageKey: 'portfolio-os-snake-highscore',
-  initialSpeed: 180,   // ms per tick
-  speedIncrement: 8,   // ms faster every N food pickups
-  speedThreshold: 3,   // food pickups before speed increase
+  initialSpeed: 220,   // ms per tick
+  speedIncrement: 12,  // ms faster every N food pickups
+  speedThreshold: 2,   // food pickups before speed increase
   gridSize: 20,        // cells across
 };
 

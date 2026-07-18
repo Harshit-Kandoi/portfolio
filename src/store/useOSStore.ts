@@ -128,21 +128,21 @@ const INITIAL_WINDOWS: WindowInstance[] = [
   { id: 'resume',       title: 'Resume.pdf',          isOpen: false, isMinimized: false, isMaximized: false, x: 100, y: 50,  width: 820,  height: 620, zIndex: 1 },
   { id: 'terminal',     title: 'Terminal.exe',        isOpen: false, isMinimized: false, isMaximized: false, x: 220, y: 160, width: 720,  height: 470, zIndex: 1 },
   { id: 'ai',           title: 'AI Assistant',        isOpen: false, isMinimized: false, isMaximized: false, x: 500, y: 80,  width: 440,  height: 600, zIndex: 1 },
-  { id: 'blog',         title: 'Blog Reader.exe',     isOpen: false, isMinimized: false, isMaximized: false, x: 140, y: 100, width: 840,  height: 600, zIndex: 1 },
-  { id: 'achievements', title: 'Achievements.exe',    isOpen: false, isMinimized: false, isMaximized: false, x: 250, y: 130, width: 720,  height: 520, zIndex: 1 },
-  { id: 'gaming',       title: 'Gaming Profile',      isOpen: false, isMinimized: false, isMaximized: false, x: 160, y: 80,  width: 700,  height: 560, zIndex: 1 },
+  { id: 'blog',         title: 'Blog.exe',            isOpen: false, isMinimized: false, isMaximized: false, x: 140, y: 100, width: 840,  height: 600, zIndex: 1 },
+  { id: 'achievements', title: 'Awards.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 250, y: 130, width: 720,  height: 520, zIndex: 1 },
+  { id: 'gaming',       title: 'Gaming.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 160, y: 80,  width: 700,  height: 560, zIndex: 1 },
   { id: 'contact',      title: 'Contact.exe',         isOpen: false, isMinimized: false, isMaximized: false, x: 280, y: 140, width: 680,  height: 540, zIndex: 1 },
   { id: 'settings',     title: 'Settings.exe',        isOpen: false, isMinimized: false, isMaximized: false, x: 300, y: 150, width: 620,  height: 480, zIndex: 1 },
   { id: 'snake',        title: 'Snake.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 340, y: 100, width: 540,  height: 580, zIndex: 1 },
-  { id: 'swipe',        title: 'Portfolio Swipe',     isOpen: false, isMinimized: false, isMaximized: false, x: 200, y: 80,  width: 480,  height: 680, zIndex: 1 },
-  { id: 'coffee',       title: 'Buy Me Coffee ☕',    isOpen: false, isMinimized: false, isMaximized: false, x: 360, y: 120, width: 480,  height: 540, zIndex: 1 },
+  { id: 'swipe',        title: 'Swipe.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 200, y: 80,  width: 480,  height: 680, zIndex: 1 },
+  { id: 'coffee',       title: 'Coffee.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 360, y: 120, width: 480,  height: 540, zIndex: 1 },
   // Phase 3 new apps
   { id: 'library',      title: 'Library.exe',         isOpen: false, isMinimized: false, isMaximized: false, x: 130, y: 80,  width: 860,  height: 600, zIndex: 1 },
   { id: 'notes',        title: 'Notes.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 160, y: 90,  width: 900,  height: 620, zIndex: 1 },
   { id: 'gallery',      title: 'Gallery.exe',         isOpen: false, isMinimized: false, isMaximized: false, x: 140, y: 70,  width: 860,  height: 600, zIndex: 1 },
   { id: 'products',     title: 'Products.exe',        isOpen: false, isMinimized: false, isMaximized: false, x: 170, y: 100, width: 820,  height: 580, zIndex: 1 },
-  { id: 'publications', title: 'Publications.exe',    isOpen: false, isMinimized: false, isMaximized: false, x: 150, y: 85,  width: 780,  height: 580, zIndex: 1 },
-  { id: 'marketplace',  title: 'Marketplace.exe',     isOpen: false, isMinimized: false, isMaximized: false, x: 190, y: 110, width: 800,  height: 580, zIndex: 1 },
+  { id: 'publications', title: 'Papers.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 150, y: 85,  width: 780,  height: 580, zIndex: 1 },
+  { id: 'marketplace',  title: 'Store.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 190, y: 110, width: 800,  height: 580, zIndex: 1 },
 ];
 
 

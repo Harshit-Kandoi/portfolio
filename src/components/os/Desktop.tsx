@@ -230,22 +230,22 @@ export default function Desktop() {
     { id: 'skills',       title: 'Skills.exe',       icon: Award,         color: 'from-amber-500 to-orange-500' },
     { id: 'resume',       title: 'Resume.pdf',       icon: FileText,      color: 'from-rose-500 to-red-500'     },
     { id: 'terminal',     title: 'Terminal.exe',     icon: TermIcon,      color: 'from-slate-700 to-slate-900'  },
-    { id: 'ai',           title: 'AI Assistant',     icon: MessageSquare, color: 'from-pink-500 to-rose-400'    },
-    { id: 'blog',         title: 'Blog Reader.exe',  icon: BookOpen,      color: 'from-sky-500 to-blue-600'     },
-    { id: 'achievements', title: 'Achievements.exe', icon: Trophy,        color: 'from-yellow-400 to-amber-500' },
-    { id: 'gaming',       title: 'Gaming Profile',   icon: Gamepad2,      color: 'from-red-500 to-pink-500'     },
+    { id: 'ai',           title: 'Chatbot.exe',     icon: MessageSquare, color: 'from-pink-500 to-rose-400'    },
+    { id: 'blog',         title: 'Blog.exe',         icon: BookOpen,      color: 'from-sky-500 to-blue-600'     },
+    { id: 'achievements', title: 'Awards.exe',        icon: Trophy,        color: 'from-yellow-400 to-amber-500' },
+    { id: 'gaming',       title: 'Gaming.exe',       icon: Gamepad2,      color: 'from-red-500 to-pink-500'     },
     { id: 'contact',      title: 'Contact.exe',      icon: Send,          color: 'from-teal-400 to-emerald-500' },
     { id: 'settings',     title: 'Settings.exe',     icon: GearIcon,      color: 'from-slate-400 to-slate-600'  },
     { id: 'snake',        title: 'Snake.exe',        icon: SnakeIcon,     color: 'from-green-500 to-emerald-700' },
-    { id: 'swipe',        title: 'Portfolio Swipe',  icon: Heart,         color: 'from-rose-500 to-red-600'     },
-    { id: 'coffee',       title: 'Buy Me Coffee ☕', icon: Coffee,        color: 'from-amber-600 to-yellow-700' },
+    { id: 'swipe',        title: 'Swipe.exe',        icon: Heart,         color: 'from-rose-500 to-red-600'     },
+    { id: 'coffee',       title: 'Coffee.exe',       icon: Coffee,        color: 'from-amber-600 to-yellow-700' },
     // Phase 3 New Apps
     { id: 'library',      title: 'Library.exe',      icon: BookMarked,    color: 'from-amber-500 to-orange-400' },
     { id: 'notes',        title: 'Notes.exe',        icon: StickyNote,    color: 'from-violet-500 to-purple-600'},
     { id: 'gallery',      title: 'Gallery.exe',      icon: ImageIcon,     color: 'from-pink-500 to-rose-500'    },
     { id: 'products',     title: 'Products.exe',     icon: Package,       color: 'from-violet-600 to-indigo-600'},
-    { id: 'publications', title: 'Publications.exe', icon: BookMarked,    color: 'from-green-500 to-emerald-600'},
-    { id: 'marketplace',  title: 'Marketplace.exe',  icon: ShoppingBag,   color: 'from-rose-500 to-pink-600'    },
+    { id: 'publications', title: 'Papers.exe',        icon: BookMarked,    color: 'from-green-500 to-emerald-600'},
+    { id: 'marketplace',  title: 'Store.exe',        icon: ShoppingBag,   color: 'from-rose-500 to-pink-600'    },
   ];
 
 
@@ -569,17 +569,14 @@ export default function Desktop() {
                 handleIconDoubleClick(app.id);
               }
             }}
-            className={`flex flex-col items-center justify-center rounded-xl cursor-pointer hover:bg-white/5 border border-transparent hover:border-white/10 active:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all select-none group text-center ${
-              viewMode === 'tablet' ? 'w-24 h-24' : 'w-20 h-20'
-            }`}
+            className="flex flex-col items-center justify-center rounded-xl cursor-pointer hover:bg-white/5 border border-transparent hover:border-white/10 active:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all select-none group text-center w-24 h-24"
             aria-label={`Open ${app.title.replace('.exe', '')} from desktop`}
+            title={app.title}
           >
-            <div className={`rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-lg shadow-black/20 group-hover:scale-105 transition-transform ${
-              viewMode === 'tablet' ? 'w-12 h-12' : 'w-11 h-11'
-            }`}>
-              <app.icon className={`${viewMode === 'tablet' ? 'w-6 h-6' : 'w-5.5 h-5.5'}`} />
+            <div className={`rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-lg shadow-black/20 group-hover:scale-105 transition-transform w-12 h-12`}>
+              <app.icon className="w-6 h-6" />
             </div>
-            <span className="text-[10px] font-medium tracking-wide mt-2 text-gray-200 truncate w-18 text-shadow">
+            <span className="text-[10px] font-medium tracking-wide mt-2 text-gray-200 truncate block w-full px-1 text-shadow">
               {app.title}
             </span>
           </button>
