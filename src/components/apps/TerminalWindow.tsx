@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useOSStore, AppTheme } from '../../store/useOSStore';
 import { playTerminalClick } from '../../utils/sounds';
 import { trackEvent } from '../../utils/analytics';
+import { formatUptimeHuman } from '../../utils/system';
 
 interface HistoryItem {
   command: string;
@@ -457,13 +458,10 @@ export default function TerminalWindow() {
       }
 
       case 'uptime': {
-        const ms = Date.now() - sessionStart.current;
-        const secs = Math.floor(ms / 1000);
-        const mins = Math.floor(secs / 60);
-        const hrs = Math.floor(mins / 60);
+        const uptimeText = formatUptimeHuman();
         output = (
           <p className="text-green-400">
-            up {hrs > 0 ? `${hrs}h ` : ''}{mins % 60}m {secs % 60}s · load avg: 0.42 0.77 1.01
+            up {uptimeText} · load avg: 0.42 0.77 1.01
           </p>
         );
         break;

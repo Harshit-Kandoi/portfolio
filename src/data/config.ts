@@ -4,10 +4,16 @@
 // ============================================================
 
 export const SPOTIFY_CONFIG = {
-  // Rajasthani / Indie playlist – swap the playlist ID here anytime
-  playlistId: '37i9dQZF1DXaG2kO5QJp52',
-  embedUrl: 'https://open.spotify.com/embed/playlist/2WSmlNi6hcFutn7q5samOV',
-  label: 'Chill Vibes',
+  playlistId: '37i9dQZF1DX8Ueb9qMvV2n',
+  embedUrl: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX8Ueb9qMvV2n?utm_source=generator&theme=0',
+  externalUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX8Ueb9qMvV2n',
+  label: 'Coding & Focus Beats',
+  playlists: [
+    { id: 'lofi', label: 'Lofi Beats', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX8Ueb9qMvV2n?utm_source=generator&theme=0' },
+    { id: 'focus', label: 'Deep Focus', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX0SM0LYsmbMT?utm_source=generator&theme=0' },
+    { id: 'synth', label: 'Synthwave', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXdLENyawioXt?utm_source=generator&theme=0' },
+    { id: 'chill', label: 'Chill Coding', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0' },
+  ],
 };
 
 export const PORTFOLIO_META = {

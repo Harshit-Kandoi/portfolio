@@ -25,7 +25,12 @@ interface CacheEntry<T> {
 
 export function cacheGet<T>(key: string): T | null {
   try {
-    const raw = sessionStorage.getItem(key);
+    // 1. Try sessionStorage
+    let raw = sessionStorage.getItem(key);
+    // 2. Fall back to localStorage
+    if (!raw) {
+      raw = localStorage.getItem(key);
+    }
     if (!raw) return null;
     const entry: CacheEntry<T> = JSON.parse(raw);
     if (Date.now() - entry.ts > CACHE_TTL) return null;
@@ -37,9 +42,12 @@ export function cacheGet<T>(key: string): T | null {
 
 export function cacheSet<T>(key: string, data: T) {
   try {
-    sessionStorage.setItem(key, JSON.stringify({ data, ts: Date.now() }));
+    const payload = JSON.stringify({ data, ts: Date.now() });
+    sessionStorage.setItem(key, payload);
+    localStorage.setItem(key, payload);
   } catch { /* ignore quota */ }
 }
+
 
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -188,7 +196,7 @@ export async function fetchGitHubStats(): Promise<GitHubStats | null> {
     if (!userRes.ok) {
       const errText = await userRes.text();
       console.error('[GitHub Service] User fetch failed:', errText);
-      return null;
+      return cached || cacheGet<GitHubStats>('gh_stats');
     }
 
     const user = await userRes.json();
@@ -222,23 +230,25 @@ export async function fetchGitHubStats(): Promise<GitHubStats | null> {
     return stats;
   } catch (err) {
     console.error('[GitHub Service] Exception caught during fetch:', err);
-    return null;
+    return cached || cacheGet<GitHubStats>('gh_stats');
   }
 }
 
 // ─── React Hook ───────────────────────────────────────────────────────────────
 
 export function useGitHubStats(): UseGitHubStatsResult {
-  const [stats, setStats] = useState<GitHubStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<GitHubStats | null>(() => cacheGet<GitHubStats>('gh_stats'));
+  const [loading, setLoading] = useState(() => !stats);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
+    // Only set loading true if we don't already have cached stats
+    if (!stats) setLoading(true);
+
     fetchGitHubStats()
       .then((s) => {
-        if (!cancelled) {
+        if (!cancelled && s) {
           setStats(s);
           setLoading(false);
         }

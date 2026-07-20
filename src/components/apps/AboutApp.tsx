@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useOSStore } from '../../store/useOSStore';
 import { SPOTIFY_CONFIG } from '../../data/config';
-import { Music, Award, MapPin, Code2, Sparkles, Quote, Target, Terminal, GitBranch, Cpu, Clock } from 'lucide-react';
+import { Music, Award, MapPin, Code2, Sparkles, Quote, Target, Terminal, GitBranch, Cpu, Clock, ExternalLink, RotateCw } from 'lucide-react';
 import { trackEvent } from '../../utils/analytics';
 import { useGitHubStats } from '../../services/github';
+import { formatUptimeHHMMSS } from '../../utils/system';
+import { toSpotifyEmbedUrl, toSpotifyExternalUrl, FALLBACK_SPOTIFY_EMBED } from '../../utils/spotify';
 
 const QUOTES = [
   "Good backend systems disappear. Users notice them only when they're broken.",
@@ -27,19 +29,13 @@ const MISSION_LOG = [
   { done: false, text: 'Publish Kaggle Dataset'            },
 ];
 
-
-
-
 function UptimeCounter() {
-  const [seconds, setSeconds] = useState(0);
+  const [uptimeStr, setUptimeStr] = useState(() => formatUptimeHHMMSS());
   useEffect(() => {
-    const t = setInterval(() => setSeconds((s) => s + 1), 1000);
+    const t = setInterval(() => setUptimeStr(formatUptimeHHMMSS()), 1000);
     return () => clearInterval(t);
   }, []);
-  const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
-  const m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
-  const s = (seconds % 60).toString().padStart(2, '0');
-  return <span className="font-mono text-emerald-400">{h}:{m}:{s}</span>;
+  return <span className="font-mono text-emerald-400">{uptimeStr}</span>;
 }
 
 function LiveClock() {
@@ -52,6 +48,99 @@ function LiveClock() {
     <span className="font-mono text-purple-300">
       {time.toLocaleTimeString('en-IN', { hour12: false })}
     </span>
+  );
+}
+
+function SpotifyPlayerCard({ boxBg }: { boxBg: string }) {
+  const [selectedUrl, setSelectedUrl] = useState(SPOTIFY_CONFIG.embedUrl);
+  const [currentEmbedUrl, setCurrentEmbedUrl] = useState(() => toSpotifyEmbedUrl(SPOTIFY_CONFIG.embedUrl));
+  const [retryKey, setRetryKey] = useState(0);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [isFallback, setIsFallback] = useState(false);
+
+  const handleSelectPlaylist = (rawUrl: string) => {
+    setSelectedUrl(rawUrl);
+    setCurrentEmbedUrl(toSpotifyEmbedUrl(rawUrl));
+    setIsFallback(false);
+    setIsRetrying(false);
+    setRetryKey((k) => k + 1);
+  };
+
+  const handleManualRetry = () => {
+    setIsRetrying(true);
+    setRetryKey((k) => k + 1);
+    setTimeout(() => setIsRetrying(false), 800);
+  };
+
+  const externalUrl = toSpotifyExternalUrl(selectedUrl || SPOTIFY_CONFIG.externalUrl);
+
+  return (
+    <div className={`flex p-4 rounded-xl border flex-col space-y-2.5 ${boxBg}`}>
+      <div className="flex items-center justify-between">
+        <span className="text-[9px] font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1.5">
+          <Music className="w-3.5 h-3.5 text-pink-400 animate-pulse" />
+          <span>Now Playing (Spotify)</span>
+          {isFallback && (
+            <span className="text-[8px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.2 rounded font-mono">
+              Fallback Active
+            </span>
+          )}
+        </span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleManualRetry}
+            className="text-[9px] text-gray-400 hover:text-white flex items-center gap-1 font-medium transition"
+            title="Reload/Retry player iframe"
+          >
+            <RotateCw className={`w-2.5 h-2.5 ${isRetrying ? 'animate-spin text-pink-400' : ''}`} />
+            <span>Retry</span>
+          </button>
+          <a
+            href={externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[9px] text-pink-400 hover:text-pink-300 flex items-center gap-1 font-semibold transition"
+            title="Open playlist directly on Spotify App/Browser"
+          >
+            <span>Spotify App</span>
+            <ExternalLink className="w-2.5 h-2.5" />
+          </a>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-1.5 pb-1 flex-wrap">
+        {SPOTIFY_CONFIG.playlists.map((pl) => {
+          const isSelected = selectedUrl === pl.url;
+          return (
+            <button
+              key={pl.id}
+              onClick={() => handleSelectPlaylist(pl.url)}
+              className={`px-2 py-0.5 rounded-md text-[9px] font-medium transition ${
+                isSelected
+                  ? 'bg-pink-500/20 text-pink-300 border border-pink-500/40 font-bold'
+                  : 'bg-white/5 text-gray-400 hover:text-white border border-transparent'
+              }`}
+            >
+              {pl.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="w-full rounded-xl overflow-hidden shadow-md bg-black/40 relative">
+        <iframe
+          key={`${currentEmbedUrl}-${retryKey}`}
+          style={{ borderRadius: '12px', display: 'block' }}
+          src={currentEmbedUrl}
+          width="100%"
+          height="152"
+          frameBorder="0"
+          allowFullScreen
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+        />
+      </div>
+    </div>
   );
 }
 
@@ -175,28 +264,7 @@ export default function AboutApp() {
       <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-2'}`}>
 
         {/* Spotify — shown on all devices */}
-        <div className={`flex p-4 rounded-xl border flex-col space-y-2.5 ${boxBg}`}>
-          <div className="flex items-center justify-between">
-            <span className="text-[9px] font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1.5">
-              <Music className="w-3.5 h-3.5 text-pink-400 animate-pulse" />
-              <span>Now Playing (Spotify)</span>
-            </span>
-            <span className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">{SPOTIFY_CONFIG.label}</span>
-          </div>
-          <div className="w-full rounded-xl overflow-hidden shadow-md">
-            <iframe
-              style={{ borderRadius: '12px', display: 'block' }}
-              src={SPOTIFY_CONFIG.embedUrl}
-              width="100%"
-              height="152"
-              frameBorder="0"
-              allowFullScreen
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"
-            />
-          </div>
-        </div>
-
+        <SpotifyPlayerCard boxBg={boxBg} />
 
         {/* Quote + Mission Log */}
         <div className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${boxBg} shadow-lg`}>
