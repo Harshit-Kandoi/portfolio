@@ -119,7 +119,7 @@ export default function Window({ id, title, children }: WindowProps) {
     const screenHeight = window.innerHeight;
 
     let currentX = windowInstance.x + info.offset.x;
-    let currentY = windowInstance.y + info.offset.y;
+    let currentY = Math.max(48, windowInstance.y) + info.offset.y;
 
     // Viewport boundaries constraints
     const minX = -windowInstance.width + 100;
@@ -159,12 +159,32 @@ export default function Window({ id, title, children }: WindowProps) {
     : 'border-primary-500/80 shadow-2xl ring-1 ring-primary-500/30'
     : '';
 
+  const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+  const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+
+  const minX = -windowInstance.width + 100;
+  const maxX = screenWidth - 100;
+  const minY = 48; // Top taskbar/menu bar height is 48px
+  const maxY = screenHeight - 80;
+  const effectiveY = Math.max(minY, windowInstance.y);
+
+  const maxUpwardOffset = Math.min(0, minY - effectiveY);
+  const maxDownwardOffset = Math.max(0, maxY - effectiveY);
+  const maxLeftwardOffset = Math.min(0, minX - windowInstance.x);
+  const maxRightwardOffset = Math.max(0, maxX - windowInstance.x);
+
   const dragProps = isMaximized ? {} : {
     drag: true,
     dragControls,
     dragListener: false,
     dragMomentum: false,
     dragElastic: 0,
+    dragConstraints: {
+      top: maxUpwardOffset,
+      bottom: maxDownwardOffset,
+      left: maxLeftwardOffset,
+      right: maxRightwardOffset,
+    },
     onDragEnd: handleDragEnd,
   };
 
@@ -175,14 +195,20 @@ export default function Window({ id, title, children }: WindowProps) {
       role="dialog"
       aria-labelledby={`${id}-window-title`}
       {...dragProps}
-      initial={{ scale: 0.93, opacity: 0, y: 12, filter: 'blur(4px)' }}
+      transformTemplate={({ x, y, scale }) => {
+        const numericY = typeof y === 'number' ? y : parseFloat(String(y) || '48');
+        const clampedY = isNaN(numericY) ? 48 : Math.max(48, numericY);
+        const xStr = x !== undefined ? (typeof x === 'number' ? `${x}px` : x) : '0px';
+        const scaleStr = scale !== undefined ? `scale(${scale})` : '';
+        return `translate3d(${xStr}, ${clampedY}px, 0px) ${scaleStr}`.trim();
+      }}
+      initial={{ scale: 0.93, opacity: 0, filter: 'blur(4px)' }}
       animate={{
         scale: 1,
         opacity: 1,
-        y: 0,
         filter: 'blur(0px)',
         x: isMaximized ? 0 : windowInstance.x,
-        translateY: isMaximized ? 48 : windowInstance.y,
+        y: isMaximized ? 48 : effectiveY,
         width:  isMaximized ? '100vw' : windowInstance.width,
         height: viewMode === 'tablet' ? 'calc(100vh - 144px)' : (isMaximized ? 'calc(100vh - 96px)' : windowInstance.height),
         zIndex: windowInstance.zIndex,

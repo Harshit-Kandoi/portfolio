@@ -155,7 +155,7 @@ const mergedWindows: WindowInstance[] = INITIAL_WINDOWS.map((win) => {
     ...win,
     // Restore position & size but never restore open/minimized state across sessions
     x: saved.x ?? win.x,
-    y: saved.y ?? win.y,
+    y: Math.max(48, saved.y ?? win.y),
     width: saved.width ?? win.width,
     height: saved.height ?? win.height,
   };
@@ -253,14 +253,15 @@ const normalizeZIndices = (windows: WindowInstance[], activeId: string): { windo
     .sort((a, b) => a.zIndex - b.zIndex);
 
   const normalized = windows.map((w) => {
+    const clampedY = Math.max(48, w.y);
     if (w.id === activeId) {
-      return { ...w, isOpen: true, isMinimized: false, zIndex: 10 + openWindows.length };
+      return { ...w, y: clampedY, isOpen: true, isMinimized: false, zIndex: 10 + openWindows.length };
     }
     const idx = openWindows.findIndex((o) => o.id === w.id);
     if (idx !== -1) {
-      return { ...w, zIndex: 10 + idx };
+      return { ...w, y: clampedY, zIndex: 10 + idx };
     }
-    return w;
+    return { ...w, y: clampedY };
   });
 
   return {
@@ -406,7 +407,7 @@ export const useOSStore = create<OSState>((set, get) => ({
     const { windows } = get();
     trackEvent('app_close', { app_id: id });
     const newWindows = windows.map((win) =>
-      win.id === id ? { ...win, isOpen: false, isMinimized: false, isMaximized: false } : win
+      win.id === id ? { ...win, isOpen: false, isMinimized: false, isMaximized: false, y: Math.max(48, win.y) } : { ...win, y: Math.max(48, win.y) }
     );
     const openAndNotMinimized = newWindows
       .filter((w) => w.isOpen && !w.isMinimized)
@@ -427,7 +428,7 @@ export const useOSStore = create<OSState>((set, get) => ({
     trackEvent('app_minimize', { app_id: id });
     const { windows } = get();
     const newWindows = windows.map((win) =>
-      win.id === id ? { ...win, isMinimized: true } : win
+      win.id === id ? { ...win, isMinimized: true, y: Math.max(48, win.y) } : { ...win, y: Math.max(48, win.y) }
     );
     const openAndNotMinimized = newWindows
       .filter((w) => w.isOpen && !w.isMinimized)
@@ -448,7 +449,7 @@ export const useOSStore = create<OSState>((set, get) => ({
     trackEvent('app_maximize', { app_id: id });
     set((state) => ({
       windows: state.windows.map((win) =>
-        win.id === id ? { ...win, isMaximized: true, isMinimized: false } : win
+        win.id === id ? { ...win, isMaximized: true, isMinimized: false, y: Math.max(48, win.y) } : { ...win, y: Math.max(48, win.y) }
       ),
     }));
     get().focusWindow(id);
@@ -456,10 +457,10 @@ export const useOSStore = create<OSState>((set, get) => ({
 
   restoreWindow: (id) => {
     trackEvent('app_restore', { app_id: id });
-    // Restore preserves last custom width/height (already stored in the window instance)
+    // Restore preserves last custom width/height and clamps y to top menu bar height
     set((state) => ({
       windows: state.windows.map((win) =>
-        win.id === id ? { ...win, isMaximized: false, isMinimized: false } : win
+        win.id === id ? { ...win, isMaximized: false, isMinimized: false, y: Math.max(48, win.y) } : { ...win, y: Math.max(48, win.y) }
       ),
     }));
     get().focusWindow(id);
@@ -467,8 +468,11 @@ export const useOSStore = create<OSState>((set, get) => ({
 
   focusWindow: (id) => {
     const { windows, activeWindowId } = get();
-    if (activeWindowId === id) return;
     const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(windows, id);
+    if (activeWindowId === id) {
+      set({ windows: normalizedWindows });
+      return;
+    }
     set({
       activeWindowId: id,
       maxZIndex: nextMax,
@@ -479,9 +483,10 @@ export const useOSStore = create<OSState>((set, get) => ({
 
 
   updateWindowPosition: (id, x, y) => {
+    const clampedY = Math.max(48, y);
     set((state) => ({
       windows: state.windows.map((win) =>
-        win.id === id ? { ...win, x, y } : win
+        win.id === id ? { ...win, x, y: clampedY } : { ...win, y: Math.max(48, win.y) }
       ),
     }));
   },
@@ -489,7 +494,7 @@ export const useOSStore = create<OSState>((set, get) => ({
   updateWindowSize: (id, width, height) => {
     set((state) => ({
       windows: state.windows.map((win) =>
-        win.id === id ? { ...win, width, height } : win
+        win.id === id ? { ...win, width, height, y: Math.max(48, win.y) } : { ...win, y: Math.max(48, win.y) }
       ),
     }));
   },

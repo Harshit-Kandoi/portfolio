@@ -107,16 +107,37 @@ describe('useOSStore Zustand Store Tests', () => {
       expect(useOSStore.getState().activeWindowId).toBe(null);
     });
 
-    it('should update window position and size', () => {
+    it('should update window position and size and clamp y position to top menu bar boundary', () => {
       useOSStore.getState().openWindow('about');
       useOSStore.getState().updateWindowPosition('about', 150, 200);
       useOSStore.getState().updateWindowSize('about', 600, 400);
 
-      const win = useOSStore.getState().windows.find(w => w.id === 'about');
+      let win = useOSStore.getState().windows.find(w => w.id === 'about');
       expect(win?.x).toBe(150);
       expect(win?.y).toBe(200);
       expect(win?.width).toBe(600);
       expect(win?.height).toBe(400);
+
+      // Verify y position is clamped to at least 48px if dragged above top menu bar
+      useOSStore.getState().updateWindowPosition('about', 150, 10);
+      win = useOSStore.getState().windows.find(w => w.id === 'about');
+      expect(win?.y).toBe(48);
+    });
+
+    it('should recover any invalid window position on focus and restore', () => {
+      useOSStore.getState().openWindow('gaming');
+      // Simulate an invalid position bypassing direct setters
+      useOSStore.setState((state) => ({
+        windows: state.windows.map((w) => (w.id === 'gaming' ? { ...w, y: 5 } : w)),
+      }));
+      
+      let win = useOSStore.getState().windows.find((w) => w.id === 'gaming');
+      expect(win?.y).toBe(5);
+
+      // Calling focusWindow should recover the position back to >= 48px
+      useOSStore.getState().focusWindow('gaming');
+      win = useOSStore.getState().windows.find((w) => w.id === 'gaming');
+      expect(win?.y).toBe(48);
     });
   });
 
