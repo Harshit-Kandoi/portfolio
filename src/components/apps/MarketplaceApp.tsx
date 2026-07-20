@@ -108,7 +108,7 @@ const CATEGORY_CONFIG = {
 
 const FILTERS = ['All', 'Open Source', 'Templates', 'Services'];
 
-export default function MarketplaceApp() {
+export default function MarketplaceApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
   const isLight = theme === 'light';
   const [filter, setFilter] = useState('All');

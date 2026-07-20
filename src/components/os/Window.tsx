@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useEffect } from 'react';
-import { motion, useDragControls, PanInfo } from 'framer-motion';
+import { motion, useDragControls, PanInfo, Transition } from 'framer-motion';
 import { useOSStore } from '../../store/useOSStore';
 import { playWindowSound } from '../../utils/sounds';
 import { Minus, Square, Copy, X } from 'lucide-react';
@@ -19,6 +19,7 @@ export default function Window({ id, title, children }: WindowProps) {
   const activeWindowId = useOSStore((state) => state.activeWindowId);
   const theme = useOSStore((state) => state.theme);
   const viewMode = useOSStore((state) => state.viewMode);
+  const windowAnimation = useOSStore((state) => state.windowAnimation);
 
   const focusWindow    = useOSStore((state) => state.focusWindow);
   const closeWindow    = useOSStore((state) => state.closeWindow);
@@ -188,6 +189,18 @@ export default function Window({ id, title, children }: WindowProps) {
     onDragEnd: handleDragEnd,
   };
 
+  const initialAnim = windowAnimation === 'instant'
+    ? { opacity: 1, scale: 1 }
+    : windowAnimation === 'retro'
+    ? { opacity: 0, scale: 0.9 }
+    : { opacity: 0, scale: 0.92, filter: 'blur(6px)' };
+
+  const transitionConfig: Transition = windowAnimation === 'instant'
+    ? { duration: 0 }
+    : windowAnimation === 'retro'
+    ? { type: 'spring', stiffness: 400, damping: 25 }
+    : { type: 'spring', stiffness: 380, damping: 30, mass: 0.8 };
+
   return (
     <motion.div
       ref={windowRef}
@@ -202,7 +215,7 @@ export default function Window({ id, title, children }: WindowProps) {
         const scaleStr = scale !== undefined ? `scale(${scale})` : '';
         return `translate3d(${xStr}, ${clampedY}px, 0px) ${scaleStr}`.trim();
       }}
-      initial={{ scale: 0.93, opacity: 0, filter: 'blur(4px)' }}
+      initial={initialAnim}
       animate={{
         scale: 1,
         opacity: 1,
@@ -213,7 +226,7 @@ export default function Window({ id, title, children }: WindowProps) {
         height: viewMode === 'tablet' ? 'calc(100vh - 144px)' : (isMaximized ? 'calc(100vh - 96px)' : windowInstance.height),
         zIndex: windowInstance.zIndex,
       }}
-      transition={{ type: 'spring', stiffness: 380, damping: 30, mass: 0.8 }}
+      transition={transitionConfig}
       onPointerDown={() => focusWindow(id)}
       className={`fixed top-0 left-0 rounded-xl overflow-hidden border flex flex-col backdrop-blur-md ${windowThemeClass} ${activeBorder}`}
       style={{

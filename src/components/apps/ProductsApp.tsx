@@ -50,7 +50,7 @@ function AnimatedProgress({ percent }: { percent: number }) {
   );
 }
 
-export default function ProductsApp() {
+export default function ProductsApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
   const isLight = theme === 'light';
 

@@ -47,6 +47,14 @@ export const SESSION_KEYS = {
   swipeProgress: 'portfolio-os-swipe-progress',
   lastApps: 'portfolio-os-last-apps',
   hasVisited: 'portfolio-os-has-visited',
+  uiScale: 'portfolio-os-ui-scale',
+  windowAnimation: 'portfolio-os-win-anim',
+  dockSize: 'portfolio-os-dock-size',
+  performanceMode: 'portfolio-os-perf-mode',
+  accentColor: 'portfolio-os-accent-color',
+  sessionRestore: 'portfolio-os-session-restore',
+  soundEnabled: 'portfolio-os-sound-enabled',
+  volume: 'portfolio-os-volume',
 };
 
 export const APP_VERSION = import.meta.env.VITE_APP_VERSION || '2.4.0';

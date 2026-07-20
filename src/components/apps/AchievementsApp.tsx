@@ -163,7 +163,7 @@ const getLevelInfo = (xp: number) => {
   return { current, next, progress };
 };
 
-export default function AchievementsApp() {
+export default function AchievementsApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const xp             = useOSStore((s) => s.xp);
   const unlockedIds    = useOSStore((s) => s.unlockedAchievements);
   const theme          = useOSStore((s) => s.theme);

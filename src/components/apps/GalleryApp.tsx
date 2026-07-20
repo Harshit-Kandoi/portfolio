@@ -81,7 +81,7 @@ const GALLERY_ITEMS: GalleryItem[] = [
 
 const CATEGORIES = ['All', 'Projects', 'Travel', 'Creative', 'Hobbies'];
 
-export default function GalleryApp() {
+export default function GalleryApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
   const isLight = theme === 'light';
 

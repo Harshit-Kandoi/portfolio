@@ -11,7 +11,7 @@ interface HistoryItem {
 
 const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
 
-export default function TerminalWindow() {
+export default function TerminalWindow({ isMobileView }: { isMobileView?: boolean } = {}) {
   const { openWindow, setTheme, addTerminalCommand, viewMode, isSimulatingMobile } = useOSStore();
   const sessionStart = React.useRef(Date.now());
   const [history, setHistory] = useState<HistoryItem[]>([

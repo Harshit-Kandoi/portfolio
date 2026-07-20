@@ -26,7 +26,7 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
-export default function LibraryApp() {
+export default function LibraryApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
   const isLight = theme === 'light';
 

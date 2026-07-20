@@ -232,7 +232,7 @@ function getRelatedProjects(skill: Skill | null): Project[] {
   return projects.filter((p) => p.featured).slice(0, 3);
 }
 
-export default function SkillsApp() {
+export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   
   // Selection and Hover states

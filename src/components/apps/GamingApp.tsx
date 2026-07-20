@@ -4,7 +4,7 @@ import { Sword, Shield, Zap, Sparkles, Trophy, Backpack, Flame, X, RotateCcw, Ch
 import { playNotificationSound, playTerminalClick } from '../../utils/sounds';
 import { initialCombatLogs, inventoryItems, InventoryItem } from '../../data/gamingData';
 
-export default function GamingApp() {
+export default function GamingApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const xp = useOSStore((state) => state.xp);
   const addXP = useOSStore((state) => state.addXP);
   const theme = useOSStore((state) => state.theme);

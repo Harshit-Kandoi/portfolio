@@ -21,7 +21,7 @@ const INITIAL_SNAKE: Cell[] = [
   { x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 },
 ];
 
-export default function SnakeGame() {
+export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
   const unlockAchievement = useOSStore((s) => s.unlockAchievement);
   const addNotification   = useOSStore((s) => s.addNotification);

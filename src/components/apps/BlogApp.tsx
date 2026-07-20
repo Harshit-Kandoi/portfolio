@@ -5,7 +5,7 @@ import { Search, Bookmark, Calendar, Clock, ExternalLink, ArrowLeft, Share2 } fr
 import { useOSStore } from '../../store/useOSStore';
 import { trackEvent } from '../../utils/analytics';
 
-export default function BlogApp() {
+export default function BlogApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCat, setSelectedCat] = useState('All');

@@ -109,7 +109,7 @@ function RenderContent({ content }: { content: string }) {
   return <div className="prose-sm">{elements}</div>;
 }
 
-export default function NotesApp() {
+export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
   const isLight = theme === 'light';
 

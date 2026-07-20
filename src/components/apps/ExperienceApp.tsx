@@ -3,7 +3,7 @@ import { experience } from '../../data/experience';
 import { Briefcase, GraduationCap, Award, ExternalLink, MapPin } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 
-export default function ExperienceApp() {
+export default function ExperienceApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const [filterType, setFilterType] = useState<'all' | 'work' | 'education' | 'Course'>('all');
   const theme = useOSStore((state) => state.theme);
 

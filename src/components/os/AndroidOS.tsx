@@ -8,6 +8,7 @@ import {
   BookMarked, StickyNote, Image as ImageIcon, Package, ShoppingBag
 } from 'lucide-react';
 import { playWindowSound } from '../../utils/sounds';
+import Wallpaper from './Wallpaper';
 
 // Lazy load app modules to reduce initial mobile JS bundle size and improve load speed
 const AboutApp       = lazy(() => import('../apps/AboutApp'));
@@ -49,14 +50,15 @@ interface AndroidOSProps {
 
 export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
   const {
-    theme, setTheme,
+    theme, setTheme, wallpaper,
     notifications, dismissNotification, clearNotifications, addNotification,
     activeMobileApp, openMobileApp, closeMobileApp, mobileRecents, clearMobileRecents,
     showMobileDrawer, setShowMobileDrawer,
     showMobileSettings, setShowMobileSettings,
     mobileBrightness, setMobileBrightness,
     soundEnabled, setSoundEnabled,
-    volume, setVolume
+    volume, setVolume,
+    batteryLevel, batteryCharging, setBatteryLevel,
   } = useOSStore();
 
   const [sysTime, setSysTime] = useState(new Date());
@@ -65,8 +67,6 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
   const [bluetoothEnabled, setBluetoothEnabled] = useState(true);
   const [airplaneMode, setAirplaneMode] = useState(false);
   const flashlight = false;
-  const batteryCharging = true;
-  const [batteryPct, setBatteryPct] = useState(87);
   const [showRecents, setShowRecents] = useState(false);
 
   const pointerStartY = useRef(0);
@@ -110,16 +110,16 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
   // Update battery level simulation
   useEffect(() => {
     const batteryTimer = setInterval(() => {
-      setBatteryPct((prev) => {
-        if (batteryCharging) {
-          return prev >= 100 ? 100 : prev + 1;
-        } else {
-          return prev <= 1 ? 1 : prev - 1;
-        }
-      });
+      const current = useOSStore.getState().batteryLevel;
+      const isCharging = useOSStore.getState().batteryCharging;
+      if (isCharging) {
+        setBatteryLevel(current >= 100 ? 100 : current + 1);
+      } else {
+        setBatteryLevel(current <= 1 ? 1 : current - 1);
+      }
     }, 60000);
     return () => clearInterval(batteryTimer);
-  }, [batteryCharging]);
+  }, [setBatteryLevel]);
 
   // Mobile App metadata mapper
   const appIcons = [
@@ -231,28 +231,28 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
 
     let content;
     switch (appId) {
-      case 'about': content = <AboutApp />; break;
+      case 'about': content = <AboutApp isMobileView={true} />; break;
       case 'projects': content = <ProjectsApp isMobileView={true} />; break;
-      case 'experience': content = <ExperienceApp />; break;
-      case 'skills': content = <SkillsApp />; break;
-      case 'resume': content = <ResumeApp />; break;
-      case 'terminal': content = <TerminalWindow />; break;
-      case 'ai': content = <AIAssistantApp />; break;
-      case 'blog': content = <BlogApp />; break;
-      case 'achievements': content = <AchievementsApp />; break;
-      case 'gaming': content = <GamingApp />; break;
-      case 'snake': content = <SnakeGame />; break;
-      case 'swipe': content = <PortfolioSwipe />; break;
-      case 'coffee': content = <BuyMeCoffeeApp />; break;
-      case 'contact': content = <ContactApp />; break;
+      case 'experience': content = <ExperienceApp isMobileView={true} />; break;
+      case 'skills': content = <SkillsApp isMobileView={true} />; break;
+      case 'resume': content = <ResumeApp isMobileView={true} />; break;
+      case 'terminal': content = <TerminalWindow isMobileView={true} />; break;
+      case 'ai': content = <AIAssistantApp isMobileView={true} />; break;
+      case 'blog': content = <BlogApp isMobileView={true} />; break;
+      case 'achievements': content = <AchievementsApp isMobileView={true} />; break;
+      case 'gaming': content = <GamingApp isMobileView={true} />; break;
+      case 'snake': content = <SnakeGame isMobileView={true} />; break;
+      case 'swipe': content = <PortfolioSwipe isMobileView={true} />; break;
+      case 'coffee': content = <BuyMeCoffeeApp isMobileView={true} />; break;
+      case 'contact': content = <ContactApp isMobileView={true} />; break;
       case 'settings': content = <SettingsApp isMobileView={true} />; break;
       // Phase 3 New Apps
-      case 'library': content = <LibraryApp />; break;
-      case 'notes': content = <NotesApp />; break;
-      case 'gallery': content = <GalleryApp />; break;
-      case 'products': content = <ProductsApp />; break;
-      case 'publications': content = <PublicationsApp />; break;
-      case 'marketplace': content = <MarketplaceApp />; break;
+      case 'library': content = <LibraryApp isMobileView={true} />; break;
+      case 'notes': content = <NotesApp isMobileView={true} />; break;
+      case 'gallery': content = <GalleryApp isMobileView={true} />; break;
+      case 'products': content = <ProductsApp isMobileView={true} />; break;
+      case 'publications': content = <PublicationsApp isMobileView={true} />; break;
+      case 'marketplace': content = <MarketplaceApp isMobileView={true} />; break;
       default: content = <div className="p-4 text-center text-white">App is currently building...</div>;
     }
 
@@ -268,6 +268,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
       className={`relative w-full ${isFullscreen ? 'h-dvh' : 'h-full'} flex flex-col select-none overflow-hidden ${getBackgroundStyle()} ${theme === 'light' ? 'text-gray-800' : 'text-white'} font-sans`}
       style={{ touchAction: 'none' }}
     >
+      <Wallpaper type={wallpaper} />
       
       {/* Dynamic Brightness Dimming Overlay */}
       <div 
@@ -316,7 +317,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
           {bluetoothEnabled && <Bluetooth className={`w-3 h-3 ${theme === 'light' ? 'text-purple-600' : 'text-purple-400'}`} />}
           
           <div className="flex items-center space-x-0.5">
-            <span className={`text-[9px] font-normal ${theme === 'light' ? 'text-gray-700' : 'text-gray-200'}`}>{batteryPct}%</span>
+            <span className={`text-[9px] font-normal ${theme === 'light' ? 'text-gray-700' : 'text-gray-200'}`}>{batteryLevel}%</span>
             <div className="relative flex items-center">
               <Battery className={`w-4 h-4 ${batteryCharging ? (theme === 'light' ? 'text-green-600' : 'text-green-400') : (theme === 'light' ? 'text-gray-600' : 'text-gray-200')}`} />
               {batteryCharging && <Zap className={`w-2.5 h-2.5 absolute left-0.5 ${theme === 'light' ? 'text-green-500' : 'text-green-300'} animate-pulse`} />}

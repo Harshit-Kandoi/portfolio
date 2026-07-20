@@ -5,7 +5,7 @@ import { PORTFOLIO_META } from '../../data/config';
 import { playNotificationSound } from '../../utils/sounds';
 import { trackEvent } from '../../utils/analytics';
 
-export default function ContactApp() {
+export default function ContactApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme              = useOSStore((state) => state.theme);
   const addNotification    = useOSStore((state) => state.addNotification);
   const unlockAchievement  = useOSStore((state) => state.unlockAchievement);

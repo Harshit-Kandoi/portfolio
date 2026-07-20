@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense, useState } from 'react';
+import { useEffect, lazy, Suspense, useState, useRef } from 'react';
 import { useOSStore } from './store/useOSStore';
 import BootScreen from './components/os/BootScreen';
 import LockScreen from './components/os/LockScreen';
@@ -12,12 +12,23 @@ function App() {
   const bootState = useOSStore((state) => state.bootState);
   const theme = useOSStore((state) => state.theme);
   const wallpaper = useOSStore((state) => state.wallpaper);
+  const uiScale = useOSStore((state) => state.uiScale);
+  const accentColor = useOSStore((state) => state.accentColor);
+  const windowAnimation = useOSStore((state) => state.windowAnimation);
+  const dockSize = useOSStore((state) => state.dockSize);
+  const showFPS = useOSStore((state) => state.showFPS);
+  const showWindowBounds = useOSStore((state) => state.showWindowBounds);
   
   const viewMode = useOSStore((state) => state.viewMode);
   const setViewMode = useOSStore((state) => state.setViewMode);
   const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
   const setIsSimulatingMobile = useOSStore((state) => state.setIsSimulatingMobile);
   const layoutOverride = useOSStore((state) => state.layoutOverride);
+
+  // FPS counter
+  const [fps, setFps] = useState(60);
+  const fpsRef = useRef<number[]>([]);
+  const frameRef = useRef<number | null>(null);
 
   // ── Mobile landscape detection ──────────────────────────────────────────────
   const [isLandscapeMobile, setIsLandscapeMobile] = useState(false);
@@ -37,6 +48,39 @@ function App() {
       window.removeEventListener('resize', checkOrientation);
       window.removeEventListener('orientationchange', checkOrientation);
     };
+  }, []);
+
+  // ── FPS tracking ─────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!showFPS) {
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      return;
+    }
+    let lastTime = performance.now();
+    const tick = () => {
+      const now = performance.now();
+      const delta = now - lastTime;
+      lastTime = now;
+      fpsRef.current.push(Math.round(1000 / delta));
+      if (fpsRef.current.length > 30) fpsRef.current.shift();
+      setFps(Math.round(fpsRef.current.reduce((a, b) => a + b, 0) / fpsRef.current.length));
+      frameRef.current = requestAnimationFrame(tick);
+    };
+    frameRef.current = requestAnimationFrame(tick);
+    return () => { if (frameRef.current) cancelAnimationFrame(frameRef.current); };
+  }, [showFPS]);
+
+  // ── Ctrl+K opens Start Menu ────────────────────────────────────────────────
+  useEffect(() => {
+    const handleCtrlK = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const state = useOSStore.getState();
+        state.setStartMenuOpen(!state.startMenuOpen);
+      }
+    };
+    window.addEventListener('keydown', handleCtrlK);
+    return () => window.removeEventListener('keydown', handleCtrlK);
   }, []);
 
   // ── History API back-button trap ─────────────────────────────────────────────
@@ -105,8 +149,30 @@ function App() {
   if (isMidnight) themeWrapperClass = 'midnight-theme';
   if (isGlass) themeWrapperClass = 'glass-theme';
 
+  // CSS classes driven by user settings
+  const accentClass = `accent-${accentColor}`;
+  const animClass = windowAnimation !== 'smooth' ? `window-anim-${windowAnimation}` : '';
+  const dockClass = dockSize !== 'medium' ? `dock-size-${dockSize}` : '';
+  const boundsClass = showWindowBounds ? 'debug-window-bounds' : '';
+
+  // Apply UI scale to root html document and CSS custom property
+  const zoomFactor = uiScale / 100;
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${uiScale}%`;
+    document.documentElement.style.setProperty('--ui-scale-factor', `${zoomFactor}`);
+    return () => {
+      document.documentElement.style.fontSize = '100%';
+    };
+  }, [uiScale, zoomFactor]);
+
   return (
-    <div className={`h-dvh w-screen overflow-hidden font-sans select-none relative ${themeWrapperClass}`}>
+    <div
+      className={`h-dvh w-screen overflow-hidden font-sans select-none relative ${themeWrapperClass} ${accentClass} ${animClass} ${dockClass} ${boundsClass}`}
+    >
+      {/* FPS Counter overlay */}
+      {showFPS && bootState === 'desktop' && (
+        <div className="fps-counter" aria-hidden="true">{fps} FPS</div>
+      )}
 
       {/* ── Mobile Landscape Lock Overlay ──────────────────────────────────── */}
       {isLandscapeMobile && (

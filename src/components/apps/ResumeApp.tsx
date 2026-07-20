@@ -4,7 +4,7 @@ import { useOSStore } from '../../store/useOSStore';
 import { resumeLink } from '../../data/navigation';
 import { trackEvent } from '../../utils/analytics';
 
-export default function ResumeApp() {
+export default function ResumeApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((state) => state.theme);
   const viewMode = useOSStore((state) => state.viewMode);
   const iframeRef = useRef<HTMLIFrameElement>(null);

@@ -144,7 +144,7 @@ function SpotifyPlayerCard({ boxBg }: { boxBg: string }) {
   );
 }
 
-export default function AboutApp() {
+export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((state) => state.theme);
   const globalViewMode = useOSStore((state) => state.viewMode);
   const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);

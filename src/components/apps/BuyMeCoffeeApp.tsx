@@ -27,7 +27,7 @@ const THANKS_MESSAGES = [
   '🚀 Fueled and ready for deployment. Thank you!',
 ];
 
-export default function BuyMeCoffeeApp() {
+export default function BuyMeCoffeeApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
   const addNotification   = useOSStore((s) => s.addNotification);
   const unlockAchievement = useOSStore((s) => s.unlockAchievement);

@@ -105,3 +105,28 @@ export const playThemeSwitchSound = () => {
   playTone(600, 'sawtooth', 0.1, 0.05);
   setTimeout(() => playTone(300, 'sawtooth', 0.15, 0.05), 50);
 };
+
+export const playVolumePreviewSound = (volumeLevel: number) => {
+  // Play a brief tone whose gain reflects current volume — gives tactile feedback while dragging
+  const store = useOSStore.getState();
+  if (!store.soundEnabled) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
+  try {
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(660, ctx.currentTime);
+    gainNode.gain.setValueAtTime(0.12 * volumeLevel, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.1);
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.1);
+  } catch { void 0; }
+};
+
+export const playClickSound = () => {
+  playTone(1000, 'square', 0.04, 0.04);
+};

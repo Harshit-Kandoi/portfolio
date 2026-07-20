@@ -133,7 +133,7 @@ const BOT_MESSAGES = [
   '⚡ Most visitors swipe right on this one.',
 ];
 
-export default function PortfolioSwipe() {
+export default function PortfolioSwipe({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
   const unlockAchievement = useOSStore((s) => s.unlockAchievement);
   const addNotification   = useOSStore((s) => s.addNotification);

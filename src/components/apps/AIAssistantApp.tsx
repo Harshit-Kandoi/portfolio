@@ -148,7 +148,7 @@ const AssistantBubbleWrapper = ({ msg, openWindow, isNew }: { msg: ChatMessage; 
   );
 };
 
-export default function AIAssistantApp() {
+export default function AIAssistantApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const { chatMessages, addChatMessage, openWindow, closeWindow, unlockAchievement } = useOSStore();
   const [inputText, setInputText] = useState('');
   const [unsupportedCount, setUnsupportedCount] = useState(0);

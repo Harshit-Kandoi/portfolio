@@ -41,6 +41,11 @@ if (typeof window !== 'undefined') {
 
 export type AppTheme = 'dark' | 'light' | 'cyberpunk' | 'midnight' | 'nord' | 'glass' | 'retro';
 export type WallpaperType = 'nebula' | 'particles' | 'matrix' | 'grid';
+export type UIScale = 80 | 90 | 100 | 110 | 125;
+export type WindowAnimation = 'instant' | 'smooth' | 'retro';
+export type DockSize = 'small' | 'medium' | 'large';
+export type PerformanceMode = 'battery' | 'balanced' | 'performance';
+export type AccentColor = 'purple' | 'yellow' | 'blue' | 'green' | 'red';
 
 export interface WindowInstance {
   id: string;
@@ -113,11 +118,19 @@ const safeSet = (key: string, value: unknown) => {
 };
 
 // ─── Persisted defaults ─────────────────────────────────────────────────────
-const persistedTheme      = safeGet<AppTheme>(SESSION_KEYS.theme, 'midnight');
-const persistedWallpaper  = safeGet<WallpaperType>(SESSION_KEYS.wallpaper, 'nebula');
-const persistedXP         = safeGet<number>(SESSION_KEYS.xp, 120);
-const persistedAchieves   = safeGet<string[]>(SESSION_KEYS.achievements, ['first_boot']);
-const persistedHasVisited = safeGet<boolean>(SESSION_KEYS.hasVisited, false);
+const persistedTheme         = safeGet<AppTheme>(SESSION_KEYS.theme, 'cyberpunk');
+const persistedWallpaper     = safeGet<WallpaperType>(SESSION_KEYS.wallpaper, 'grid');
+const persistedXP            = safeGet<number>(SESSION_KEYS.xp, 120);
+const persistedAchieves      = safeGet<string[]>(SESSION_KEYS.achievements, ['first_boot']);
+const persistedHasVisited    = safeGet<boolean>(SESSION_KEYS.hasVisited, false);
+const persistedSoundEnabled  = safeGet<boolean>(SESSION_KEYS.soundEnabled, true);
+const persistedVolume        = safeGet<number>(SESSION_KEYS.volume, 0.375);
+const persistedUiScale       = safeGet<UIScale>(SESSION_KEYS.uiScale, 100);
+const persistedWindowAnim    = safeGet<WindowAnimation>(SESSION_KEYS.windowAnimation, 'smooth');
+const persistedDockSize      = safeGet<DockSize>(SESSION_KEYS.dockSize, 'medium');
+const persistedPerfMode      = safeGet<PerformanceMode>(SESSION_KEYS.performanceMode, 'balanced');
+const persistedAccentColor   = safeGet<AccentColor>(SESSION_KEYS.accentColor, 'purple');
+const persistedSessionRestore= safeGet<boolean>(SESSION_KEYS.sessionRestore, true);
 
 // ─── Window defaults ─────────────────────────────────────────────────────────
 const INITIAL_WINDOWS: WindowInstance[] = [
@@ -176,6 +189,23 @@ interface OSState {
   windows: WindowInstance[];
   maxZIndex: number;
 
+  // Customization Settings
+  uiScale: UIScale;
+  windowAnimation: WindowAnimation;
+  dockSize: DockSize;
+  performanceMode: PerformanceMode;
+  accentColor: AccentColor;
+  sessionRestore: boolean;
+  // Mobile / System Battery State
+  batteryLevel: number;
+  batteryCharging: boolean;
+  batterySaver: boolean;
+
+  // Developer Options (session-only, not persisted)
+  showFPS: boolean;
+  debugMode: boolean;
+  showWindowBounds: boolean;
+
   // App-specific states
   notifications: ToastNotification[];
   chatMessages: ChatMessage[];
@@ -193,6 +223,21 @@ interface OSState {
   setStartMenuOpen: (open: boolean) => void;
   initiateShutdown: () => void;
   resetShutdown: () => void;
+
+  // Customization Actions
+  setUiScale: (scale: UIScale) => void;
+  setWindowAnimation: (anim: WindowAnimation) => void;
+  setDockSize: (size: DockSize) => void;
+  setPerformanceMode: (mode: PerformanceMode) => void;
+  setAccentColor: (color: AccentColor) => void;
+  setSessionRestore: (enabled: boolean) => void;
+  setBatteryLevel: (level: number) => void;
+  setBatteryCharging: (charging: boolean) => void;
+  setBatterySaver: (saver: boolean) => void;
+  setShowFPS: (show: boolean) => void;
+  setDebugMode: (debug: boolean) => void;
+  setShowWindowBounds: (show: boolean) => void;
+  resetDesktop: () => void;
 
   // Window Actions
   openWindow: (id: string) => void;
@@ -299,8 +344,8 @@ export const useOSStore = create<OSState>((set, get) => ({
   // OS System States
   theme: persistedTheme,
   wallpaper: persistedWallpaper,
-  soundEnabled: false,
-  volume: 0.5,
+  soundEnabled: persistedSoundEnabled,
+  volume: persistedVolume,
   bootState: 'booting',
   isShuttingDown: false,
   hasVisited: persistedHasVisited,
@@ -308,6 +353,24 @@ export const useOSStore = create<OSState>((set, get) => ({
   activeWindowId: null,
   windows: mergedWindows,
   maxZIndex: 10,
+
+  // Customization Settings
+  uiScale: persistedUiScale,
+  windowAnimation: persistedWindowAnim,
+  dockSize: persistedDockSize,
+  performanceMode: persistedPerfMode,
+  accentColor: persistedAccentColor,
+  sessionRestore: persistedSessionRestore,
+
+  // Mobile / System Battery State
+  batteryLevel: 87,
+  batteryCharging: true,
+  batterySaver: persistedPerfMode === 'battery',
+
+  // Developer Options (session-only)
+  showFPS: false,
+  debugMode: false,
+  showWindowBounds: false,
 
   // Mobile / Tablet States
   viewMode: 'desktop',
@@ -339,8 +402,78 @@ export const useOSStore = create<OSState>((set, get) => ({
     safeSet(SESSION_KEYS.wallpaper, wallpaper);
     set({ wallpaper });
   },
-  setSoundEnabled: (soundEnabled) => set({ soundEnabled }),
-  setVolume: (volume) => set({ volume }),
+  setSoundEnabled: (soundEnabled) => {
+    safeSet(SESSION_KEYS.soundEnabled, soundEnabled);
+    set({ soundEnabled });
+  },
+  setVolume: (volume) => {
+    safeSet(SESSION_KEYS.volume, volume);
+    set({ volume });
+  },
+
+  // ─── Customization Setters ───────────────────────────────────────────────
+  setUiScale: (uiScale) => {
+    safeSet(SESSION_KEYS.uiScale, uiScale);
+    set({ uiScale });
+  },
+  setWindowAnimation: (windowAnimation) => {
+    safeSet(SESSION_KEYS.windowAnimation, windowAnimation);
+    set({ windowAnimation });
+  },
+  setDockSize: (dockSize) => {
+    safeSet(SESSION_KEYS.dockSize, dockSize);
+    set({ dockSize });
+  },
+  setPerformanceMode: (performanceMode) => {
+    safeSet(SESSION_KEYS.performanceMode, performanceMode);
+    set({ performanceMode, batterySaver: performanceMode === 'battery' });
+  },
+  setAccentColor: (accentColor) => {
+    safeSet(SESSION_KEYS.accentColor, accentColor);
+    set({ accentColor });
+  },
+  setSessionRestore: (sessionRestore) => {
+    safeSet(SESSION_KEYS.sessionRestore, sessionRestore);
+    set({ sessionRestore });
+  },
+  setBatteryLevel: (batteryLevel) => set({ batteryLevel }),
+  setBatteryCharging: (batteryCharging) => set({ batteryCharging }),
+  setBatterySaver: (batterySaver) => {
+    const nextPerf = batterySaver ? 'battery' : 'balanced';
+    safeSet(SESSION_KEYS.performanceMode, nextPerf);
+    set({ batterySaver, performanceMode: nextPerf });
+  },
+  setShowFPS: (showFPS) => set({ showFPS }),
+  setDebugMode: (debugMode) => set({ debugMode }),
+  setShowWindowBounds: (showWindowBounds) => set({ showWindowBounds }),
+  resetDesktop: () => {
+    // Close all windows and reset positions
+    const { INITIAL_WINDOWS_RESET } = { INITIAL_WINDOWS_RESET: INITIAL_WINDOWS };
+    set((state) => ({
+      activeWindowId: null,
+      windows: INITIAL_WINDOWS_RESET.map(w => ({ ...w, isOpen: false, isMinimized: false, isMaximized: false })),
+      theme: 'cyberpunk',
+      wallpaper: 'grid',
+      uiScale: 100,
+      windowAnimation: 'smooth',
+      dockSize: 'medium',
+      performanceMode: 'balanced',
+      accentColor: 'purple',
+      soundEnabled: true,
+      volume: 0.375,
+    }));
+    // Persist resets
+    safeSet(SESSION_KEYS.theme, 'cyberpunk');
+    safeSet(SESSION_KEYS.wallpaper, 'grid');
+    safeSet(SESSION_KEYS.uiScale, 100);
+    safeSet(SESSION_KEYS.windowAnimation, 'smooth');
+    safeSet(SESSION_KEYS.dockSize, 'medium');
+    safeSet(SESSION_KEYS.performanceMode, 'balanced');
+    safeSet(SESSION_KEYS.accentColor, 'purple');
+    safeSet(SESSION_KEYS.soundEnabled, true);
+    safeSet(SESSION_KEYS.volume, 0.375);
+    safeSet(SESSION_KEYS.windows, []);
+  },
   setBootState: (bootState) => {
     if (bootState === 'desktop') {
       // Mark visited for session persistence welcome-back
@@ -366,7 +499,11 @@ export const useOSStore = create<OSState>((set, get) => ({
   },
 
   openWindow: (id) => {
-    const { windows } = get();
+    const { windows, viewMode, isSimulatingMobile } = get();
+    if (viewMode === 'mobile' || isSimulatingMobile) {
+      get().openMobileApp(id);
+      return;
+    }
     const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(windows, id);
     const prevWin = windows.find((w) => w.id === id);
     if (prevWin && !prevWin.isOpen) {
