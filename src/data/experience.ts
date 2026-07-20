@@ -103,38 +103,62 @@ export const experience: ExperienceItem[] = [
   // Certifications / Courses
   {
     id: 8,
+    title: "Software QA & Test Automation Engineering",
+    organization: "Coursera",
+    date: "Jun 2026",
+    type: "Course",
+    description: "QA automation through hands-on experience with industry-leading testing tools and methodologies: Selenium, Cypress, JMeter, xUnit, and Postman API validation.",
+    link: "https://coursera.org/share/0810f3ef5e95663b8a1d979afd5cf464",
+    skills: ["Selenium", "Cypress", "Agile QA", "JMeter", "Postman"]
+  },
+  {
+    id: 9,
     title: "Google Associate Cloud Engineer (ACE)",
     organization: "Google Cloud",
     date: "Mar 2026",
     type: "Course",
     description: "Certified Google Associate Cloud Engineer with hands-on experience designing backend services, deploying applications, and managing cloud resources on GCP.",
-    link: "https://www.credly.com/badges/dce123b5-e38c-4619-86d6-8ff49362c926/linked_in_profile"
+    link: "https://www.credly.com/badges/dce123b5-e38c-4619-86d6-8ff49362c926/linked_in_profile",
+    skills: ["GCP", "Cloud Infrastructure", "Kubernetes", "IAM"]
   },
   {
-    id: 9,
+    id: 10,
     title: "Docker Foundations Professional Certificate",
     organization: "Docker",
     date: "Aug 2025",
     type: "Course",
     description: "Certified professional in containerization, image building, multi-stage Dockerfiles, and local container orchestration.",
-    link: "https://www.linkedin.com/learning/certificates/9642001c23ee467631715f91472bc09ffd79bd1ceca1419cac4f1024651bcf29?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_certifications_details%3B0z%2F01oKQRpeu4u0V4hzrfA%3D%3D"
+    link: "https://www.linkedin.com/learning/certificates/9642001c23ee467631715f91472bc09ffd79bd1ceca1419cac4f1024651bcf29",
+    skills: ["Docker", "Containerization", "Docker Compose"]
   },
   {
-    id: 10,
+    id: 11,
+    title: "Microsoft Azure AI Essentials: Workloads & ML",
+    organization: "LinkedIn Learning",
+    date: "Aug 2025",
+    type: "Course",
+    description: "Understanding AI workloads, computer vision, NLP, and deploying machine learning solutions with Azure AI Foundry.",
+    link: "https://www.linkedin.com/learning/certificates/66444b1c98dada9eadb5dd9fd08cbb84c3a107633c55520fedca2b2ea5d14f2d",
+    skills: ["Microsoft Azure", "Azure AI Foundry", "Machine Learning"]
+  },
+  {
+    id: 12,
     title: "Python Bootcamp (100 Days of Code)",
     organization: "Udemy | Dr. Angela Yu",
     date: "Feb 2025",
     type: "Course",
     description: "Completed comprehensive Python bootcamp covering advanced programming, building web scrapers, APIs, and automation scripts.",
-    link: "https://www.udemy.com/certificate/UC-7ae3e699-3a95-404f-a9cd-e074b5f1553d/"
+    link: "https://www.udemy.com/certificate/UC-7ae3e699-3a95-404f-a9cd-e074b5f1553d/",
+    skills: ["Python", "Flask", "Databases", "Automation"]
   },
   {
-    id: 11,
+    id: 13,
     title: "Machine Learning A-Z",
     organization: "Udemy | SuperDataScience",
     date: "Nov 2024",
     type: "Course",
-    description: "Grained deep understanding of machine learning models, regression, classification, clustering, reinforcement learning, and neural networks using Python.",
-    link: "https://www.udemy.com/certificate/UC-a4c0bbee-c659-4d51-ad51-5b1211e9cc4f/"
+    description: "Gained deep understanding of machine learning models, regression, classification, clustering, reinforcement learning, and neural networks using Python & R.",
+    link: "https://www.udemy.com/certificate/UC-a4c0bbee-c659-4d51-ad51-5b1211e9cc4f/",
+    skills: ["Machine Learning", "Deep Learning", "Python", "R"]
   }
 ];
