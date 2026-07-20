@@ -75,12 +75,10 @@ export default function ExperienceApp() {
           <p className="text-center text-xs py-12 text-gray-500">No records found.</p>
         ) : (
           <div className="relative max-w-3xl mx-auto px-4 sm:px-8 py-8">
-            {/* Vertical line */}
-            <div className="absolute left-[7.5rem] sm:left-[8.5rem] top-8 bottom-8 w-px bg-gradient-to-b from-purple-500/40 via-blue-500/30 to-transparent" />
-
             {filteredItems.map((item, idx) => {
               const isWork = item.type === 'work';
               const isEdu = item.type === 'education';
+              const isLast = idx === filteredItems.length - 1;
 
               let Icon = Award;
               if (isWork) Icon = Briefcase;
@@ -103,9 +101,18 @@ export default function ExperienceApp() {
                     </span>
                   </div>
 
-                  {/* Center: node dot */}
-                  <div className="relative flex items-start justify-center w-4 shrink-0 mt-1.5">
-                    <div className={`w-3.5 h-3.5 rounded-full border-2 border-[#0c0d14] shrink-0 ${nodeColor} z-10 group-hover:scale-125 transition-transform`} />
+                  {/* Center: node dot & connector line */}
+                  <div className="relative flex justify-center w-4 shrink-0 pt-1.5">
+                    {!isLast && (
+                      <div
+                        className={`absolute top-3 bottom-[-2.5rem] w-0.5 pointer-events-none ${
+                          isLight
+                            ? 'bg-purple-300/60'
+                            : 'bg-purple-500/40'
+                        }`}
+                      />
+                    )}
+                    <div className={`w-3.5 h-3.5 rounded-full border-2 ${isLight ? 'border-white' : 'border-[#0c0d14]'} shrink-0 ${nodeColor} z-10 group-hover:scale-125 transition-transform`} />
                   </div>
 
                   {/* Right: Content */}
