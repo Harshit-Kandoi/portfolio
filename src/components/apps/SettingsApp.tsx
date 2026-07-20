@@ -185,7 +185,7 @@ function MobileSettingsView() {
         </div>
         <div>
           <h3 className="text-xs font-bold">Android Settings</h3>
-          <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">Mobile OS v15 · API 35</p>
+          <p className="text-[9px] font-semibold text-gray-400 uppercase tracking-wider">Mobile OS v15</p>
         </div>
       </div>
 
@@ -341,7 +341,7 @@ function MobileSettingsView() {
           </div>
           <div className="bg-black/20 border border-white/5 rounded-lg p-2.5 space-y-0.5">
             <p className="text-gray-500 uppercase tracking-wider text-[9px]">Android Version</p>
-            <p className="font-bold text-white">15 · API 35</p>
+            <p className="font-bold text-white">15</p>
           </div>
           <div className="bg-black/20 border border-white/5 rounded-lg p-2.5 space-y-0.5">
             <p className="text-gray-500 uppercase tracking-wider text-[9px]">Resolution</p>
@@ -801,7 +801,7 @@ function DesktopSettingsView() {
                     </div>
                     <div className={`p-3 rounded-xl space-y-1 ${isLight ? 'bg-gray-100 border-gray-200 border' : 'bg-black/30 border border-white/5'}`}>
                       <p className="text-gray-500 uppercase tracking-wider text-[9px]">Android</p>
-                      <p className={`font-bold ${isLight ? 'text-gray-900' : 'text-white'}`}>15 · API 35</p>
+                      <p className={`font-bold ${isLight ? 'text-gray-900' : 'text-white'}`}>15</p>
                     </div>
                     <div className={`p-3 rounded-xl space-y-1 ${isLight ? 'bg-gray-100 border-gray-200 border' : 'bg-black/30 border border-white/5'}`}>
                       <p className="text-gray-500 uppercase tracking-wider text-[9px]">Frame</p>
