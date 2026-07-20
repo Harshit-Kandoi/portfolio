@@ -38,10 +38,17 @@ export interface BlogPost {
   id: number;
   title: string;
   excerpt: string;
+  subtitle?: string;
   date: string;
   category: string;
   image: string;
   link: string;
+  canonical?: string;
+  claps?: number;
+  responses?: number;
+  readingTime?: number;
+  tags?: string[];
+  featured?: boolean;
 }
 
 export interface SocialLink {
