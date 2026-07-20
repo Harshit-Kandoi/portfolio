@@ -12,6 +12,7 @@ import Window from './Window';
 import NotificationPanel from './NotificationPanel';
 import DashboardWidgets from './DashboardWidgets';
 import { playWindowSound, playNotificationSound } from '../../utils/sounds';
+import { SYSTEM_NOTIFICATION_POOL } from '../../data/notifications';
 
 
 // Custom Snake Icon SVG
@@ -193,20 +194,32 @@ export default function Desktop() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShuttingDown]);
 
-  // Dispatch a random toast notification every 55 seconds for immersive activity
+  // Ref for non-repeating notification queue
+  const notificationQueueRef = useRef<number[]>([]);
+
+  // Dispatch non-repeating toast notifications from SYSTEM_NOTIFICATION_POOL every 45s
   useEffect(() => {
-    const randomToasts = [
-      { title: '💼 Open to Work', message: 'Harshit is currently active and looking for new roles!', type: 'info' as const, category: 'career' as const, action: 'contact' as const },
-      { title: '⭐ GitHub Star', message: 'Repository "local-gcp-emulator" starred!', type: 'success' as const, category: 'portfolio' as const, action: 'github' as const },
-      { title: '🚀 Deployment Active', message: 'Local GCP Emulator offline container built successfully.', type: 'success' as const, category: 'portfolio' as const, action: 'projects' as const },
-      { title: '☕ Coffee Levels Low', message: 'Harshit may need a refill soon. Consider buying him a coffee!', type: 'info' as const, category: 'funny' as const, action: 'coffee' as const },
-      { title: '💼 Recruiter Detected', message: 'Potential hiring signal detected. Resume.pdf is ready!', type: 'info' as const, category: 'career' as const, action: 'resume' as const },
-    ];
+    const getNextNotificationIndex = () => {
+      if (notificationQueueRef.current.length === 0) {
+        const indices = Array.from({ length: SYSTEM_NOTIFICATION_POOL.length }, (_, i) => i);
+        // Fisher-Yates Shuffle
+        for (let i = indices.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+        notificationQueueRef.current = indices;
+      }
+      return notificationQueueRef.current.pop()!;
+    };
+
     const interval = setInterval(() => {
-      const selected = randomToasts[Math.floor(Math.random() * randomToasts.length)];
-      addNotification(selected.title, selected.message, selected.type, selected.category, selected.action);
-      playNotificationSound();
-    }, 55000);
+      const idx = getNextNotificationIndex();
+      const selected = SYSTEM_NOTIFICATION_POOL[idx];
+      if (selected) {
+        addNotification(selected.title, selected.message, selected.type, selected.category, selected.action);
+        playNotificationSound();
+      }
+    }, 45000);
     return () => clearInterval(interval);
   }, [addNotification]);
 

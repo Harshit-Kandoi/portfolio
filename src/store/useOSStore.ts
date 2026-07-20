@@ -67,7 +67,7 @@ export interface ToastNotification {
   type: 'success' | 'info' | 'warning' | 'achievement';
   category: 'system' | 'career' | 'portfolio' | 'gaming' | 'social' | 'funny';
   timestamp: string;
-  action?: 'resume' | 'projects' | 'blog' | 'contact' | 'coffee' | 'swipe' | 'snake' | 'github' | 'linkedin';
+  action?: string;
 }
 
 export interface ChatMessage {
@@ -240,7 +240,7 @@ interface OSState {
   resetDesktop: () => void;
 
   // Window Actions
-  openWindow: (id: string) => void;
+  openWindow: (id: string, suppressNotification?: boolean) => void;
   closeWindow: (id: string) => void;
   minimizeWindow: (id: string) => void;
   maximizeWindow: (id: string) => void;
@@ -498,7 +498,7 @@ export const useOSStore = create<OSState>((set, get) => ({
     set({ isShuttingDown: false });
   },
 
-  openWindow: (id) => {
+  openWindow: (id, suppressNotification = false) => {
     const { windows, viewMode, isSimulatingMobile } = get();
     if (viewMode === 'mobile' || isSimulatingMobile) {
       get().openMobileApp(id);
@@ -506,6 +506,7 @@ export const useOSStore = create<OSState>((set, get) => ({
     }
     const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(windows, id);
     const prevWin = windows.find((w) => w.id === id);
+    const wasAlreadyOpen = prevWin?.isOpen ?? false;
     if (prevWin && !prevWin.isOpen) {
       trackEvent('app_open', { app_id: id });
     }
@@ -516,17 +517,25 @@ export const useOSStore = create<OSState>((set, get) => ({
       windows: normalizedWindows,
     });
     recordFocusStart(id);
-    // Dispatch contextual notification
+    // Dispatch contextual notification only if not suppressed and app was not already open
     const labels: Record<string, [string, string, ToastNotification['category'], ToastNotification['action']]> = {
-      resume:   ['📄 Resume Viewed', 'Visitor opened Resume.pdf', 'career', 'resume'],
-      projects: ['📂 Projects Opened', 'Browsing through project files...', 'portfolio', 'projects'],
-      blog:     ['📖 Blog Reader Active', 'Reading tech articles...', 'portfolio', 'blog'],
-      contact:  ['💌 Contact Opened', 'Potential connection incoming!', 'career', 'contact'],
-      coffee:   ['☕ Coffee Time!', 'Opening the coffee shop...', 'funny', 'coffee'],
-      swipe:    ['❤️ Hiring Swipe Launched', 'Time to find the perfect match!', 'career', 'swipe'],
-      snake:    ['🐍 Snake Activated', 'Retro gaming mode on.', 'gaming', 'snake'],
+      resume:       ['📄 Resume Viewed', 'Visitor opened Resume.pdf', 'career', 'resume'],
+      projects:     ['📂 Projects Opened', 'Browsing through project files...', 'portfolio', 'projects'],
+      blog:         ['📖 Blog Reader Active', 'Reading tech articles...', 'portfolio', 'blog'],
+      contact:      ['💌 Contact Opened', 'Potential connection incoming!', 'career', 'contact'],
+      coffee:       ['☕ Coffee Time!', 'Opening the coffee shop...', 'funny', 'coffee'],
+      swipe:        ['❤️ Hiring Swipe Launched', 'Time to find the perfect match!', 'career', 'swipe'],
+      snake:        ['🐍 Snake Activated', 'Retro gaming mode on.', 'gaming', 'snake'],
+      products:     ['📦 Products Catalog', 'Exploring tools & cloud products...', 'portfolio', 'products'],
+      achievements: ['🏆 Awards Opened', 'Viewing certifications & credentials...', 'career', 'achievements'],
+      gaming:       ['⚔️ Gaming Profile', 'Checking RPG stats & bug battle arena...', 'gaming', 'gaming'],
+      skills:       ['⚡ Skills Tree', 'Inspecting technical competencies...', 'portfolio', 'skills'],
+      experience:   ['💼 Experience Profile', 'Viewing cloud engineering career history...', 'career', 'experience'],
+      terminal:     ['💻 Terminal Environment', 'Command-line interface ready.', 'system', 'terminal'],
+      ai:           ['🤖 AI Copilot Active', 'Interactive assistant online.', 'system', 'ai'],
+      settings:     ['⚙️ Settings Opened', 'Customizing OS theme & controls...', 'system', 'settings'],
     };
-    if (labels[id]) {
+    if (!wasAlreadyOpen && !suppressNotification && labels[id]) {
       const [title, message, category, action] = labels[id];
       setTimeout(() => get().addNotification(title, message, 'info', category, action), 800);
     }
@@ -653,13 +662,10 @@ export const useOSStore = create<OSState>((set, get) => ({
 
   // ─── Toast System ───────────────────────────────────────────────────────
   addNotification: (title, message, type, category = 'system', action) => {
-    // Prevent duplicate same notification (same title and message)
+    // Prevent repeating duplicate notifications if title already exists in active drawer
     const currentNotifications = get().notifications;
-    if (currentNotifications.length > 0) {
-      const lastNotif = currentNotifications[0];
-      if (lastNotif.title === title && lastNotif.message === message) {
-        return; // Skip duplicate
-      }
+    if (currentNotifications.some((n) => n.title === title)) {
+      return; // Skip duplicate notification
     }
     
     const id = Math.random().toString(36).substring(2, 9);

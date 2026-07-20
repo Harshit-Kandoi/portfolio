@@ -564,7 +564,9 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                   notifications.map((n) => {
                     const handleNotifClick = () => {
                       if (n.action) {
-                        if (n.action === 'github') {
+                        if (n.action.startsWith('http://') || n.action.startsWith('https://')) {
+                          window.open(n.action, '_blank');
+                        } else if (n.action === 'github') {
                           window.open('https://github.com/Harshit-Kandoi', '_blank');
                         } else if (n.action === 'linkedin') {
                           window.open('https://linkedin.com/in/harshit-kandoi', '_blank');

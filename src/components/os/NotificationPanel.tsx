@@ -26,12 +26,14 @@ export default function NotificationPanel({ onClose }: Props) {
 
   const handleNotificationClick = (notif: ToastNotification) => {
     if (notif.action) {
-      if (notif.action === 'github') {
+      if (notif.action.startsWith('http://') || notif.action.startsWith('https://')) {
+        window.open(notif.action, '_blank');
+      } else if (notif.action === 'github') {
         window.open('https://github.com/Harshit-Kandoi', '_blank');
       } else if (notif.action === 'linkedin') {
         window.open('https://linkedin.com/in/harshit-kandoi', '_blank');
       } else {
-        openWindow(notif.action);
+        openWindow(notif.action, true);
       }
     }
     dismissNotification(notif.id);
@@ -80,7 +82,7 @@ export default function NotificationPanel({ onClose }: Props) {
             <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
               <Bell className="w-5 h-5 text-purple-400 opacity-50" />
             </div>
-            <p className="text-xs text-gray-500">No notifications yet.<br />Explore the OS to unlock events.</p>
+            <p className="text-xs text-gray-500 text-center">No notifications yet.<br />Explore the OS to unlock events.</p>
           </div>
         ) : (
           notifications.map((notif) => {

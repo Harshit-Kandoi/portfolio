@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { X, GitBranch, GitMerge, Star, Upload, Zap, TrendingUp, Users, Folder, FileText, ExternalLink, Linkedin, Award, Briefcase, MessageSquare, Share2 } from 'lucide-react';
+import { X, GitBranch, GitMerge, Star, Upload, Zap, TrendingUp, Users, Folder, FileText, ExternalLink, Linkedin } from 'lucide-react';
 import { fetchGitHubStats, fetchGitHubActivity, GitHubStats, ActivityItem } from '../../services/github';
 import { fetchMediumStats, MediumStats } from '../../services/medium';
 import { projects } from '../../data/projects';
@@ -10,44 +10,7 @@ interface DashboardWidgetsProps {
   onClose: () => void;
 }
 
-const LINKEDIN_ACTIVITIES = [
-  {
-    id: '1',
-    type: 'cert',
-    icon: <Award className="w-3.5 h-3.5 text-amber-400" />,
-    text: 'Earned Google Cloud ACE Certification',
-    sub: 'Verified Associate Cloud Engineer',
-    time: '1mo ago',
-    url: 'https://www.linkedin.com/in/harshit-kandoi/',
-  },
-  {
-    id: '2',
-    type: 'article',
-    icon: <FileText className="w-3.5 h-3.5 text-cyan-400" />,
-    text: 'Published article on UV Package Manager',
-    sub: 'Featured in Towards AI · 1.2k reads',
-    time: '2w ago',
-    url: 'https://pub.towardsai.net/from-pip-to-uv-a-modern-take-on-python-project-management-part-1-2f4a7fdec860',
-  },
-  {
-    id: '3',
-    type: 'role',
-    icon: <Briefcase className="w-3.5 h-3.5 text-blue-400" />,
-    text: 'Software & AI Engineer at ThoughtIn Solutions',
-    sub: 'Building GCP backend workflows & ML tools',
-    time: '2mo ago',
-    url: 'https://www.linkedin.com/in/harshit-kandoi/',
-  },
-  {
-    id: '4',
-    type: 'project',
-    icon: <Zap className="w-3.5 h-3.5 text-emerald-400" />,
-    text: 'Released YOLOv5 ASL Real-time Detector',
-    sub: 'Custom dataset & OpenCV webcam pipeline',
-    time: '3w ago',
-    url: 'https://github.com/Harshit-Kandoi/asl-detection',
-  },
-];
+
 
 const activityIconMap: Record<string, React.ReactNode> = {
   '⬆️': <Upload className="w-3.5 h-3.5" />,
@@ -200,50 +163,7 @@ export default function DashboardWidgets({ onClose }: DashboardWidgetsProps) {
           />
         </div>
 
-        {/* LinkedIn Professional Activity Feed */}
-        <div className="bg-[#0f1019]/80 border border-white/5 rounded-2xl p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-1.5">
-              <div className="w-5 h-5 rounded-md bg-[#0a66c2] flex items-center justify-center text-white">
-                <Linkedin className="w-3 h-3 fill-current" />
-              </div>
-              <h3 className="text-xs font-bold text-white">Professional Updates</h3>
-            </div>
-            <a
-              href="https://www.linkedin.com/in/harshit-kandoi/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[10px] text-blue-400 hover:text-blue-300 flex items-center gap-1 transition"
-            >
-              LinkedIn <ExternalLink className="w-2.5 h-2.5" />
-            </a>
-          </div>
 
-          <div className="space-y-2">
-            {LINKEDIN_ACTIVITIES.map((item) => (
-              <a
-                key={item.id}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-start justify-between hover:bg-white/5 -mx-2 px-2 py-1.5 rounded-xl transition group"
-              >
-                <div className="flex items-start gap-2.5 min-w-0">
-                  <div className="w-7 h-7 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center shrink-0 mt-0.5">
-                    {item.icon}
-                  </div>
-                  <div className="min-w-0 pr-1">
-                    <p className="text-[11px] font-medium text-gray-200 group-hover:text-blue-300 transition leading-tight line-clamp-1">
-                      {item.text}
-                    </p>
-                    <p className="text-[9px] text-gray-500 truncate mt-0.5">{item.sub}</p>
-                  </div>
-                </div>
-                <span className="text-[9px] text-gray-600 shrink-0 mt-0.5">{item.time}</span>
-              </a>
-            ))}
-          </div>
-        </div>
 
         {/* LinkedIn Profile Mini Card */}
         <a

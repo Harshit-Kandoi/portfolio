@@ -163,6 +163,14 @@ describe('useOSStore Zustand Store Tests', () => {
       useOSStore.getState().clearNotifications();
       expect(useOSStore.getState().notifications.length).toBe(0);
     });
+
+    it('should suppress app opening notification when suppressNotification is true or window is already open', async () => {
+      useOSStore.getState().clearNotifications();
+      useOSStore.getState().openWindow('settings', true);
+      // Wait for any async timeout
+      await new Promise((r) => setTimeout(r, 900));
+      expect(useOSStore.getState().notifications.some((n) => n.title.includes('Settings'))).toBe(false);
+    });
   });
 
   describe('Gamification Progression', () => {
