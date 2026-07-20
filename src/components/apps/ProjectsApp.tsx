@@ -10,7 +10,7 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [favorites, setFavorites] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<number[]>(() => projects.filter((p) => p.featured).map((p) => p.id));
   const theme = useOSStore((state) => state.theme);
   const unlockAchievement = useOSStore((state) => state.unlockAchievement);
   const globalViewMode = useOSStore((state) => state.viewMode);
@@ -64,7 +64,16 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
   };
 
   // Categorize
-  const categories = ['All', 'AI & ML', 'Cloud & Backend', 'Data & Automation', '⭐ Favorites'];
+  const categories = [
+    'All',
+    'Products & Software',
+    'AI & ML',
+    'Reinforcement Learning',
+    'Data & Analytics',
+    'Cloud & Backend',
+    'Course & Practice',
+    '⭐ Favorites'
+  ];
 
   const filteredProjects = projects.filter((project) => {
     if (selectedCategory === '⭐ Favorites') return favorites.includes(project.id);
@@ -74,8 +83,23 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
       project.category.some((cat) => {
         const pCat = cat.toLowerCase();
         const sCat = selectedCategory.toLowerCase();
+        if (sCat === 'products & software') {
+          return pCat.includes('product') || pCat.includes('software');
+        }
         if (sCat === 'ai & ml') {
           return pCat.includes('ai') || pCat.includes('machine learning');
+        }
+        if (sCat === 'reinforcement learning') {
+          return pCat.includes('reinforcement');
+        }
+        if (sCat === 'data & analytics') {
+          return pCat.includes('data') || pCat.includes('analytics');
+        }
+        if (sCat === 'cloud & backend') {
+          return pCat.includes('cloud') || pCat.includes('backend');
+        }
+        if (sCat === 'course & practice') {
+          return pCat.includes('course') || pCat.includes('practice');
         }
         return pCat.includes(sCat) || sCat.includes(pCat);
       });

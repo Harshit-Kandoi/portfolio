@@ -189,7 +189,7 @@ export default function Window({ id, title, children }: WindowProps) {
       }}
       transition={{ type: 'spring', stiffness: 380, damping: 30, mass: 0.8 }}
       onPointerDown={() => focusWindow(id)}
-      className={`fixed rounded-xl overflow-hidden border flex flex-col backdrop-blur-md ${windowThemeClass} ${activeBorder}`}
+      className={`fixed top-0 left-0 rounded-xl overflow-hidden border flex flex-col backdrop-blur-md ${windowThemeClass} ${activeBorder}`}
       style={{
         maxHeight: viewMode === 'tablet' ? 'calc(100vh - 144px)' : 'calc(100vh - 96px)',
         visibility: isMinimized ? 'hidden' : 'visible',

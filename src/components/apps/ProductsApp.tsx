@@ -12,26 +12,28 @@ const STATUS_CONFIG = {
 };
 
 const ICON_EMOJI_MAP: Record<string, string> = {
-  '1': '☁️',
-  '2': '🤖',
-  '3': '🎮',
-  '4': '🎬',
-  '5': '🌾',
-  '6': '💻',
+  '1': '💻',
+  '2': '🪞',
+  '3': '🐶',
+  '4': '🖼️',
+  '5': '🎬',
+  '6': '💰',
+  '7': '🛒',
 };
 
 // Mocked progress percentages for WIP products
 const WIP_PROGRESS: Record<string, number> = {
-  '3': 35,
+  '3': 55,
+  '4': 70,
   '5': 60,
+  '6': 80,
+  '7': 40,
 };
 
 // Mocked last-commit labels for live/beta products
 const LAST_COMMIT: Record<string, string> = {
-  '1': '3h ago',
+  '1': 'Today',
   '2': '2d ago',
-  '4': '5d ago',
-  '6': '1h ago',
 };
 
 function AnimatedProgress({ percent }: { percent: number }) {

@@ -1,112 +1,341 @@
 import { Project } from '../types';
 
 export const projects: Project[] = [
+  // 🏆 Products & Software
   {
     id: 1,
-    title: "Local GCP Emulator (Firestore + Pub/Sub)",
-    description: "Engineered a local cloud development environment to simulate Firestore and Pub/Sub services offline. Validated serverless workflows locally before deployment, reducing external cloud service dependency during early development.",
-    image: "https://images.pexels.com/photos/3861958/pexels-photo-3861958.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
-    category: ["Cloud & Backend"],
-    technologies: ["Python", "Flask", "Firestore", "Pub/Sub", "GCP"],
-    github: "https://github.com/Harshit-Kandoi/Local-GCP-Emulator",
+    title: "Portfolio OS",
+    description: "Interactive desktop-inspired portfolio OS with AI assistant, games, terminal, resume, projects, analytics, testing and performance optimization.",
+    image: "https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Products & Software"],
+    technologies: ["React", "TypeScript", "Zustand", "Tailwind CSS", "Vite"],
+    // github: "https://github.com/Harshit-Kandoi/portfolio",
+    demo: "https://harshitkandoi.in",
     featured: true,
-    duration: "2 Months",
-    status: "Active"
+    duration: "Ongoing",
+    status: "⭐ Flagship (Beta)"
   },
   {
     id: 2,
-    title: "Real-Time ASL Hand Sign Detection",
-    description: "Developed a computer vision system utilizing YOLOv5 to translate American Sign Language (ASL) hand gestures into text. Preprocessed custom datasets and deployed real-time video-based inference with 90%+ classification accuracy.",
+    title: "Financial Mirror",
+    description: "AI-powered financial awareness platform helping users understand spending habits, financial personality and future planning.",
+    image: "https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Products & Software", "AI & Machine Learning"],
+    technologies: ["Python", "AI", "React", "Node.js", "Financial ML"],
+    // github: "https://github.com/Harshit-Kandoi/Financial-mirror",
+    demo: "https://mirror.harshitkandoi.in",
+    featured: true,
+    duration: "Ongoing",
+    status: "⭐ Flagship Startup (Beta)"
+  },
+  {
+    id: 3,
+    title: "Pixel Buddy",
+    description: "Desktop productivity companion that reminds users to drink water, take breaks and maintain healthy computer habits.",
+    image: "https://images.pexels.com/photos/7974/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Products & Software"],
+    technologies: ["Electron", "React", "TypeScript", "Node.js"],
+    github: "https://github.com/Harshit-Kandoi/pixel-buddy",
+    featured: true,
+    duration: "2 Months",
+    status: "⭐ High Potential (WIP)"
+  },
+  {
+    id: 4,
+    title: "Web Image Scraper",
+    description: "Extracts images from target websites for download or analysis with automated scraping pipelines.",
+    image: "https://images.pexels.com/photos/802221/pexels-photo-802221.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Products & Software", "Data Science & Analytics"],
+    technologies: ["Python", "BeautifulSoup4", "Selenium", "Pandas"],
+    github: "https://github.com/Harshit-Kandoi/web-image-scrapper",
+    featured: false,
+    duration: "1 Month",
+    status: "✅ Utility"
+  },
+  {
+    id: 5,
+    title: "Movie Recommender System",
+    description: "ML-based recommendation engine suggesting movies based on similarity, user ratings, and content features.",
+    image: "https://images.pexels.com/photos/7991375/pexels-photo-7991375.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Products & Software", "AI & Machine Learning"],
+    technologies: ["Python", "Scikit-learn", "Streamlit", "Pandas", "SVD"],
+    github: "https://github.com/Harshit-Kandoi/movie-recommender",
+    featured: false,
+    duration: "1 Month",
+    status: "✅ Portfolio Project"
+  },
+  {
+    id: 6,
+    title: "Personal Budget Tracker",
+    description: "CLI application for tracking income, expenses, monthly budgets and personal financial goals.",
+    image: "https://images.pexels.com/photos/1602726/pexels-photo-1602726.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Products & Software"],
+    technologies: ["Python", "CLI", "SQLite"],
+    github: "https://github.com/Harshit-Kandoi/Personal-budget-tracker",
+    featured: false,
+    duration: "2 Weeks",
+    status: "Learning Project"
+  },
+  {
+    id: 7,
+    title: "Ecommerce Web App",
+    description: "E-commerce platform with product catalogs, interactive cart management, and order processing flows.",
+    image: "https://images.pexels.com/photos/230544/pexels-photo-230544.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Products & Software"],
+    technologies: ["React", "Node.js", "Express", "MongoDB"],
+    github: "https://github.com/Harshit-Kandoi/ecommerce",
+    featured: false,
+    duration: "1 Month",
+    status: "Under Evaluation"
+  },
+
+  // 🤖 Artificial Intelligence / Machine Learning
+  {
+    id: 8,
+    title: "YOLO Plastic Classification",
+    description: "Computer Vision model that classifies plastic waste types (PET, HDPE, etc.) from images for automated recycling systems.",
+    image: "https://images.pexels.com/photos/802221/pexels-photo-802221.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["AI & Machine Learning"],
+    technologies: ["Python", "YOLOv8", "PyTorch", "OpenCV", "Computer Vision"],
+    github: "https://github.com/Harshit-Kandoi/Yolo_Plastic_Classification",
+    featured: true,
+    duration: "3 Months",
+    status: "Good Research Project"
+  },
+  {
+    id: 9,
+    title: "ASL Letter Detection",
+    description: "Detects American Sign Language alphabets in real-time using computer vision and object detection models.",
     image: "https://images.pexels.com/photos/4101143/pexels-photo-4101143.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
     category: ["AI & Machine Learning"],
     technologies: ["Python", "YOLOv5", "PyTorch", "OpenCV"],
     github: "https://github.com/Harshit-Kandoi/ASL-letter-detection",
-    featured: true,
-    duration: "3 Months",
-    status: "Completed"
-  },
-  {
-    id: 3,
-    title: "Whisper Transcription Web Application",
-    description: "Built a speech-to-text transcription web app leveraging OpenAI Whisper. Implemented file-based uploads and backend processing pipelines in Python/Flask to convert audio and video recordings into structured text transcripts.",
-    image: "https://images.pexels.com/photos/267614/pexels-photo-267614.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
-    category: ["AI & Machine Learning", "Cloud & Backend"],
-    technologies: ["Python", "Flask", "Whisper AI", "JavaScript", "HTML", "CSS"],
-    github: "https://github.com/Harshit-Kandoi/Transcription",
-    featured: false,
-    duration: "1 Month",
-    status: "Completed"
-  },
-  {
-    id: 4,
-    title: "Movie Recommendation System",
-    description: "Designed a recommendation engine implementing collaborative and content-based filtering algorithms. Integrated a web UI with Streamlit and SQL databases to produce personalized suggestions based on user ratings.",
-    image: "https://images.pexels.com/photos/7991375/pexels-photo-7991375.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
-    category: ["AI & Machine Learning"],
-    technologies: ["Python", "Machine Learning", "Streamlit", "SQLAlchemy", "Pandas"],
-    github: "https://github.com/Harshit-Kandoi/movie-recommender",
-    featured: true,
-    duration: "1 Month",
-    status: "Completed"
-  },
-  {
-    id: 5,
-    title: "Plastic Image Dataset Pipeline",
-    description: "Engineered an automated data pipeline to collect, clean, and organize 3,000+ plastic material images using BeautifulSoup and Selenium. Prepared clean training data for YOLO-based sustainability models.",
-    image: "https://images.pexels.com/photos/802221/pexels-photo-802221.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
-    category: ["Data & Automation"],
-    technologies: ["Python", "BeautifulSoup4", "Selenium", "Pandas"],
-    github: "https://github.com/Harshit-Kandoi/web-image-scrapper",
     featured: false,
     duration: "2 Months",
-    status: "Active"
+    status: "Good ML Demo"
   },
   {
-    id: 6,
-    title: "Deep Q-Learning Agent for Doom",
-    description: "Created a reinforcement learning agent using PyTorch to play Doom using raw visual feeds as inputs. Designed Convolutional Neural Network (CNN) policies and customized reward shaping to train autonomous game-playing agents.",
-    image: "https://images.pexels.com/photos/3165335/pexels-photo-3165335.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    id: 10,
+    title: "Email & SMS Spam Detection",
+    description: "Classifies emails and SMS messages into spam or legitimate categories using NLP feature extraction and ML classifiers.",
+    image: "https://images.pexels.com/photos/193003/pexels-photo-193003.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
     category: ["AI & Machine Learning"],
-    technologies: ["Python", "PyTorch", "NumPy", "OpenCV", "ViZDoom"],
+    technologies: ["Python", "Scikit-learn", "NLTK", "TF-IDF"],
+    github: "https://github.com/Harshit-Kandoi/upflairs/tree/main/email",
+    featured: false,
+    duration: "2 Weeks",
+    status: "Classic ML Project"
+  },
+  {
+    id: 11,
+    title: "Crop Recommendation Engine",
+    description: "Predicts suitable agricultural crops using soil nutrient metrics (N, P, K) and environmental conditions.",
+    image: "https://images.pexels.com/photos/265216/pexels-photo-265216.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["AI & Machine Learning"],
+    technologies: ["Python", "Scikit-learn", "Pandas", "XGBoost"],
+    github: "https://github.com/Harshit-Kandoi/crops",
+    featured: false,
+    duration: "1 Month",
+    status: "Good Beginner ML"
+  },
+  {
+    id: 12,
+    title: "House Sale Price Prediction",
+    description: "Regression model predicting house sale prices using feature engineering on residential property metrics.",
+    image: "https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["AI & Machine Learning"],
+    technologies: ["Python", "Scikit-learn", "Pandas", "LightGBM"],
+    github: "https://github.com/Harshit-Kandoi/house-sale-prediction/tree/main/house%20sale%20prediction",
+    featured: false,
+    duration: "2 Weeks",
+    status: "Learning (Archived)"
+  },
+  {
+    id: 13,
+    title: "Titanic Survival Prediction",
+    description: "Classification model predicting passenger survival based on age, class, sex, and boarding demographics.",
+    image: "https://images.pexels.com/photos/270637/pexels-photo-270637.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["AI & Machine Learning"],
+    technologies: ["Python", "Scikit-learn", "Pandas", "Seaborn"],
+    github: "https://github.com/Harshit-Kandoi/titanic",
+    featured: false,
+    duration: "1 Week",
+    status: "Learning (Archived)"
+  },
+  // {
+  //   id: 14,
+  //   title: "Deep Learning Repository",
+  //   description: "Comprehensive collection of deep learning experiments exploring neural network optimization, loss functions, and architectures.",
+  //   image: "https://images.pexels.com/photos/256541/pexels-photo-256541.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+  //   category: ["AI & Machine Learning"],
+  //   technologies: ["Python", "PyTorch", "TensorFlow", "Keras"],
+  //   github: "https://github.com/Harshit-Kandoi",
+  //   featured: false,
+  //   duration: "Ongoing",
+  //   status: "Learning (Archived)"
+  // },
+  {
+    id: 15,
+    title: "ANN / CNN / RNN Experiments",
+    description: "Individual neural network architecture implementations covering Feedforward ANN, Convolutional CNN, and Recurrent RNN models.",
+    image: "https://images.pexels.com/photos/373543/pexels-photo-373543.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["AI & Machine Learning"],
+    technologies: ["Python", "PyTorch", "NumPy", "CNN", "RNN"],
+    github: "https://github.com/Harshit-Kandoi/upflairs",
+    featured: false,
+    duration: "1 Month",
+    status: "Learning (Archived)"
+  },
+
+  // 🎮 Reinforcement Learning
+  {
+    id: 16,
+    title: "Snake Reinforcement Learning",
+    description: "Reinforcement Learning agent trained using PyTorch and Deep Q-Networks to play Snake autonomously with high scores.",
+    image: "https://images.pexels.com/photos/3165335/pexels-photo-3165335.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Reinforcement Learning", "AI & Machine Learning"],
+    technologies: ["Python", "PyTorch", "Deep Q-Learning", "Pygame"],
+    github: "https://github.com/Harshit-Kandoi/Snake-Reinforcement-Learning",
+    featured: true,
+    duration: "2 Months",
+    status: "Excellent Research Project"
+  },
+  {
+    id: 17,
+    title: "Doom Reinforcement Learning",
+    description: "Deep Q-Learning RL agent trained inside ViZDoom environment to navigate map visual feeds autonomously.",
+    image: "https://images.pexels.com/photos/3165335/pexels-photo-3165335.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Reinforcement Learning", "AI & Machine Learning"],
+    technologies: ["Python", "PyTorch", "ViZDoom", "OpenCV", "DQN"],
     github: "https://github.com/Harshit-Kandoi/doom_reinforcement_learning",
     featured: false,
     duration: "2 Months",
-    status: "Completed"
+    status: "Excellent Research Project"
   },
+
+  // 📊 Data Science & Analytics
   {
-    id: 7,
-    title: "Ghibli-Style Image Generator",
-    description: "Designed a lightweight generative AI web tool that transforms user text prompts into Studio Ghibli-style artwork using Gemini API, removing local GPU compute requirements.",
-    image: "https://images.pexels.com/photos/2781760/pexels-photo-2781760.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
-    category: ["AI & Machine Learning"],
-    technologies: ["Python", "Google Gemini", "Pillow", "GenerativeAI"],
-    github: "https://github.com/Harshit-Kandoi/Ghibli",
-    featured: false,
-    duration: "3 Weeks",
-    status: "Completed"
-  },
-  {
-    id: 8,
-    title: "Crop Classification ML Service",
-    description: "Trained and evaluated multi-class classification models using environmental inputs (temperature, humidity, rainfall) to suggest optimal crops. Deployed the service as an API for agricultural decision support.",
-    image: "https://images.pexels.com/photos/265216/pexels-photo-265216.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
-    category: ["AI & Machine Learning"],
-    technologies: ["Python", "Scikit-learn", "Flask", "Pandas"],
-    github: "https://github.com/Harshit-Kandoi/crops",
-    featured: false,
-    duration: "2 Months",
-    status: "Completed"
-  },
-  {
-    id: 9,
+    id: 18,
     title: "Credit Card Financial Dashboard",
-    description: "Built an interactive analytics dashboard in Power BI backed by SQL queries to analyze financial spending behaviors. Designed key performance indicators (KPIs) to reveal patterns in credit card usage.",
+    description: "Interactive analytics dashboard in Power BI analyzing customer credit card spending behaviors, demographic breakdown, and financial KPIs.",
     image: "https://images.pexels.com/photos/259200/pexels-photo-259200.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
-    category: ["Data & Automation"],
-    technologies: ["Power BI", "SQL", "Python", "Excel"],
+    category: ["Data Science & Analytics"],
+    technologies: ["Power BI", "SQL", "DAX", "Excel"],
     github: "https://github.com/Harshit-Kandoi/Credit-Card-Financial-Dashboard",
     featured: false,
     duration: "1 Month",
-    status: "Completed"
-  }
+    status: "Strong Dashboard"
+  },
+  {
+    id: 19,
+    title: "Pizza Sales Analytics Dashboard",
+    description: "SQL and Power BI analysis evaluating pizza sales trends, peak orders, inventory velocity, and revenue distribution.",
+    image: "https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Data Science & Analytics"],
+    technologies: ["SQL", "Power BI", "Excel", "Data Analytics"],
+    github: "https://github.com/Harshit-Kandoi/pizza-sales",
+    featured: false,
+    duration: "2 Weeks",
+    status: "Good Analytics Project"
+  },
+
+  // ☁️ Cloud & Backend Learning
+  {
+    id: 20,
+    title: "Local GCP Emulator",
+    description: "Dockerized local cloud development environment simulating Firestore and Pub/Sub offline to speed up cloud dev and cut CI costs.",
+    image: "https://images.pexels.com/photos/3861958/pexels-photo-3861958.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Cloud & Backend"],
+    technologies: ["Python", "Docker", "GCP", "Firestore", "Pub/Sub"],
+    github: "https://github.com/Harshit-Kandoi/Local-GCP-Emulator",
+    featured: true,
+    duration: "2 Months",
+    status: "Active Learning"
+  },
+  {
+    id: 21,
+    title: "GCP Learning Lab",
+    description: "Google Cloud Platform experimentation repository covering Cloud Run container deployments and serverless triggers.",
+    image: "https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Cloud & Backend"],
+    technologies: ["GCP", "Python", "Docker", "Cloud Run"],
+    github: "https://github.com/Harshit-Kandoi/GCP-learning",
+    featured: false,
+    duration: "1 Month",
+    status: "Learning (Archived)"
+  },
+  {
+    id: 22,
+    title: "Pydantic Schema Validation",
+    description: "Experiments with Pydantic schema validation, dataclass serialization, and high-throughput API payload parsing.",
+    image: "https://images.pexels.com/photos/1181244/pexels-photo-1181244.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Cloud & Backend"],
+    technologies: ["Python", "Pydantic", "FastAPI", "Type System"],
+    github: "https://github.com/Harshit-Kandoi/pydantic-learning",
+    featured: false,
+    duration: "2 Weeks",
+    status: "Learning (Archived)"
+  },
+
+  // 📚 Course & Practice Repositories
+  {
+    id: 23,
+    title: "Data Structures & Algorithms (DSA)",
+    description: "Repository of data structures and algorithms practice problems solved in Python and C++ with complexity analysis.",
+    image: "https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Course & Practice"],
+    technologies: ["Python", "C++", "Algorithms", "DSA"],
+    github: "https://github.com/Harshit-Kandoi/DSA",
+    featured: false,
+    duration: "Ongoing",
+    status: "Practice"
+  },
+  {
+    id: 24,
+    title: "Machine Learning Udemy Coursework",
+    description: "Hands-on coding exercises, datasets, and algorithm implementations from Machine Learning specialization courses.",
+    image: "https://images.pexels.com/photos/267805/pexels-photo-267805.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Course & Practice", "AI & Machine Learning"],
+    technologies: ["Python", "Scikit-learn", "Pandas", "Matplotlib"],
+    github: "https://github.com/Harshit-Kandoi/machine-learning-udemy",
+    featured: false,
+    duration: "2 Months",
+    status: "Course Exercises"
+  },
+  // {
+  //   id: 25,
+  //   title: "Upflairs Internship Learning",
+  //   description: "Learning project repository created during the Upflairs technical internship covering data science & ML workflows.",
+  //   image: "https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+  //   category: ["Course & Practice"],
+  //   technologies: ["Python", "Data Science", "Machine Learning"],
+  //   github: "https://github.com/Harshit-Kandoi",
+  //   featured: false,
+  //   duration: "3 Months",
+  //   status: "Internship Training"
+  // },
+  // {
+  //   id: 26,
+  //   title: "Training Practice Repository",
+  //   description: "General technical practice repository for experimenting with new tools, libraries, and code snippets.",
+  //   image: "https://images.pexels.com/photos/577585/pexels-photo-577585.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+  //   category: ["Course & Practice"],
+  //   technologies: ["Python", "JavaScript", "Git"],
+  //   github: "https://github.com/Harshit-Kandoi",
+  //   featured: false,
+  //   duration: "Ongoing",
+  //   status: "Practice"
+  // },
+  // {
+  //   id: 27,
+  //   title: "First Contributions Open Source",
+  //   description: "Open-source contribution practice repository covering Git branching, pull requests, and collaborative open-source workflows.",
+  //   image: "https://images.pexels.com/photos/11035471/pexels-photo-11035471.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+  //   category: ["Course & Practice"],
+  //   technologies: ["Git", "GitHub", "Open Source"],
+  //   github: "https://github.com/Harshit-Kandoi",
+  //   featured: false,
+  //   duration: "1 Week",
+  //   status: "Open Source Practice"
+  // }
 ];
