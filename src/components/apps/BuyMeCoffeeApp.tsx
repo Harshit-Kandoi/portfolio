@@ -1,23 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useOSStore } from '../../store/useOSStore';
 import { PORTFOLIO_META } from '../../data/config';
-import { Coffee, Heart, Zap, Star, ExternalLink, CheckCircle, Sparkles, CreditCard, Lock, ArrowLeft, Smartphone } from 'lucide-react';
+import { Coffee, Heart, Zap, Star, ExternalLink, CheckCircle, Sparkles, ShieldCheck, AlertCircle, RefreshCw } from 'lucide-react';
 import { trackEvent } from '../../utils/analytics';
+import { openRazorpayCheckout } from '../../utils/razorpay';
 
 interface CoffeeItem {
   id: string;
   name: string;
   price: string;
+  usdAmount: number;
   emoji: string;
   desc: string;
   color: string;
 }
 
 const COFFEE_ITEMS: CoffeeItem[] = [
-  { id: 'espresso', name: 'Espresso Shot',       price: '$1',  emoji: '☕', desc: 'Fuel one debug session',              color: 'from-amber-700 to-yellow-600' },
-  { id: 'latte',    name: 'Large Latte',          price: '$3',  emoji: '🥛', desc: 'Powers half a feature build',         color: 'from-amber-500 to-orange-400' },
-  { id: 'cold',     name: 'Cold Brew Special',    price: '$5',  emoji: '🧊', desc: 'Fuels an entire weekend sprint',       color: 'from-sky-600 to-cyan-400'     },
-  { id: 'pack',     name: 'Monthly Coffee Pack',  price: '$10', emoji: '📦', desc: 'Keeps the commits flowing all month', color: 'from-purple-600 to-indigo-500' },
+  { id: 'espresso', name: 'Espresso Shot',       price: '$1',  usdAmount: 1,  emoji: '☕', desc: 'Fuel one debug session',              color: 'from-amber-700 to-yellow-600' },
+  { id: 'latte',    name: 'Large Latte',          price: '$3',  usdAmount: 3,  emoji: '🥛', desc: 'Powers half a feature build',         color: 'from-amber-500 to-orange-400' },
+  { id: 'cold',     name: 'Cold Brew Special',    price: '$5',  usdAmount: 5,  emoji: '🧊', desc: 'Fuels an entire weekend sprint',       color: 'from-sky-600 to-cyan-400' },
+  { id: 'pack',     name: 'Monthly Coffee Pack',  price: '$10', usdAmount: 10, emoji: '📦', desc: 'Keeps the commits flowing all month', color: 'from-purple-600 to-indigo-500' },
 ];
 
 const THANKS_MESSAGES = [
@@ -35,200 +37,132 @@ export default function BuyMeCoffeeApp({ isMobileView }: { isMobileView?: boolea
   const [selected, setSelected] = useState<CoffeeItem | null>(null);
   const [done, setDone] = useState(false);
   const [custom, setCustom] = useState('');
+  const [email, setEmail] = useState('');
   const [note, setNote] = useState('');
   const [totalCoffees, setTotalCoffees] = useState(0);
 
+  // Dynamic Live Exchange Rate State (defaults to 87 INR fallback)
+  const [exchangeRate, setExchangeRate] = useState<number>(87);
+  const [isRateLoading, setIsRateLoading] = useState<boolean>(true);
+
   // Payment states
-  const [showPayment, setShowPayment] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi' | 'apple' | 'paypal' | null>(null);
-  const [paymentStep, setPaymentStep] = useState<'select' | 'processing'>('select');
-  const [processingMsg, setProcessingMsg] = useState('');
-  const [mockCard, setMockCard] = useState({ number: '4111 2222 3333 4444', expiry: '12/28', cvv: '123' });
-  const [mockUpi, setMockUpi] = useState('recruiter@gpay');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const isLight = theme === 'light';
   const bg = isLight
     ? 'bg-gradient-to-b from-amber-50 to-orange-50 text-gray-800'
     : 'bg-gradient-to-b from-slate-950 via-amber-950/5 to-slate-950 text-white';
 
-  const handleBuy = () => {
+  // Fetch Live USD to INR exchange rate & round to ceiling (higher side)
+  useEffect(() => {
+    let isMounted = true;
+    fetch('https://open.er-api.com/v6/latest/USD')
+      .then((res) => res.json())
+      .then((data) => {
+        if (isMounted && data?.rates?.INR) {
+          const rawRate = Number(data.rates.INR);
+          // Round off to the higher side (ceiling)
+          const roundedRate = Math.ceil(rawRate);
+          setExchangeRate(roundedRate);
+        }
+      })
+      .catch((err) => {
+        console.warn('Could not fetch live exchange rate, using fallback rate:', err);
+      })
+      .finally(() => {
+        if (isMounted) setIsRateLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const getSelectedUsdAmount = (): number => {
+    if (selected) {
+      return selected.usdAmount;
+    }
+    if (custom) {
+      const parsed = parseInt(custom, 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        return parsed;
+      }
+    }
+    return 1;
+  };
+
+  const selectedUsd = getSelectedUsdAmount();
+  const amountInInr = selectedUsd * exchangeRate;
+
+  const getAmountInPaise = (): number => {
+    // Math.ceil(rate) * USD * 100 paise
+    return Math.max(100, selectedUsd * exchangeRate * 100);
+  };
+
+  const amountText = selected ? selected.price : custom ? `$${custom}` : '$1';
+
+  const handleRazorpayPayment = async () => {
     if (!selected && !custom) return;
-    const finalAmount = selected ? selected.price : `$${custom}`;
-    trackEvent('coffee_support_click', { price: finalAmount });
-    setShowPayment(true);
-    setPaymentMethod('card'); // default select
-    setPaymentStep('select');
-  };
+    const amountInPaise = getAmountInPaise();
+    setIsProcessing(true);
+    setErrorMsg(null);
 
-  const startPaymentSequence = () => {
-    setPaymentStep('processing');
-    
-    const steps = [
-      { text: 'Establishing secure mock gateway connection...', delay: 0 },
-      { text: 'Encrypting payload via AES-256-GCM...', delay: 550 },
-      { text: 'Waiting for mock bank authorization...', delay: 1100 },
-      { text: 'Transacting simulated coffee points...', delay: 1700 },
-      { text: 'Success! Coffee fuel dispatched to Harshit...', delay: 2200 },
-    ];
+    const userEmail = email.trim() || 'supporter@example.com';
+    const userNote = note.trim() || 'Loved your portfolio!';
 
-    steps.forEach((s) => {
-      setTimeout(() => {
-        setProcessingMsg(s.text);
-      }, s.delay);
+    trackEvent('coffee_support_click', { price: amountText, amount_paise: amountInPaise });
+
+    await openRazorpayCheckout({
+      amountInPaise,
+      currency: 'INR',
+      name: 'Harshit Kandoi',
+      description: `Coffee Support: ${selected ? selected.name : 'Custom Contribution'} ($${selectedUsd} ≈ ₹${amountInInr})`,
+      notes: {
+        supporter_email: userEmail,
+        supporter_note: userNote,
+        tier: selected ? selected.name : 'Custom Amount',
+      },
+      prefill: {
+        name: 'Portfolio Supporter',
+        email: userEmail,
+      },
+      onSuccess: (details) => {
+        setIsProcessing(false);
+        setDone(true);
+        setTotalCoffees((c) => c + 1);
+        addNotification(
+          '☕ Razorpay Payment Verified!',
+          `Payment ID: ${details.paymentId}`,
+          'success',
+          'funny'
+        );
+        unlockAchievement('coffee_lover');
+
+        // Dispatch background email notification to Harshit
+        fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: userEmail,
+            subject: `☕ Coffee Contribution: ${amountText} (₹${amountInInr.toLocaleString('en-IN')})`,
+            message: `You received a coffee support contribution!\n\nTier: ${selected ? selected.name : 'Custom Contribution'}\nAmount: ${amountText} (₹${amountInInr.toLocaleString('en-IN')} INR)\nPayment ID: ${details.paymentId}\nSupporter Email: ${userEmail}\n\nPersonal Note:\n"${userNote}"`,
+          }),
+        }).catch((err) => {
+          console.warn('Background email dispatch failed:', err);
+        });
+      },
+      onError: (err) => {
+        setIsProcessing(false);
+        setErrorMsg(err);
+        addNotification('❌ Payment Error', err, 'error', 'system');
+      },
+      onDismiss: () => {
+        setIsProcessing(false);
+      },
     });
-
-    setTimeout(() => {
-      setShowPayment(false);
-      setDone(true);
-      setTotalCoffees((c) => c + 1);
-      addNotification('☕ Coffee Dispatched!', 'Mock payment authorized. Thank you!', 'success', 'funny');
-      unlockAchievement('coffee_lover');
-    }, 2800);
   };
-
-  const amountText = selected ? selected.price : `$${custom}`;
 
   const thankMsg = THANKS_MESSAGES[totalCoffees % THANKS_MESSAGES.length];
-
-  if (showPayment) {
-    return (
-      <div className={`flex flex-col flex-grow h-full overflow-y-auto custom-scrollbar p-6 ${bg}`}>
-        {/* Header */}
-        <div className="flex items-center space-x-2 pb-4 border-b border-white/5 shrink-0">
-          <button 
-            onClick={() => setShowPayment(false)}
-            className="p-1 rounded-lg bg-white/5 hover:bg-white/10 transition text-gray-400 hover:text-white"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
-          <div className="flex items-center space-x-1.5 text-xs font-bold text-amber-400">
-            <Lock className="w-3.5 h-3.5" />
-            <span>Secure Mock Checkout</span>
-          </div>
-        </div>
-
-        {paymentStep === 'select' ? (
-          <div className="flex-grow flex flex-col justify-between pt-5 space-y-6">
-            <div className="space-y-5">
-              {/* Summary */}
-              <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex justify-between items-center">
-                <div>
-                  <p className="text-[10px] text-amber-300 font-bold uppercase tracking-wider">Fuel Order</p>
-                  <h3 className="text-xs font-bold text-white mt-0.5">{selected ? selected.name : 'Custom Support'}</h3>
-                </div>
-                <span className="text-lg font-black text-amber-400">{amountText}</span>
-              </div>
-
-              {/* Payment Methods Choice */}
-              <div className="space-y-2.5">
-                <p className="text-[10px] font-bold uppercase tracking-wider opacity-50">Select Payment Method</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { id: 'card', label: 'Credit Card', icon: CreditCard },
-                    { id: 'upi', label: 'UPI Payment', icon: Smartphone },
-                    { id: 'apple', label: 'Apple Pay', icon: Star },
-                  ].map((m) => {
-                    const isSel = paymentMethod === m.id;
-                    return (
-                      <button
-                        key={m.id}
-                        onClick={() => setPaymentMethod(m.id as 'card' | 'upi' | 'apple' | 'paypal')}
-                        className={`p-3 rounded-xl border flex items-center space-x-2 transition text-left text-xs font-bold ${
-                          isSel 
-                            ? 'bg-amber-500/15 border-amber-500 text-white shadow-sm shadow-amber-500/10' 
-                            : 'bg-white/3 border-white/5 hover:bg-white/5 text-gray-400'
-                        }`}
-                      >
-                        <m.icon className="w-4 h-4 text-amber-400 shrink-0" />
-                        <span>{m.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Method Forms */}
-              {paymentMethod === 'card' && (
-                <div className="bg-white/3 border border-white/5 rounded-2xl p-4 space-y-3">
-                  <div className="space-y-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Card Number</label>
-                    <input 
-                      type="text" 
-                      value={mockCard.number} 
-                      onChange={(e) => setMockCard({ ...mockCard, number: e.target.value })}
-                      className="w-full bg-slate-900 border border-white/5 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none"
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-gray-400">Expiry</label>
-                      <input 
-                        type="text" 
-                        value={mockCard.expiry} 
-                        onChange={(e) => setMockCard({ ...mockCard, expiry: e.target.value })}
-                        className="w-full bg-slate-900 border border-white/5 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none text-center"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[9px] font-bold uppercase tracking-wider text-gray-400">CVV</label>
-                      <input 
-                        type="password" 
-                        value={mockCard.cvv} 
-                        onChange={(e) => setMockCard({ ...mockCard, cvv: e.target.value })}
-                        className="w-full bg-slate-900 border border-white/5 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none text-center"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {paymentMethod === 'upi' && (
-                <div className="bg-white/3 border border-white/5 rounded-2xl p-4 space-y-3">
-                  <div className="space-y-1">
-                    <label className="text-[9px] font-bold uppercase tracking-wider text-gray-400">UPI Address (VPA)</label>
-                    <input 
-                      type="text" 
-                      value={mockUpi} 
-                      onChange={(e) => setMockUpi(e.target.value)}
-                      className="w-full bg-slate-900 border border-white/5 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none"
-                    />
-                  </div>
-                  <p className="text-[9px] text-gray-500 italic leading-snug">Simulates instant transfer from Google Pay / PhonePe wallet.</p>
-                </div>
-              )}
-
-              {paymentMethod === 'apple' && (
-                <div className="bg-white/3 border border-white/5 rounded-2xl p-4 text-center py-6 space-y-2">
-                  <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold text-sm mx-auto shadow-md"></div>
-                  <p className="text-xs font-bold text-white">Apple Pay Active</p>
-                  <p className="text-[9.5px] text-gray-500">Fast one-click authorization using Touch ID / Face ID simulation.</p>
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={startPaymentSequence}
-              className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-90 active:scale-95 text-white font-bold py-2.5 rounded-xl text-xs transition"
-            >
-              Pay {amountText} Now
-            </button>
-          </div>
-        ) : (
-          <div className="flex-grow flex flex-col items-center justify-center p-8 space-y-6 text-center">
-            {/* Spinning Loader */}
-            <div className="relative w-16 h-16">
-              <div className="absolute inset-0 rounded-full border-4 border-amber-500/25 border-t-amber-500 animate-spin" />
-              <div className="absolute inset-2 rounded-full border-4 border-purple-500/10 border-b-purple-500 animate-spin duration-1000" />
-            </div>
-            <div className="space-y-2">
-              <p className="text-xs font-bold text-white tracking-wide animate-pulse">Processing Transaction...</p>
-              <p className="text-[10px] text-gray-500 font-mono leading-relaxed max-w-xs">{processingMsg}</p>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
 
   if (done) {
     return (
@@ -246,7 +180,7 @@ export default function BuyMeCoffeeApp({ isMobileView }: { isMobileView?: boolea
           <span className="text-xs text-amber-300 font-bold">Productivity +{totalCoffees * 15}%</span>
         </div>
         <button
-          onClick={() => { setDone(false); setSelected(null); setNote(''); setCustom(''); }}
+          onClick={() => { setDone(false); setSelected(null); setNote(''); setCustom(''); setEmail(''); setErrorMsg(null); }}
           className="text-[11px] text-gray-500 hover:text-white transition underline"
         >
           Buy Another Coffee
@@ -261,95 +195,165 @@ export default function BuyMeCoffeeApp({ isMobileView }: { isMobileView?: boolea
       <div className="relative bg-gradient-to-r from-amber-600 via-orange-500 to-yellow-500 p-6 text-center text-white shrink-0 overflow-hidden">
         <div className="absolute inset-0 opacity-10"
           style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px)', backgroundSize: '30px 30px' }} />
-        <div className="relative space-y-2">
+        <div className="relative space-y-3.5">
           <div className="flex items-center justify-center space-x-2">
             <Coffee className="w-6 h-6" />
             <h1 className="text-xl font-black">Buy Me a Coffee</h1>
           </div>
-          <p className="text-[11px] text-white/80 max-w-xs mx-auto leading-relaxed">
-            If this portfolio impressed you, consider fueling the developer behind it ☕
+          
+          {/* Subtitle Alignment */}
+          <p className="text-xs text-white/95 max-w-xs mx-auto leading-snug text-center font-medium">
+            Enjoyed exploring this portfolio?<br />
+            Fuel the next feature with a coffee ☕
           </p>
-          <div className="flex items-center justify-center space-x-1 text-[10px] text-white/70">
-            <Heart className="w-3 h-3 fill-white text-white" />
-            <span>Support open-source & indie dev</span>
+
+          {/* Live USD to INR Rate Indicator */}
+          <div className="inline-flex items-center justify-center space-x-1.5 text-[10px] bg-black/25 backdrop-blur-md rounded-full px-3.5 py-1 text-amber-100 font-semibold border border-white/20 shadow-sm">
+            <Sparkles className="w-3 h-3 text-amber-300 animate-pulse shrink-0" />
+            <span>Live Rate: 1 USD ≈ ₹{exchangeRate} INR</span>
+            <span className="opacity-70 text-[9px] font-normal">(Rounded up)</span>
+          </div>
+
+          {/* Powered by Razorpay with Orange Accent Heart */}
+          <div className="flex items-center justify-center space-x-1.5 text-[11px] text-white/90 pt-0.5 font-medium">
+            <Heart className="w-3.5 h-3.5 fill-amber-300 text-amber-300 animate-pulse shrink-0" />
+            <span>Powered by Razorpay Standard Checkout</span>
           </div>
         </div>
       </div>
 
       <div className="p-5 space-y-5">
+        {/* Error Banner */}
+        {errorMsg && (
+          <div className="bg-rose-500/10 border border-rose-500/30 rounded-xl p-3 flex items-start space-x-2 text-rose-400 text-xs">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-bold">Payment Error</p>
+              <p className="text-[11px] text-rose-300/80 mt-0.5">{errorMsg}</p>
+            </div>
+          </div>
+        )}
+
         {/* Coffee Options */}
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-wider opacity-50 mb-3">Choose Your Contribution</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-3">Choose Your Contribution</p>
           <div className="grid grid-cols-2 gap-3">
-            {COFFEE_ITEMS.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => {
-                  setSelected(item);
-                  setCustom('');
-                  trackEvent('coffee_select', { tier_id: item.id, price: item.price });
-                }}
-                className={`rounded-2xl p-3 text-left border transition active:scale-95 ${
-                  selected?.id === item.id
-                    ? 'border-amber-500 bg-amber-500/10 shadow-[0_0_12px_rgba(245,158,11,0.15)]'
-                    : isLight
-                    ? 'border-gray-200 bg-white hover:border-amber-300'
-                    : 'border-white/10 bg-white/3 hover:border-white/20 hover:bg-white/5'
-                }`}
-              >
-                <div className="flex items-start justify-between mb-1.5">
-                  <span className="text-2xl">{item.emoji}</span>
-                  {selected?.id === item.id && <CheckCircle className="w-4 h-4 text-amber-400 shrink-0" />}
-                </div>
-                <p className={`text-xs font-black bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}>{item.price}</p>
-                <p className="text-[11px] font-bold leading-tight mt-0.5">{item.name}</p>
-                <p className="text-[9px] opacity-50 leading-tight mt-0.5">{item.desc}</p>
-              </button>
-            ))}
+            {COFFEE_ITEMS.map((item) => {
+              const itemInr = item.usdAmount * exchangeRate;
+              const isSelected = selected?.id === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setSelected(item);
+                    setCustom('');
+                    setErrorMsg(null);
+                    trackEvent('coffee_select', { tier_id: item.id, price: item.price });
+                  }}
+                  className={`rounded-2xl p-3.5 text-left border transition-all duration-200 ${
+                    isSelected
+                      ? 'border-amber-500 bg-amber-500/12 shadow-[0_0_18px_rgba(245,158,11,0.22)] scale-[1.01]'
+                      : isLight
+                      ? 'border-gray-200 bg-white hover:border-amber-300 hover:scale-[1.005]'
+                      : 'border-white/10 bg-white/3 hover:border-white/20 hover:bg-white/5 hover:scale-[1.005]'
+                  } active:scale-[0.98]`}
+                >
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="text-2xl">{item.emoji}</span>
+                    {isSelected && <CheckCircle className="w-4.5 h-4.5 text-amber-400 shrink-0 animate-in fade-in zoom-in-75 duration-150" />}
+                  </div>
+
+                  {/* Option A Stacked Price Display with Increased USD Hierarchy */}
+                  <div className="flex flex-col mb-1.5">
+                    <span className={`text-base font-black leading-none bg-gradient-to-r ${item.color} bg-clip-text text-transparent`}>
+                      {item.price}
+                    </span>
+                    <span className="text-[10px] text-amber-400/90 font-bold mt-1 tracking-tight">
+                      ≈ ₹{itemInr.toLocaleString('en-IN')}
+                    </span>
+                  </div>
+
+                  <p className="text-xs font-bold leading-tight mt-1">{item.name}</p>
+                  <p className="text-[9.5px] opacity-55 leading-tight mt-0.5">{item.desc}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Custom Amount */}
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-wider opacity-50 mb-2">Or Custom Amount</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-2">Custom Amount</p>
           <div className="relative">
-            <span className="absolute left-3 top-2.5 text-sm text-gray-400 font-bold">$</span>
+            <span className="absolute left-3.5 top-2.5 text-sm text-gray-400 font-bold">$</span>
             <input
               type="number"
               min="1"
               max="999"
-              placeholder="Enter amount..."
+              placeholder="11"
               value={custom}
-              onChange={(e) => { setCustom(e.target.value); setSelected(null); }}
-              className={`w-full pl-7 pr-4 py-2 rounded-xl border text-sm focus:outline-none focus:ring-1 focus:ring-amber-400 ${
+              onChange={(e) => { setCustom(e.target.value); setSelected(null); setErrorMsg(null); }}
+              className={`w-full pl-8 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-1 focus:ring-amber-400 font-medium ${
                 isLight ? 'bg-white border-gray-200 text-gray-800' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
               }`}
             />
           </div>
         </div>
 
-        {/* Note */}
+        {/* Email Input */}
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-wider opacity-50 mb-2">Leave a Note (Optional)</p>
-          <textarea
-            rows={2}
-            placeholder="Say something nice..."
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className={`w-full px-3 py-2 rounded-xl border text-xs resize-none focus:outline-none focus:ring-1 focus:ring-amber-400 ${
+          <p className="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-2">Your Email (Optional)</p>
+          <input
+            type="email"
+            placeholder="supporter@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={`w-full px-3.5 py-2.5 rounded-xl border text-xs focus:outline-none focus:ring-1 focus:ring-amber-400 ${
               isLight ? 'bg-white border-gray-200 text-gray-800' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
             }`}
           />
         </div>
 
-        {/* CTA */}
+        {/* Personal Note */}
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-2">Leave a Note (Optional)</p>
+          <textarea
+            rows={2}
+            placeholder="Loved your portfolio! Keep building awesome things 🚀"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            className={`w-full px-3.5 py-2.5 rounded-xl border text-xs resize-none focus:outline-none focus:ring-1 focus:ring-amber-400 ${
+              isLight ? 'bg-white border-gray-200 text-gray-800' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
+            }`}
+          />
+        </div>
+
+        {/* Personal Touch / Warm Playful Sentence */}
+        <div className={`p-3.5 rounded-xl border text-center text-[11px] leading-relaxed ${
+          isLight ? 'bg-amber-500/5 border-amber-500/15 text-amber-900/80' : 'bg-white/3 border-white/8 text-amber-200/80'
+        }`}>
+          <p className="italic">
+            "No pressure at all — browsing this portfolio already made my day! Coffee just keeps the commits flowing at 2 AM. ☕"
+          </p>
+        </div>
+
+        {/* Razorpay Checkout CTA (Uncluttered) */}
         <button
-          onClick={handleBuy}
-          disabled={!selected && !custom}
-          className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white font-black text-sm py-3 rounded-2xl hover:opacity-90 transition active:scale-95 disabled:opacity-40 flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20"
+          onClick={handleRazorpayPayment}
+          disabled={(!selected && !custom) || isProcessing}
+          className="w-full bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white font-black text-sm py-3.5 rounded-2xl hover:opacity-90 transition active:scale-[0.98] disabled:opacity-40 flex items-center justify-center space-x-2 shadow-lg shadow-amber-500/20"
         >
-          <Sparkles className="w-4 h-4" />
-          <span>Send {selected ? `${selected.price} Coffee` : custom ? `$${custom} Coffee` : 'Coffee'} ☕</span>
+          {isProcessing ? (
+            <>
+              <RefreshCw className="w-4 h-4 animate-spin" />
+              <span>Initializing Razorpay...</span>
+            </>
+          ) : (
+            <>
+              <ShieldCheck className="w-4 h-4" />
+              <span>Pay {amountText} (₹{amountInInr.toLocaleString('en-IN')}) ☕</span>
+            </>
+          )}
         </button>
 
         {/* External Link */}
@@ -363,10 +367,10 @@ export default function BuyMeCoffeeApp({ isMobileView }: { isMobileView?: boolea
           <span>Or visit buymeacoffee.com/Harshit_Kandoi directly</span>
         </a>
 
-        {/* Stats Footer */}
+        {/* Stats Footer with Polished Badge */}
         <div className={`flex items-center justify-center space-x-4 text-[9px] opacity-40 pt-2 border-t ${isLight ? 'border-gray-100' : 'border-white/5'}`}>
-          <div className="flex items-center space-x-1"><Star className="w-3 h-3 text-amber-400" /><span>100% goes to dev fuel</span></div>
-          <div className="flex items-center space-x-1"><Zap className="w-3 h-3 text-purple-400" /><span>Instant productivity boost</span></div>
+          <div className="flex items-center space-x-1"><Star className="w-3 h-3 text-amber-400" /><span>Secure Checkout</span></div>
+          <div className="flex items-center space-x-1"><Zap className="w-3 h-3 text-purple-400" /><span>HMAC SHA256 Verified</span></div>
         </div>
       </div>
     </div>

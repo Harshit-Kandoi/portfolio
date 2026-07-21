@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { ShoppingBag, Download, Star, Github, ExternalLink, Code2, FileCode2, Wrench, Package, Handshake } from 'lucide-react';
+import { ShoppingBag, Download, Github, ExternalLink, FileCode2, Wrench, Handshake, CreditCard, ShieldCheck } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
+import { openRazorpayCheckout } from '../../utils/razorpay';
 
 interface MarketplaceItem {
   id: string;
@@ -10,6 +11,7 @@ interface MarketplaceItem {
   description: string;
   icon: string;
   price: string;
+  amountPaise?: number;
   repo_url?: string;
   install_cmd?: string;
   tags: string[];
@@ -36,12 +38,13 @@ const ITEMS: MarketplaceItem[] = [
   },
   {
     id: '2',
-    name: 'Portfolio OS Template',
+    name: 'Portfolio OS Starter Pro',
     category: 'template',
     tagline: 'OS-themed developer portfolio starter',
     description: 'The full Portfolio OS codebase — adapt it as your own interactive developer portfolio. React + TypeScript + Zustand.',
     icon: '💻',
-    price: 'Free',
+    price: '₹499',
+    amountPaise: 49900,
     repo_url: 'https://github.com/Harshit-Kandoi/portfolio',
     tags: ['React', 'TypeScript', 'Vite', 'Portfolio'],
     is_featured: true,
@@ -62,12 +65,13 @@ const ITEMS: MarketplaceItem[] = [
   },
   {
     id: '4',
-    name: 'GCP Event Pipeline',
+    name: 'GCP Event Pipeline Template',
     category: 'template',
     tagline: 'Pub/Sub → Cloud Functions → Firestore starter',
     description: 'Production-ready event-driven pipeline template. Includes GitHub Actions CI/CD, Dockerfile, and local emulation support.',
     icon: '⚡',
-    price: 'Free',
+    price: '₹299',
+    amountPaise: 29900,
     repo_url: 'https://github.com/Harshit-Kandoi',
     tags: ['GCP', 'Python', 'Pub/Sub', 'Firestore'],
     is_featured: false,
@@ -78,9 +82,10 @@ const ITEMS: MarketplaceItem[] = [
     name: 'Cloud Architecture Consulting',
     category: 'service',
     tagline: 'GCP architecture review & design sessions',
-    description: 'I offer 1-on-1 consulting sessions on GCP architecture, serverless design, and cloud migration strategies.',
+    description: '1-on-1 consulting sessions on GCP architecture, serverless design, and cloud migration strategies.',
     icon: '🏗️',
-    price: 'Contact',
+    price: '₹1,999',
+    amountPaise: 199900,
     tags: ['GCP', 'Consulting', 'Architecture'],
     is_featured: false,
     color: 'from-rose-500 to-pink-500',
@@ -92,7 +97,8 @@ const ITEMS: MarketplaceItem[] = [
     tagline: 'Code review for your ML training pipeline',
     description: 'Expert review of your ML workflows — from data preprocessing to model deployment. Includes a detailed report.',
     icon: '🧠',
-    price: 'Contact',
+    price: '₹1,499',
+    amountPaise: 149900,
     tags: ['ML', 'Python', 'Consulting', 'Code Review'],
     is_featured: false,
     color: 'from-fuchsia-500 to-purple-500',
@@ -112,9 +118,11 @@ export default function MarketplaceApp({ isMobileView }: { isMobileView?: boolea
   const theme = useOSStore((s) => s.theme);
   const globalViewMode = useOSStore((s) => s.viewMode);
   const isSimulatingMobile = useOSStore((s) => s.isSimulatingMobile);
+  const addNotification = useOSStore((s) => s.addNotification);
   const isMobile = isMobileView || globalViewMode === 'mobile' || isSimulatingMobile;
   const isLight = theme === 'light';
   const [filter, setFilter] = useState('All');
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
   const filtered = ITEMS.filter((item) => {
     if (filter === 'All') return true;
@@ -123,6 +131,34 @@ export default function MarketplaceApp({ isMobileView }: { isMobileView?: boolea
     if (filter === 'Services') return item.category === 'service';
     return true;
   });
+
+  const handleCheckout = async (item: MarketplaceItem) => {
+    const paise = item.amountPaise || 50000;
+    setProcessingId(item.id);
+
+    await openRazorpayCheckout({
+      amountInPaise: paise,
+      currency: 'INR',
+      name: 'Harshit Kandoi Store',
+      description: `Purchase: ${item.name}`,
+      onSuccess: (details) => {
+        setProcessingId(null);
+        addNotification(
+          '🛒 Order Confirmed!',
+          `Payment verified for ${item.name}. Ref: ${details.paymentId}`,
+          'success',
+          'system'
+        );
+      },
+      onError: (err) => {
+        setProcessingId(null);
+        addNotification('❌ Order Payment Failed', err, 'error', 'system');
+      },
+      onDismiss: () => {
+        setProcessingId(null);
+      },
+    });
+  };
 
   const containerBg = isLight ? 'bg-gray-50 text-gray-800' : 'bg-[#080912] text-white';
   const cardBg = isLight ? 'bg-white border-gray-200' : 'bg-[#0f1019] border-white/5';
@@ -136,8 +172,8 @@ export default function MarketplaceApp({ isMobileView }: { isMobileView?: boolea
             <ShoppingBag className="w-4 h-4 text-white" />
           </div>
           <div>
-            <h1 className="text-sm font-bold">Marketplace</h1>
-            <p className="text-[10px] text-gray-500">Tools, templates & services by Harshit</p>
+            <h1 className="text-sm font-bold">Store & Marketplace</h1>
+            <p className="text-[10px] text-gray-500">Tools, templates & services powered by Razorpay</p>
           </div>
         </div>
         <div className="flex gap-1.5">
@@ -159,7 +195,7 @@ export default function MarketplaceApp({ isMobileView }: { isMobileView?: boolea
         {/* Featured Banner */}
         {filter === 'All' && (
           <div className="mb-6">
-            <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-3">🌟 Featured</p>
+            <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-3">🌟 Featured Store Items</p>
             <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-2 gap-4'}`}>
               {ITEMS.filter((i) => i.is_featured).map((item) => {
                 const catConf = CATEGORY_CONFIG[item.category];
@@ -184,11 +220,22 @@ export default function MarketplaceApp({ isMobileView }: { isMobileView?: boolea
                         ))}
                       </div>
                       <div className="flex gap-2 mt-3">
-                        {item.repo_url && (
-                          <a href={item.repo_url} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-1 text-[11px] font-semibold bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-xl transition text-gray-300 hover:text-white">
-                            <Github className="w-3 h-3" /> View
-                          </a>
+                        {item.price !== 'Free' ? (
+                          <button
+                            onClick={() => handleCheckout(item)}
+                            disabled={processingId === item.id}
+                            className="flex items-center gap-1 text-[11px] font-bold bg-gradient-to-r from-rose-500 to-pink-600 hover:opacity-90 text-white px-3 py-1.5 rounded-xl transition shadow-md shadow-rose-500/20"
+                          >
+                            <CreditCard className="w-3.5 h-3.5" />
+                            {processingId === item.id ? 'Opening Razorpay...' : `Buy ${item.price}`}
+                          </button>
+                        ) : (
+                          item.repo_url && (
+                            <a href={item.repo_url} target="_blank" rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-[11px] font-semibold bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-xl transition text-gray-300 hover:text-white">
+                              <Github className="w-3 h-3" /> View Source
+                            </a>
+                          )
                         )}
                         {item.install_cmd && (
                           <button
@@ -208,7 +255,7 @@ export default function MarketplaceApp({ isMobileView }: { isMobileView?: boolea
 
         {/* All Items */}
         <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-3">
-          {filter === 'All' ? 'All Items' : filter}
+          {filter === 'All' ? 'All Products & Services' : filter}
         </p>
         <div className="grid grid-cols-1 gap-3">
           {filtered.map((item) => {
@@ -230,7 +277,15 @@ export default function MarketplaceApp({ isMobileView }: { isMobileView?: boolea
                 </div>
                 <div className="flex flex-col items-end gap-2 shrink-0">
                   <span className={`text-xs font-bold ${item.price === 'Free' ? 'text-emerald-400' : 'text-rose-400'}`}>{item.price}</span>
-                  {item.repo_url ? (
+                  {item.price !== 'Free' ? (
+                    <button
+                      onClick={() => handleCheckout(item)}
+                      disabled={processingId === item.id}
+                      className="text-[10px] font-bold bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 px-2.5 py-1 rounded-lg flex items-center gap-1 transition"
+                    >
+                      <ShieldCheck className="w-3 h-3" /> Pay
+                    </button>
+                  ) : item.repo_url ? (
                     <a href={item.repo_url} target="_blank" rel="noopener noreferrer"
                       className="text-[10px] text-gray-400 hover:text-white flex items-center gap-1 transition">
                       <ExternalLink className="w-3 h-3" />

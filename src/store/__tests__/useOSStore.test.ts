@@ -158,7 +158,9 @@ describe('useOSStore Zustand Store Tests', () => {
       // Multi add
       useOSStore.getState().addNotification('Title 1', 'Message 1', 'info', 'career');
       useOSStore.getState().addNotification('Title 2', 'Message 2', 'success', 'portfolio');
-      expect(useOSStore.getState().notifications.length).toBe(2);
+      useOSStore.getState().addNotification('Payment Error', 'Failed payment', 'error', 'system');
+      expect(useOSStore.getState().notifications.length).toBe(3);
+      expect(useOSStore.getState().notifications[0].type).toBe('error');
 
       useOSStore.getState().clearNotifications();
       expect(useOSStore.getState().notifications.length).toBe(0);

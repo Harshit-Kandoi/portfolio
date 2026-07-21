@@ -64,7 +64,7 @@ export interface ToastNotification {
   id: string;
   title: string;
   message: string;
-  type: 'success' | 'info' | 'warning' | 'achievement';
+  type: 'success' | 'info' | 'warning' | 'achievement' | 'error';
   category: 'system' | 'career' | 'portfolio' | 'gaming' | 'social' | 'funny';
   timestamp: string;
   action?: string;

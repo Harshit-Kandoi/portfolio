@@ -1,12 +1,13 @@
 import React from 'react';
 import { useOSStore, ToastNotification } from '../../store/useOSStore';
-import { Bell, Trophy, CheckCircle, Info, AlertTriangle, X, Trash2, ExternalLink } from 'lucide-react';
+import { Bell, Trophy, CheckCircle, Info, AlertTriangle, AlertCircle, X, Trash2, ExternalLink } from 'lucide-react';
 
 const TYPE_ICON: Record<ToastNotification['type'], React.ElementType> = {
   achievement: Trophy,
   success:     CheckCircle,
   warning:     AlertTriangle,
   info:        Info,
+  error:       AlertCircle,
 };
 
 interface Props {
@@ -112,7 +113,8 @@ export default function NotificationPanel({ onClose }: Props) {
                   <TypeIcon className={`w-3.5 h-3.5 shrink-0 ${
                     notif.type === 'achievement' ? 'text-yellow-400' :
                     notif.type === 'success'     ? 'text-emerald-400' :
-                    notif.type === 'warning'     ? 'text-amber-400' : 'text-blue-400'
+                    notif.type === 'warning'     ? 'text-amber-400' :
+                    notif.type === 'error'       ? 'text-rose-400' : 'text-blue-400'
                   }`} />
                   <span className="text-[11px] font-bold leading-tight">{notif.title}</span>
                   {notif.action && <ExternalLink className="w-2.5 h-2.5 text-gray-400 ml-auto" />}
