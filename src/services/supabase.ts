@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import type { Note } from '../types/note-types';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
@@ -9,6 +10,8 @@ export const supabase = supabaseUrl && supabaseAnonKey
   : null;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+export type { Note };
 
 export interface Book {
   id: string;
@@ -21,24 +24,6 @@ export interface Book {
   review: string;
   takeaways: string[];
   year_read?: number;
-}
-
-export interface Note {
-  id: string;
-  title: string;
-  content: string; // Markdown
-  tags: string[];
-  date: string; // ISO date string
-  read_time_mins: number;
-  is_featured: boolean;
-  category?: string;
-  status?: 'stable' | 'evolving' | 'experiment';
-  last_updated?: string;
-  observation?: string;
-  takeaways?: string[];
-  still_thinking?: string;
-  thought_type?: 'Thought' | 'Observation' | 'Principle' | 'Question' | 'Mistake' | 'Experiment' | 'Lesson' | 'Framework';
-  related_note_ids?: string[];
 }
 
 export interface GalleryItem {

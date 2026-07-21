@@ -11,7 +11,11 @@ import {
   Layers,
   Lightbulb,
   MessageSquareQuote,
-  Tag,
+  HelpCircle,
+  BookOpen,
+  Compass,
+  AlertCircle,
+  FileText,
 } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 import { Note, fetchNotes } from '../../services/supabase';
@@ -32,16 +36,13 @@ const STATUS_CONFIG: Record<string, { label: string; badgeBg: string }> = {
   }
 };
 
-const THOUGHT_TYPES = [
+const NOTE_TYPES = [
   'All',
-  'Thought',
-  'Observation',
+  'Reflection',
+  'Memory',
   'Principle',
   'Question',
-  'Mistake',
-  'Experiment',
-  'Lesson',
-  'Framework'
+  'Journal'
 ];
 
 // Helper getters for browser-persisted user pins & recent history
@@ -208,12 +209,17 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
       !search ||
       n.title.toLowerCase().includes(searchLower) ||
       (n.observation && n.observation.toLowerCase().includes(searchLower)) ||
+      (n.thought && n.thought.toLowerCase().includes(searchLower)) ||
       (n.still_thinking && n.still_thinking.toLowerCase().includes(searchLower)) ||
+      (n.what_i_remember && n.what_i_remember.toLowerCase().includes(searchLower)) ||
+      (n.the_rule && n.the_rule.toLowerCase().includes(searchLower)) ||
+      (n.question && n.question.toLowerCase().includes(searchLower)) ||
+      (n.what_happened && n.what_happened.toLowerCase().includes(searchLower)) ||
       (n.content && n.content.toLowerCase().includes(searchLower)) ||
-      (n.tags && n.tags.some((t) => t.toLowerCase().includes(searchLower))) ||
       (n.category && n.category.toLowerCase().includes(searchLower));
 
-    const matchesType = activeType === 'All' || n.thought_type === activeType;
+    const noteType = n.type || n.thought_type || '';
+    const matchesType = activeType === 'All' || noteType.toLowerCase() === activeType.toLowerCase();
 
     return matchesSearch && matchesType;
   });
@@ -237,6 +243,19 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
     : [];
 
   const isSelectedPinned = selected ? userPinnedIds.includes(selected.id) : false;
+
+  // Helper to extract a snippet for the note preview card
+  const getNoteSnippet = (n: Note) => {
+    return (
+      n.observation ||
+      n.the_rule ||
+      n.question ||
+      n.what_happened ||
+      n.what_i_remember ||
+      n.thought ||
+      ''
+    );
+  };
 
   return (
     <div className={`flex h-full overflow-hidden select-none ${containerBg}`}>
@@ -316,9 +335,9 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
           </button>
         </div>
 
-        {/* Thought Types Bar */}
+        {/* Note Types Bar */}
         <div className="px-3 py-2 border-b border-white/5 overflow-x-auto custom-scrollbar flex gap-1">
-          {THOUGHT_TYPES.map((type) => {
+          {NOTE_TYPES.map((type) => {
             const isActive = activeType === type;
             return (
               <button
@@ -360,6 +379,8 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
               const isSel = selected?.id === note.id;
               const isPinned = userPinnedIds.includes(note.id);
               const statusCfg = STATUS_CONFIG[note.status || 'stable'];
+              const snippet = getNoteSnippet(note);
+              const noteType = note.type || note.thought_type || 'Note';
 
               return (
                 <button
@@ -371,18 +392,11 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
                       : 'border-l-2 border-l-transparent'
                   }`}
                 >
-                  {/* Top bar: Tags & Pin / Status */}
+                  {/* Top bar: Category & Pin / Status */}
                   <div className="flex items-center justify-between gap-1 mb-1">
-                    <div className="flex flex-wrap gap-1 items-center">
-                      {note.tags && note.tags.slice(0, 2).map((t) => (
-                        <span
-                          key={t}
-                          className="px-1.5 py-0.2 rounded-full text-[8.5px] font-mono bg-purple-500/10 text-purple-300 border border-purple-500/20"
-                        >
-                          #{t}
-                        </span>
-                      ))}
-                    </div>
+                    <span className="text-[9.5px] font-medium text-purple-400/90 truncate max-w-[140px]">
+                      {note.category || 'General'}
+                    </span>
 
                     <div className="flex items-center gap-1 shrink-0">
                       {isPinned && (
@@ -399,21 +413,19 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
                     {note.title}
                   </p>
 
-                  {/* Observation */}
-                  {note.observation && (
+                  {/* Snippet */}
+                  {snippet && (
                     <p className="text-[10px] text-gray-400 line-clamp-1 mt-1 font-normal italic opacity-80">
-                      "{note.observation}"
+                      "{snippet}"
                     </p>
                   )}
 
                   {/* Footer metadata */}
                   <div className="flex items-center justify-between mt-2 text-[9px] text-gray-500 font-mono">
                     <span>{note.last_updated || note.date}</span>
-                    {note.thought_type && (
-                      <span className="px-1.5 py-0.2 rounded bg-white/5 text-gray-300 border border-white/10">
-                        {note.thought_type}
-                      </span>
-                    )}
+                    <span className="px-1.5 py-0.2 rounded bg-white/5 text-gray-300 border border-white/10 capitalize">
+                      {noteType}
+                    </span>
                   </div>
                 </button>
               );
@@ -431,7 +443,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
         {selected ? (
           <div
             className={`mx-auto transition-all duration-200 ${
-              isMaximized ? 'max-w-3xl p-6 sm:p-8 space-y-4' : 'max-w-2xl p-4 sm:p-5 space-y-3'
+              isMaximized ? 'max-w-3xl p-6 sm:p-8 space-y-4' : 'max-w-2xl p-4 sm:p-5 space-y-3.5'
             }`}
           >
             {/* Mobile Back Button */}
@@ -444,28 +456,22 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
 
             {/* Note Header Info */}
             <div className="space-y-2 border-b border-white/5 pb-3">
-              {/* Tag Pills, Thought Type, Status & Pin Toggle */}
+              {/* Category, Type, Status & Pin Toggle */}
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex flex-wrap items-center gap-1.5">
-                  {selected.tags && selected.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-300 border border-purple-500/20 flex items-center gap-1"
-                    >
-                      <Tag className="w-2.5 h-2.5 opacity-70" />
-                      #{tag}
-                    </span>
-                  ))}
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-500/15 text-purple-300 border border-purple-500/30 flex items-center gap-1">
+                    <Compass className="w-2.5 h-2.5" /> {selected.category || 'General'}
+                  </span>
 
-                  {selected.thought_type && (
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                      {selected.thought_type}
+                  {(selected.type || selected.thought_type) && (
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30 capitalize">
+                      {selected.type || selected.thought_type}
                     </span>
                   )}
 
                   {selected.status && STATUS_CONFIG[selected.status] && (
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-mono border ${
+                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono border ${
                         STATUS_CONFIG[selected.status].badgeBg
                       }`}
                     >
@@ -516,7 +522,9 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
               </div>
             </div>
 
-            {/* Personal Observation / Experience Box */}
+            {/* Render Note Fields based on Type */}
+
+            {/* 1. TYPE: REFLECTION */}
             {selected.observation && (
               <div
                 className={`rounded-xl border p-3.5 relative overflow-hidden ${
@@ -526,7 +534,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
                 }`}
               >
                 <div className="flex items-center gap-1.5 mb-1.5 text-[10px] font-bold uppercase tracking-wider text-purple-300">
-                  <MessageSquareQuote className="w-3.5 h-3.5 text-purple-400" /> Personal Trigger & Context
+                  <MessageSquareQuote className="w-3.5 h-3.5 text-purple-400" /> Trigger & Context
                 </div>
                 <p className={`leading-relaxed italic ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
                   "{selected.observation}"
@@ -534,36 +542,149 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
               </div>
             )}
 
-            {/* Key Reflections / Takeaways Box */}
-            {selected.takeaways && selected.takeaways.length > 0 && (
+            {selected.thought && (
+              <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4 space-y-2">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-purple-300">
+                  <Brain className="w-3.5 h-3.5 text-purple-400" /> Unfiltered Thought
+                </div>
+                <p className={`text-gray-200 leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                  {selected.thought}
+                </p>
+              </div>
+            )}
+
+            {/* 2. TYPE: MEMORY */}
+            {selected.what_i_remember && (
+              <div className="rounded-xl bg-gradient-to-r from-amber-950/30 via-orange-950/20 to-slate-900/40 border border-amber-500/20 p-4 space-y-2">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
+                  <BookOpen className="w-3.5 h-3.5 text-amber-400" /> What I Remember
+                </div>
+                <p className={`text-amber-100/90 leading-relaxed italic ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                  "{selected.what_i_remember}"
+                </p>
+              </div>
+            )}
+
+            {selected.why_it_stuck && (
+              <div className="rounded-xl bg-white/[0.02] border border-white/5 p-3.5 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-orange-400">
+                  <Sparkles className="w-3.5 h-3.5 text-orange-400" /> Why It Stuck
+                </div>
+                <p className={`text-gray-200 leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                  {selected.why_it_stuck}
+                </p>
+              </div>
+            )}
+
+            {/* 3. TYPE: PRINCIPLE */}
+            {selected.the_rule && (
+              <div className="rounded-xl bg-gradient-to-r from-emerald-950/40 via-teal-950/30 to-slate-900/40 border border-emerald-500/25 p-4 space-y-2">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> The Operating Rule
+                </div>
+                <p className={`font-semibold text-emerald-100 leading-relaxed ${isMaximized ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'}`}>
+                  "{selected.the_rule}"
+                </p>
+              </div>
+            )}
+
+            {selected.where_i_learned_it && (
+              <div className="rounded-xl bg-white/[0.02] border border-white/5 p-3.5 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                  <FileText className="w-3.5 h-3.5 text-purple-400" /> Where I Learned It
+                </div>
+                <p className={`text-gray-300 leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                  {selected.where_i_learned_it}
+                </p>
+              </div>
+            )}
+
+            {selected.exception && (
+              <div className="rounded-xl bg-rose-500/5 border border-rose-500/20 p-3.5 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-rose-300">
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-400" /> The Exception / Caveat
+                </div>
+                <p className={`text-rose-100/90 italic leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                  "{selected.exception}"
+                </p>
+              </div>
+            )}
+
+            {/* 4. TYPE: QUESTION */}
+            {selected.question && (
+              <div className="rounded-xl bg-gradient-to-r from-sky-950/40 via-indigo-950/30 to-slate-900/40 border border-sky-500/25 p-4 space-y-2">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-sky-300">
+                  <HelpCircle className="w-3.5 h-3.5 text-sky-400" /> Core Question
+                </div>
+                <p className={`font-bold text-sky-100 leading-relaxed ${isMaximized ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'}`}>
+                  "{selected.question}"
+                </p>
+              </div>
+            )}
+
+            {selected.why_i_care && (
+              <div className="rounded-xl bg-white/[0.02] border border-white/5 p-3.5 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                  <Brain className="w-3.5 h-3.5 text-sky-400" /> Why I Care
+                </div>
+                <p className={`text-gray-300 leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                  {selected.why_i_care}
+                </p>
+              </div>
+            )}
+
+            {selected.possible_answers && selected.possible_answers.length > 0 && (
               <div className="rounded-xl bg-white/[0.02] border border-white/5 p-3.5 space-y-2">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-400">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Key Reflections
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-sky-400">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" /> Possible Answers / Working Hypotheses
                 </div>
                 <ul className="space-y-1.5">
-                  {selected.takeaways.map((takeaway, idx) => (
+                  {selected.possible_answers.map((ans, idx) => (
                     <li
                       key={idx}
                       className={`flex items-start gap-2 text-gray-200 ${
                         isMaximized ? 'text-xs' : 'text-[11px]'
                       }`}
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80 mt-1.5 shrink-0" />
-                      <span className="leading-relaxed">{takeaway}</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-sky-400/80 mt-1.5 shrink-0" />
+                      <span className="leading-relaxed">{ans}</span>
                     </li>
                   ))}
                 </ul>
               </div>
             )}
 
-            {/* Main Content Body */}
+            {/* 5. TYPE: JOURNAL */}
+            {selected.what_happened && (
+              <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4 space-y-2">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-purple-300">
+                  <FileText className="w-3.5 h-3.5 text-purple-400" /> Unfiltered Entry
+                </div>
+                <p className={`text-gray-200 leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                  {selected.what_happened}
+                </p>
+              </div>
+            )}
+
+            {selected.what_surprised_me && (
+              <div className="rounded-xl bg-amber-500/10 border border-amber-500/25 p-3.5 space-y-1.5">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" /> What Surprised Me
+                </div>
+                <p className={`text-amber-100/90 italic leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                  "{selected.what_surprised_me}"
+                </p>
+              </div>
+            )}
+
+            {/* Markdown Content (if any) */}
             {selected.content && (
               <div className="pt-2 border-t border-white/5">
                 <RenderContent content={selected.content} isMaximized={isMaximized} />
               </div>
             )}
 
-            {/* "Still Thinking..." Vulnerable Closing Block */}
+            {/* "Still Thinking..." Closing Block */}
             {selected.still_thinking && (
               <div className="rounded-xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-indigo-500/10 border border-amber-500/30 p-4 space-y-1.5 relative overflow-hidden my-4">
                 <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
@@ -591,6 +712,8 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {relatedNotes.map((relNote) => {
                     const statusCfg = STATUS_CONFIG[relNote.status || 'stable'];
+                    const snippet = getNoteSnippet(relNote);
+                    const noteType = relNote.type || relNote.thought_type || 'note';
                     return (
                       <button
                         key={relNote.id}
@@ -599,17 +722,15 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
                       >
                         <div>
                           <div className="flex items-center justify-between text-[9px] text-purple-400 mb-1">
-                            <div className="flex items-center gap-1">
-                              {relNote.tags && relNote.tags[0] && <span>#{relNote.tags[0]}</span>}
-                            </div>
+                            <span className="capitalize text-purple-300/80">{noteType}</span>
                             {statusCfg && <span>{statusCfg.label.split(' ')[0]}</span>}
                           </div>
                           <h4 className="text-[11px] font-semibold text-gray-200 group-hover:text-purple-300 transition line-clamp-1">
                             {relNote.title}
                           </h4>
-                          {relNote.observation && (
+                          {snippet && (
                             <p className="text-[10px] text-gray-400 line-clamp-1 mt-0.5 italic">
-                              "{relNote.observation}"
+                              "{snippet}"
                             </p>
                           )}
                         </div>
@@ -631,7 +752,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
             <div>
               <h3 className="text-sm font-bold text-gray-200">Private Notebook</h3>
               <p className="text-xs text-gray-500 max-w-xs mt-1">
-                Select an entry from the sidebar to read honest reflections, mistakes, questions, and evolving principles.
+                Select an entry from the sidebar to read honest reflections, memories, principles, questions, and journal thoughts.
               </p>
             </div>
           </div>
