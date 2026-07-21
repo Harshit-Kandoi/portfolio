@@ -31,6 +31,14 @@ export interface Note {
   date: string; // ISO date string
   read_time_mins: number;
   is_featured: boolean;
+  category?: string;
+  status?: 'stable' | 'evolving' | 'experiment';
+  last_updated?: string;
+  observation?: string;
+  takeaways?: string[];
+  still_thinking?: string;
+  thought_type?: 'Thought' | 'Observation' | 'Principle' | 'Question' | 'Mistake' | 'Experiment' | 'Lesson' | 'Framework';
+  related_note_ids?: string[];
 }
 
 export interface GalleryItem {
