@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useOSStore, AppTheme } from '../../store/useOSStore';
 import { 
   Wifi, Signal, Battery, Search, Bell, Settings as GearIcon, 
-  Volume2, Sun, Palette, Trash2, Bluetooth, Zap, ChevronLeft, Gamepad2,
+  Volume2, Sun, Palette, Trash2, Bluetooth, Zap, ChevronLeft, ChevronRight, Gamepad2,
   User, Folder, Briefcase, Award, FileText, Terminal as TermIcon,
   MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon, Heart, Coffee, ExternalLink,
   BookMarked, StickyNote, Image as ImageIcon, Package, ShoppingBag
@@ -68,6 +68,37 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
   const [airplaneMode, setAirplaneMode] = useState(false);
   const flashlight = false;
   const [showRecents, setShowRecents] = useState(false);
+  const recentsRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [activeRecentIdx, setActiveRecentIdx] = useState(0);
+
+  const checkRecentsScroll = () => {
+    if (!recentsRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = recentsRef.current;
+    setCanScrollLeft(scrollLeft > 10);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 10);
+
+    const cardWidth = 208;
+    const idx = Math.round(scrollLeft / cardWidth);
+    setActiveRecentIdx(Math.max(0, Math.min(idx, mobileRecents.length - 1)));
+  };
+
+  useEffect(() => {
+    if (showRecents) {
+      const timer = setTimeout(checkRecentsScroll, 60);
+      return () => clearTimeout(timer);
+    }
+  }, [showRecents, mobileRecents.length]);
+
+  const scrollRecents = (direction: 'left' | 'right') => {
+    if (!recentsRef.current) return;
+    const scrollAmount = 210;
+    recentsRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
+  };
 
   const pointerStartY = useRef(0);
   const pointerStartX = useRef(0);
@@ -708,59 +739,126 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
 
         {/* ================= RECENTS TASK CAROUSEL SWITCHER ================= */}
         {showRecents && !activeMobileApp && (
-          <div className="flex-grow flex flex-col justify-between pt-6 pb-4 animate-fade-in h-full">
-            <div className="text-center">
-              <span className={`text-xs font-bold ${theme === 'light' ? 'text-gray-650' : 'text-gray-400'} uppercase tracking-widest`}>Active Background Apps</span>
-              <p className="text-[9px] text-gray-500 mt-1">Swipe or click Dismiss to shut apps, tap to launch</p>
+          <div className="flex-grow flex flex-col justify-between pt-6 pb-2 animate-fade-in h-full overflow-hidden relative">
+            <div className="w-full flex flex-col items-center justify-center text-center px-4">
+              <span className={`text-xs font-bold ${theme === 'light' ? 'text-gray-700' : 'text-gray-400'} uppercase tracking-widest block text-center`}>Active Background Apps</span>
+              <p className={`text-[10px] ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'} mt-1 text-center w-full`}>
+                {mobileRecents.length > 0 
+                  ? 'Click Dismiss to close apps. Tap a card to resume.' 
+                  : 'Your background task switcher is empty'}
+              </p>
             </div>
 
             {mobileRecents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center space-y-3 flex-grow">
-                <div className={`w-16 h-16 rounded-full ${theme === 'light' ? 'bg-gray-100 border-gray-200 text-gray-400' : 'bg-white/5 border-white/10 text-gray-500'} border flex items-center justify-center`}>
+              <div className="flex flex-col items-center justify-center space-y-2 flex-grow my-auto">
+                <div className={`w-16 h-16 rounded-full ${theme === 'light' ? 'bg-gray-100 border-gray-200 text-gray-400' : 'bg-white/5 border-white/10 text-gray-500'} border flex items-center justify-center shadow-inner mb-1`}>
                   ■
                 </div>
-                <span className={`text-xs ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'} font-semibold`}>No recent apps running</span>
+                <span className={`text-sm ${theme === 'light' ? 'text-gray-800' : 'text-white'} font-bold`}>No recent apps running</span>
               </div>
             ) : (
-              <div className="flex-grow flex items-center justify-center overflow-x-auto py-4 px-2 space-x-4 max-w-full">
-                {mobileRecents.map((appId) => {
-                  const appMeta = appIcons.find(a => a.id === appId);
-                  if (!appMeta) return null;
-                  return (
-                    <div 
-                      key={appId}
-                      className={`w-48 h-72 flex-shrink-0 ${theme === 'light' ? 'bg-white border-gray-200 text-gray-800 shadow-md' : 'bg-slate-900 border-white/15 text-white'} border rounded-3xl p-3 flex flex-col justify-between shadow-2xl relative transition hover:border-purple-500/50`}
-                    >
-                      {/* Card Header */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <div className={`p-1.5 rounded-lg bg-gradient-to-br ${appMeta.color} text-white`}>
-                            <appMeta.icon className="w-3.5 h-3.5" />
-                          </div>
-                          <span className={`text-[10px] font-bold truncate w-24 ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}>{appMeta.title}</span>
-                        </div>
-                        <button 
-                          onClick={() => closeMobileApp(appId)}
-                          className={`text-[10px] ${theme === 'light' ? 'text-red-700 bg-red-50 hover:bg-red-650 hover:text-white border border-red-200' : 'text-red-400 bg-red-950/20 hover:bg-red-500 hover:text-white'} px-2 py-0.5 rounded-full transition`}
-                          aria-label={`Dismiss ${appMeta?.title}`}
-                        >
-                          Dismiss
-                        </button>
-                      </div>
+              <div className="flex-grow flex flex-col items-center justify-center my-auto w-full">
+                <div className="relative w-full flex items-center justify-center group">
+                
+                {/* Left Arrow Button */}
+                <button
+                  onClick={() => scrollRecents('left')}
+                  disabled={!canScrollLeft}
+                  className={`absolute left-2 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                    theme === 'light' 
+                      ? 'bg-white/90 text-gray-800 shadow-md border border-gray-200' 
+                      : 'bg-black/70 text-white shadow-lg border border-white/15'
+                  } ${
+                    canScrollLeft 
+                      ? 'opacity-85 hover:opacity-100 hover:scale-110 active:scale-95 cursor-pointer' 
+                      : 'opacity-0 pointer-events-none'
+                  }`}
+                  aria-label="Scroll left in recent apps"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
 
-                      {/* Mock Screen Content Preview */}
+                {/* Carousel cards container */}
+                <div 
+                  ref={recentsRef}
+                  onScroll={checkRecentsScroll}
+                  className="flex items-center space-x-4 overflow-x-auto py-2 px-6 max-w-full scroll-smooth no-scrollbar"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {mobileRecents.map((appId) => {
+                    const appMeta = appIcons.find(a => a.id === appId);
+                    if (!appMeta) return null;
+                    return (
                       <div 
-                        onClick={() => handleLaunchApp(appId)}
-                        className={`flex-grow mt-3 rounded-xl ${theme === 'light' ? 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-800' : 'bg-slate-950/50 border-white/5 text-purple-100 hover:bg-slate-950/70'} border flex items-center justify-center cursor-pointer transition overflow-hidden`}
+                        key={appId}
+                        className={`w-48 h-72 flex-shrink-0 ${theme === 'light' ? 'bg-white border-gray-200 text-gray-800 shadow-md' : 'bg-slate-900 border-white/15 text-white'} border rounded-3xl p-3 flex flex-col justify-between shadow-2xl relative transition hover:border-purple-500/50`}
                       >
-                        <div className="text-center p-3 space-y-1">
-                           <appMeta.icon className="w-8 h-8 mx-auto opacity-40 text-purple-400" />
-                          <span className={`text-[9px] ${theme === 'light' ? 'text-gray-650' : 'text-gray-500'} block uppercase tracking-wide`}>Tap to Resume</span>
+                        {/* Card Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <div className={`p-1.5 rounded-lg bg-gradient-to-br ${appMeta.color} text-white`}>
+                              <appMeta.icon className="w-3.5 h-3.5" />
+                            </div>
+                            <span className={`text-[10px] font-bold truncate w-24 ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}>{appMeta.title}</span>
+                          </div>
+                          <button 
+                            onClick={() => closeMobileApp(appId)}
+                            className={`text-[10px] ${theme === 'light' ? 'text-red-700 bg-red-50 hover:bg-red-600 hover:text-white border border-red-200' : 'text-red-400 bg-red-950/20 hover:bg-red-500 hover:text-white'} px-2 py-0.5 rounded-full transition`}
+                            aria-label={`Dismiss ${appMeta?.title}`}
+                          >
+                            Dismiss
+                          </button>
+                        </div>
+
+                        {/* Mock Screen Content Preview */}
+                        <div 
+                          onClick={() => handleLaunchApp(appId)}
+                          className={`flex-grow mt-3 rounded-xl ${theme === 'light' ? 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-800' : 'bg-slate-950/50 border-white/5 text-purple-100 hover:bg-slate-950/70'} border flex items-center justify-center cursor-pointer transition overflow-hidden`}
+                        >
+                          <div className="text-center p-3 space-y-1">
+                             <appMeta.icon className="w-8 h-8 mx-auto opacity-40 text-purple-400" />
+                            <span className={`text-[9px] ${theme === 'light' ? 'text-gray-650' : 'text-gray-500'} block uppercase tracking-wide`}>Tap to Resume</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+
+                {/* Right Arrow Button */}
+                <button
+                  onClick={() => scrollRecents('right')}
+                  disabled={!canScrollRight}
+                  className={`absolute right-2 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                    theme === 'light' 
+                      ? 'bg-white/90 text-gray-800 shadow-md border border-gray-200' 
+                      : 'bg-black/70 text-white shadow-lg border border-white/15'
+                  } ${
+                    canScrollRight 
+                      ? 'opacity-85 hover:opacity-100 hover:scale-110 active:scale-95 cursor-pointer' 
+                      : 'opacity-0 pointer-events-none'
+                  }`}
+                  aria-label="Scroll right in recent apps"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+            {/* Page Dots Indicator */}
+            {mobileRecents.length > 1 && (
+              <div className="flex items-center justify-center space-x-1.5 my-1">
+                {mobileRecents.map((_, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      activeRecentIdx === idx 
+                        ? 'w-4 bg-purple-500' 
+                        : theme === 'light' ? 'w-1.5 bg-gray-300' : 'w-1.5 bg-white/20'
+                    }`}
+                  />
+                ))}
               </div>
             )}
 
@@ -768,7 +866,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
             {mobileRecents.length > 0 && (
               <button
                 onClick={clearMobileRecents}
-                className={`w-fit self-center py-2 px-6 ${theme === 'light' ? 'bg-red-100 hover:bg-red-600 hover:text-white text-red-700 border-red-200' : 'bg-red-600/20 hover:bg-red-600 text-red-200 hover:text-white'} border font-semibold rounded-full tracking-wide transition active:scale-95 shadow-md text-xs`}
+                className={`w-fit self-center py-2 px-6 ${theme === 'light' ? 'bg-red-100 hover:bg-red-600 hover:text-white text-red-700 border-red-200' : 'bg-red-600/20 hover:bg-red-600 text-red-200 hover:text-white'} border font-semibold rounded-full tracking-wide transition active:scale-95 shadow-md text-xs mt-1`}
                 aria-label="Clear all recent apps"
               >
                 Clear All Apps
@@ -785,7 +883,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
             onTouchStart={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
             onTouchEnd={(e) => e.stopPropagation()}
-            className={`absolute inset-x-0 top-9 ${isFullscreen ? 'bottom-12' : 'bottom-[54px]'} ${theme === 'light' ? 'bg-white text-gray-800' : 'bg-slate-950 text-white'} z-[40] flex flex-col overflow-hidden animate-slide-up`}
+            className={`absolute inset-x-0 top-9 bottom-[54px] ${theme === 'light' ? 'bg-white text-gray-800' : 'bg-slate-950 text-white'} z-[40] flex flex-col overflow-hidden animate-slide-up`}
           >
             
             {/* App Action Bar (Header) */}
@@ -882,11 +980,11 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
       </div>
 
       {/* ================= SYSTEM NAVIGATION BUTTONS ================= */}
-      <div className={`shrink-0 z-[600] transition-all ${
-        isFullscreen 
-          ? `w-full h-12 flex items-center justify-around px-8 pb-1 ${theme === 'light' ? 'border-t border-gray-200 bg-gray-100/95 text-gray-700' : 'border-t border-white/10 bg-[#090a10]/90 text-gray-400'} backdrop-blur-xl`
-          : `w-[90%] mx-auto mb-2.5 h-11 rounded-full flex items-center justify-around px-4 border ${theme === 'light' ? 'border-gray-200/80 bg-white/85 text-gray-700 shadow-md' : 'border-white/15 bg-[#0c0d14]/90 text-gray-300 shadow-xl'} backdrop-blur-2xl`
-      }`}>
+      <div className={`w-[90%] mx-auto mb-2.5 h-11 rounded-full flex items-center justify-around px-4 border ${
+        theme === 'light' 
+          ? 'border-gray-200/80 bg-white/85 text-gray-700 shadow-md' 
+          : 'border-white/15 bg-[#0c0d14]/90 text-gray-300 shadow-xl'
+      } backdrop-blur-2xl shrink-0 z-[600]`}>
         {/* BACK: Triangle */}
         <button 
           onClick={handleBackKey}
