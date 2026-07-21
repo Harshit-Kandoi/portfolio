@@ -5,7 +5,7 @@ import {
   Volume2, Sun, Palette, Trash2, Bluetooth, Zap, ChevronLeft, ChevronRight, Gamepad2,
   User, Folder, Briefcase, Award, FileText, Terminal as TermIcon,
   MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon, Heart, Coffee, ExternalLink,
-  BookMarked, StickyNote, Image as ImageIcon, Package, ShoppingBag
+  BookMarked, StickyNote, /* Image as ImageIcon, */ Package, ShoppingBag
 } from 'lucide-react';
 import { playWindowSound } from '../../utils/sounds';
 import Wallpaper from './Wallpaper';
@@ -29,7 +29,7 @@ const BuyMeCoffeeApp = lazy(() => import('../apps/BuyMeCoffeeApp'));
 // Phase 3 New Apps
 const LibraryApp     = lazy(() => import('../apps/LibraryApp'));
 const NotesApp       = lazy(() => import('../apps/NotesApp'));
-const GalleryApp     = lazy(() => import('../apps/GalleryApp'));
+// const GalleryApp     = lazy(() => import('../apps/GalleryApp'));
 const ProductsApp    = lazy(() => import('../apps/ProductsApp'));
 // const PublicationsApp= lazy(() => import('../apps/PublicationsApp'));
 const MarketplaceApp = lazy(() => import('../apps/MarketplaceApp'));
@@ -172,7 +172,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
     // Phase 3 New Apps
     { id: 'library', title: 'Library', icon: BookMarked, color: 'from-amber-500 to-orange-400', category: 'system' },
     { id: 'notes', title: 'Notes', icon: StickyNote, color: 'from-violet-500 to-purple-600', category: 'work' },
-    { id: 'gallery', title: 'Gallery', icon: ImageIcon, color: 'from-pink-500 to-rose-500', category: 'system' },
+    // { id: 'gallery', title: 'Gallery', icon: ImageIcon, color: 'from-pink-500 to-rose-500', category: 'system' },
     { id: 'products', title: 'Products', icon: Package, color: 'from-violet-600 to-indigo-600', category: 'work' },
     // { id: 'publications', title: 'Publications', icon: BookMarked, color: 'from-green-500 to-emerald-600', category: 'social' },
     { id: 'marketplace', title: 'Marketplace', icon: ShoppingBag, color: 'from-rose-500 to-pink-600', category: 'system' },
@@ -280,7 +280,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
       // Phase 3 New Apps
       case 'library': content = <LibraryApp isMobileView={true} />; break;
       case 'notes': content = <NotesApp isMobileView={true} />; break;
-      case 'gallery': content = <GalleryApp isMobileView={true} />; break;
+      // case 'gallery': content = <GalleryApp isMobileView={true} />; break;
       case 'products': content = <ProductsApp isMobileView={true} />; break;
       // case 'publications': content = <PublicationsApp isMobileView={true} />; break;
       case 'marketplace': content = <MarketplaceApp isMobileView={true} />; break;

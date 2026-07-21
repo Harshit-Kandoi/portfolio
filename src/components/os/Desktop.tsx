@@ -5,7 +5,7 @@ import {
   Settings as GearIcon, User, Briefcase, Award, FileText, Send, 
   Search, Cpu, HardDrive, Wifi, Volume2, Bell, LogOut, Moon, Sun, 
   Gamepad2, Github, Linkedin, Smartphone, Mail, Phone, Database,
-  Coffee, Heart, BookMarked, StickyNote, Image as ImageIcon, Package, ShoppingBag
+  Coffee, Heart, BookMarked, StickyNote, /* Image as ImageIcon, */ Package, ShoppingBag
 } from 'lucide-react';
 
 import Window from './Window';
@@ -43,7 +43,7 @@ const BuyMeCoffeeApp = lazy(() => import('../apps/BuyMeCoffeeApp'));
 // Phase 3 New Apps
 const LibraryApp     = lazy(() => import('../apps/LibraryApp'));
 const NotesApp       = lazy(() => import('../apps/NotesApp'));
-const GalleryApp     = lazy(() => import('../apps/GalleryApp'));
+// const GalleryApp     = lazy(() => import('../apps/GalleryApp'));
 const ProductsApp    = lazy(() => import('../apps/ProductsApp'));
 // const PublicationsApp= lazy(() => import('../apps/PublicationsApp'));
 const MarketplaceApp = lazy(() => import('../apps/MarketplaceApp'));
@@ -276,7 +276,7 @@ export default function Desktop() {
     // Phase 3 New Apps
     { id: 'library',      title: 'Library.exe',      icon: BookMarked,    color: 'from-amber-500 to-orange-400' },
     { id: 'notes',        title: 'Notes.exe',        icon: StickyNote,    color: 'from-violet-500 to-purple-600'},
-    { id: 'gallery',      title: 'Gallery.exe',      icon: ImageIcon,     color: 'from-pink-500 to-rose-500'    },
+    // { id: 'gallery',      title: 'Gallery.exe',      icon: ImageIcon,     color: 'from-pink-500 to-rose-500'    },
     { id: 'products',     title: 'Products.exe',     icon: Package,       color: 'from-violet-600 to-indigo-600'},
     // { id: 'publications', title: 'Papers.exe',        icon: BookMarked,    color: 'from-green-500 to-emerald-600'},
     { id: 'marketplace',  title: 'Store.exe',        icon: ShoppingBag,   color: 'from-rose-500 to-pink-600'    },
@@ -687,7 +687,7 @@ export default function Desktop() {
             {/* Phase 3 New Apps */}
             {win.id === 'library'      && <LibraryApp />}
             {win.id === 'notes'        && <NotesApp />}
-            {win.id === 'gallery'      && <GalleryApp />}
+            {/* {win.id === 'gallery'      && <GalleryApp />} */}
             {win.id === 'products'     && <ProductsApp />}
             {/* {win.id === 'publications' && <PublicationsApp />} */}
             {win.id === 'marketplace'  && <MarketplaceApp />}

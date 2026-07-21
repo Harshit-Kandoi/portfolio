@@ -226,7 +226,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
             {/* Phase 3 new commands */}
             <div><span className="text-yellow-300 font-bold">library</span> - view books read</div>
             <div><span className="text-yellow-300 font-bold">notes</span> - tech notes/wiki</div>
-            <div><span className="text-yellow-300 font-bold">gallery</span> - photo gallery</div>
+            {/* <div><span className="text-yellow-300 font-bold">gallery</span> - photo gallery</div> */}
             <div><span className="text-yellow-300 font-bold">products</span> - product list</div>
             {/* <div><span className="text-yellow-300 font-bold">publications</span> - articles written</div> */}
             <div><span className="text-yellow-300 font-bold">marketplace</span> - tools & services</div>
@@ -307,10 +307,10 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
         setTimeout(() => openWindow('notes'), 600);
         break;
 
-      case 'gallery':
+      /* case 'gallery':
         output = <p className="text-gray-300">Opening Gallery.exe app...</p>;
         setTimeout(() => openWindow('gallery'), 600);
-        break;
+        break; */
 
       case 'products':
         output = <p className="text-gray-300">Opening Products.exe app...</p>;
