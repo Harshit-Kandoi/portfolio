@@ -19,6 +19,10 @@ const ICON_EMOJI_MAP: Record<string, string> = {
   '5': '🎬',
   '6': '💰',
   '7': '🛒',
+  '8': '🚢',
+  '9': '🏠',
+  '10': '☁️',
+  '11': '🧠',
 };
 
 // Mocked progress percentages for WIP products
@@ -70,6 +74,13 @@ export default function ProductsApp({ isMobileView }: { isMobileView?: boolean }
     return p.status === 'archived';
   });
 
+  const getFilterCount = (s: 'all' | 'live' | 'wip' | 'archived') => {
+    if (s === 'all') return products.length;
+    if (s === 'live') return products.filter((p) => p.status === 'live' || p.status === 'beta').length;
+    if (s === 'wip') return products.filter((p) => p.status === 'wip').length;
+    return products.filter((p) => p.status === 'archived').length;
+  };
+
   const containerBg = isLight ? 'bg-gray-50 text-gray-800' : 'bg-[#080912] text-white';
   const cardBg = isLight ? 'bg-white border-gray-200' : 'bg-[#0f1019] border-white/5';
 
@@ -86,17 +97,24 @@ export default function ProductsApp({ isMobileView }: { isMobileView?: boolean }
             <p className="text-[10px] text-gray-500">{products.length} projects · Side projects & open-source</p>
           </div>
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 flex-wrap">
           {(['all', 'live', 'wip', 'archived'] as const).map((s) => (
             <button
               key={s}
               onClick={() => setFilter(s)}
-              className={`px-3 py-1 rounded-lg text-[11px] font-semibold border transition-all capitalize ${
+              className={`px-3 py-1 rounded-lg text-[11px] font-semibold border transition-all capitalize flex items-center gap-1.5 ${
                 filter === s
                   ? 'bg-violet-500/20 border-violet-500/50 text-violet-400'
                   : isLight ? 'bg-white border-gray-200 text-gray-600' : 'bg-white/5 border-white/5 text-gray-500 hover:text-white'
               }`}
-            >{s}</button>
+            >
+              <span>{s}</span>
+              <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-mono ${
+                filter === s ? 'bg-violet-500/30 text-violet-300' : 'bg-white/10 text-gray-400'
+              }`}>
+                {getFilterCount(s)}
+              </span>
+            </button>
           ))}
         </div>
       </div>
@@ -171,55 +189,69 @@ export default function ProductsApp({ isMobileView }: { isMobileView?: boolean }
             {filter === 'live' ? '✅ Live & Beta' : filter === 'wip' ? '🔧 Work in Progress' : '📦 Archived'}
           </p>}
           {filter === 'all' && <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-3">All Projects</p>}
-          <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-2 gap-3'}`}>
-            {filtered.map((p) => {
-              const StatusConf = STATUS_CONFIG[p.status];
-              const StatusIcon = StatusConf.icon;
-              return (
-                <div key={p.id} className={`rounded-2xl border p-4 ${cardBg} hover:border-violet-500/30 transition-all group`}>
-                  <div className="flex items-center gap-2.5 mb-2">
-                    <span className="text-lg">{ICON_EMOJI_MAP[p.id] ?? '📦'}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold truncate">{p.name}</p>
-                      <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-[9px] font-semibold mt-0.5 ${StatusConf.bg} ${StatusConf.color}`}>
-                        <StatusIcon className="w-2 h-2" />{StatusConf.label}
+          
+          {filtered.length === 0 ? (
+            <div className={`flex flex-col items-center justify-center py-12 px-4 text-center rounded-2xl border ${cardBg}`}>
+              <div className="w-12 h-12 rounded-2xl bg-gray-500/10 border border-gray-500/20 flex items-center justify-center text-gray-400 mb-3">
+                <Archive className="w-6 h-6" />
+              </div>
+              <h3 className="text-sm font-bold">No Projects Found</h3>
+              <p className="text-[11px] text-gray-400 max-w-xs mt-1">
+                There are currently no projects matching the &quot;{filter}&quot; filter.
+              </p>
+            </div>
+          ) : (
+            <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-2 gap-3'}`}>
+              {filtered.map((p) => {
+                const StatusConf = STATUS_CONFIG[p.status];
+                const StatusIcon = StatusConf.icon;
+                return (
+                  <div key={p.id} className={`rounded-2xl border p-4 ${cardBg} hover:border-violet-500/30 transition-all group`}>
+                    <div className="flex items-center gap-2.5 mb-2">
+                      <span className="text-lg">{ICON_EMOJI_MAP[p.id] ?? '📦'}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] font-bold truncate">{p.name}</p>
+                        <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md border text-[9px] font-semibold mt-0.5 ${StatusConf.bg} ${StatusConf.color}`}>
+                          <StatusIcon className="w-2 h-2" />{StatusConf.label}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <p className="text-[10px] text-gray-500 leading-relaxed line-clamp-2">{p.description}</p>
-                  <div className="flex gap-1.5 mt-2">
-                    {p.tags.slice(0, 3).map((tag) => (
-                      <span key={tag} className="text-[9px] bg-white/5 border border-white/5 text-gray-500 px-1.5 py-0.5 rounded-md">{tag}</span>
-                    ))}
-                  </div>
-                  {/* WIP progress bar */}
-                  {p.status === 'wip' && WIP_PROGRESS[p.id] !== undefined && (
-                    <AnimatedProgress percent={WIP_PROGRESS[p.id]} />
-                  )}
-                  {/* Last commit for live */}
-                  {(p.status === 'live' || p.status === 'beta') && LAST_COMMIT[p.id] && (
-                    <p className="text-[9px] text-gray-600 font-mono mt-2">⬆ last commit: {LAST_COMMIT[p.id]}</p>
-                  )}
-                  <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {p.repo_url && (
-                      <a href={p.repo_url} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-[10px] text-gray-400 hover:text-white transition">
-                        <Github className="w-3 h-3" /> Repo
-                      </a>
+                    <p className="text-[10px] text-gray-500 leading-relaxed line-clamp-2">{p.description}</p>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {p.tags.slice(0, 3).map((tag) => (
+                        <span key={tag} className="text-[9px] bg-white/5 border border-white/5 text-gray-500 px-1.5 py-0.5 rounded-md">{tag}</span>
+                      ))}
+                    </div>
+                    {/* WIP progress bar */}
+                    {p.status === 'wip' && WIP_PROGRESS[p.id] !== undefined && (
+                      <AnimatedProgress percent={WIP_PROGRESS[p.id]} />
                     )}
-                    {p.demo_url && (
-                      <a href={p.demo_url} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-[10px] text-violet-400 hover:text-violet-300 transition">
-                        <ExternalLink className="w-3 h-3" /> Demo
-                      </a>
+                    {/* Last commit for live */}
+                    {(p.status === 'live' || p.status === 'beta') && LAST_COMMIT[p.id] && (
+                      <p className="text-[9px] text-gray-600 font-mono mt-2">⬆ last commit: {LAST_COMMIT[p.id]}</p>
                     )}
+                    <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {p.repo_url && (
+                        <a href={p.repo_url} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-[10px] text-gray-400 hover:text-white transition">
+                          <Github className="w-3 h-3" /> Repo
+                        </a>
+                      )}
+                      {p.demo_url && (
+                        <a href={p.demo_url} target="_blank" rel="noopener noreferrer"
+                          className="flex items-center gap-1 text-[10px] text-violet-400 hover:text-violet-300 transition">
+                          <ExternalLink className="w-3 h-3" /> Demo
+                        </a>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
+
