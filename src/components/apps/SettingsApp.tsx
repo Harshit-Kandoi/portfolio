@@ -171,7 +171,7 @@ function MobileSettingsView() {
     { title: 'Notes', cat: 'Work' },
     { title: 'Gallery', cat: 'System' },
     { title: 'Products', cat: 'Work' },
-    { title: 'Publications', cat: 'Social' },
+    // { title: 'Publications', cat: 'Social' },
     { title: 'Marketplace', cat: 'System' },
   ];
 

@@ -61,7 +61,7 @@ export interface ImpactMetric {
 }
 
 export interface RelatedApp {
-  id: string; // OS Window ID: 'ai' | 'blog' | 'terminal' | 'projects' | 'resume' | 'contact' | 'publications'
+  id: string; // OS Window ID: 'ai' | 'blog' | 'terminal' | 'projects' | 'resume' | 'contact' | 'skills'
   name: string;
   icon: React.ReactNode;
 }
@@ -418,7 +418,8 @@ const ROLES: Role[] = [
         { icon: '💡', metric: 'Power BI + SQL', label: 'Production BI Dashboards', category: 'Projects' }
       ],
       relatedApps: [
-        { id: 'publications', name: 'Papers.exe', icon: <FileText className="w-3.5 h-3.5 text-amber-400" /> },
+        { id: 'skills', name: 'Skills.exe', icon: <Cpu className="w-3.5 h-3.5 text-amber-400" /> },
+        // { id: 'publications', name: 'Papers.exe', icon: <FileText className="w-3.5 h-3.5 text-amber-400" /> },
         { id: 'blog', name: 'Blog.exe', icon: <BookOpen className="w-3.5 h-3.5 text-cyan-400" /> },
         { id: 'projects', name: 'Projects.exe', icon: <Briefcase className="w-3.5 h-3.5 text-purple-400" /> }
       ],

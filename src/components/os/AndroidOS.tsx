@@ -31,7 +31,7 @@ const LibraryApp     = lazy(() => import('../apps/LibraryApp'));
 const NotesApp       = lazy(() => import('../apps/NotesApp'));
 const GalleryApp     = lazy(() => import('../apps/GalleryApp'));
 const ProductsApp    = lazy(() => import('../apps/ProductsApp'));
-const PublicationsApp= lazy(() => import('../apps/PublicationsApp'));
+// const PublicationsApp= lazy(() => import('../apps/PublicationsApp'));
 const MarketplaceApp = lazy(() => import('../apps/MarketplaceApp'));
 
 
@@ -174,7 +174,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
     { id: 'notes', title: 'Notes', icon: StickyNote, color: 'from-violet-500 to-purple-600', category: 'work' },
     { id: 'gallery', title: 'Gallery', icon: ImageIcon, color: 'from-pink-500 to-rose-500', category: 'system' },
     { id: 'products', title: 'Products', icon: Package, color: 'from-violet-600 to-indigo-600', category: 'work' },
-    { id: 'publications', title: 'Publications', icon: BookMarked, color: 'from-green-500 to-emerald-600', category: 'social' },
+    // { id: 'publications', title: 'Publications', icon: BookMarked, color: 'from-green-500 to-emerald-600', category: 'social' },
     { id: 'marketplace', title: 'Marketplace', icon: ShoppingBag, color: 'from-rose-500 to-pink-600', category: 'system' },
   ];
 
@@ -282,7 +282,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
       case 'notes': content = <NotesApp isMobileView={true} />; break;
       case 'gallery': content = <GalleryApp isMobileView={true} />; break;
       case 'products': content = <ProductsApp isMobileView={true} />; break;
-      case 'publications': content = <PublicationsApp isMobileView={true} />; break;
+      // case 'publications': content = <PublicationsApp isMobileView={true} />; break;
       case 'marketplace': content = <MarketplaceApp isMobileView={true} />; break;
       default: content = <div className="p-4 text-center text-white">App is currently building...</div>;
     }

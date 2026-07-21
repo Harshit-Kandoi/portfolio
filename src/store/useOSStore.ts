@@ -154,7 +154,7 @@ const INITIAL_WINDOWS: WindowInstance[] = [
   { id: 'notes',        title: 'Notes.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 160, y: 90,  width: 900,  height: 620, zIndex: 1 },
   { id: 'gallery',      title: 'Gallery.exe',         isOpen: false, isMinimized: false, isMaximized: false, x: 140, y: 70,  width: 860,  height: 600, zIndex: 1 },
   { id: 'products',     title: 'Products.exe',        isOpen: false, isMinimized: false, isMaximized: false, x: 170, y: 100, width: 820,  height: 580, zIndex: 1 },
-  { id: 'publications', title: 'Papers.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 150, y: 85,  width: 780,  height: 580, zIndex: 1 },
+  // { id: 'publications', title: 'Papers.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 150, y: 85,  width: 780,  height: 580, zIndex: 1 },
   { id: 'marketplace',  title: 'Store.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 190, y: 110, width: 800,  height: 580, zIndex: 1 },
 ];
 
