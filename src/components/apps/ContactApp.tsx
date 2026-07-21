@@ -17,6 +17,9 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
   const theme              = useOSStore((state) => state.theme);
   const addNotification    = useOSStore((state) => state.addNotification);
   const unlockAchievement  = useOSStore((state) => state.unlockAchievement);
+  const globalViewMode     = useOSStore((state) => state.viewMode);
+  const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
+  const isMobile = isMobileView || globalViewMode === 'mobile' || isSimulatingMobile;
 
   // Form Fields
   const [email, setEmail] = useState('');
@@ -287,10 +290,10 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+      <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-3 gap-6'} items-start`}>
         
         {/* Left column: Get Connected channels */}
-        <div className="md:col-span-1 space-y-4">
+        <div className={`${isMobile ? 'col-span-1' : 'md:col-span-1'} space-y-4`}>
           <div className={`p-5 rounded-2xl border ${cardBg} shadow-lg space-y-4`}>
             <h3 className="text-xs font-bold text-white border-b border-white/5 pb-2 flex items-center space-x-1.5">
               <Sparkles className="w-3.5 h-3.5 text-purple-400" />
@@ -404,7 +407,7 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
         </div>
 
         {/* Right column: Direct Message Form & Transmission Control */}
-        <div className="md:col-span-2">
+        <div className={isMobile ? 'col-span-1' : 'md:col-span-2'}>
           {success ? (
             /* Successful Transmission Output */
             <div className={`p-8 rounded-2xl border text-center space-y-5 flex flex-col items-center justify-center shadow-xl ${cardBg}`}>
@@ -532,7 +535,7 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-2 gap-4'}`}>
                 <div className="space-y-1">
                   <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Your Email *</label>
                   <input

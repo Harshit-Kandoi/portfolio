@@ -1050,6 +1050,10 @@ function DesktopSettingsView() {
 }
 
 export default function SettingsApp({ isMobileView = false }: { isMobileView?: boolean }) {
-  if (isMobileView) return <MobileSettingsView />;
+  const globalViewMode = useOSStore((s) => s.viewMode);
+  const isSimulatingMobile = useOSStore((s) => s.isSimulatingMobile);
+  const shouldShowMobile = isMobileView || globalViewMode === 'mobile' || isSimulatingMobile;
+
+  if (shouldShowMobile) return <MobileSettingsView />;
   return <DesktopSettingsView />;
 }

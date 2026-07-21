@@ -687,7 +687,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
               </button>
 
               {/* Standard Dock Apps */}
-              <div className={`w-full ${theme === 'light' ? 'bg-white/70 border-white shadow-lg' : 'bg-white/10 border-white/10 shadow-lg'} backdrop-blur-xl border p-2.5 rounded-[22px] flex justify-around items-center`}>
+              <div className={`w-[90%] mx-auto ${theme === 'light' ? 'bg-white/75 border-white shadow-lg' : 'bg-white/10 border-white/10 shadow-lg'} backdrop-blur-xl border p-2 rounded-[24px] flex justify-around items-center`}>
                 {appIcons.filter(a => ['about', 'ai', 'projects', 'settings'].includes(a.id)).map((app) => (
                   <button
                     key={app.id}
@@ -785,7 +785,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
             onTouchStart={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
             onTouchEnd={(e) => e.stopPropagation()}
-            className={`absolute inset-x-0 top-9 bottom-12 ${theme === 'light' ? 'bg-white text-gray-800' : 'bg-slate-950 text-white'} z-[40] flex flex-col overflow-hidden animate-slide-up`}
+            className={`absolute inset-x-0 top-9 ${isFullscreen ? 'bottom-12' : 'bottom-[54px]'} ${theme === 'light' ? 'bg-white text-gray-800' : 'bg-slate-950 text-white'} z-[40] flex flex-col overflow-hidden animate-slide-up`}
           >
             
             {/* App Action Bar (Header) */}
@@ -793,9 +793,8 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
               <div className="flex items-center space-x-2">
                 <button 
                   onClick={() => closeMobileApp(activeMobileApp)}
-                  className={`p-1 rounded-full ${theme === 'light' ? 'hover:bg-gray-200 text-purple-700' : 'hover:bg-white/10 text-purple-400'} transition`}
-                  title="Close App"
-                  aria-label="Close app"
+                  className={`p-1 rounded-lg ${theme === 'light' ? 'hover:bg-gray-200 text-gray-700' : 'hover:bg-white/10 text-gray-300'} transition flex items-center space-x-1`}
+                  aria-label="Back to home"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -822,7 +821,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
           onPointerUp={(e) => handlePointerUp(e, 'drawer')}
           className={`absolute inset-0 ${
             theme === 'light' ? 'bg-[#f4f7f6] border-r border-gray-250 text-gray-800' : 'bg-slate-950 text-white'
-          } z-[550] flex flex-col justify-between px-6 pt-10 pb-4 transition-transform duration-300 ease-out ${
+          } z-[550] flex flex-col justify-between px-6 pt-10 pb-16 transition-transform duration-300 ease-out ${
             showMobileDrawer ? 'translate-y-0 pointer-events-auto opacity-100' : 'translate-y-full pointer-events-none opacity-0 invisible'
           }`}
         >
@@ -883,22 +882,24 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
       </div>
 
       {/* ================= SYSTEM NAVIGATION BUTTONS ================= */}
-      <div className={`h-12 w-full flex items-center justify-around px-8 ${
-        theme === 'light' ? 'border-t border-gray-250 bg-gray-150/90 text-gray-700' : 'border-t border-white/5 bg-black/45 text-gray-400'
-      } backdrop-blur-xl shrink-0 z-50`}>
+      <div className={`shrink-0 z-[600] transition-all ${
+        isFullscreen 
+          ? `w-full h-12 flex items-center justify-around px-8 pb-1 ${theme === 'light' ? 'border-t border-gray-200 bg-gray-100/95 text-gray-700' : 'border-t border-white/10 bg-[#090a10]/90 text-gray-400'} backdrop-blur-xl`
+          : `w-[90%] mx-auto mb-2.5 h-11 rounded-full flex items-center justify-around px-4 border ${theme === 'light' ? 'border-gray-200/80 bg-white/85 text-gray-700 shadow-md' : 'border-white/15 bg-[#0c0d14]/90 text-gray-300 shadow-xl'} backdrop-blur-2xl`
+      }`}>
         {/* BACK: Triangle */}
         <button 
           onClick={handleBackKey}
-          className={`p-3 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-12 h-12`}
+          className={`p-2 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-9 h-9`}
           title="Back"
         >
-          <div className="w-0 h-0 border-t-[5px] border-t-transparent border-r-[10px] border-r-current border-b-[5px] border-b-transparent" />
+          <div className="w-0 h-0 border-t-[4.5px] border-t-transparent border-r-[9px] border-r-current border-b-[4.5px] border-b-transparent" />
         </button>
 
         {/* HOME: Circle */}
         <button 
           onClick={handleHomeKey}
-          className={`p-3 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-12 h-12`}
+          className={`p-2 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-9 h-9`}
           title="Home"
         >
           <div className="w-3.5 h-3.5 rounded-full border-2 border-current" />
@@ -907,7 +908,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
         {/* RECENTS: Square */}
         <button 
           onClick={handleRecentsKey}
-          className={`p-3 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-12 h-12`}
+          className={`p-2 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-9 h-9`}
           title="Recents"
         >
           <div className="w-3.5 h-3.5 border-2 border-current rounded-sm" />

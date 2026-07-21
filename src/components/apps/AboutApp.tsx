@@ -148,7 +148,7 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
   const theme = useOSStore((state) => state.theme);
   const globalViewMode = useOSStore((state) => state.viewMode);
   const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
-  const isMobile = globalViewMode === 'mobile' || isSimulatingMobile;
+  const isMobile = isMobileView || globalViewMode === 'mobile' || isSimulatingMobile;
   const [activeQuote, setActiveQuote] = useState(QUOTES[0]);
   const { stats: ghStats, loading: ghLoading } = useGitHubStats();
 

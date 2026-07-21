@@ -6,6 +6,9 @@ import { useOSStore } from '../../store/useOSStore';
 export default function ExperienceApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const [filterType, setFilterType] = useState<'all' | 'work' | 'education' | 'Course'>('all');
   const theme = useOSStore((state) => state.theme);
+  const globalViewMode = useOSStore((state) => state.viewMode);
+  const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
+  const isMobile = isMobileView || globalViewMode === 'mobile' || isSimulatingMobile;
 
   const filteredItems = experience.filter((item) => {
     if (filterType === 'all') return true;
@@ -95,7 +98,7 @@ export default function ExperienceApp({ isMobileView }: { isMobileView?: boolean
                   style={{ animationDelay: `${idx * 60}ms` }}
                 >
                   {/* Left: Date column */}
-                  <div className="w-28 sm:w-32 shrink-0 text-right flex flex-col items-end justify-start pt-1">
+                  <div className={`${isMobile ? 'w-20' : 'w-28 sm:w-32'} shrink-0 text-right flex flex-col items-end justify-start pt-1`}>
                     <span className={`text-[10px] sm:text-xs font-semibold leading-tight ${isLight ? 'text-gray-500' : 'text-gray-500'}`}>
                       {periodLabel}
                     </span>

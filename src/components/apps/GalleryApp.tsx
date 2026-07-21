@@ -83,6 +83,9 @@ const CATEGORIES = ['All', 'Projects', 'Travel', 'Creative', 'Hobbies'];
 
 export default function GalleryApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
+  const globalViewMode = useOSStore((s) => s.viewMode);
+  const isSimulatingMobile = useOSStore((s) => s.isSimulatingMobile);
+  const isMobile = isMobileView || globalViewMode === 'mobile' || isSimulatingMobile;
   const isLight = theme === 'light';
 
   const [filter, setFilter] = useState('All');
@@ -138,7 +141,7 @@ export default function GalleryApp({ isMobileView }: { isMobileView?: boolean } 
 
       {/* Masonry-ish Grid */}
       <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
-        <div className="columns-2 sm:columns-3 gap-3 space-y-3">
+        <div className={`columns-2 ${isMobile ? '' : 'sm:columns-3'} gap-3 space-y-3`}>
           {filtered.map((item) => (
             <div
               key={item.id}

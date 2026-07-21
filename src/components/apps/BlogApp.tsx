@@ -12,12 +12,13 @@ export default function BlogApp({ isMobileView }: { isMobileView?: boolean } = {
   const [bookmarks, setBookmarks] = useState<number[]>([]);
   const theme = useOSStore((state) => state.theme);
   const viewMode = useOSStore((state) => state.viewMode);
+  const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
   const blogWindow = useOSStore((state) => state.windows.find((w) => w.id === 'blog'));
   const unlockAchievement = useOSStore((state) => state.unlockAchievement);
   const addNotification = useOSStore((state) => state.addNotification);
 
   const isMaximized = blogWindow?.isMaximized || false;
-  const isMobile = viewMode === 'mobile';
+  const isMobile = isMobileView || viewMode === 'mobile' || isSimulatingMobile;
 
   const gridColsClass = isMobile
     ? 'grid-cols-1'

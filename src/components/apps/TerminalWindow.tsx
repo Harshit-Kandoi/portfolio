@@ -13,6 +13,7 @@ const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRi
 
 export default function TerminalWindow({ isMobileView }: { isMobileView?: boolean } = {}) {
   const { openWindow, setTheme, addTerminalCommand, viewMode, isSimulatingMobile } = useOSStore();
+  const isMobile = isMobileView || viewMode === 'mobile' || isSimulatingMobile;
   const sessionStart = React.useRef(Date.now());
   const [history, setHistory] = useState<HistoryItem[]>([
     {
@@ -517,7 +518,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
             onChange={(e) => setInputVal(e.target.value)}
             onKeyDown={handleKeyDown}
             className="absolute bottom-2 left-2 z-10 opacity-0 w-1 text-base"
-            autoFocus={viewMode === 'desktop' && !isSimulatingMobile}
+            autoFocus={!isMobile}
           />
         </div>
       ) : (
@@ -541,7 +542,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
               onChange={(e) => setInputVal(e.target.value)}
               onKeyDown={handleKeyDown}
               className="flex-grow bg-transparent focus:outline-none text-green-400 font-mono caret-green-400 border-none p-0 text-base sm:text-xs md:text-sm"
-              autoFocus={viewMode === 'desktop' && !isSimulatingMobile}
+              autoFocus={!isMobile}
             />
           </div>
         </div>

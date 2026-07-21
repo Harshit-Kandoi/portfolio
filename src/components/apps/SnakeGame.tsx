@@ -28,6 +28,8 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
   const soundEnabled      = useOSStore((s) => s.soundEnabled);
   const activeWindowId    = useOSStore((s) => s.activeWindowId);
   const viewMode          = useOSStore((s) => s.viewMode);
+  const isSimulatingMobile = useOSStore((s) => s.isSimulatingMobile);
+  const isMobile          = isMobileView || viewMode === 'mobile' || isSimulatingMobile;
 
   const [snake, setSnake]     = useState<Cell[]>(INITIAL_SNAKE);
   const [food, setFood]       = useState<Cell>(() => randFood(INITIAL_SNAKE));
@@ -359,7 +361,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
       </div>
 
       {/* Nokia style controller keypad */}
-      {viewMode !== 'desktop' && (
+      {isMobile && (
         <div className="flex flex-col items-center bg-slate-900/40 p-4 rounded-3xl border border-white/5 shadow-inner w-full max-w-[220px] touch-none">
           <div className="grid grid-cols-3 gap-2 w-full touch-none">
             <div></div>

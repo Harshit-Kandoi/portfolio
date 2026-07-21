@@ -110,6 +110,9 @@ const FILTERS = ['All', 'Open Source', 'Templates', 'Services'];
 
 export default function MarketplaceApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
+  const globalViewMode = useOSStore((s) => s.viewMode);
+  const isSimulatingMobile = useOSStore((s) => s.isSimulatingMobile);
+  const isMobile = isMobileView || globalViewMode === 'mobile' || isSimulatingMobile;
   const isLight = theme === 'light';
   const [filter, setFilter] = useState('All');
 
@@ -157,7 +160,7 @@ export default function MarketplaceApp({ isMobileView }: { isMobileView?: boolea
         {filter === 'All' && (
           <div className="mb-6">
             <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-3">🌟 Featured</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-2 gap-4'}`}>
               {ITEMS.filter((i) => i.is_featured).map((item) => {
                 const catConf = CATEGORY_CONFIG[item.category];
                 const CatIcon = catConf.icon;

@@ -28,6 +28,9 @@ function StarRating({ rating }: { rating: number }) {
 
 export default function LibraryApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
+  const globalViewMode = useOSStore((s) => s.viewMode);
+  const isSimulatingMobile = useOSStore((s) => s.isSimulatingMobile);
+  const isMobile = isMobileView || globalViewMode === 'mobile' || isSimulatingMobile;
   const isLight = theme === 'light';
 
   const [books, setBooks] = useState<Book[]>(BOOKS_SEED);
@@ -109,7 +112,7 @@ export default function LibraryApp({ isMobileView }: { isMobileView?: boolean } 
               <p className="text-sm text-gray-500">No books found</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            <div className={`grid ${isMobile ? 'grid-cols-2 gap-3' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4'}`}>
               {filtered.map((book) => {
                 const StatusIcon = STATUS_CONFIG[book.status].icon;
                 return (

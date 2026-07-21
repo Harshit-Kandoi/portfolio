@@ -52,6 +52,9 @@ function AnimatedProgress({ percent }: { percent: number }) {
 
 export default function ProductsApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
+  const globalViewMode = useOSStore((s) => s.viewMode);
+  const isSimulatingMobile = useOSStore((s) => s.isSimulatingMobile);
+  const isMobile = isMobileView || globalViewMode === 'mobile' || isSimulatingMobile;
   const isLight = theme === 'light';
 
   const [products, setProducts] = useState<Product[]>(PRODUCTS_SEED);
@@ -168,7 +171,7 @@ export default function ProductsApp({ isMobileView }: { isMobileView?: boolean }
             {filter === 'live' ? '✅ Live & Beta' : filter === 'wip' ? '🔧 Work in Progress' : '📦 Archived'}
           </p>}
           {filter === 'all' && <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-3">All Projects</p>}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-2 gap-3'}`}>
             {filtered.map((p) => {
               const StatusConf = STATUS_CONFIG[p.status];
               const StatusIcon = StatusConf.icon;

@@ -167,6 +167,9 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
   const xp             = useOSStore((s) => s.xp);
   const unlockedIds    = useOSStore((s) => s.unlockedAchievements);
   const theme          = useOSStore((s) => s.theme);
+  const globalViewMode = useOSStore((s) => s.viewMode);
+  const isSimulatingMobile = useOSStore((s) => s.isSimulatingMobile);
+  const isMobile       = isMobileView || globalViewMode === 'mobile' || isSimulatingMobile;
   const [tab, setTab]  = useState<'visitor' | 'dev'>('visitor');
 
   const { current, next, progress } = getLevelInfo(xp);
@@ -181,11 +184,11 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
   return (
     <div className={`flex flex-col flex-grow h-full overflow-hidden ${bg}`}>
       {/* XP Header */}
-      <div className="bg-gradient-to-r from-purple-900/60 via-indigo-900/40 to-purple-900/60 px-5 py-4 border-b border-white/5 shrink-0">
+      <div className={`bg-gradient-to-r from-purple-900/60 via-indigo-900/40 to-purple-900/60 ${isMobile ? 'px-3.5 py-3' : 'px-5 py-4'} border-b border-white/5 shrink-0`}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center shadow-lg">
-              <Trophy className="w-5 h-5 text-white" />
+            <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center shadow-lg`}>
+              <Trophy className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-white`} />
             </div>
             <div>
               <h2 className="text-sm font-black text-white">Your Session XP</h2>
@@ -193,7 +196,7 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
             </div>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-black text-amber-400 font-mono">{xp} XP</p>
+            <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-black text-amber-400 font-mono`}>{xp} XP</p>
             <p className="text-[9px] text-gray-400">{unlockedCount}/{totalAchieves} unlocked</p>
           </div>
         </div>
@@ -233,18 +236,18 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
 
       {/* ── Visitor Achievements Tab ─────────────────────────────────────── */}
       {tab === 'visitor' && (
-        <div className="flex-grow overflow-y-auto p-4 space-y-3 custom-scrollbar">
+        <div className={`flex-grow overflow-y-auto ${isMobile ? 'p-3 space-y-2.5' : 'p-4 space-y-3'} custom-scrollbar`}>
           {/* Stats Row */}
-          <div className="grid grid-cols-3 gap-3 mb-2">
+          <div className="grid grid-cols-3 gap-2.5 mb-2">
             {[
               { label: 'Achievements', value: `${unlockedCount}/${totalAchieves}`, icon: Trophy, color: 'text-amber-400' },
               { label: 'Earned XP', value: `${earnedXP}`, icon: Zap, color: 'text-purple-400' },
               { label: 'Progress', value: `${Math.round((unlockedCount / totalAchieves) * 100)}%`, icon: Star, color: 'text-cyan-400' },
             ].map(({ label, value, icon: Icon, color }) => (
-              <div key={label} className={`rounded-xl p-3 border text-center ${cardBg}`}>
-                <Icon className={`w-4 h-4 mx-auto mb-1 ${color}`} />
-                <p className="text-sm font-black">{value}</p>
-                <p className="text-[9px] text-gray-400">{label}</p>
+              <div key={label} className={`rounded-xl p-2 border text-center ${cardBg}`}>
+                <Icon className={`w-3.5 h-3.5 mx-auto mb-0.5 ${color}`} />
+                <p className="text-xs font-black">{value}</p>
+                <p className="text-[8px] text-gray-400 truncate">{label}</p>
               </div>
             ))}
           </div>
@@ -254,7 +257,7 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
             return (
               <div
                 key={ach.id}
-                className={`flex items-start space-x-3 p-3 rounded-xl border transition ${cardBg} ${
+                className={`flex items-start space-x-3 ${isMobile ? 'p-2.5' : 'p-3'} rounded-xl border transition ${cardBg} ${
                   unlocked ? 'border-purple-500/25 shadow-[0_0_10px_rgba(168,85,247,0.05)]' : 'opacity-55'
                 }`}
               >
@@ -298,7 +301,7 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
 
       {/* ── Dev Credentials Tab ─────────────────────────────────────────── */}
       {tab === 'dev' && (
-        <div className="flex-grow overflow-y-auto p-4 space-y-4 custom-scrollbar">
+        <div className={`flex-grow overflow-y-auto ${isMobile ? 'p-3 space-y-3' : 'p-4 space-y-4'} custom-scrollbar`}>
           <p className="text-[10px] text-gray-500 text-center pb-1">
             Harshit's certifications, awards & professional milestones.
           </p>
