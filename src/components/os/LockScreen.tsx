@@ -1,12 +1,21 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useOSStore } from '../../store/useOSStore';
-import { ArrowRight, Clock, ArrowUp } from 'lucide-react';
+import { ArrowRight, Clock, Fingerprint, CheckCircle2 } from 'lucide-react';
+import { playUnlockSound } from '../../utils/sounds';
 
 export default function LockScreen() {
   const setBootState = useOSStore((state) => state.setBootState);
   const viewMode = useOSStore((state) => state.viewMode);
   
   const [time, setTime] = useState(new Date());
+
+  // Biometric state for mobile lock screen
+  const [scanProgress, setScanProgress] = useState(0);
+  const [isScanning, setIsScanning] = useState(false);
+  const [isVerified, setIsVerified] = useState(false);
+
+  const startTimeRef = useRef<number | null>(null);
+  const animFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -27,11 +36,69 @@ export default function LockScreen() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleUnlock]);
 
+  // Handle fingerprint press & hold
+  const startScan = useCallback((e?: React.SyntheticEvent) => {
+    if (e && e.cancelable) e.preventDefault();
+    if (isVerified) return;
+
+    setIsScanning(true);
+    startTimeRef.current = performance.now();
+
+    const HOLD_DURATION = 800; // 800ms press & hold
+
+    const tick = (now: number) => {
+      if (!startTimeRef.current) return;
+      const elapsed = now - startTimeRef.current;
+      const progress = Math.min(100, (elapsed / HOLD_DURATION) * 100);
+
+      setScanProgress(progress);
+
+      if (progress < 100) {
+        animFrameRef.current = requestAnimationFrame(tick);
+      } else {
+        // Hold completed successfully
+        setIsVerified(true);
+        setIsScanning(false);
+        setScanProgress(100);
+        playUnlockSound();
+        setTimeout(() => {
+          handleUnlock();
+        }, 350);
+      }
+    };
+
+    animFrameRef.current = requestAnimationFrame(tick);
+  }, [isVerified, handleUnlock]);
+
+  const resetScan = useCallback(() => {
+    if (isVerified) return;
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    startTimeRef.current = null;
+    setIsScanning(false);
+    setScanProgress(0);
+  }, [isVerified]);
+
+  useEffect(() => {
+    return () => {
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+      }
+    };
+  }, []);
+
   const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const formattedDate = time.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
   const isMobile = viewMode === 'mobile';
 
   if (isMobile) {
+    // Circumference of r=36 SVG progress circle (2 * PI * 36)
+    const radius = 36;
+    const circumference = 2 * Math.PI * radius;
+    const strokeDashoffset = circumference - (scanProgress / 100) * circumference;
+
     return (
       <div
         className="fixed inset-0 select-none z-[9990] flex flex-col justify-between p-6 text-white bg-[#03001e] bg-cover bg-center"
@@ -61,22 +128,110 @@ export default function LockScreen() {
           </div>
         </div>
 
-        {/* Mobile Unlock Trigger (Tap/Swipe-up action) */}
-        <div className="flex flex-col items-center justify-center mb-10 w-full space-y-4">
-          <button
-            onClick={handleUnlock}
-            className="w-14 h-14 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white transition active:scale-95 shadow-lg animate-bounce"
-            aria-label="Unlock Mobile OS"
+        {/* Mobile Biometric Fingerprint Unlock Trigger */}
+        <div className="flex flex-col items-center justify-center mb-10 w-full space-y-5">
+          <div className="relative flex items-center justify-center touch-none">
+            {/* Subtle ambient pulsing glow behind sensor while scanning */}
+            <div
+              className={`absolute rounded-full transition-all duration-300 pointer-events-none ${
+                isVerified
+                  ? 'w-24 h-24 bg-emerald-500/30 blur-lg animate-pulse'
+                  : isScanning
+                  ? 'w-24 h-24 bg-cyan-500/30 blur-lg animate-ping'
+                  : 'w-20 h-20 bg-purple-500/10 blur-md opacity-40'
+              }`}
+            />
+
+            {/* Circular Progress SVG Ring around sensor */}
+            <svg className="w-24 h-24 transform -rotate-90 pointer-events-none z-10" viewBox="0 0 80 80">
+              {/* Background ring track */}
+              <circle
+                cx="40"
+                cy="40"
+                r={radius}
+                className="stroke-white/10"
+                strokeWidth="3"
+                fill="transparent"
+              />
+              {/* Animated Progress Ring */}
+              <circle
+                cx="40"
+                cy="40"
+                r={radius}
+                className={`transition-all duration-75 ${
+                  isVerified
+                    ? 'stroke-emerald-400'
+                    : isScanning
+                    ? 'stroke-cyan-400'
+                    : 'stroke-purple-400/50'
+                }`}
+                strokeWidth="3.5"
+                strokeDasharray={circumference}
+                strokeDashoffset={strokeDashoffset}
+                strokeLinecap="round"
+                fill="transparent"
+              />
+            </svg>
+
+            {/* Interactive Sensor Core Button */}
+            <button
+              onPointerDown={startScan}
+              onPointerUp={resetScan}
+              onPointerLeave={resetScan}
+              onPointerCancel={resetScan}
+              onTouchStart={startScan}
+              onTouchEnd={resetScan}
+              onTouchCancel={resetScan}
+              className={`absolute w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xl select-none z-20 ${
+                isVerified
+                  ? 'bg-emerald-500/20 border-2 border-emerald-400 shadow-[0_0_35px_rgba(16,185,129,0.7)] scale-105'
+                  : isScanning
+                  ? 'bg-cyan-500/20 border border-cyan-300 shadow-[0_0_30px_rgba(6,182,212,0.6)] scale-110'
+                  : 'bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/15 hover:border-white/30 active:scale-95'
+              }`}
+              aria-label="Touch & Hold Fingerprint to Unlock Mobile OS"
+            >
+              {isVerified ? (
+                <CheckCircle2 className="w-9 h-9 text-emerald-400 animate-scale-up" />
+              ) : (
+                <div className="relative w-9 h-9 flex items-center justify-center">
+                  {/* Unfilled base fingerprint */}
+                  <Fingerprint className="w-9 h-9 text-white/30 absolute inset-0" />
+                  {/* Progressive vertical fill fingerprint */}
+                  <Fingerprint
+                    className={`w-9 h-9 absolute inset-0 transition-colors duration-150 ${
+                      isScanning ? 'text-cyan-300' : 'text-purple-300'
+                    }`}
+                    style={{
+                      clipPath: `inset(${100 - scanProgress}% 0 0 0)`,
+                    }}
+                  />
+                </div>
+              )}
+            </button>
+          </div>
+
+          {/* Dynamic Action Text */}
+          <span
+            className={`text-xs font-semibold tracking-widest uppercase transition-all duration-300 ${
+              isVerified
+                ? 'text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.5)] scale-105'
+                : isScanning
+                ? 'text-cyan-300 animate-pulse'
+                : 'text-gray-300/80 animate-pulse'
+            }`}
           >
-            <ArrowUp className="w-6 h-6" />
-          </button>
-          <span onClick={handleUnlock} className="text-xs text-gray-300 font-medium tracking-widest cursor-pointer uppercase animate-pulse">
-            Swipe up or Tap to Unlock
+            {isVerified
+              ? 'Fingerprint Verified'
+              : isScanning
+              ? 'Scanning Fingerprint...'
+              : 'Touch & Hold to Unlock'}
           </span>
         </div>
       </div>
     );
   }
+
 
   return (
     <div
