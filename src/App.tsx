@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, lazy, Suspense, useState, useRef } from 'react';
 import { useOSStore } from './store/useOSStore';
 import BootScreen from './components/os/BootScreen';
 import LockScreen from './components/os/LockScreen';
@@ -12,12 +12,101 @@ function App() {
   const bootState = useOSStore((state) => state.bootState);
   const theme = useOSStore((state) => state.theme);
   const wallpaper = useOSStore((state) => state.wallpaper);
+  const uiScale = useOSStore((state) => state.uiScale);
+  const accentColor = useOSStore((state) => state.accentColor);
+  const windowAnimation = useOSStore((state) => state.windowAnimation);
+  const dockSize = useOSStore((state) => state.dockSize);
+  const showFPS = useOSStore((state) => state.showFPS);
+  const showWindowBounds = useOSStore((state) => state.showWindowBounds);
   
   const viewMode = useOSStore((state) => state.viewMode);
   const setViewMode = useOSStore((state) => state.setViewMode);
   const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
   const setIsSimulatingMobile = useOSStore((state) => state.setIsSimulatingMobile);
   const layoutOverride = useOSStore((state) => state.layoutOverride);
+
+  // FPS counter
+  const [fps, setFps] = useState(60);
+  const fpsRef = useRef<number[]>([]);
+  const frameRef = useRef<number | null>(null);
+
+  // ── Mobile landscape detection ──────────────────────────────────────────────
+  const [isLandscapeMobile, setIsLandscapeMobile] = useState(false);
+
+  useEffect(() => {
+    const checkOrientation = () => {
+      const isMobileViewport = window.innerWidth < 1024;
+      const isLandscape = window.innerWidth > window.innerHeight;
+      // Only block landscape on real mobile-sized screens (not tablets in landscape which is intentional)
+      const isSmallScreen = Math.min(window.innerWidth, window.innerHeight) < 550;
+      setIsLandscapeMobile(isMobileViewport && isLandscape && isSmallScreen);
+    };
+    checkOrientation();
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    return () => {
+      window.removeEventListener('resize', checkOrientation);
+      window.removeEventListener('orientationchange', checkOrientation);
+    };
+  }, []);
+
+  // ── FPS tracking ─────────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!showFPS) {
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      return;
+    }
+    let lastTime = performance.now();
+    const tick = () => {
+      const now = performance.now();
+      const delta = now - lastTime;
+      lastTime = now;
+      fpsRef.current.push(Math.round(1000 / delta));
+      if (fpsRef.current.length > 30) fpsRef.current.shift();
+      setFps(Math.round(fpsRef.current.reduce((a, b) => a + b, 0) / fpsRef.current.length));
+      frameRef.current = requestAnimationFrame(tick);
+    };
+    frameRef.current = requestAnimationFrame(tick);
+    return () => { if (frameRef.current) cancelAnimationFrame(frameRef.current); };
+  }, [showFPS]);
+
+  // ── Ctrl+K opens Start Menu ────────────────────────────────────────────────
+  useEffect(() => {
+    const handleCtrlK = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const state = useOSStore.getState();
+        state.setStartMenuOpen(!state.startMenuOpen);
+      }
+    };
+    window.addEventListener('keydown', handleCtrlK);
+    return () => window.removeEventListener('keydown', handleCtrlK);
+  }, []);
+
+  // ── History API back-button trap ─────────────────────────────────────────────
+  // Pushes a dummy history state so the Android/iOS back gesture stays inside the app.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    // Push initial dummy state
+    window.history.pushState({ portfolioOS: true }, '', window.location.href);
+
+    const handlePopState = (e: PopStateEvent) => {
+      if (e.state?.portfolioOS) return;
+      // User pressed back — push state again to stay in the app
+      window.history.pushState({ portfolioOS: true }, '', window.location.href);
+      // If an app window is open, close it instead
+      const activeId = useOSStore.getState().activeWindowId;
+      if (activeId) {
+        useOSStore.getState().closeWindow(activeId);
+      } else if (useOSStore.getState().activeMobileApp) {
+        const appId = useOSStore.getState().activeMobileApp!;
+        useOSStore.getState().closeMobileApp(appId);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Set viewMode dynamically based on screen size or override
   useEffect(() => {
@@ -60,8 +149,60 @@ function App() {
   if (isMidnight) themeWrapperClass = 'midnight-theme';
   if (isGlass) themeWrapperClass = 'glass-theme';
 
+  // CSS classes driven by user settings
+  const accentClass = `accent-${accentColor}`;
+  const animClass = windowAnimation !== 'smooth' ? `window-anim-${windowAnimation}` : '';
+  const dockClass = dockSize !== 'medium' ? `dock-size-${dockSize}` : '';
+  const boundsClass = showWindowBounds ? 'debug-window-bounds' : '';
+
+  // Apply UI scale to root html document and CSS custom property
+  const zoomFactor = uiScale / 100;
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${uiScale}%`;
+    document.documentElement.style.setProperty('--ui-scale-factor', `${zoomFactor}`);
+    return () => {
+      document.documentElement.style.fontSize = '100%';
+    };
+  }, [uiScale, zoomFactor]);
+
   return (
-    <div className={`h-dvh w-screen overflow-hidden font-sans select-none relative ${themeWrapperClass}`}>
+    <div
+      className={`h-dvh w-screen overflow-hidden font-sans select-none relative ${themeWrapperClass} ${accentClass} ${animClass} ${dockClass} ${boundsClass}`}
+    >
+      {/* FPS Counter overlay */}
+      {showFPS && bootState === 'desktop' && (
+        <div className="fps-counter" aria-hidden="true">{fps} FPS</div>
+      )}
+
+      {/* ── Mobile Landscape Lock Overlay ──────────────────────────────────── */}
+      {isLandscapeMobile && (
+        <div className="fixed inset-0 z-[99999] bg-[#07070a] flex flex-col items-center justify-center text-white select-none">
+          <div className="flex flex-col items-center space-y-5 px-8 text-center animate-fade-in">
+            {/* Animated rotate icon */}
+            <div className="relative">
+              <div className="w-20 h-20 rounded-3xl border-4 border-purple-500/60 flex items-center justify-center bg-purple-500/10 shadow-[0_0_40px_rgba(168,85,247,0.3)]">
+                <svg className="w-10 h-10 text-purple-400 animate-[spin_3s_ease-in-out_infinite]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <div className="absolute -inset-2 rounded-[32px] border border-purple-500/20 animate-pulse" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-1">
+                Please Rotate Your Device
+              </h2>
+              <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
+                Portfolio OS is designed for portrait mode. Rotate your phone for the best experience.
+              </p>
+            </div>
+            <div className="flex items-center space-x-2 text-[11px] text-gray-600">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-500/60 animate-pulse" />
+              <span>harshitkandoi.in</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {bootState === 'booting' && <BootScreen />}
       {bootState === 'locked' && <LockScreen />}
       {bootState === 'powered_off' && <PoweredOffScreen />}

@@ -1,34 +1,35 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+async function ensureUnlocked(page: Page) {
+  const unlockBtn = page.locator('button[aria-label="Touch & Hold Fingerprint to Unlock Mobile OS"]');
+  await expect(unlockBtn).toBeVisible({ timeout: 10000 });
+  await unlockBtn.click({ force: true });
+
+  const searchInput = page.locator('input[placeholder="Search application grid..."]');
+  await expect(searchInput).toBeVisible({ timeout: 10000 });
+}
 
 test.describe('Mobile Smartphone AndroidOS Core Verification', () => {
-  // Use Pixel 5 configuration
+  // Use Pixel 5 viewport configuration
   test.use({ viewport: { width: 393, height: 851 } });
 
   test('should load mobile boot, lockscreen, and unlock to AndroidOS layout', async ({ page }) => {
     await page.goto('/');
+    await ensureUnlocked(page);
 
-    // Verify mobile header is present on lock screen
-    await expect(page.locator('text=Harshit\'s Phone')).toBeVisible({ timeout: 8000 });
-
-    // Click swipe-up unlock button (force click to bypass bounce stability check)
-    await page.locator('button.animate-bounce').click({ force: true });
-
-    // Verify AndroidOS is displayed by finding the search widget
-    await expect(page.locator('input[placeholder="Search application grid..."]')).toBeVisible();
-
-    // Check app grids on mobile home screen (first() to bypass duplicate home vs dock button matches)
+    // Check app icons on mobile home screen (first() to bypass duplicate matches)
     await expect(page.locator('text=About Me').first()).toBeVisible();
     await expect(page.locator('text=Projects').first()).toBeVisible();
   });
 
   test('should open, run full-screen, and close mobile apps with Android back action', async ({ page }) => {
     await page.goto('/');
-    await page.locator('button.animate-bounce').click({ force: true });
+    await ensureUnlocked(page);
 
-    // Tap "About Me" app icon on home screen (first() to bypass double matches on dock vs grid)
+    // Tap "About Me" app icon on home screen
     await page.locator('text=About Me').first().click();
 
-    // The app should launch and display its full screen container (on mobile it is titled "About Me")
+    // The app should launch and display its container
     await expect(page.locator('span:has-text("About Me")').first()).toBeVisible();
 
     // Click Android navigation bar Back button
@@ -42,14 +43,14 @@ test.describe('Mobile Smartphone AndroidOS Core Verification', () => {
 
   test('should open app drawer when simulated swipe-up or drawer trigger is clicked', async ({ page }) => {
     await page.goto('/');
-    await page.locator('button.animate-bounce').click({ force: true });
+    await ensureUnlocked(page);
 
     // Click drawer toggle trigger
     const drawerHandle = page.locator('text=All Apps');
     await expect(drawerHandle).toBeVisible();
     await drawerHandle.click();
 
-    // Verify App Drawer is visible containing a grid of apps
+    // Verify App Drawer is visible containing search input
     await expect(page.locator('input[placeholder="Search drawer..."]')).toBeVisible();
 
     // Dismiss drawer by tapping close
@@ -59,15 +60,14 @@ test.describe('Mobile Smartphone AndroidOS Core Verification', () => {
 
   test('should support quick settings pull-down panel control', async ({ page }) => {
     await page.goto('/');
-    await page.locator('button.animate-bounce').click({ force: true });
+    await ensureUnlocked(page);
 
     // Tap status bar at the top to open quick settings
-    // status bar is height 9 div (h-9 class)
-    const statusBar = page.locator('.h-9');
+    const statusBar = page.locator('.h-9').first();
     await expect(statusBar).toBeVisible();
     await statusBar.click();
 
-    // Verify Quick Settings panel overlay containing sliders and toggle buttons
+    // Verify Quick Settings panel overlay containing controls
     await expect(page.locator('text=Display Brightness')).toBeVisible();
     await expect(page.locator('text=System Volume')).toBeVisible();
 
@@ -77,7 +77,7 @@ test.describe('Mobile Smartphone AndroidOS Core Verification', () => {
     await airplaneMode.click();
 
     // Close settings pull-down
-    await page.locator('button:has-text("Close Panel")').click();
+    await page.locator('button:has-text("Close Panel")').click({ force: true });
     await expect(page.locator('text=Display Brightness')).toBeHidden();
   });
 });

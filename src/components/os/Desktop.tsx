@@ -5,11 +5,15 @@ import {
   Settings as GearIcon, User, Briefcase, Award, FileText, Send, 
   Search, Cpu, HardDrive, Wifi, Volume2, Bell, LogOut, Moon, Sun, 
   Gamepad2, Github, Linkedin, Smartphone, Mail, Phone, Database,
-  Coffee, Heart
+  Coffee, Heart, BookMarked, StickyNote, /* Image as ImageIcon, */ Package
 } from 'lucide-react';
+
 import Window from './Window';
 import NotificationPanel from './NotificationPanel';
+import DashboardWidgets from './DashboardWidgets';
 import { playWindowSound, playNotificationSound } from '../../utils/sounds';
+import { SYSTEM_NOTIFICATION_POOL } from '../../data/notifications';
+
 
 // Custom Snake Icon SVG
 const SnakeIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -36,6 +40,14 @@ const SettingsApp    = lazy(() => import('../apps/SettingsApp'));
 const SnakeGame      = lazy(() => import('../apps/SnakeGame'));
 const PortfolioSwipe = lazy(() => import('../apps/PortfolioSwipe'));
 const BuyMeCoffeeApp = lazy(() => import('../apps/BuyMeCoffeeApp'));
+// Phase 3 New Apps
+const LibraryApp     = lazy(() => import('../apps/LibraryApp'));
+const NotesApp       = lazy(() => import('../apps/NotesApp'));
+// const GalleryApp     = lazy(() => import('../apps/GalleryApp'));
+const ProductsApp    = lazy(() => import('../apps/ProductsApp'));
+// const PublicationsApp= lazy(() => import('../apps/PublicationsApp'));
+// const MarketplaceApp = lazy(() => import('../apps/MarketplaceApp'));
+
 
 export default function Desktop() {
   const { 
@@ -51,7 +63,9 @@ export default function Desktop() {
   const [ramUsage, setRamUsage] = useState(48);
   const [showVolumePopup, setShowVolumePopup] = useState(false);
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
   const [sysTime, setSysTime] = useState(new Date());
+
   const [bouncingApp, setBouncingApp] = useState<string | null>(null);
   const [shutdownStep, setShutdownStep] = useState(0);
 
@@ -121,6 +135,27 @@ export default function Desktop() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  // Global Konami Code easter egg
+  useEffect(() => {
+    const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+    let progress: string[] = [];
+    const handleKonami = (e: KeyboardEvent) => {
+      if (e.key === KONAMI[progress.length]) {
+        progress = [...progress, e.key];
+        if (progress.length === KONAMI.length) {
+          progress = [];
+          addNotification('🔓 Developer Mode Unlocked', 'Welcome, engineer. You found the Konami Code. XP +999.', 'success', 'system');
+          playNotificationSound();
+        }
+      } else {
+        progress = e.key === KONAMI[0] ? [e.key] : [];
+      }
+    };
+    window.addEventListener('keydown', handleKonami);
+    return () => window.removeEventListener('keydown', handleKonami);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Welcome-back notification for returning visitors
   useEffect(() => {
     if (welcomeNotifSent.current) return;
@@ -159,20 +194,32 @@ export default function Desktop() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShuttingDown]);
 
-  // Dispatch a random toast notification every 55 seconds for immersive activity
+  // Ref for non-repeating notification queue
+  const notificationQueueRef = useRef<number[]>([]);
+
+  // Dispatch non-repeating toast notifications from SYSTEM_NOTIFICATION_POOL every 45s
   useEffect(() => {
-    const randomToasts = [
-      { title: '💼 Open to Work', message: 'Harshit is currently active and looking for new roles!', type: 'info' as const, category: 'career' as const, action: 'contact' as const },
-      { title: '⭐ GitHub Star', message: 'Repository "local-gcp-emulator" starred!', type: 'success' as const, category: 'portfolio' as const, action: 'github' as const },
-      { title: '🚀 Deployment Active', message: 'Local GCP Emulator offline container built successfully.', type: 'success' as const, category: 'portfolio' as const, action: 'projects' as const },
-      { title: '☕ Coffee Levels Low', message: 'Harshit may need a refill soon. Consider buying him a coffee!', type: 'info' as const, category: 'funny' as const, action: 'coffee' as const },
-      { title: '💼 Recruiter Detected', message: 'Potential hiring signal detected. Resume.pdf is ready!', type: 'info' as const, category: 'career' as const, action: 'resume' as const },
-    ];
+    const getNextNotificationIndex = () => {
+      if (notificationQueueRef.current.length === 0) {
+        const indices = Array.from({ length: SYSTEM_NOTIFICATION_POOL.length }, (_, i) => i);
+        // Fisher-Yates Shuffle
+        for (let i = indices.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+        notificationQueueRef.current = indices;
+      }
+      return notificationQueueRef.current.pop()!;
+    };
+
     const interval = setInterval(() => {
-      const selected = randomToasts[Math.floor(Math.random() * randomToasts.length)];
-      addNotification(selected.title, selected.message, selected.type, selected.category, selected.action);
-      playNotificationSound();
-    }, 55000);
+      const idx = getNextNotificationIndex();
+      const selected = SYSTEM_NOTIFICATION_POOL[idx];
+      if (selected) {
+        addNotification(selected.title, selected.message, selected.type, selected.category, selected.action);
+        playNotificationSound();
+      }
+    }, 45000);
     return () => clearInterval(interval);
   }, [addNotification]);
 
@@ -211,22 +258,30 @@ export default function Desktop() {
   };
 
   const appIcons = [
-    { id: 'about',        title: 'About.exe',        icon: User,        color: 'from-blue-500 to-cyan-400'     },
-    { id: 'projects',     title: 'Projects.exe',     icon: Folder,      color: 'from-purple-500 to-indigo-500' },
-    { id: 'experience',   title: 'Experience.exe',   icon: Briefcase,   color: 'from-emerald-500 to-teal-500' },
-    { id: 'skills',       title: 'Skills.exe',       icon: Award,       color: 'from-amber-500 to-orange-500' },
-    { id: 'resume',       title: 'Resume.pdf',       icon: FileText,    color: 'from-rose-500 to-red-500'     },
-    { id: 'terminal',     title: 'Terminal.exe',     icon: TermIcon,    color: 'from-slate-700 to-slate-900'  },
-    { id: 'ai',           title: 'AI Assistant',     icon: MessageSquare,color: 'from-pink-500 to-rose-400'  },
-    { id: 'blog',         title: 'Blog Reader.exe',  icon: BookOpen,    color: 'from-sky-500 to-blue-600'     },
-    { id: 'achievements', title: 'Achievements.exe', icon: Trophy,      color: 'from-yellow-400 to-amber-500' },
-    { id: 'gaming',       title: 'Gaming Profile',   icon: Gamepad2,    color: 'from-red-500 to-pink-500'     },
-    { id: 'contact',      title: 'Contact.exe',      icon: Send,        color: 'from-teal-400 to-emerald-500' },
-    { id: 'settings',     title: 'Settings.exe',     icon: GearIcon,    color: 'from-slate-400 to-slate-600'  },
-    { id: 'snake',        title: 'Snake.exe',        icon: SnakeIcon,   color: 'from-green-500 to-emerald-700' },
-    { id: 'swipe',        title: 'Portfolio Swipe',  icon: Heart,       color: 'from-rose-500 to-red-600'     },
-    { id: 'coffee',       title: 'Buy Me Coffee ☕', icon: Coffee,      color: 'from-amber-600 to-yellow-700' },
+    { id: 'about',        title: 'About.exe',        icon: User,          color: 'from-blue-500 to-cyan-400'     },
+    { id: 'projects',     title: 'Projects.exe',     icon: Folder,        color: 'from-purple-500 to-indigo-500' },
+    { id: 'experience',   title: 'Experience.exe',   icon: Briefcase,     color: 'from-emerald-500 to-teal-500' },
+    { id: 'skills',       title: 'Skills.exe',       icon: Award,         color: 'from-amber-500 to-orange-500' },
+    { id: 'resume',       title: 'Resume.pdf',       icon: FileText,      color: 'from-rose-500 to-red-500'     },
+    { id: 'terminal',     title: 'Terminal.exe',     icon: TermIcon,      color: 'from-slate-700 to-slate-900'  },
+    { id: 'ai',           title: 'Chatbot.exe',     icon: MessageSquare, color: 'from-pink-500 to-rose-400'    },
+    { id: 'blog',         title: 'Blog.exe',         icon: BookOpen,      color: 'from-sky-500 to-blue-600'     },
+    { id: 'achievements', title: 'Awards.exe',        icon: Trophy,        color: 'from-yellow-400 to-amber-500' },
+    { id: 'gaming',       title: 'Gaming.exe',       icon: Gamepad2,      color: 'from-red-500 to-pink-500'     },
+    { id: 'contact',      title: 'Contact.exe',      icon: Send,          color: 'from-teal-400 to-emerald-500' },
+    { id: 'settings',     title: 'Settings.exe',     icon: GearIcon,      color: 'from-slate-400 to-slate-600'  },
+    { id: 'snake',        title: 'Snake.exe',        icon: SnakeIcon,     color: 'from-green-500 to-emerald-700' },
+    { id: 'swipe',        title: 'Swipe.exe',        icon: Heart,         color: 'from-rose-500 to-red-600'     },
+    { id: 'coffee',       title: 'Coffee.exe',       icon: Coffee,        color: 'from-amber-600 to-yellow-700' },
+    // Phase 3 New Apps
+    { id: 'library',      title: 'Library.exe',      icon: BookMarked,    color: 'from-amber-500 to-orange-400' },
+    { id: 'notes',        title: 'Notes.exe',        icon: StickyNote,    color: 'from-violet-500 to-purple-600'},
+    // { id: 'gallery',      title: 'Gallery.exe',      icon: ImageIcon,     color: 'from-pink-500 to-rose-500'    },
+    { id: 'products',     title: 'Products.exe',     icon: Package,       color: 'from-violet-600 to-indigo-600'},
+    // { id: 'publications', title: 'Papers.exe',        icon: BookMarked,    color: 'from-green-500 to-emerald-600'},
+    // { id: 'marketplace',  title: 'Store.exe',        icon: ShoppingBag,   color: 'from-rose-500 to-pink-600'    },
   ];
+
 
   // Filters search query for App icons
   const filteredApps = searchQuery 
@@ -251,9 +306,9 @@ export default function Desktop() {
   let cardBg = 'bg-white/10 border-white/10 text-white';
 
   if (theme === 'light') {
-    shellTheme = 'text-gray-800';
-    barBg = 'bg-white/70 backdrop-blur-xl border-gray-200/50 shadow-sm';
-    cardBg = 'bg-white/80 border-gray-200/50 text-gray-800';
+    shellTheme = 'text-gray-900';
+    barBg = 'bg-white/85 backdrop-blur-2xl border-gray-200 shadow-md text-gray-900';
+    cardBg = 'bg-white/90 border-gray-200 text-gray-900 shadow-xl';
   } else if (theme === 'dark') {
     barBg = 'bg-gray-950/70 backdrop-blur-xl border-gray-800/80';
     cardBg = 'bg-gray-900/80 border-gray-800/80 text-gray-100';
@@ -272,10 +327,13 @@ export default function Desktop() {
     const isStartMenuClick = target.closest('#start-menu-button') || target.closest('#start-menu');
     const isNotificationClick = target.closest('#notification-button') || target.closest('#notification-drawer');
     const isVolumeClick = target.closest('#volume-button') || target.closest('#volume-popup');
+    const isDashboardClick = target.closest('#dashboard-button') || target.closest('#dashboard-widgets');
     
     if (!isStartMenuClick && startMenuOpen) setStartMenuOpen(false);
     if (!isNotificationClick && showNotificationDrawer) setShowNotificationDrawer(false);
     if (!isVolumeClick && showVolumePopup) setShowVolumePopup(false);
+    if (!isDashboardClick && showDashboard) setShowDashboard(false);
+
   };
 
   return (
@@ -295,10 +353,12 @@ export default function Desktop() {
             onClick={() => setStartMenuOpen(!startMenuOpen)}
             className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg transition-all ${
               theme === 'cyberpunk' 
-                ? 'bg-yellow-400 text-black hover:bg-yellow-500' 
+                ? 'bg-yellow-400 text-black hover:bg-yellow-500 font-bold' 
                 : theme === 'retro'
-                  ? 'bg-green-500 text-black hover:bg-green-600'
-                  : 'bg-white/10 hover:bg-white/20 border border-white/15'
+                  ? 'bg-green-500 text-black hover:bg-green-600 font-bold'
+                  : theme === 'light'
+                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-sm font-bold'
+                    : 'bg-white/10 hover:bg-white/20 border border-white/15'
             }`}
             aria-label={startMenuOpen ? "Close start menu" : "Open start menu"}
           >
@@ -313,14 +373,16 @@ export default function Desktop() {
 
           {/* Quick Search */}
           <div className="relative hidden md:block">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 opacity-60" />
+            <Search className={`w-3.5 h-3.5 absolute left-3 top-2.5 ${theme === 'light' ? 'text-gray-500' : 'opacity-60'}`} />
             <input
               type="text"
               placeholder="Search apps..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`pl-9 pr-4 py-1.5 rounded-lg text-xs w-48 focus:outline-none focus:ring-1 focus:ring-primary-500/50 bg-white/5 border border-white/15 placeholder-gray-400 ${
-                theme === 'light' ? 'bg-black/5 text-gray-800 border-black/10 placeholder-gray-500' : ''
+              className={`pl-9 pr-4 py-1.5 rounded-lg text-xs w-48 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition ${
+                theme === 'light' 
+                  ? 'bg-white text-gray-900 border border-gray-300 placeholder-gray-500 shadow-inner' 
+                  : 'bg-white/5 border border-white/15 placeholder-gray-400 text-white'
               }`}
             />
           </div>
@@ -330,60 +392,89 @@ export default function Desktop() {
         <div className="flex items-center space-x-4">
           
           {/* CPU Monitor */}
-          <div className="flex items-center space-x-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded-md text-[10px] sm:text-xs">
-            <Cpu className="w-3.5 h-3.5 text-indigo-400" />
+          <div className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-xs border ${
+            theme === 'light' 
+              ? 'bg-purple-50/80 border-purple-200/80 text-purple-900 font-semibold shadow-xs' 
+              : 'bg-white/5 border-white/10 text-white'
+          }`}>
+            <Cpu className={`w-3.5 h-3.5 ${theme === 'light' ? 'text-purple-600' : 'text-indigo-400'}`} />
             <span className="hidden sm:inline">CPU</span>
-            <span className="font-semibold">{cpuUsage}%</span>
+            <span className="font-bold">{cpuUsage}%</span>
           </div>
 
           {/* RAM Monitor */}
-          <div className="flex items-center space-x-1.5 bg-white/5 border border-white/10 px-2.5 py-1 rounded-md text-[10px] sm:text-xs">
-            <HardDrive className="w-3.5 h-3.5 text-pink-400" />
+          <div className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-xs border ${
+            theme === 'light' 
+              ? 'bg-pink-50/80 border-pink-200/80 text-pink-900 font-semibold shadow-xs' 
+              : 'bg-white/5 border-white/10 text-white'
+          }`}>
+            <HardDrive className={`w-3.5 h-3.5 ${theme === 'light' ? 'text-pink-600' : 'text-pink-400'}`} />
             <span className="hidden sm:inline">RAM</span>
-            <span className="font-semibold">{ramUsage}%</span>
+            <span className="font-bold">{ramUsage}%</span>
           </div>
 
+          {/* Dashboard Widget Toggle */}
+          <button
+            id="dashboard-button"
+            onClick={() => setShowDashboard(!showDashboard)}
+            className={`hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-xs border transition-all ${
+              showDashboard
+                ? theme === 'light' ? 'bg-purple-600 border-purple-600 text-white shadow-sm font-bold' : 'bg-purple-600/30 border-purple-500/50 text-purple-300'
+                : theme === 'light' ? 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-800 font-semibold' : 'bg-white/5 border-white/10 hover:bg-white/10 text-gray-300'
+            }`}
+            aria-label={showDashboard ? 'Close dashboard' : 'Open dashboard'}
+            title="Dashboard"
+          >
+            <Database className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">Dashboard</span>
+          </button>
+
+
           {/* Socials Shortcuts Tray */}
-          <div className="hidden lg:flex items-center space-x-3 border-l border-white/10 pl-4">
+          <div className={`hidden lg:flex items-center space-x-3 border-l pl-4 ${theme === 'light' ? 'border-gray-300' : 'border-white/10'}`}>
             {/* GitHub */}
-            <a href="https://github.com/Harshit-Kandoi" target="_blank" rel="noopener noreferrer" className="hover:scale-115 active:scale-95 transition-all text-purple-300 relative group" title="GitHub">
+            <a href="https://github.com/Harshit-Kandoi" target="_blank" rel="noopener noreferrer" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-purple-700 hover:text-purple-900' : 'text-purple-300'}`} title="GitHub">
               <Github className="w-4 h-4" />
-              <span className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 border border-gray-800 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap text-white z-[10005]">GitHub</span>
+              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>GitHub</span>
             </a>
             {/* LinkedIn */}
-            <a href="https://linkedin.com/in/harshit-kandoi" target="_blank" rel="noopener noreferrer" className="hover:scale-115 active:scale-95 transition-all text-blue-400 relative group" title="LinkedIn">
+            <a href="https://linkedin.com/in/harshit-kandoi" target="_blank" rel="noopener noreferrer" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-blue-700 hover:text-blue-900' : 'text-blue-400'}`} title="LinkedIn">
               <Linkedin className="w-4 h-4" />
-              <span className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 border border-gray-800 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap text-white z-[10005]">LinkedIn</span>
+              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>LinkedIn</span>
             </a>
             {/* Gmail */}
-            <a href="mailto:kandoiharshitsdlp@gmail.com" className="hover:scale-115 active:scale-95 transition-all text-rose-400 relative group" title="Gmail">
+            <a href="mailto:kandoiharshitsdlp@gmail.com" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-rose-600 hover:text-rose-800' : 'text-rose-400'}`} title="Gmail">
               <Mail className="w-4 h-4" />
-              <span className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 border border-gray-800 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap text-white z-[10005]">Gmail</span>
+              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>Gmail</span>
             </a>
             {/* Phone */}
-            <a href="tel:+917850098453" className="hover:scale-115 active:scale-95 transition-all text-emerald-400 relative group" title="Phone">
+            <a href="tel:+917850098453" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-emerald-700 hover:text-emerald-900' : 'text-emerald-400'}`} title="Phone">
               <Phone className="w-4 h-4" />
-              <span className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 border border-gray-800 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap text-white z-[10005]">Phone</span>
+              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>Phone</span>
             </a>
             {/* Medium */}
-            <a href="https://medium.com/@kandoiharshitsdlp" target="_blank" rel="noopener noreferrer" className="hover:scale-115 active:scale-95 transition-all text-cyan-400 relative group" title="Medium">
+            <a href="https://medium.com/@kandoiharshitsdlp" target="_blank" rel="noopener noreferrer" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-cyan-700 hover:text-cyan-900' : 'text-cyan-400'}`} title="Medium">
               <BookOpen className="w-4 h-4" />
-              <span className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 border border-gray-800 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap text-white z-[10005]">Medium</span>
+              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>Medium</span>
             </a>
             {/* Kaggle */}
-            <a href="https://kaggle.com/harshitkandoi" target="_blank" rel="noopener noreferrer" className="hover:scale-115 active:scale-95 transition-all text-amber-400 relative group" title="Kaggle">
+            <a href="https://kaggle.com/harshitkandoi" target="_blank" rel="noopener noreferrer" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-amber-700 hover:text-amber-900' : 'text-amber-400'}`} title="Kaggle">
               <Database className="w-4 h-4" />
-              <span className="absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 bg-slate-900 border border-gray-800 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap text-white z-[10005]">Kaggle</span>
+              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>Kaggle</span>
             </a>
           </div>
 
           {/* WiFi & Sound */}
-          <div className="flex items-center space-x-2 border-l border-white/10 pl-4">
+          <div className={`flex items-center space-x-2 border-l pl-4 ${theme === 'light' ? 'border-gray-300' : 'border-white/10'}`}>
             {(viewMode === 'desktop' || viewMode === 'tablet') && (
               <button 
                 onClick={() => setIsSimulatingMobile(!isSimulatingMobile)} 
                 className={`p-1 rounded-md transition hover:scale-105 active:scale-95 ${
-                  isSimulatingMobile ? 'bg-purple-600/35 border border-purple-500/50 text-white' : 'text-gray-400 hover:text-white hover:bg-white/10'
+                  isSimulatingMobile
+                    ? 'bg-purple-600 border border-purple-600 text-white shadow-xs'
+                    : theme === 'light'
+                      ? 'text-gray-700 hover:text-gray-900 hover:bg-gray-200/80'
+                      : 'text-gray-400 hover:text-white hover:bg-white/10'
                 }`}
                 title="Toggle Android OS Simulator"
                 aria-label="Toggle Android OS simulator"
@@ -392,20 +483,34 @@ export default function Desktop() {
               </button>
             )}
             <button 
+              onClick={() => { playWindowSound('open'); openWindow('settings'); }} 
+              className={`p-1 rounded-md transition hover:scale-105 active:scale-95 ${
+                theme === 'light' ? 'text-purple-700 hover:bg-gray-200/80' : 'text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
+              title="Open Settings (Alt+S)"
+              aria-label="Open Settings"
+            >
+              <GearIcon className={`w-4 h-4 hover:rotate-90 transition-transform duration-300 ${theme === 'light' ? 'text-purple-700' : 'text-purple-400'}`} />
+            </button>
+            <button 
               onClick={handleThemeCycle} 
-              className="p-1 rounded-md transition hover:scale-105 active:scale-95 text-gray-400 hover:text-white hover:bg-white/10"
+              className={`p-1 rounded-md transition hover:scale-105 active:scale-95 ${
+                theme === 'light' ? 'text-indigo-700 hover:bg-gray-200/80' : 'text-gray-400 hover:text-white hover:bg-white/10'
+              }`}
               title={`Cycle Theme (Current: ${theme})`}
               aria-label="Cycle theme"
             >
-              {theme === 'light' ? <Moon className="w-4 h-4 text-indigo-400" /> : <Sun className="w-4 h-4 text-yellow-400" />}
+              {theme === 'light' ? <Moon className="w-4 h-4 text-indigo-600" /> : <Sun className="w-4 h-4 text-yellow-400" />}
             </button>
-            <Wifi className="w-4 h-4 text-emerald-400" />
+            <Wifi className={`w-4 h-4 ${theme === 'light' ? 'text-emerald-600' : 'text-emerald-400'}`} />
             
             <button id="volume-button" onClick={() => setShowVolumePopup(!showVolumePopup)} className="hover:opacity-80 transition relative" aria-label={showVolumePopup ? "Close volume controls" : "Open volume controls"}>
-              <Volume2 className="w-4 h-4 text-sky-400" />
+              <Volume2 className={`w-4 h-4 ${theme === 'light' ? 'text-sky-600' : 'text-sky-400'}`} />
               {showVolumePopup && (
-                <div id="volume-popup" className="absolute right-0 top-6 bg-slate-900 border border-gray-800 p-3 rounded-lg shadow-xl w-32 flex flex-col z-[10000] text-white">
-                  <span className="text-[10px] text-gray-400 mb-1">Volume Control</span>
+                <div id="volume-popup" className={`absolute right-0 top-6 p-3 rounded-lg shadow-xl w-32 flex flex-col z-[10000] ${
+                  theme === 'light' ? 'bg-white border border-gray-200 text-gray-900 shadow-2xl' : 'bg-slate-900 border border-gray-800 text-white'
+                }`}>
+                  <span className={`text-[10px] mb-1 font-semibold ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>Volume Control</span>
                   <input
                     type="range"
                     min="0"
@@ -435,7 +540,7 @@ export default function Desktop() {
               className="hover:opacity-80 transition relative"
               aria-label={showNotificationDrawer ? "Close notifications panel" : "Open notifications panel"}
             >
-              <Bell className="w-4 h-4 text-amber-400" />
+              <Bell className={`w-4 h-4 ${theme === 'light' ? 'text-amber-600' : 'text-amber-400'}`} />
               {notifications.length > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full text-[8px] w-3.5 h-3.5 flex items-center justify-center font-bold">
                   {notifications.length}
@@ -445,9 +550,9 @@ export default function Desktop() {
           </div>
 
           {/* Date & Time */}
-          <div className="flex flex-col items-end border-l border-white/10 pl-4 text-right">
-            <span className="text-xs font-semibold">{formattedTime}</span>
-            <span className="text-[9px] text-gray-400 uppercase hidden sm:inline">{formattedDate}</span>
+          <div className={`flex flex-col items-end border-l pl-4 text-right ${theme === 'light' ? 'border-gray-300' : 'border-white/10'}`}>
+            <span className={`text-xs font-bold ${theme === 'light' ? 'text-gray-900' : 'text-white'}`}>{formattedTime}</span>
+            <span className={`text-[9px] font-semibold uppercase hidden sm:inline ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>{formattedDate}</span>
           </div>
         </div>
       </div>
@@ -458,14 +563,27 @@ export default function Desktop() {
             ? 'left-6 top-14 w-[85vw] max-w-md p-8 rounded-3xl'
             : 'left-4 top-14 w-80 p-6 rounded-2xl'
         }`}>
-          <div className="flex items-center space-x-3 pb-3 border-b border-white/10 dark:border-gray-800">
-            <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-tr from-purple-500 to-indigo-500 border border-white/20 flex items-center justify-center">
-              <img src="/profile.webp" alt="HK" className="w-full h-full object-cover" />
+          <div className="flex items-center justify-between pb-3 border-b border-white/10 dark:border-gray-800">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-tr from-purple-500 to-indigo-500 border border-white/20 flex items-center justify-center shrink-0">
+                <img src="/profile.webp" alt="HK" className="w-full h-full object-cover" />
+              </div>
+              <div>
+                <h3 className="text-xs font-bold">Harshit Kandoi</h3>
+                <p className="text-[10px] text-gray-400">Level {Math.floor(xp / 100) + 1} Code Warrior</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-xs font-bold">Harshit Kandoi</h3>
-              <p className="text-[10px] text-gray-400">Level {Math.floor(xp / 100) + 1} Code Warrior</p>
-            </div>
+            <button
+              onClick={() => {
+                handleIconDoubleClick('settings');
+                setStartMenuOpen(false);
+              }}
+              className="p-2 rounded-xl hover:bg-white/10 text-gray-400 hover:text-white transition"
+              title="Open Settings"
+              aria-label="Open Settings"
+            >
+              <GearIcon className="w-4 h-4" />
+            </button>
           </div>
           
           <div className={`grid gap-2 text-xs ${viewMode === 'tablet' ? 'grid-cols-2 text-sm gap-3' : 'grid-cols-2'}`}>
@@ -506,6 +624,11 @@ export default function Desktop() {
         <NotificationPanel onClose={() => setShowNotificationDrawer(false)} />
       )}
 
+      {/* Dashboard Widgets Panel */}
+      {showDashboard && (
+        <DashboardWidgets onClose={() => setShowDashboard(false)} />
+      )}
+
       {/* Active Workspaces - Icons on Desktop / Tablet */}
       <div className={`flex-grow p-6 z-10 select-none overflow-y-auto mt-4 ${
         viewMode === 'tablet' 
@@ -523,17 +646,14 @@ export default function Desktop() {
                 handleIconDoubleClick(app.id);
               }
             }}
-            className={`flex flex-col items-center justify-center rounded-xl cursor-pointer hover:bg-white/5 border border-transparent hover:border-white/10 active:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all select-none group text-center ${
-              viewMode === 'tablet' ? 'w-24 h-24' : 'w-20 h-20'
-            }`}
+            className="flex flex-col items-center justify-center rounded-xl cursor-pointer hover:bg-white/5 border border-transparent hover:border-white/10 active:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all select-none group text-center w-24 h-24"
             aria-label={`Open ${app.title.replace('.exe', '')} from desktop`}
+            title={app.title}
           >
-            <div className={`rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-lg shadow-black/20 group-hover:scale-105 transition-transform ${
-              viewMode === 'tablet' ? 'w-12 h-12' : 'w-11 h-11'
-            }`}>
-              <app.icon className={`${viewMode === 'tablet' ? 'w-6 h-6' : 'w-5.5 h-5.5'}`} />
+            <div className={`rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-lg shadow-black/20 group-hover:scale-105 transition-transform w-12 h-12`}>
+              <app.icon className="w-6 h-6" />
             </div>
-            <span className="text-[10px] font-medium tracking-wide mt-2 text-gray-200 truncate w-18 text-shadow">
+            <span className="text-[10px] font-medium tracking-wide mt-2 text-gray-200 truncate block w-full px-1 text-shadow">
               {app.title}
             </span>
           </button>
@@ -564,6 +684,13 @@ export default function Desktop() {
             {win.id === 'snake'        && <SnakeGame />}
             {win.id === 'swipe'        && <PortfolioSwipe />}
             {win.id === 'coffee'       && <BuyMeCoffeeApp />}
+            {/* Phase 3 New Apps */}
+            {win.id === 'library'      && <LibraryApp />}
+            {win.id === 'notes'        && <NotesApp />}
+            {/* {win.id === 'gallery'      && <GalleryApp />} */}
+            {win.id === 'products'     && <ProductsApp />}
+            {/* {win.id === 'publications' && <PublicationsApp />} */}
+            {/* {win.id === 'marketplace'  && <MarketplaceApp />} */}
           </Suspense>
         </Window>
       ))}
@@ -596,7 +723,7 @@ export default function Desktop() {
                 {app.title}
               </span>
 
-              <div className={`rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md transform hover:scale-[1.2] hover:-translate-y-2 transition duration-200 active:scale-[0.95] ${
+              <div className={`dock-icon-inner rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md transform hover:scale-[1.2] hover:-translate-y-2 transition duration-200 active:scale-[0.95] ${
                 viewMode === 'tablet' ? 'w-12 h-12' : 'w-11 h-11'
               } ${bouncingApp === app.id ? 'animate-bounce-dock' : ''}`}>
                 <app.icon className={`${viewMode === 'tablet' ? 'w-6 h-6' : 'w-5.5 h-5.5'}`} />

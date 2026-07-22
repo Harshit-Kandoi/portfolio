@@ -1,12 +1,14 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { useOSStore, AppTheme } from '../../store/useOSStore';
 import { 
   Wifi, Signal, Battery, Search, Bell, Settings as GearIcon, 
-  Volume2, Sun, Palette, Trash2, Bluetooth, Zap, ChevronLeft, Gamepad2,
+  Volume2, Sun, Palette, Trash2, Bluetooth, Zap, ChevronLeft, ChevronRight, Gamepad2,
   User, Folder, Briefcase, Award, FileText, Terminal as TermIcon,
-  MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon, Heart, Coffee, ExternalLink
+  MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon, Heart, Coffee, ExternalLink,
+  BookMarked, StickyNote, /* Image as ImageIcon, */ Package
 } from 'lucide-react';
 import { playWindowSound } from '../../utils/sounds';
+import Wallpaper from './Wallpaper';
 
 // Lazy load app modules to reduce initial mobile JS bundle size and improve load speed
 const AboutApp       = lazy(() => import('../apps/AboutApp'));
@@ -24,6 +26,14 @@ const SettingsApp    = lazy(() => import('../apps/SettingsApp'));
 const SnakeGame      = lazy(() => import('../apps/SnakeGame'));
 const PortfolioSwipe = lazy(() => import('../apps/PortfolioSwipe'));
 const BuyMeCoffeeApp = lazy(() => import('../apps/BuyMeCoffeeApp'));
+// Phase 3 New Apps
+const LibraryApp     = lazy(() => import('../apps/LibraryApp'));
+const NotesApp       = lazy(() => import('../apps/NotesApp'));
+// const GalleryApp     = lazy(() => import('../apps/GalleryApp'));
+const ProductsApp    = lazy(() => import('../apps/ProductsApp'));
+// const PublicationsApp= lazy(() => import('../apps/PublicationsApp'));
+// const MarketplaceApp = lazy(() => import('../apps/MarketplaceApp'));
+
 
 // Custom Snake Icon SVG
 const SnakeIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -40,14 +50,15 @@ interface AndroidOSProps {
 
 export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
   const {
-    theme, setTheme,
+    theme, setTheme, wallpaper,
     notifications, dismissNotification, clearNotifications, addNotification,
     activeMobileApp, openMobileApp, closeMobileApp, mobileRecents, clearMobileRecents,
     showMobileDrawer, setShowMobileDrawer,
     showMobileSettings, setShowMobileSettings,
     mobileBrightness, setMobileBrightness,
     soundEnabled, setSoundEnabled,
-    volume, setVolume
+    volume, setVolume,
+    batteryLevel, batteryCharging, setBatteryLevel,
   } = useOSStore();
 
   const [sysTime, setSysTime] = useState(new Date());
@@ -56,9 +67,38 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
   const [bluetoothEnabled, setBluetoothEnabled] = useState(true);
   const [airplaneMode, setAirplaneMode] = useState(false);
   const flashlight = false;
-  const batteryCharging = true;
-  const [batteryPct, setBatteryPct] = useState(87);
   const [showRecents, setShowRecents] = useState(false);
+  const recentsRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [activeRecentIdx, setActiveRecentIdx] = useState(0);
+
+  const checkRecentsScroll = useCallback(() => {
+    if (!recentsRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = recentsRef.current;
+    setCanScrollLeft(scrollLeft > 10);
+    setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 10);
+
+    const cardWidth = 208;
+    const idx = Math.round(scrollLeft / cardWidth);
+    setActiveRecentIdx(Math.max(0, Math.min(idx, mobileRecents.length - 1)));
+  }, [mobileRecents.length]);
+
+  useEffect(() => {
+    if (showRecents) {
+      const timer = setTimeout(checkRecentsScroll, 60);
+      return () => clearTimeout(timer);
+    }
+  }, [showRecents, mobileRecents.length, checkRecentsScroll]);
+
+  const scrollRecents = (direction: 'left' | 'right') => {
+    if (!recentsRef.current) return;
+    const scrollAmount = 210;
+    recentsRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
+  };
 
   const pointerStartY = useRef(0);
   const pointerStartX = useRef(0);
@@ -101,16 +141,16 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
   // Update battery level simulation
   useEffect(() => {
     const batteryTimer = setInterval(() => {
-      setBatteryPct((prev) => {
-        if (batteryCharging) {
-          return prev >= 100 ? 100 : prev + 1;
-        } else {
-          return prev <= 1 ? 1 : prev - 1;
-        }
-      });
+      const current = useOSStore.getState().batteryLevel;
+      const isCharging = useOSStore.getState().batteryCharging;
+      if (isCharging) {
+        setBatteryLevel(current >= 100 ? 100 : current + 1);
+      } else {
+        setBatteryLevel(current <= 1 ? 1 : current - 1);
+      }
     }, 60000);
     return () => clearInterval(batteryTimer);
-  }, [batteryCharging]);
+  }, [setBatteryLevel]);
 
   // Mobile App metadata mapper
   const appIcons = [
@@ -129,6 +169,13 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
     { id: 'coffee', title: 'Buy Coffee', icon: Coffee, color: 'from-amber-600 to-yellow-500', category: 'system' },
     { id: 'contact', title: 'Say Hello', icon: Send, color: 'from-teal-400 to-emerald-500', category: 'social' },
     { id: 'settings', title: 'Settings', icon: GearIcon, color: 'from-slate-400 to-slate-600', category: 'system' },
+    // Phase 3 New Apps
+    { id: 'library', title: 'Library', icon: BookMarked, color: 'from-amber-500 to-orange-400', category: 'system' },
+    { id: 'notes', title: 'Notes', icon: StickyNote, color: 'from-violet-500 to-purple-600', category: 'work' },
+    // { id: 'gallery', title: 'Gallery', icon: ImageIcon, color: 'from-pink-500 to-rose-500', category: 'system' },
+    { id: 'products', title: 'Products', icon: Package, color: 'from-violet-600 to-indigo-600', category: 'work' },
+    // { id: 'publications', title: 'Publications', icon: BookMarked, color: 'from-green-500 to-emerald-600', category: 'social' },
+    // { id: 'marketplace', title: 'Marketplace', icon: ShoppingBag, color: 'from-rose-500 to-pink-600', category: 'system' },
   ];
 
   // Quick App Search filter
@@ -215,21 +262,28 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
 
     let content;
     switch (appId) {
-      case 'about': content = <AboutApp />; break;
+      case 'about': content = <AboutApp isMobileView={true} />; break;
       case 'projects': content = <ProjectsApp isMobileView={true} />; break;
-      case 'experience': content = <ExperienceApp />; break;
-      case 'skills': content = <SkillsApp />; break;
-      case 'resume': content = <ResumeApp />; break;
-      case 'terminal': content = <TerminalWindow />; break;
-      case 'ai': content = <AIAssistantApp />; break;
-      case 'blog': content = <BlogApp />; break;
-      case 'achievements': content = <AchievementsApp />; break;
-      case 'gaming': content = <GamingApp />; break;
-      case 'snake': content = <SnakeGame />; break;
-      case 'swipe': content = <PortfolioSwipe />; break;
-      case 'coffee': content = <BuyMeCoffeeApp />; break;
-      case 'contact': content = <ContactApp />; break;
+      case 'experience': content = <ExperienceApp isMobileView={true} />; break;
+      case 'skills': content = <SkillsApp isMobileView={true} />; break;
+      case 'resume': content = <ResumeApp isMobileView={true} />; break;
+      case 'terminal': content = <TerminalWindow isMobileView={true} />; break;
+      case 'ai': content = <AIAssistantApp isMobileView={true} />; break;
+      case 'blog': content = <BlogApp isMobileView={true} />; break;
+      case 'achievements': content = <AchievementsApp isMobileView={true} />; break;
+      case 'gaming': content = <GamingApp isMobileView={true} />; break;
+      case 'snake': content = <SnakeGame isMobileView={true} />; break;
+      case 'swipe': content = <PortfolioSwipe isMobileView={true} />; break;
+      case 'coffee': content = <BuyMeCoffeeApp isMobileView={true} />; break;
+      case 'contact': content = <ContactApp isMobileView={true} />; break;
       case 'settings': content = <SettingsApp isMobileView={true} />; break;
+      // Phase 3 New Apps
+      case 'library': content = <LibraryApp isMobileView={true} />; break;
+      case 'notes': content = <NotesApp isMobileView={true} />; break;
+      // case 'gallery': content = <GalleryApp isMobileView={true} />; break;
+      case 'products': content = <ProductsApp isMobileView={true} />; break;
+      // case 'publications': content = <PublicationsApp isMobileView={true} />; break;
+      // case 'marketplace': content = <MarketplaceApp isMobileView={true} />; break;
       default: content = <div className="p-4 text-center text-white">App is currently building...</div>;
     }
 
@@ -245,6 +299,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
       className={`relative w-full ${isFullscreen ? 'h-dvh' : 'h-full'} flex flex-col select-none overflow-hidden ${getBackgroundStyle()} ${theme === 'light' ? 'text-gray-800' : 'text-white'} font-sans`}
       style={{ touchAction: 'none' }}
     >
+      <Wallpaper type={wallpaper} />
       
       {/* Dynamic Brightness Dimming Overlay */}
       <div 
@@ -293,7 +348,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
           {bluetoothEnabled && <Bluetooth className={`w-3 h-3 ${theme === 'light' ? 'text-purple-600' : 'text-purple-400'}`} />}
           
           <div className="flex items-center space-x-0.5">
-            <span className={`text-[9px] font-normal ${theme === 'light' ? 'text-gray-700' : 'text-gray-200'}`}>{batteryPct}%</span>
+            <span className={`text-[9px] font-normal ${theme === 'light' ? 'text-gray-700' : 'text-gray-200'}`}>{batteryLevel}%</span>
             <div className="relative flex items-center">
               <Battery className={`w-4 h-4 ${batteryCharging ? (theme === 'light' ? 'text-green-600' : 'text-green-400') : (theme === 'light' ? 'text-gray-600' : 'text-gray-200')}`} />
               {batteryCharging && <Zap className={`w-2.5 h-2.5 absolute left-0.5 ${theme === 'light' ? 'text-green-500' : 'text-green-300'} animate-pulse`} />}
@@ -540,7 +595,9 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                   notifications.map((n) => {
                     const handleNotifClick = () => {
                       if (n.action) {
-                        if (n.action === 'github') {
+                        if (n.action.startsWith('http://') || n.action.startsWith('https://')) {
+                          window.open(n.action, '_blank');
+                        } else if (n.action === 'github') {
                           window.open('https://github.com/Harshit-Kandoi', '_blank');
                         } else if (n.action === 'linkedin') {
                           window.open('https://linkedin.com/in/harshit-kandoi', '_blank');
@@ -661,7 +718,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
               </button>
 
               {/* Standard Dock Apps */}
-              <div className={`w-full ${theme === 'light' ? 'bg-white/70 border-white shadow-lg' : 'bg-white/10 border-white/10 shadow-lg'} backdrop-blur-xl border p-2.5 rounded-[22px] flex justify-around items-center`}>
+              <div className={`w-[90%] mx-auto ${theme === 'light' ? 'bg-white/75 border-white shadow-lg' : 'bg-white/10 border-white/10 shadow-lg'} backdrop-blur-xl border p-2 rounded-[24px] flex justify-around items-center`}>
                 {appIcons.filter(a => ['about', 'ai', 'projects', 'settings'].includes(a.id)).map((app) => (
                   <button
                     key={app.id}
@@ -682,59 +739,126 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
 
         {/* ================= RECENTS TASK CAROUSEL SWITCHER ================= */}
         {showRecents && !activeMobileApp && (
-          <div className="flex-grow flex flex-col justify-between pt-6 pb-4 animate-fade-in h-full">
-            <div className="text-center">
-              <span className={`text-xs font-bold ${theme === 'light' ? 'text-gray-650' : 'text-gray-400'} uppercase tracking-widest`}>Active Background Apps</span>
-              <p className="text-[9px] text-gray-500 mt-1">Swipe or click Dismiss to shut apps, tap to launch</p>
+          <div className="flex-grow flex flex-col justify-between pt-6 pb-2 animate-fade-in h-full overflow-hidden relative">
+            <div className="w-full flex flex-col items-center justify-center text-center px-4">
+              <span className={`text-xs font-bold ${theme === 'light' ? 'text-gray-700' : 'text-gray-400'} uppercase tracking-widest block text-center`}>Active Background Apps</span>
+              <p className={`text-[10px] ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'} mt-1 text-center w-full`}>
+                {mobileRecents.length > 0 
+                  ? 'Click Dismiss to close apps. Tap a card to resume.' 
+                  : 'Your background task switcher is empty'}
+              </p>
             </div>
 
             {mobileRecents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center space-y-3 flex-grow">
-                <div className={`w-16 h-16 rounded-full ${theme === 'light' ? 'bg-gray-100 border-gray-200 text-gray-400' : 'bg-white/5 border-white/10 text-gray-500'} border flex items-center justify-center`}>
+              <div className="flex flex-col items-center justify-center space-y-2 flex-grow my-auto">
+                <div className={`w-16 h-16 rounded-full ${theme === 'light' ? 'bg-gray-100 border-gray-200 text-gray-400' : 'bg-white/5 border-white/10 text-gray-500'} border flex items-center justify-center shadow-inner mb-1`}>
                   ■
                 </div>
-                <span className={`text-xs ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'} font-semibold`}>No recent apps running</span>
+                <span className={`text-sm ${theme === 'light' ? 'text-gray-800' : 'text-white'} font-bold`}>No recent apps running</span>
               </div>
             ) : (
-              <div className="flex-grow flex items-center justify-center overflow-x-auto py-4 px-2 space-x-4 max-w-full">
-                {mobileRecents.map((appId) => {
-                  const appMeta = appIcons.find(a => a.id === appId);
-                  if (!appMeta) return null;
-                  return (
-                    <div 
-                      key={appId}
-                      className={`w-48 h-72 flex-shrink-0 ${theme === 'light' ? 'bg-white border-gray-200 text-gray-800 shadow-md' : 'bg-slate-900 border-white/15 text-white'} border rounded-3xl p-3 flex flex-col justify-between shadow-2xl relative transition hover:border-purple-500/50`}
-                    >
-                      {/* Card Header */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <div className={`p-1.5 rounded-lg bg-gradient-to-br ${appMeta.color} text-white`}>
-                            <appMeta.icon className="w-3.5 h-3.5" />
-                          </div>
-                          <span className={`text-[10px] font-bold truncate w-24 ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}>{appMeta.title}</span>
-                        </div>
-                        <button 
-                          onClick={() => closeMobileApp(appId)}
-                          className={`text-[10px] ${theme === 'light' ? 'text-red-700 bg-red-50 hover:bg-red-650 hover:text-white border border-red-200' : 'text-red-400 bg-red-950/20 hover:bg-red-500 hover:text-white'} px-2 py-0.5 rounded-full transition`}
-                          aria-label={`Dismiss ${appMeta?.title}`}
-                        >
-                          Dismiss
-                        </button>
-                      </div>
+              <div className="flex-grow flex flex-col items-center justify-center my-auto w-full">
+                <div className="relative w-full flex items-center justify-center group">
+                
+                {/* Left Arrow Button */}
+                <button
+                  onClick={() => scrollRecents('left')}
+                  disabled={!canScrollLeft}
+                  className={`absolute left-2 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                    theme === 'light' 
+                      ? 'bg-white/90 text-gray-800 shadow-md border border-gray-200' 
+                      : 'bg-black/70 text-white shadow-lg border border-white/15'
+                  } ${
+                    canScrollLeft 
+                      ? 'opacity-85 hover:opacity-100 hover:scale-110 active:scale-95 cursor-pointer' 
+                      : 'opacity-0 pointer-events-none'
+                  }`}
+                  aria-label="Scroll left in recent apps"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
 
-                      {/* Mock Screen Content Preview */}
+                {/* Carousel cards container */}
+                <div 
+                  ref={recentsRef}
+                  onScroll={checkRecentsScroll}
+                  className="flex items-center space-x-4 overflow-x-auto py-2 px-6 max-w-full scroll-smooth no-scrollbar"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                >
+                  {mobileRecents.map((appId) => {
+                    const appMeta = appIcons.find(a => a.id === appId);
+                    if (!appMeta) return null;
+                    return (
                       <div 
-                        onClick={() => handleLaunchApp(appId)}
-                        className={`flex-grow mt-3 rounded-xl ${theme === 'light' ? 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-800' : 'bg-slate-950/50 border-white/5 text-purple-100 hover:bg-slate-950/70'} border flex items-center justify-center cursor-pointer transition overflow-hidden`}
+                        key={appId}
+                        className={`w-48 h-72 flex-shrink-0 ${theme === 'light' ? 'bg-white border-gray-200 text-gray-800 shadow-md' : 'bg-slate-900 border-white/15 text-white'} border rounded-3xl p-3 flex flex-col justify-between shadow-2xl relative transition hover:border-purple-500/50`}
                       >
-                        <div className="text-center p-3 space-y-1">
-                           <appMeta.icon className="w-8 h-8 mx-auto opacity-40 text-purple-400" />
-                          <span className={`text-[9px] ${theme === 'light' ? 'text-gray-650' : 'text-gray-500'} block uppercase tracking-wide`}>Tap to Resume</span>
+                        {/* Card Header */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <div className={`p-1.5 rounded-lg bg-gradient-to-br ${appMeta.color} text-white`}>
+                              <appMeta.icon className="w-3.5 h-3.5" />
+                            </div>
+                            <span className={`text-[10px] font-bold truncate w-24 ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}>{appMeta.title}</span>
+                          </div>
+                          <button 
+                            onClick={() => closeMobileApp(appId)}
+                            className={`text-[10px] ${theme === 'light' ? 'text-red-700 bg-red-50 hover:bg-red-600 hover:text-white border border-red-200' : 'text-red-400 bg-red-950/20 hover:bg-red-500 hover:text-white'} px-2 py-0.5 rounded-full transition`}
+                            aria-label={`Dismiss ${appMeta?.title}`}
+                          >
+                            Dismiss
+                          </button>
+                        </div>
+
+                        {/* Mock Screen Content Preview */}
+                        <div 
+                          onClick={() => handleLaunchApp(appId)}
+                          className={`flex-grow mt-3 rounded-xl ${theme === 'light' ? 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-800' : 'bg-slate-950/50 border-white/5 text-purple-100 hover:bg-slate-950/70'} border flex items-center justify-center cursor-pointer transition overflow-hidden`}
+                        >
+                          <div className="text-center p-3 space-y-1">
+                             <appMeta.icon className="w-8 h-8 mx-auto opacity-40 text-purple-400" />
+                            <span className={`text-[9px] ${theme === 'light' ? 'text-gray-650' : 'text-gray-500'} block uppercase tracking-wide`}>Tap to Resume</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
+
+                {/* Right Arrow Button */}
+                <button
+                  onClick={() => scrollRecents('right')}
+                  disabled={!canScrollRight}
+                  className={`absolute right-2 z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 ${
+                    theme === 'light' 
+                      ? 'bg-white/90 text-gray-800 shadow-md border border-gray-200' 
+                      : 'bg-black/70 text-white shadow-lg border border-white/15'
+                  } ${
+                    canScrollRight 
+                      ? 'opacity-85 hover:opacity-100 hover:scale-110 active:scale-95 cursor-pointer' 
+                      : 'opacity-0 pointer-events-none'
+                  }`}
+                  aria-label="Scroll right in recent apps"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+
+            {/* Page Dots Indicator */}
+            {mobileRecents.length > 1 && (
+              <div className="flex items-center justify-center space-x-1.5 my-1">
+                {mobileRecents.map((_, idx) => (
+                  <div 
+                    key={idx} 
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      activeRecentIdx === idx 
+                        ? 'w-4 bg-purple-500' 
+                        : theme === 'light' ? 'w-1.5 bg-gray-300' : 'w-1.5 bg-white/20'
+                    }`}
+                  />
+                ))}
               </div>
             )}
 
@@ -742,7 +866,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
             {mobileRecents.length > 0 && (
               <button
                 onClick={clearMobileRecents}
-                className={`w-fit self-center py-2 px-6 ${theme === 'light' ? 'bg-red-100 hover:bg-red-600 hover:text-white text-red-700 border-red-200' : 'bg-red-600/20 hover:bg-red-600 text-red-200 hover:text-white'} border font-semibold rounded-full tracking-wide transition active:scale-95 shadow-md text-xs`}
+                className={`w-fit self-center py-2 px-6 ${theme === 'light' ? 'bg-red-100 hover:bg-red-600 hover:text-white text-red-700 border-red-200' : 'bg-red-600/20 hover:bg-red-600 text-red-200 hover:text-white'} border font-semibold rounded-full tracking-wide transition active:scale-95 shadow-md text-xs mt-1`}
                 aria-label="Clear all recent apps"
               >
                 Clear All Apps
@@ -759,7 +883,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
             onTouchStart={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
             onTouchEnd={(e) => e.stopPropagation()}
-            className={`absolute inset-x-0 top-9 bottom-12 ${theme === 'light' ? 'bg-white text-gray-800' : 'bg-slate-950 text-white'} z-[40] flex flex-col overflow-hidden animate-slide-up`}
+            className={`absolute inset-x-0 top-9 bottom-[54px] ${theme === 'light' ? 'bg-white text-gray-800' : 'bg-slate-950 text-white'} z-[40] flex flex-col overflow-hidden animate-slide-up`}
           >
             
             {/* App Action Bar (Header) */}
@@ -767,9 +891,8 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
               <div className="flex items-center space-x-2">
                 <button 
                   onClick={() => closeMobileApp(activeMobileApp)}
-                  className={`p-1 rounded-full ${theme === 'light' ? 'hover:bg-gray-200 text-purple-700' : 'hover:bg-white/10 text-purple-400'} transition`}
-                  title="Close App"
-                  aria-label="Close app"
+                  className={`p-1 rounded-lg ${theme === 'light' ? 'hover:bg-gray-200 text-gray-700' : 'hover:bg-white/10 text-gray-300'} transition flex items-center space-x-1`}
+                  aria-label="Back to home"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -796,7 +919,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
           onPointerUp={(e) => handlePointerUp(e, 'drawer')}
           className={`absolute inset-0 ${
             theme === 'light' ? 'bg-[#f4f7f6] border-r border-gray-250 text-gray-800' : 'bg-slate-950 text-white'
-          } z-[550] flex flex-col justify-between px-6 pt-10 pb-4 transition-transform duration-300 ease-out ${
+          } z-[550] flex flex-col justify-between px-6 pt-10 pb-16 transition-transform duration-300 ease-out ${
             showMobileDrawer ? 'translate-y-0 pointer-events-auto opacity-100' : 'translate-y-full pointer-events-none opacity-0 invisible'
           }`}
         >
@@ -857,22 +980,24 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
       </div>
 
       {/* ================= SYSTEM NAVIGATION BUTTONS ================= */}
-      <div className={`h-12 w-full flex items-center justify-around px-8 ${
-        theme === 'light' ? 'border-t border-gray-250 bg-gray-150/90 text-gray-700' : 'border-t border-white/5 bg-black/45 text-gray-400'
-      } backdrop-blur-xl shrink-0 z-50`}>
+      <div className={`w-[90%] mx-auto mb-2.5 h-11 rounded-full flex items-center justify-around px-4 border ${
+        theme === 'light' 
+          ? 'border-gray-200/80 bg-white/85 text-gray-700 shadow-md' 
+          : 'border-white/15 bg-[#0c0d14]/90 text-gray-300 shadow-xl'
+      } backdrop-blur-2xl shrink-0 z-[600]`}>
         {/* BACK: Triangle */}
         <button 
           onClick={handleBackKey}
-          className={`p-3 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-12 h-12`}
+          className={`p-2 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-9 h-9`}
           title="Back"
         >
-          <div className="w-0 h-0 border-t-[5px] border-t-transparent border-r-[10px] border-r-current border-b-[5px] border-b-transparent" />
+          <div className="w-0 h-0 border-t-[4.5px] border-t-transparent border-r-[9px] border-r-current border-b-[4.5px] border-b-transparent" />
         </button>
 
         {/* HOME: Circle */}
         <button 
           onClick={handleHomeKey}
-          className={`p-3 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-12 h-12`}
+          className={`p-2 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-9 h-9`}
           title="Home"
         >
           <div className="w-3.5 h-3.5 rounded-full border-2 border-current" />
@@ -881,7 +1006,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
         {/* RECENTS: Square */}
         <button 
           onClick={handleRecentsKey}
-          className={`p-3 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-12 h-12`}
+          className={`p-2 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-9 h-9`}
           title="Recents"
         >
           <div className="w-3.5 h-3.5 border-2 border-current rounded-sm" />

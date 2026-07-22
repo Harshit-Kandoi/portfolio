@@ -31,16 +31,24 @@ export interface ExperienceItem {
   description: string[] | string;
   type: 'work' | 'education' | 'Course' | 'Participation';
   link?: string;
+  skills?: string[];
 }
 
 export interface BlogPost {
   id: number;
   title: string;
   excerpt: string;
+  subtitle?: string;
   date: string;
   category: string;
   image: string;
   link: string;
+  canonical?: string;
+  claps?: number;
+  responses?: number;
+  readingTime?: number;
+  tags?: string[];
+  featured?: boolean;
 }
 
 export interface SocialLink {
@@ -53,3 +61,5 @@ export interface NavLink {
   name: string;
   href: string;
 }
+
+export * from './note-types';

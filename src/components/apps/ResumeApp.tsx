@@ -4,7 +4,8 @@ import { useOSStore } from '../../store/useOSStore';
 import { resumeLink } from '../../data/navigation';
 import { trackEvent } from '../../utils/analytics';
 
-export default function ResumeApp() {
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+export default function ResumeApp(props?: { isMobileView?: boolean }) {
   const theme = useOSStore((state) => state.theme);
   const viewMode = useOSStore((state) => state.viewMode);
   const iframeRef = useRef<HTMLIFrameElement>(null);

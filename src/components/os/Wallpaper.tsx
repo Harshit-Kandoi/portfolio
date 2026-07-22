@@ -16,13 +16,13 @@ export default function Wallpaper({ type }: WallpaperProps) {
     if (!ctx) return;
 
     let animationId: number;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    let width = (canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : window.innerWidth);
+    let height = (canvas.height = canvas.parentElement ? canvas.parentElement.clientHeight : window.innerHeight);
 
     const handleResize = () => {
       if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      width = canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : window.innerWidth;
+      height = canvas.height = canvas.parentElement ? canvas.parentElement.clientHeight : window.innerHeight;
     };
     window.addEventListener('resize', handleResize);
 
@@ -238,5 +238,5 @@ export default function Wallpaper({ type }: WallpaperProps) {
     };
   }, [type]);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none" />;
 }

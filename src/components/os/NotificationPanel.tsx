@@ -1,12 +1,13 @@
 import React from 'react';
 import { useOSStore, ToastNotification } from '../../store/useOSStore';
-import { Bell, Trophy, CheckCircle, Info, AlertTriangle, X, Trash2, ExternalLink } from 'lucide-react';
+import { Bell, Trophy, CheckCircle, Info, AlertTriangle, AlertCircle, X, Trash2, ExternalLink } from 'lucide-react';
 
 const TYPE_ICON: Record<ToastNotification['type'], React.ElementType> = {
   achievement: Trophy,
   success:     CheckCircle,
   warning:     AlertTriangle,
   info:        Info,
+  error:       AlertCircle,
 };
 
 interface Props {
@@ -26,12 +27,14 @@ export default function NotificationPanel({ onClose }: Props) {
 
   const handleNotificationClick = (notif: ToastNotification) => {
     if (notif.action) {
-      if (notif.action === 'github') {
+      if (notif.action.startsWith('http://') || notif.action.startsWith('https://')) {
+        window.open(notif.action, '_blank');
+      } else if (notif.action === 'github') {
         window.open('https://github.com/Harshit-Kandoi', '_blank');
       } else if (notif.action === 'linkedin') {
         window.open('https://linkedin.com/in/harshit-kandoi', '_blank');
       } else {
-        openWindow(notif.action);
+        openWindow(notif.action, true);
       }
     }
     dismissNotification(notif.id);
@@ -80,7 +83,7 @@ export default function NotificationPanel({ onClose }: Props) {
             <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
               <Bell className="w-5 h-5 text-purple-400 opacity-50" />
             </div>
-            <p className="text-xs text-gray-500">No notifications yet.<br />Explore the OS to unlock events.</p>
+            <p className="text-xs text-gray-500 text-center">No notifications yet.<br />Explore the OS to unlock events.</p>
           </div>
         ) : (
           notifications.map((notif) => {
@@ -110,7 +113,8 @@ export default function NotificationPanel({ onClose }: Props) {
                   <TypeIcon className={`w-3.5 h-3.5 shrink-0 ${
                     notif.type === 'achievement' ? 'text-yellow-400' :
                     notif.type === 'success'     ? 'text-emerald-400' :
-                    notif.type === 'warning'     ? 'text-amber-400' : 'text-blue-400'
+                    notif.type === 'warning'     ? 'text-amber-400' :
+                    notif.type === 'error'       ? 'text-rose-400' : 'text-blue-400'
                   }`} />
                   <span className="text-[11px] font-bold leading-tight">{notif.title}</span>
                   {notif.action && <ExternalLink className="w-2.5 h-2.5 text-gray-400 ml-auto" />}

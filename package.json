@@ -13,12 +13,17 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "lighthouse": "npx lhci autorun --config=./lighthouserc.json",
-    "build:lighthouse": "npm run build && npm run lighthouse"
+    "build:lighthouse": "npm run build && npm run lighthouse",
+    "fetch-medium": "node scripts/fetch-medium.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.110.7",
+    "cheerio": "^1.2.0",
     "framer-motion": "^12.42.2",
     "lucide-react": "^0.344.0",
+    "playwright": "^1.61.1",
     "posthog-js": "^1.404.0",
+    "razorpay": "^2.9.8",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-scroll": "^1.9.0",
@@ -30,6 +35,7 @@
     "@eslint/js": "^9.9.1",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.61.1",
+    "@types/express": "^5.0.6",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "@types/react-scroll": "^1.8.10",

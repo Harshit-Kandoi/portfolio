@@ -107,16 +107,37 @@ describe('useOSStore Zustand Store Tests', () => {
       expect(useOSStore.getState().activeWindowId).toBe(null);
     });
 
-    it('should update window position and size', () => {
+    it('should update window position and size and clamp y position to top menu bar boundary', () => {
       useOSStore.getState().openWindow('about');
       useOSStore.getState().updateWindowPosition('about', 150, 200);
       useOSStore.getState().updateWindowSize('about', 600, 400);
 
-      const win = useOSStore.getState().windows.find(w => w.id === 'about');
+      let win = useOSStore.getState().windows.find(w => w.id === 'about');
       expect(win?.x).toBe(150);
       expect(win?.y).toBe(200);
       expect(win?.width).toBe(600);
       expect(win?.height).toBe(400);
+
+      // Verify y position is clamped to at least 48px if dragged above top menu bar
+      useOSStore.getState().updateWindowPosition('about', 150, 10);
+      win = useOSStore.getState().windows.find(w => w.id === 'about');
+      expect(win?.y).toBe(48);
+    });
+
+    it('should recover any invalid window position on focus and restore', () => {
+      useOSStore.getState().openWindow('gaming');
+      // Simulate an invalid position bypassing direct setters
+      useOSStore.setState((state) => ({
+        windows: state.windows.map((w) => (w.id === 'gaming' ? { ...w, y: 5 } : w)),
+      }));
+      
+      let win = useOSStore.getState().windows.find((w) => w.id === 'gaming');
+      expect(win?.y).toBe(5);
+
+      // Calling focusWindow should recover the position back to >= 48px
+      useOSStore.getState().focusWindow('gaming');
+      win = useOSStore.getState().windows.find((w) => w.id === 'gaming');
+      expect(win?.y).toBe(48);
     });
   });
 
@@ -137,10 +158,20 @@ describe('useOSStore Zustand Store Tests', () => {
       // Multi add
       useOSStore.getState().addNotification('Title 1', 'Message 1', 'info', 'career');
       useOSStore.getState().addNotification('Title 2', 'Message 2', 'success', 'portfolio');
-      expect(useOSStore.getState().notifications.length).toBe(2);
+      useOSStore.getState().addNotification('Payment Error', 'Failed payment', 'error', 'system');
+      expect(useOSStore.getState().notifications.length).toBe(3);
+      expect(useOSStore.getState().notifications[0].type).toBe('error');
 
       useOSStore.getState().clearNotifications();
       expect(useOSStore.getState().notifications.length).toBe(0);
+    });
+
+    it('should suppress app opening notification when suppressNotification is true or window is already open', async () => {
+      useOSStore.getState().clearNotifications();
+      useOSStore.getState().openWindow('settings', true);
+      // Wait for any async timeout
+      await new Promise((r) => setTimeout(r, 900));
+      expect(useOSStore.getState().notifications.some((n) => n.title.includes('Settings'))).toBe(false);
     });
   });
 

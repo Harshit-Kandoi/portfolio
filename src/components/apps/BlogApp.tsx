@@ -5,14 +5,26 @@ import { Search, Bookmark, Calendar, Clock, ExternalLink, ArrowLeft, Share2 } fr
 import { useOSStore } from '../../store/useOSStore';
 import { trackEvent } from '../../utils/analytics';
 
-export default function BlogApp() {
+export default function BlogApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCat, setSelectedCat] = useState('All');
   const [bookmarks, setBookmarks] = useState<number[]>([]);
   const theme = useOSStore((state) => state.theme);
+  const viewMode = useOSStore((state) => state.viewMode);
+  const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
+  const blogWindow = useOSStore((state) => state.windows.find((w) => w.id === 'blog'));
   const unlockAchievement = useOSStore((state) => state.unlockAchievement);
   const addNotification = useOSStore((state) => state.addNotification);
+
+  const isMaximized = blogWindow?.isMaximized || false;
+  const isMobile = isMobileView || viewMode === 'mobile' || isSimulatingMobile;
+
+  const gridColsClass = isMobile
+    ? 'grid-cols-1'
+    : isMaximized
+      ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
+      : 'grid-cols-1 sm:grid-cols-2';
 
   const handleShare = () => {
     if (!selectedPost) return;
@@ -31,7 +43,7 @@ export default function BlogApp() {
     unlockAchievement('blog_reader');
   };
 
-  const categories = ['All', 'Mojo', 'LLM', 'Docker', 'Python'];
+  const categories = ['All', 'LLM & RAG', 'Python & Mojo', 'DevOps & Docker', 'Data Science', 'AI & ML', 'Bookmarked'];
 
   const toggleBookmark = (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -41,14 +53,24 @@ export default function BlogApp() {
   };
 
   const filteredPosts = blogPosts.filter((post) => {
-    const matchesCat =
-      selectedCat === 'All' ||
-      post.category.toLowerCase().includes(selectedCat.toLowerCase()) ||
-      selectedCat.toLowerCase().includes(post.category.toLowerCase());
-    
+    let matchesCat = false;
+    if (selectedCat === 'All') {
+      matchesCat = true;
+    } else if (selectedCat === 'Bookmarked') {
+      matchesCat = bookmarks.includes(post.id);
+    } else {
+      matchesCat =
+        post.category.toLowerCase() === selectedCat.toLowerCase() ||
+        (post.tags?.some((t) => t.toLowerCase().includes(selectedCat.toLowerCase())) ?? false);
+    }
+
+    const q = searchQuery.toLowerCase();
     const matchesSearch =
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
+      !q ||
+      post.title.toLowerCase().includes(q) ||
+      post.excerpt.toLowerCase().includes(q) ||
+      post.category.toLowerCase().includes(q) ||
+      (post.tags?.some((t) => t.toLowerCase().includes(q)) ?? false);
 
     return matchesCat && matchesSearch;
   });
@@ -95,14 +117,27 @@ export default function BlogApp() {
 
         {/* Read Article Details Container */}
         <div className="flex-grow overflow-y-auto p-6 max-w-2xl mx-auto w-full space-y-6 custom-scrollbar">
-          <div className="w-full h-56 rounded-2xl overflow-hidden shadow-lg border border-white/10">
+          <div className="w-full h-56 rounded-2xl overflow-hidden shadow-lg border border-white/10 relative">
             <img src={selectedPost.image} alt={selectedPost.title} className="w-full h-full object-cover" />
+            {selectedPost.featured && (
+              <span className="absolute top-3 left-3 bg-amber-500/90 backdrop-blur-md text-black font-extrabold text-[9px] uppercase tracking-wider px-2.5 py-1 rounded-md shadow-md flex items-center gap-1">
+                🔥 Top Story
+              </span>
+            )}
           </div>
 
-          <div className="space-y-2.5">
-            <span className="bg-purple-600/20 text-purple-400 text-[10px] font-bold px-2.5 py-0.5 rounded border border-purple-500/25 uppercase tracking-wider">
-              {selectedPost.category}
-            </span>
+          <div className="space-y-3">
+            <div className="flex items-center flex-wrap gap-2">
+              <span className="bg-purple-600/20 text-purple-400 text-[10px] font-bold px-2.5 py-0.5 rounded border border-purple-500/25 uppercase tracking-wider">
+                {selectedPost.category}
+              </span>
+              {(selectedPost.claps ?? 0) > 0 && (
+                <span className="bg-amber-500/10 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded border border-amber-500/20 flex items-center gap-1">
+                  👏 {selectedPost.claps} claps
+                </span>
+              )}
+            </div>
+
             <h2 className="text-lg sm:text-2xl font-bold leading-normal text-white">{selectedPost.title}</h2>
             
             <div className={`flex items-center space-x-4 text-xs font-semibold ${textMuted}`}>
@@ -112,16 +147,26 @@ export default function BlogApp() {
               </span>
               <span className="flex items-center space-x-1">
                 <Clock className="w-3.5 h-3.5 text-purple-400" />
-                <span>5 min read</span>
+                <span>{selectedPost.readingTime || 5} min read</span>
               </span>
             </div>
           </div>
+
+          {selectedPost.tags && selectedPost.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 pt-1">
+              {selectedPost.tags.map((tag) => (
+                <span key={tag} className="text-[10px] bg-white/5 border border-white/10 text-gray-300 px-2 py-0.5 rounded-full">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
 
           <div className="border-t border-white/10 dark:border-gray-800 pt-5">
             <p className={`text-sm leading-relaxed text-justify mb-8 ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>
               {selectedPost.excerpt}
               <br /><br />
-              This article covers deep technical concepts regarding compiler acceleration, optimization, dependency caching, or container management. Read the complete publication on Medium to view code snippets, benchmarks, and interactive community discussions.
+              This article covers deep technical concepts regarding AI/ML, compiler acceleration, optimization, dependency caching, or container management. Read the complete publication on Medium to view code snippets, benchmarks, and interactive community discussions.
             </p>
 
             <a
@@ -144,7 +189,7 @@ export default function BlogApp() {
     <div className={`flex flex-col flex-grow h-full overflow-hidden ${appBg} custom-scrollbar`}>
       {/* Blog Explorer Header / Toolbar */}
       <div className={`p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shrink-0 ${headerBg}`}>
-        <div className="flex space-x-1.5 overflow-x-auto custom-scrollbar flex-grow mr-2">
+        <div className="flex space-x-1.5 overflow-x-auto custom-scrollbar flex-grow mr-2 pb-1 sm:pb-0">
           {categories.map((cat) => {
             const isSel = selectedCat === cat;
             return (
@@ -153,13 +198,13 @@ export default function BlogApp() {
                 onClick={() => setSelectedCat(cat)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border ${
                   isSel
-                    ? 'bg-purple-600 border-purple-500 text-white'
+                    ? 'bg-purple-600 border-purple-500 text-white shadow-sm'
                     : isLight
                       ? 'bg-white border-gray-200 text-gray-600 hover:bg-gray-150'
                       : 'bg-slate-900 border-white/5 text-gray-400 hover:text-white'
                 }`}
               >
-                {cat}
+                {cat === 'Bookmarked' ? `🔖 Bookmarked (${bookmarks.length})` : cat}
               </button>
             );
           })}
@@ -184,7 +229,7 @@ export default function BlogApp() {
         {filteredPosts.length === 0 ? (
           <p className={`text-center text-xs py-12 ${textMuted}`}>No blog posts found</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl">
+          <div className={`grid ${gridColsClass} gap-4.5 w-full max-w-7xl mx-auto`}>
             {filteredPosts.map((post) => {
               const isBookmarked = bookmarks.includes(post.id);
               return (
@@ -201,9 +246,16 @@ export default function BlogApp() {
                     >
                       <Bookmark className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-yellow-500 text-yellow-500' : ''}`} />
                     </button>
-                    <span className="absolute top-2.5 left-2.5 bg-purple-600/80 backdrop-blur-md text-white font-bold text-[8px] uppercase tracking-wider px-2 py-0.5 rounded border border-purple-500/30 shadow-sm">
-                      {post.category}
-                    </span>
+                    <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5 flex-wrap max-w-[80%]">
+                      <span className="bg-purple-600/90 backdrop-blur-md text-white font-bold text-[8px] uppercase tracking-wider px-2 py-0.5 rounded border border-purple-500/30 shadow-sm">
+                        {post.category}
+                      </span>
+                      {post.featured && (
+                        <span className="bg-amber-500/90 backdrop-blur-md text-black font-extrabold text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded shadow-sm">
+                          🔥 Top Pick
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-1">
@@ -216,10 +268,18 @@ export default function BlogApp() {
                       <Calendar className="w-3 h-3 text-purple-400" />
                       <span>{post.date}</span>
                     </span>
-                    <span className="flex items-center space-x-1">
-                      <Clock className="w-3 h-3 text-purple-400" />
-                      <span>5 min read</span>
-                    </span>
+                    
+                    <div className="flex items-center space-x-2">
+                      {(post.claps ?? 0) > 0 && (
+                        <span className="text-amber-400 font-extrabold flex items-center gap-0.5 bg-amber-500/10 px-1.5 py-0.5 rounded border border-amber-500/20">
+                          👏 {post.claps}
+                        </span>
+                      )}
+                      <span className="flex items-center space-x-1">
+                        <Clock className="w-3 h-3 text-purple-400" />
+                        <span>{post.readingTime || 5} min read</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
               );

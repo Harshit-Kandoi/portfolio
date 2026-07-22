@@ -4,11 +4,14 @@ import { Sword, Shield, Zap, Sparkles, Trophy, Backpack, Flame, X, RotateCcw, Ch
 import { playNotificationSound, playTerminalClick } from '../../utils/sounds';
 import { initialCombatLogs, inventoryItems, InventoryItem } from '../../data/gamingData';
 
-export default function GamingApp() {
+export default function GamingApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const xp = useOSStore((state) => state.xp);
   const addXP = useOSStore((state) => state.addXP);
   const theme = useOSStore((state) => state.theme);
   const incrementCombatCount = useOSStore((state) => state.incrementCombatCount);
+  const globalViewMode = useOSStore((state) => state.viewMode);
+  const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
+  const isMobile = isMobileView || globalViewMode === 'mobile' || isSimulatingMobile;
 
   const [combatLogs, setCombatLogs] = useState<string[]>(initialCombatLogs);
   const [isFighting, setIsFighting] = useState(false);
@@ -99,7 +102,7 @@ export default function GamingApp() {
     <div className={`flex flex-col flex-grow h-full overflow-y-auto p-5 md:p-6 space-y-6 ${isLight ? 'bg-gray-50 text-gray-800' : 'bg-slate-950 text-purple-100'} custom-scrollbar`}>
       
       {/* RPG Profile Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+      <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-3 gap-5'} items-start`}>
         
         {/* Pixel Character Avatar */}
         <div className={`p-4 rounded-xl border flex flex-col items-center text-center space-y-3 ${boxBg}`}>

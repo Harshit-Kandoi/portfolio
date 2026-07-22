@@ -2,14 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useOSStore, AppTheme } from '../../store/useOSStore';
 import { playTerminalClick } from '../../utils/sounds';
 import { trackEvent } from '../../utils/analytics';
+import { formatUptimeHuman } from '../../utils/system';
 
 interface HistoryItem {
   command: string;
   output: React.ReactNode;
 }
 
-export default function TerminalWindow() {
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+
+export default function TerminalWindow({ isMobileView }: { isMobileView?: boolean } = {}) {
   const { openWindow, setTheme, addTerminalCommand, viewMode, isSimulatingMobile } = useOSStore();
+  const isMobile = isMobileView || viewMode === 'mobile' || isSimulatingMobile;
   const [history, setHistory] = useState<HistoryItem[]>([
     {
       command: 'system_init',
@@ -17,6 +21,8 @@ export default function TerminalWindow() {
         <div className="text-gray-400">
           Welcome to Harshit-OS v2.0.0 Terminal.
           Type <span className="text-yellow-400">help</span> for a list of available commands.
+          <br />
+          <span className="text-gray-600 text-[10px]">Psst: try <span className="text-green-500">sudo hire harshit</span> 👀</span>
         </div>
       ),
     },
@@ -24,6 +30,8 @@ export default function TerminalWindow() {
   const [inputVal, setInputVal] = useState('');
   const [commandIndex, setCommandIndex] = useState(-1);
   const [isMatrixActive, setIsMatrixActive] = useState(false);
+  const [devMode, setDevMode] = useState(false);
+  const konamiProgress = React.useRef<string[]>([]);
   
   const historyStore = useOSStore((state) => state.terminalHistory);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -121,6 +129,32 @@ export default function TerminalWindow() {
   }, [isMatrixActive]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // Track Konami Code progress
+    const key = e.key;
+    const progress = konamiProgress.current;
+    if (key === KONAMI[progress.length]) {
+      progress.push(key);
+      if (progress.length === KONAMI.length) {
+        konamiProgress.current = [];
+        setDevMode(true);
+        setHistory((prev) => [
+          ...prev,
+          {
+            command: '↑↑↓↓←→←→BA',
+            output: (
+              <div className="space-y-1">
+                <p className="text-green-400 font-bold animate-pulse">🔓 DEVELOPER MODE UNLOCKED</p>
+                <p className="text-gray-400 text-[11px]">Welcome, engineer. You found it.</p>
+                <p className="text-gray-600 text-[10px]">XP +999 · Achievement: <span className="text-yellow-400">Up Up Down Down</span></p>
+              </div>
+            ),
+          },
+        ]);
+      }
+    } else {
+      konamiProgress.current = key === KONAMI[0] ? [key] : [];
+    }
+
     if (e.key === 'Enter') {
       const cmd = inputVal.trim();
       if (!cmd) return;
@@ -186,6 +220,16 @@ export default function TerminalWindow() {
             <div><span className="text-yellow-300 font-bold">whoami</span> - developer level</div>
             <div><span className="text-yellow-300 font-bold">fortune</span> - developer quote</div>
             <div><span className="text-yellow-300 font-bold">ascii</span> - retro logos</div>
+            <div><span className="text-yellow-300 font-bold">uptime</span> - session uptime</div>
+            <div><span className="text-yellow-300 font-bold">ping [host]</span> - ping a host</div>
+            {/* Phase 3 new commands */}
+            <div><span className="text-yellow-300 font-bold">library</span> - view books read</div>
+            <div><span className="text-yellow-300 font-bold">notes</span> - tech notes/wiki</div>
+            {/* <div><span className="text-yellow-300 font-bold">gallery</span> - photo gallery</div> */}
+            <div><span className="text-yellow-300 font-bold">products</span> - product list</div>
+            {/* <div><span className="text-yellow-300 font-bold">publications</span> - articles written</div> */}
+            {/* <div><span className="text-yellow-300 font-bold">marketplace</span> - tools & services</div> */}
+            <div className="text-gray-600 text-[10px] col-span-2 sm:col-span-3 pt-1">🥚 There may be hidden commands. Keep exploring.</div>
           </div>
         );
         break;
@@ -250,6 +294,41 @@ export default function TerminalWindow() {
         output = <p className="text-gray-300">Opening Contact.exe app...</p>;
         setTimeout(() => openWindow('contact'), 600);
         break;
+
+      // Phase 3 commands
+      case 'library':
+        output = <p className="text-gray-300">Opening Library.exe app...</p>;
+        setTimeout(() => openWindow('library'), 600);
+        break;
+
+      case 'notes':
+        output = <p className="text-gray-300">Opening Notes.exe app...</p>;
+        setTimeout(() => openWindow('notes'), 600);
+        break;
+
+      /* case 'gallery':
+        output = <p className="text-gray-300">Opening Gallery.exe app...</p>;
+        setTimeout(() => openWindow('gallery'), 600);
+        break; */
+
+      case 'products':
+        output = <p className="text-gray-300">Opening Products.exe app...</p>;
+        setTimeout(() => openWindow('products'), 600);
+        break;
+
+      /*
+      case 'publications':
+        output = <p className="text-gray-300">Opening Papers.exe app...</p>;
+        setTimeout(() => openWindow('publications'), 600);
+        break;
+      */
+
+      /*
+      case 'marketplace':
+        output = <p className="text-gray-300">Opening Store.exe app...</p>;
+        setTimeout(() => openWindow('marketplace'), 600);
+        break;
+      */
 
       case 'matrix':
         trackEvent('terminal_easter_egg', { easter_egg: 'matrix' });
@@ -325,11 +404,15 @@ export default function TerminalWindow() {
 
       case 'ls':
         output = (
-          <div className="grid grid-cols-4 gap-2 text-blue-400 font-bold">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-blue-400 font-bold">
             <div>about.txt</div>
             <div>projects/</div>
             <div>resume_pdf</div>
             <div>contact_info/</div>
+            <div>library/</div>
+            <div>notes/</div>
+            {/* <div>publications/</div> */}
+            {/* <div>marketplace/</div> */}
           </div>
         );
         break;
@@ -340,11 +423,68 @@ export default function TerminalWindow() {
 
       case 'cat':
         if (args[0] === 'about.txt') {
-          output = <p className="text-gray-300">Harshit Kandoi is a Software & AI Engineer. Key stack: Python, PyTorch, React, Node, GCP, Flask.</p>;
+          output = (
+            <div className="space-y-1 text-gray-300">
+              <p><span className="text-yellow-300">Name:</span> Harshit Kandoi</p>
+              <p><span className="text-yellow-300">Role:</span> Backend + AI + Cloud Engineer</p>
+              <p><span className="text-yellow-300">Stack:</span> Java · Python · GCP · React · Docker</p>
+              <p><span className="text-yellow-300">Focus:</span> Event-driven systems · LLM orchestration · Serverless</p>
+              <p className="text-gray-500 text-[10px] italic mt-1">"Good backend systems disappear. Users notice them only when they're broken."</p>
+            </div>
+          );
         } else {
           output = <p className="text-red-400">cat: file not found or unspecified. Try: cat about.txt</p>;
         }
         break;
+
+      case 'sudo': {
+        const sudoArgs = args.join(' ');
+        if (args[0] === 'hire' && args[1] === 'harshit') {
+          trackEvent('terminal_easter_egg', { easter_egg: 'sudo_hire' });
+          output = (
+            <div className="space-y-1">
+              <p className="text-yellow-300">[sudo] password for recruiter: ••••••••</p>
+              <p className="text-emerald-400 font-bold animate-pulse">✅ Permission granted.</p>
+              <p className="text-gray-300">Initiating onboarding sequence...</p>
+              <p className="text-gray-500 text-[10px]">→ Resume sent · Calendar link opened · Offer letter pending</p>
+            </div>
+          );
+          setTimeout(() => openWindow('contact'), 1200);
+        } else {
+          output = (
+            <p className="text-red-400">
+              sudo: permission denied — you are not Harshit
+              {sudoArgs ? <span className="text-gray-500"> (tried: sudo {sudoArgs})</span> : null}
+            </p>
+          );
+        }
+        break;
+      }
+
+      case 'uptime': {
+        const uptimeText = formatUptimeHuman();
+        output = (
+          <p className="text-green-400">
+            up {uptimeText} · load avg: 0.42 0.77 1.01
+          </p>
+        );
+        break;
+      }
+
+      case 'ping': {
+        const target = args[0] || 'harshit';
+        output = (
+          <div className="space-y-0.5 text-gray-300 text-[11px]">
+            <p>PING {target}.dev (127.0.0.1): 56 data bytes</p>
+            {[12, 8, 11, 9].map((ms, i) => (
+              <p key={i}>64 bytes from {target}.dev: icmp_seq={i} ttl=64 time={ms} ms</p>
+            ))}
+            <p className="text-emerald-400 mt-1">--- {target}.dev ping statistics ---</p>
+            <p className="text-gray-400">4 packets transmitted · avg: 10ms · Response: <span className="text-emerald-300 font-bold">Available</span></p>
+          </div>
+        );
+        break;
+      }
 
       default:
         output = (
@@ -358,9 +498,13 @@ export default function TerminalWindow() {
   };
 
   return (
-    <div 
+    <div
       onClick={focusInput}
-      className="flex-grow flex flex-col bg-black text-green-400 font-mono text-xs md:text-sm p-3.5 w-full h-full min-h-0 cursor-text overflow-y-auto overscroll-contain"
+      className={`flex-grow flex flex-col font-mono text-xs md:text-sm p-3.5 w-full h-full min-h-0 cursor-text overflow-y-auto overscroll-contain transition-all duration-500 ${
+        devMode
+          ? 'bg-black text-green-300 shadow-[inset_0_0_30px_rgba(0,255,0,0.08)]'
+          : 'bg-black text-green-400'
+      }`}
       style={{ overscrollBehavior: 'contain', touchAction: 'pan-y' }}
       ref={containerRef}
     >
@@ -377,7 +521,7 @@ export default function TerminalWindow() {
             onChange={(e) => setInputVal(e.target.value)}
             onKeyDown={handleKeyDown}
             className="absolute bottom-2 left-2 z-10 opacity-0 w-1 text-base"
-            autoFocus={viewMode === 'desktop' && !isSimulatingMobile}
+            autoFocus={!isMobile}
           />
         </div>
       ) : (
@@ -401,7 +545,7 @@ export default function TerminalWindow() {
               onChange={(e) => setInputVal(e.target.value)}
               onKeyDown={handleKeyDown}
               className="flex-grow bg-transparent focus:outline-none text-green-400 font-mono caret-green-400 border-none p-0 text-base sm:text-xs md:text-sm"
-              autoFocus={viewMode === 'desktop' && !isSimulatingMobile}
+              autoFocus={!isMobile}
             />
           </div>
         </div>

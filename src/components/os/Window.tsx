@@ -1,5 +1,5 @@
 import React, { useRef, useCallback, useEffect } from 'react';
-import { motion, useDragControls, PanInfo } from 'framer-motion';
+import { motion, useDragControls, PanInfo, Transition } from 'framer-motion';
 import { useOSStore } from '../../store/useOSStore';
 import { playWindowSound } from '../../utils/sounds';
 import { Minus, Square, Copy, X } from 'lucide-react';
@@ -19,6 +19,7 @@ export default function Window({ id, title, children }: WindowProps) {
   const activeWindowId = useOSStore((state) => state.activeWindowId);
   const theme = useOSStore((state) => state.theme);
   const viewMode = useOSStore((state) => state.viewMode);
+  const windowAnimation = useOSStore((state) => state.windowAnimation);
 
   const focusWindow    = useOSStore((state) => state.focusWindow);
   const closeWindow    = useOSStore((state) => state.closeWindow);
@@ -83,8 +84,9 @@ export default function Window({ id, title, children }: WindowProps) {
     }
   }, [activeWindowId, id]);
 
-  if (!windowInstance || !windowInstance.isOpen || windowInstance.isMinimized) return null;
+  if (!windowInstance || !windowInstance.isOpen) return null;
 
+  const isMinimized = windowInstance.isMinimized;
   const isActive    = activeWindowId === id;
   const isMaximized = windowInstance.isMaximized || viewMode === 'tablet';
 
@@ -118,7 +120,7 @@ export default function Window({ id, title, children }: WindowProps) {
     const screenHeight = window.innerHeight;
 
     let currentX = windowInstance.x + info.offset.x;
-    let currentY = windowInstance.y + info.offset.y;
+    let currentY = Math.max(48, windowInstance.y) + info.offset.y;
 
     // Viewport boundaries constraints
     const minX = -windowInstance.width + 100;
@@ -158,14 +160,46 @@ export default function Window({ id, title, children }: WindowProps) {
     : 'border-primary-500/80 shadow-2xl ring-1 ring-primary-500/30'
     : '';
 
+  const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
+  const screenHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+
+  const minX = -windowInstance.width + 100;
+  const maxX = screenWidth - 100;
+  const minY = 48; // Top taskbar/menu bar height is 48px
+  const maxY = screenHeight - 80;
+  const effectiveY = Math.max(minY, windowInstance.y);
+
+  const maxUpwardOffset = Math.min(0, minY - effectiveY);
+  const maxDownwardOffset = Math.max(0, maxY - effectiveY);
+  const maxLeftwardOffset = Math.min(0, minX - windowInstance.x);
+  const maxRightwardOffset = Math.max(0, maxX - windowInstance.x);
+
   const dragProps = isMaximized ? {} : {
     drag: true,
     dragControls,
     dragListener: false,
     dragMomentum: false,
     dragElastic: 0,
+    dragConstraints: {
+      top: maxUpwardOffset,
+      bottom: maxDownwardOffset,
+      left: maxLeftwardOffset,
+      right: maxRightwardOffset,
+    },
     onDragEnd: handleDragEnd,
   };
+
+  const initialAnim = windowAnimation === 'instant'
+    ? { opacity: 1, scale: 1 }
+    : windowAnimation === 'retro'
+    ? { opacity: 0, scale: 0.9 }
+    : { opacity: 0, scale: 0.92, filter: 'blur(6px)' };
+
+  const transitionConfig: Transition = windowAnimation === 'instant'
+    ? { duration: 0 }
+    : windowAnimation === 'retro'
+    ? { type: 'spring', stiffness: 400, damping: 25 }
+    : { type: 'spring', stiffness: 380, damping: 30, mass: 0.8 };
 
   return (
     <motion.div
@@ -174,20 +208,33 @@ export default function Window({ id, title, children }: WindowProps) {
       role="dialog"
       aria-labelledby={`${id}-window-title`}
       {...dragProps}
-      initial={{ scale: 0.95, opacity: 0 }}
+      transformTemplate={({ x, y, scale }) => {
+        const numericY = typeof y === 'number' ? y : parseFloat(String(y) || '48');
+        const clampedY = isNaN(numericY) ? 48 : Math.max(48, numericY);
+        const xStr = x !== undefined ? (typeof x === 'number' ? `${x}px` : x) : '0px';
+        const scaleStr = scale !== undefined ? `scale(${scale})` : '';
+        return `translate3d(${xStr}, ${clampedY}px, 0px) ${scaleStr}`.trim();
+      }}
+      initial={initialAnim}
       animate={{
         scale: 1,
         opacity: 1,
+        filter: 'blur(0px)',
         x: isMaximized ? 0 : windowInstance.x,
-        y: isMaximized ? 48 : windowInstance.y,
+        y: isMaximized ? 48 : effectiveY,
         width:  isMaximized ? '100vw' : windowInstance.width,
         height: viewMode === 'tablet' ? 'calc(100vh - 144px)' : (isMaximized ? 'calc(100vh - 96px)' : windowInstance.height),
         zIndex: windowInstance.zIndex,
       }}
-      transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+      transition={transitionConfig}
       onPointerDown={() => focusWindow(id)}
-      className={`fixed rounded-xl overflow-hidden border flex flex-col backdrop-blur-md ${windowThemeClass} ${activeBorder}`}
-      style={{ maxHeight: viewMode === 'tablet' ? 'calc(100vh - 144px)' : 'calc(100vh - 96px)' }}
+      className={`fixed top-0 left-0 rounded-xl overflow-hidden border flex flex-col backdrop-blur-md ${windowThemeClass} ${activeBorder}`}
+      style={{
+        maxHeight: viewMode === 'tablet' ? 'calc(100vh - 144px)' : 'calc(100vh - 96px)',
+        visibility: isMinimized ? 'hidden' : 'visible',
+        pointerEvents: isMinimized ? 'none' : 'auto',
+      }}
+      aria-hidden={isMinimized}
     >
       {/* Window Title Bar */}
       <div

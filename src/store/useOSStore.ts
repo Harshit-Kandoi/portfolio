@@ -41,6 +41,11 @@ if (typeof window !== 'undefined') {
 
 export type AppTheme = 'dark' | 'light' | 'cyberpunk' | 'midnight' | 'nord' | 'glass' | 'retro';
 export type WallpaperType = 'nebula' | 'particles' | 'matrix' | 'grid';
+export type UIScale = 80 | 90 | 100 | 110 | 125;
+export type WindowAnimation = 'instant' | 'smooth' | 'retro';
+export type DockSize = 'small' | 'medium' | 'large';
+export type PerformanceMode = 'battery' | 'balanced' | 'performance';
+export type AccentColor = 'purple' | 'yellow' | 'blue' | 'green' | 'red';
 
 export interface WindowInstance {
   id: string;
@@ -59,10 +64,10 @@ export interface ToastNotification {
   id: string;
   title: string;
   message: string;
-  type: 'success' | 'info' | 'warning' | 'achievement';
+  type: 'success' | 'info' | 'warning' | 'achievement' | 'error';
   category: 'system' | 'career' | 'portfolio' | 'gaming' | 'social' | 'funny';
   timestamp: string;
-  action?: 'resume' | 'projects' | 'blog' | 'contact' | 'coffee' | 'swipe' | 'snake' | 'github' | 'linkedin';
+  action?: string;
 }
 
 export interface ChatMessage {
@@ -113,11 +118,19 @@ const safeSet = (key: string, value: unknown) => {
 };
 
 // ─── Persisted defaults ─────────────────────────────────────────────────────
-const persistedTheme      = safeGet<AppTheme>(SESSION_KEYS.theme, 'midnight');
-const persistedWallpaper  = safeGet<WallpaperType>(SESSION_KEYS.wallpaper, 'nebula');
-const persistedXP         = safeGet<number>(SESSION_KEYS.xp, 120);
-const persistedAchieves   = safeGet<string[]>(SESSION_KEYS.achievements, ['first_boot']);
-const persistedHasVisited = safeGet<boolean>(SESSION_KEYS.hasVisited, false);
+const persistedTheme         = safeGet<AppTheme>(SESSION_KEYS.theme, 'cyberpunk');
+const persistedWallpaper     = safeGet<WallpaperType>(SESSION_KEYS.wallpaper, 'grid');
+const persistedXP            = safeGet<number>(SESSION_KEYS.xp, 120);
+const persistedAchieves      = safeGet<string[]>(SESSION_KEYS.achievements, ['first_boot']);
+const persistedHasVisited    = safeGet<boolean>(SESSION_KEYS.hasVisited, false);
+const persistedSoundEnabled  = safeGet<boolean>(SESSION_KEYS.soundEnabled, true);
+const persistedVolume        = safeGet<number>(SESSION_KEYS.volume, 0.375);
+const persistedUiScale       = safeGet<UIScale>(SESSION_KEYS.uiScale, 100);
+const persistedWindowAnim    = safeGet<WindowAnimation>(SESSION_KEYS.windowAnimation, 'smooth');
+const persistedDockSize      = safeGet<DockSize>(SESSION_KEYS.dockSize, 'medium');
+const persistedPerfMode      = safeGet<PerformanceMode>(SESSION_KEYS.performanceMode, 'balanced');
+const persistedAccentColor   = safeGet<AccentColor>(SESSION_KEYS.accentColor, 'purple');
+const persistedSessionRestore= safeGet<boolean>(SESSION_KEYS.sessionRestore, true);
 
 // ─── Window defaults ─────────────────────────────────────────────────────────
 const INITIAL_WINDOWS: WindowInstance[] = [
@@ -128,15 +141,23 @@ const INITIAL_WINDOWS: WindowInstance[] = [
   { id: 'resume',       title: 'Resume.pdf',          isOpen: false, isMinimized: false, isMaximized: false, x: 100, y: 50,  width: 820,  height: 620, zIndex: 1 },
   { id: 'terminal',     title: 'Terminal.exe',        isOpen: false, isMinimized: false, isMaximized: false, x: 220, y: 160, width: 720,  height: 470, zIndex: 1 },
   { id: 'ai',           title: 'AI Assistant',        isOpen: false, isMinimized: false, isMaximized: false, x: 500, y: 80,  width: 440,  height: 600, zIndex: 1 },
-  { id: 'blog',         title: 'Blog Reader.exe',     isOpen: false, isMinimized: false, isMaximized: false, x: 140, y: 100, width: 840,  height: 600, zIndex: 1 },
-  { id: 'achievements', title: 'Achievements.exe',    isOpen: false, isMinimized: false, isMaximized: false, x: 250, y: 130, width: 720,  height: 520, zIndex: 1 },
-  { id: 'gaming',       title: 'Gaming Profile',      isOpen: false, isMinimized: false, isMaximized: false, x: 160, y: 80,  width: 700,  height: 560, zIndex: 1 },
+  { id: 'blog',         title: 'Blog.exe',            isOpen: false, isMinimized: false, isMaximized: false, x: 140, y: 100, width: 840,  height: 600, zIndex: 1 },
+  { id: 'achievements', title: 'Awards.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 250, y: 130, width: 720,  height: 520, zIndex: 1 },
+  { id: 'gaming',       title: 'Gaming.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 160, y: 80,  width: 700,  height: 560, zIndex: 1 },
   { id: 'contact',      title: 'Contact.exe',         isOpen: false, isMinimized: false, isMaximized: false, x: 280, y: 140, width: 680,  height: 540, zIndex: 1 },
   { id: 'settings',     title: 'Settings.exe',        isOpen: false, isMinimized: false, isMaximized: false, x: 300, y: 150, width: 620,  height: 480, zIndex: 1 },
   { id: 'snake',        title: 'Snake.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 340, y: 100, width: 540,  height: 580, zIndex: 1 },
-  { id: 'swipe',        title: 'Portfolio Swipe',     isOpen: false, isMinimized: false, isMaximized: false, x: 200, y: 80,  width: 480,  height: 680, zIndex: 1 },
-  { id: 'coffee',       title: 'Buy Me Coffee ☕',    isOpen: false, isMinimized: false, isMaximized: false, x: 360, y: 120, width: 480,  height: 540, zIndex: 1 },
+  { id: 'swipe',        title: 'Swipe.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 200, y: 80,  width: 480,  height: 680, zIndex: 1 },
+  { id: 'coffee',       title: 'Coffee.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 360, y: 120, width: 480,  height: 540, zIndex: 1 },
+  // Phase 3 new apps
+  { id: 'library',      title: 'Library.exe',         isOpen: false, isMinimized: false, isMaximized: false, x: 130, y: 80,  width: 860,  height: 600, zIndex: 1 },
+  { id: 'notes',        title: 'Notes.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 160, y: 90,  width: 900,  height: 620, zIndex: 1 },
+  // { id: 'gallery',      title: 'Gallery.exe',         isOpen: false, isMinimized: false, isMaximized: false, x: 140, y: 70,  width: 860,  height: 600, zIndex: 1 },
+  { id: 'products',     title: 'Products.exe',        isOpen: false, isMinimized: false, isMaximized: false, x: 170, y: 100, width: 820,  height: 580, zIndex: 1 },
+  // { id: 'publications', title: 'Papers.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 150, y: 85,  width: 780,  height: 580, zIndex: 1 },
+  // { id: 'marketplace',  title: 'Store.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 190, y: 110, width: 800,  height: 580, zIndex: 1 },
 ];
+
 
 // Restore persisted window sizes/positions
 const persistedWindows = safeGet<Partial<WindowInstance>[]>(SESSION_KEYS.windows, []);
@@ -147,7 +168,7 @@ const mergedWindows: WindowInstance[] = INITIAL_WINDOWS.map((win) => {
     ...win,
     // Restore position & size but never restore open/minimized state across sessions
     x: saved.x ?? win.x,
-    y: saved.y ?? win.y,
+    y: Math.max(48, saved.y ?? win.y),
     width: saved.width ?? win.width,
     height: saved.height ?? win.height,
   };
@@ -168,6 +189,23 @@ interface OSState {
   windows: WindowInstance[];
   maxZIndex: number;
 
+  // Customization Settings
+  uiScale: UIScale;
+  windowAnimation: WindowAnimation;
+  dockSize: DockSize;
+  performanceMode: PerformanceMode;
+  accentColor: AccentColor;
+  sessionRestore: boolean;
+  // Mobile / System Battery State
+  batteryLevel: number;
+  batteryCharging: boolean;
+  batterySaver: boolean;
+
+  // Developer Options (session-only, not persisted)
+  showFPS: boolean;
+  debugMode: boolean;
+  showWindowBounds: boolean;
+
   // App-specific states
   notifications: ToastNotification[];
   chatMessages: ChatMessage[];
@@ -186,8 +224,23 @@ interface OSState {
   initiateShutdown: () => void;
   resetShutdown: () => void;
 
+  // Customization Actions
+  setUiScale: (scale: UIScale) => void;
+  setWindowAnimation: (anim: WindowAnimation) => void;
+  setDockSize: (size: DockSize) => void;
+  setPerformanceMode: (mode: PerformanceMode) => void;
+  setAccentColor: (color: AccentColor) => void;
+  setSessionRestore: (enabled: boolean) => void;
+  setBatteryLevel: (level: number) => void;
+  setBatteryCharging: (charging: boolean) => void;
+  setBatterySaver: (saver: boolean) => void;
+  setShowFPS: (show: boolean) => void;
+  setDebugMode: (debug: boolean) => void;
+  setShowWindowBounds: (show: boolean) => void;
+  resetDesktop: () => void;
+
   // Window Actions
-  openWindow: (id: string) => void;
+  openWindow: (id: string, suppressNotification?: boolean) => void;
   closeWindow: (id: string) => void;
   minimizeWindow: (id: string) => void;
   maximizeWindow: (id: string) => void;
@@ -245,14 +298,15 @@ const normalizeZIndices = (windows: WindowInstance[], activeId: string): { windo
     .sort((a, b) => a.zIndex - b.zIndex);
 
   const normalized = windows.map((w) => {
+    const clampedY = Math.max(48, w.y);
     if (w.id === activeId) {
-      return { ...w, isOpen: true, isMinimized: false, zIndex: 10 + openWindows.length };
+      return { ...w, y: clampedY, isOpen: true, isMinimized: false, zIndex: 10 + openWindows.length };
     }
     const idx = openWindows.findIndex((o) => o.id === w.id);
     if (idx !== -1) {
-      return { ...w, zIndex: 10 + idx };
+      return { ...w, y: clampedY, zIndex: 10 + idx };
     }
-    return w;
+    return { ...w, y: clampedY };
   });
 
   return {
@@ -290,8 +344,8 @@ export const useOSStore = create<OSState>((set, get) => ({
   // OS System States
   theme: persistedTheme,
   wallpaper: persistedWallpaper,
-  soundEnabled: false,
-  volume: 0.5,
+  soundEnabled: persistedSoundEnabled,
+  volume: persistedVolume,
   bootState: 'booting',
   isShuttingDown: false,
   hasVisited: persistedHasVisited,
@@ -299,6 +353,24 @@ export const useOSStore = create<OSState>((set, get) => ({
   activeWindowId: null,
   windows: mergedWindows,
   maxZIndex: 10,
+
+  // Customization Settings
+  uiScale: persistedUiScale,
+  windowAnimation: persistedWindowAnim,
+  dockSize: persistedDockSize,
+  performanceMode: persistedPerfMode,
+  accentColor: persistedAccentColor,
+  sessionRestore: persistedSessionRestore,
+
+  // Mobile / System Battery State
+  batteryLevel: 87,
+  batteryCharging: true,
+  batterySaver: persistedPerfMode === 'battery',
+
+  // Developer Options (session-only)
+  showFPS: false,
+  debugMode: false,
+  showWindowBounds: false,
 
   // Mobile / Tablet States
   viewMode: 'desktop',
@@ -330,8 +402,78 @@ export const useOSStore = create<OSState>((set, get) => ({
     safeSet(SESSION_KEYS.wallpaper, wallpaper);
     set({ wallpaper });
   },
-  setSoundEnabled: (soundEnabled) => set({ soundEnabled }),
-  setVolume: (volume) => set({ volume }),
+  setSoundEnabled: (soundEnabled) => {
+    safeSet(SESSION_KEYS.soundEnabled, soundEnabled);
+    set({ soundEnabled });
+  },
+  setVolume: (volume) => {
+    safeSet(SESSION_KEYS.volume, volume);
+    set({ volume });
+  },
+
+  // ─── Customization Setters ───────────────────────────────────────────────
+  setUiScale: (uiScale) => {
+    safeSet(SESSION_KEYS.uiScale, uiScale);
+    set({ uiScale });
+  },
+  setWindowAnimation: (windowAnimation) => {
+    safeSet(SESSION_KEYS.windowAnimation, windowAnimation);
+    set({ windowAnimation });
+  },
+  setDockSize: (dockSize) => {
+    safeSet(SESSION_KEYS.dockSize, dockSize);
+    set({ dockSize });
+  },
+  setPerformanceMode: (performanceMode) => {
+    safeSet(SESSION_KEYS.performanceMode, performanceMode);
+    set({ performanceMode, batterySaver: performanceMode === 'battery' });
+  },
+  setAccentColor: (accentColor) => {
+    safeSet(SESSION_KEYS.accentColor, accentColor);
+    set({ accentColor });
+  },
+  setSessionRestore: (sessionRestore) => {
+    safeSet(SESSION_KEYS.sessionRestore, sessionRestore);
+    set({ sessionRestore });
+  },
+  setBatteryLevel: (batteryLevel) => set({ batteryLevel }),
+  setBatteryCharging: (batteryCharging) => set({ batteryCharging }),
+  setBatterySaver: (batterySaver) => {
+    const nextPerf = batterySaver ? 'battery' : 'balanced';
+    safeSet(SESSION_KEYS.performanceMode, nextPerf);
+    set({ batterySaver, performanceMode: nextPerf });
+  },
+  setShowFPS: (showFPS) => set({ showFPS }),
+  setDebugMode: (debugMode) => set({ debugMode }),
+  setShowWindowBounds: (showWindowBounds) => set({ showWindowBounds }),
+  resetDesktop: () => {
+    // Close all windows and reset positions
+    const { INITIAL_WINDOWS_RESET } = { INITIAL_WINDOWS_RESET: INITIAL_WINDOWS };
+    set(() => ({
+      activeWindowId: null,
+      windows: INITIAL_WINDOWS_RESET.map(w => ({ ...w, isOpen: false, isMinimized: false, isMaximized: false })),
+      theme: 'cyberpunk',
+      wallpaper: 'grid',
+      uiScale: 100,
+      windowAnimation: 'smooth',
+      dockSize: 'medium',
+      performanceMode: 'balanced',
+      accentColor: 'purple',
+      soundEnabled: true,
+      volume: 0.375,
+    }));
+    // Persist resets
+    safeSet(SESSION_KEYS.theme, 'cyberpunk');
+    safeSet(SESSION_KEYS.wallpaper, 'grid');
+    safeSet(SESSION_KEYS.uiScale, 100);
+    safeSet(SESSION_KEYS.windowAnimation, 'smooth');
+    safeSet(SESSION_KEYS.dockSize, 'medium');
+    safeSet(SESSION_KEYS.performanceMode, 'balanced');
+    safeSet(SESSION_KEYS.accentColor, 'purple');
+    safeSet(SESSION_KEYS.soundEnabled, true);
+    safeSet(SESSION_KEYS.volume, 0.375);
+    safeSet(SESSION_KEYS.windows, []);
+  },
   setBootState: (bootState) => {
     if (bootState === 'desktop') {
       // Mark visited for session persistence welcome-back
@@ -356,10 +498,15 @@ export const useOSStore = create<OSState>((set, get) => ({
     set({ isShuttingDown: false });
   },
 
-  openWindow: (id) => {
-    const { windows } = get();
+  openWindow: (id, suppressNotification = false) => {
+    const { windows, viewMode, isSimulatingMobile } = get();
+    if (viewMode === 'mobile' || isSimulatingMobile) {
+      get().openMobileApp(id);
+      return;
+    }
     const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(windows, id);
     const prevWin = windows.find((w) => w.id === id);
+    const wasAlreadyOpen = prevWin?.isOpen ?? false;
     if (prevWin && !prevWin.isOpen) {
       trackEvent('app_open', { app_id: id });
     }
@@ -370,17 +517,25 @@ export const useOSStore = create<OSState>((set, get) => ({
       windows: normalizedWindows,
     });
     recordFocusStart(id);
-    // Dispatch contextual notification
+    // Dispatch contextual notification only if not suppressed and app was not already open
     const labels: Record<string, [string, string, ToastNotification['category'], ToastNotification['action']]> = {
-      resume:   ['📄 Resume Viewed', 'Visitor opened Resume.pdf', 'career', 'resume'],
-      projects: ['📂 Projects Opened', 'Browsing through project files...', 'portfolio', 'projects'],
-      blog:     ['📖 Blog Reader Active', 'Reading tech articles...', 'portfolio', 'blog'],
-      contact:  ['💌 Contact Opened', 'Potential connection incoming!', 'career', 'contact'],
-      coffee:   ['☕ Coffee Time!', 'Opening the coffee shop...', 'funny', 'coffee'],
-      swipe:    ['❤️ Hiring Swipe Launched', 'Time to find the perfect match!', 'career', 'swipe'],
-      snake:    ['🐍 Snake Activated', 'Retro gaming mode on.', 'gaming', 'snake'],
+      resume:       ['📄 Resume Viewed', 'Visitor opened Resume.pdf', 'career', 'resume'],
+      projects:     ['📂 Projects Opened', 'Browsing through project files...', 'portfolio', 'projects'],
+      blog:         ['📖 Blog Reader Active', 'Reading tech articles...', 'portfolio', 'blog'],
+      contact:      ['💌 Contact Opened', 'Potential connection incoming!', 'career', 'contact'],
+      coffee:       ['☕ Coffee Time!', 'Opening the coffee shop...', 'funny', 'coffee'],
+      swipe:        ['❤️ Hiring Swipe Launched', 'Time to find the perfect match!', 'career', 'swipe'],
+      snake:        ['🐍 Snake Activated', 'Retro gaming mode on.', 'gaming', 'snake'],
+      products:     ['📦 Products Catalog', 'Exploring tools & cloud products...', 'portfolio', 'products'],
+      achievements: ['🏆 Awards Opened', 'Viewing certifications & credentials...', 'career', 'achievements'],
+      gaming:       ['⚔️ Gaming Profile', 'Checking RPG stats & bug battle arena...', 'gaming', 'gaming'],
+      skills:       ['⚡ Skills Tree', 'Inspecting technical competencies...', 'portfolio', 'skills'],
+      experience:   ['💼 Experience Profile', 'Viewing cloud engineering career history...', 'career', 'experience'],
+      terminal:     ['💻 Terminal Environment', 'Command-line interface ready.', 'system', 'terminal'],
+      ai:           ['🤖 AI Copilot Active', 'Interactive assistant online.', 'system', 'ai'],
+      settings:     ['⚙️ Settings Opened', 'Customizing OS theme & controls...', 'system', 'settings'],
     };
-    if (labels[id]) {
+    if (!wasAlreadyOpen && !suppressNotification && labels[id]) {
       const [title, message, category, action] = labels[id];
       setTimeout(() => get().addNotification(title, message, 'info', category, action), 800);
     }
@@ -398,7 +553,7 @@ export const useOSStore = create<OSState>((set, get) => ({
     const { windows } = get();
     trackEvent('app_close', { app_id: id });
     const newWindows = windows.map((win) =>
-      win.id === id ? { ...win, isOpen: false, isMinimized: false, isMaximized: false } : win
+      win.id === id ? { ...win, isOpen: false, isMinimized: false, isMaximized: false, y: Math.max(48, win.y) } : { ...win, y: Math.max(48, win.y) }
     );
     const openAndNotMinimized = newWindows
       .filter((w) => w.isOpen && !w.isMinimized)
@@ -419,7 +574,7 @@ export const useOSStore = create<OSState>((set, get) => ({
     trackEvent('app_minimize', { app_id: id });
     const { windows } = get();
     const newWindows = windows.map((win) =>
-      win.id === id ? { ...win, isMinimized: true } : win
+      win.id === id ? { ...win, isMinimized: true, y: Math.max(48, win.y) } : { ...win, y: Math.max(48, win.y) }
     );
     const openAndNotMinimized = newWindows
       .filter((w) => w.isOpen && !w.isMinimized)
@@ -440,7 +595,7 @@ export const useOSStore = create<OSState>((set, get) => ({
     trackEvent('app_maximize', { app_id: id });
     set((state) => ({
       windows: state.windows.map((win) =>
-        win.id === id ? { ...win, isMaximized: true, isMinimized: false } : win
+        win.id === id ? { ...win, isMaximized: true, isMinimized: false, y: Math.max(48, win.y) } : { ...win, y: Math.max(48, win.y) }
       ),
     }));
     get().focusWindow(id);
@@ -448,10 +603,10 @@ export const useOSStore = create<OSState>((set, get) => ({
 
   restoreWindow: (id) => {
     trackEvent('app_restore', { app_id: id });
-    // Restore preserves last custom width/height (already stored in the window instance)
+    // Restore preserves last custom width/height and clamps y to top menu bar height
     set((state) => ({
       windows: state.windows.map((win) =>
-        win.id === id ? { ...win, isMaximized: false, isMinimized: false } : win
+        win.id === id ? { ...win, isMaximized: false, isMinimized: false, y: Math.max(48, win.y) } : { ...win, y: Math.max(48, win.y) }
       ),
     }));
     get().focusWindow(id);
@@ -459,8 +614,11 @@ export const useOSStore = create<OSState>((set, get) => ({
 
   focusWindow: (id) => {
     const { windows, activeWindowId } = get();
-    if (activeWindowId === id) return;
     const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(windows, id);
+    if (activeWindowId === id) {
+      set({ windows: normalizedWindows });
+      return;
+    }
     set({
       activeWindowId: id,
       maxZIndex: nextMax,
@@ -471,9 +629,10 @@ export const useOSStore = create<OSState>((set, get) => ({
 
 
   updateWindowPosition: (id, x, y) => {
+    const clampedY = Math.max(48, y);
     set((state) => ({
       windows: state.windows.map((win) =>
-        win.id === id ? { ...win, x, y } : win
+        win.id === id ? { ...win, x, y: clampedY } : { ...win, y: Math.max(48, win.y) }
       ),
     }));
   },
@@ -481,7 +640,7 @@ export const useOSStore = create<OSState>((set, get) => ({
   updateWindowSize: (id, width, height) => {
     set((state) => ({
       windows: state.windows.map((win) =>
-        win.id === id ? { ...win, width, height } : win
+        win.id === id ? { ...win, width, height, y: Math.max(48, win.y) } : { ...win, y: Math.max(48, win.y) }
       ),
     }));
   },
@@ -503,13 +662,10 @@ export const useOSStore = create<OSState>((set, get) => ({
 
   // ─── Toast System ───────────────────────────────────────────────────────
   addNotification: (title, message, type, category = 'system', action) => {
-    // Prevent duplicate same notification (same title and message)
+    // Prevent repeating duplicate notifications if title already exists in active drawer
     const currentNotifications = get().notifications;
-    if (currentNotifications.length > 0) {
-      const lastNotif = currentNotifications[0];
-      if (lastNotif.title === title && lastNotif.message === message) {
-        return; // Skip duplicate
-      }
+    if (currentNotifications.some((n) => n.title === title)) {
+      return; // Skip duplicate notification
     }
     
     const id = Math.random().toString(36).substring(2, 9);

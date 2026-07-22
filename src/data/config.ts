@@ -4,10 +4,16 @@
 // ============================================================
 
 export const SPOTIFY_CONFIG = {
-  // Rajasthani / Indie playlist – swap the playlist ID here anytime
-  playlistId: '37i9dQZF1DXaG2kO5QJp52',
-  embedUrl: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXaG2kO5QJp52?utm_source=generator&theme=0',
-  label: 'Rajasthani Vibes',
+  playlistId: '37i9dQZF1DX8Ueb9qMvV2n',
+  embedUrl: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX8Ueb9qMvV2n?utm_source=generator&theme=0',
+  externalUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX8Ueb9qMvV2n',
+  label: 'Coding & Focus Beats',
+  playlists: [
+    { id: 'lofi', label: 'Lofi Beats', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX8Ueb9qMvV2n?utm_source=generator&theme=0' },
+    { id: 'focus', label: 'Deep Focus', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX0SM0LYsmbMT?utm_source=generator&theme=0' },
+    { id: 'synth', label: 'Synthwave', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXdLENyawioXt?utm_source=generator&theme=0' },
+    { id: 'chill', label: 'Chill Coding', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0' },
+  ],
 };
 
 export const PORTFOLIO_META = {
@@ -25,9 +31,9 @@ export const PORTFOLIO_META = {
 
 export const SNAKE_CONFIG = {
   localStorageKey: 'portfolio-os-snake-highscore',
-  initialSpeed: 180,   // ms per tick
-  speedIncrement: 8,   // ms faster every N food pickups
-  speedThreshold: 3,   // food pickups before speed increase
+  initialSpeed: 220,   // ms per tick
+  speedIncrement: 12,  // ms faster every N food pickups
+  speedThreshold: 2,   // food pickups before speed increase
   gridSize: 20,        // cells across
 };
 
@@ -41,6 +47,14 @@ export const SESSION_KEYS = {
   swipeProgress: 'portfolio-os-swipe-progress',
   lastApps: 'portfolio-os-last-apps',
   hasVisited: 'portfolio-os-has-visited',
+  uiScale: 'portfolio-os-ui-scale',
+  windowAnimation: 'portfolio-os-win-anim',
+  dockSize: 'portfolio-os-dock-size',
+  performanceMode: 'portfolio-os-perf-mode',
+  accentColor: 'portfolio-os-accent-color',
+  sessionRestore: 'portfolio-os-session-restore',
+  soundEnabled: 'portfolio-os-sound-enabled',
+  volume: 'portfolio-os-volume',
 };
 
 export const APP_VERSION = import.meta.env.VITE_APP_VERSION || '2.4.0';
