@@ -46,7 +46,7 @@ const NotesApp       = lazy(() => import('../apps/NotesApp'));
 // const GalleryApp     = lazy(() => import('../apps/GalleryApp'));
 const ProductsApp    = lazy(() => import('../apps/ProductsApp'));
 // const PublicationsApp= lazy(() => import('../apps/PublicationsApp'));
-const MarketplaceApp = lazy(() => import('../apps/MarketplaceApp'));
+// const MarketplaceApp = lazy(() => import('../apps/MarketplaceApp'));
 
 
 export default function Desktop() {
@@ -279,7 +279,7 @@ export default function Desktop() {
     // { id: 'gallery',      title: 'Gallery.exe',      icon: ImageIcon,     color: 'from-pink-500 to-rose-500'    },
     { id: 'products',     title: 'Products.exe',     icon: Package,       color: 'from-violet-600 to-indigo-600'},
     // { id: 'publications', title: 'Papers.exe',        icon: BookMarked,    color: 'from-green-500 to-emerald-600'},
-    { id: 'marketplace',  title: 'Store.exe',        icon: ShoppingBag,   color: 'from-rose-500 to-pink-600'    },
+    // { id: 'marketplace',  title: 'Store.exe',        icon: ShoppingBag,   color: 'from-rose-500 to-pink-600'    },
   ];
 
 
@@ -690,7 +690,7 @@ export default function Desktop() {
             {/* {win.id === 'gallery'      && <GalleryApp />} */}
             {win.id === 'products'     && <ProductsApp />}
             {/* {win.id === 'publications' && <PublicationsApp />} */}
-            {win.id === 'marketplace'  && <MarketplaceApp />}
+            {/* {win.id === 'marketplace'  && <MarketplaceApp />} */}
           </Suspense>
         </Window>
       ))}

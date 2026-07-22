@@ -229,7 +229,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
             {/* <div><span className="text-yellow-300 font-bold">gallery</span> - photo gallery</div> */}
             <div><span className="text-yellow-300 font-bold">products</span> - product list</div>
             {/* <div><span className="text-yellow-300 font-bold">publications</span> - articles written</div> */}
-            <div><span className="text-yellow-300 font-bold">marketplace</span> - tools & services</div>
+            {/* <div><span className="text-yellow-300 font-bold">marketplace</span> - tools & services</div> */}
             <div className="text-gray-600 text-[10px] col-span-2 sm:col-span-3 pt-1">🥚 There may be hidden commands. Keep exploring.</div>
           </div>
         );
@@ -324,10 +324,12 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
         break;
       */
 
+      /*
       case 'marketplace':
         output = <p className="text-gray-300">Opening Store.exe app...</p>;
         setTimeout(() => openWindow('marketplace'), 600);
         break;
+      */
 
       case 'matrix':
         trackEvent('terminal_easter_egg', { easter_egg: 'matrix' });
@@ -411,7 +413,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
             <div>library/</div>
             <div>notes/</div>
             {/* <div>publications/</div> */}
-            <div>marketplace/</div>
+            {/* <div>marketplace/</div> */}
           </div>
         );
         break;

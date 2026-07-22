@@ -68,19 +68,45 @@ export interface Publication {
   views?: number;
 }
 
+export type MarketplaceCategory = 'template' | 'tool' | 'asset' | 'service' | 'personal';
+
 export interface MarketplaceItem {
   id: string;
   name: string;
-  category: 'tool' | 'template' | 'service' | 'open-source';
+  category: MarketplaceCategory;
   tagline: string;
   description: string;
-  icon: string; // emoji
-  price: string; // 'Free', '$9', etc.
-  repo_url?: string;
+  icon: string; // emoji or icon key
+  price: string; // 'Free', '$9', '₹499', etc.
+  amountPaise?: number;
+  
+  // Software Metadata
+  version?: string;
+  license?: string;
+  framework?: string;
+  techStack?: string[];
+  lastUpdated?: string;
+  fileSize?: string;
+  downloads?: number | string;
+  githubStars?: number | string;
+  
+  // Links & Commands
   install_cmd?: string;
+  repo_url?: string;
+  demo_url?: string;
+  docs_url?: string;
+  story_url?: string;
+  story_content?: string;
+  
+  // Services & Assets
+  delivery_time?: string;
+  availability?: string;
+  file_format?: string;
+  compatible_with?: string;
+  
   tags: string[];
-  downloads?: number;
   is_featured: boolean;
+  color?: string;
 }
 
 // ─── Fetchers with static fallback ───────────────────────────────────────────

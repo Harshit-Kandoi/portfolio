@@ -172,7 +172,7 @@ function MobileSettingsView() {
     // { title: 'Gallery', cat: 'System' },
     { title: 'Products', cat: 'Work' },
     // { title: 'Publications', cat: 'Social' },
-    { title: 'Marketplace', cat: 'System' },
+    // { title: 'Marketplace', cat: 'System' },
   ];
 
   return (
