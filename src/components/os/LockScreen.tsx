@@ -255,7 +255,7 @@ export default function LockScreen() {
       </div>
 
       {/* Center Clock and Date */}
-      <div className="flex flex-col items-center justify-center text-center">
+      <div className="flex flex-col items-center justify-center text-center min-h-[130px]">
         <div className="text-7xl sm:text-8xl font-light tracking-tight filter drop-shadow-md mb-2">
           {formattedTime.split(' ')[0]}
           <span className="text-xl sm:text-2xl font-normal ml-2 opacity-80">
@@ -271,7 +271,7 @@ export default function LockScreen() {
       <div className="flex flex-col items-center justify-center mb-8 max-w-md mx-auto w-full">
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-3xl w-full flex flex-col items-center text-center shadow-2xl animate-slide-up">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-tr from-purple-500 to-indigo-500 border border-white/30 flex items-center justify-center mb-4">
-            <img src="/profile.webp" alt="Harshit Kandoi" className="w-full h-full object-cover" />
+            <img src="/profile.webp" alt="Harshit Kandoi" width="64" height="64" className="w-full h-full object-cover" />
           </div>
           <h2 className="w-full text-center text-lg font-semibold tracking-wide">Harshit Kandoi</h2>
           <p className="w-full text-center text-xs text-purple-200 mt-1 mb-8">Software &amp; AI Engineer</p>
