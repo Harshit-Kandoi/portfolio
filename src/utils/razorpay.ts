@@ -39,18 +39,44 @@ export interface CheckoutOptions {
   onDismiss?: () => void;
 }
 
+let razorpayScriptPromise: Promise<boolean> | null = null;
+
 export function loadRazorpayScript(): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (window.Razorpay) {
-      resolve(true);
-      return;
-    }
+  if (typeof window === 'undefined') return Promise.resolve(false);
+
+  if (window.Razorpay) {
+    return Promise.resolve(true);
+  }
+
+  if (razorpayScriptPromise) {
+    return razorpayScriptPromise;
+  }
+
+  const existingScript = document.querySelector<HTMLScriptElement>('script[src*="checkout.razorpay.com"]');
+  if (existingScript) {
+    razorpayScriptPromise = new Promise((resolve) => {
+      existingScript.addEventListener('load', () => resolve(true), { once: true });
+      existingScript.addEventListener('error', () => {
+        razorpayScriptPromise = null;
+        resolve(false);
+      }, { once: true });
+    });
+    return razorpayScriptPromise;
+  }
+
+  razorpayScriptPromise = new Promise((resolve) => {
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
     script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
+    script.onerror = () => {
+      razorpayScriptPromise = null;
+      resolve(false);
+    };
     document.body.appendChild(script);
   });
+
+  return razorpayScriptPromise;
 }
 
 export async function openRazorpayCheckout({
