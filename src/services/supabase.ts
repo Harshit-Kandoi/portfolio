@@ -18,12 +18,17 @@ export interface Book {
   title: string;
   author: string;
   cover_url: string;
-  category: string;
+  category?: string;
   status: 'reading' | 'read' | 'wishlist';
-  rating: number; // 1-5
-  review: string;
-  takeaways: string[];
+  rating?: number; // 1-5, only if read
+  note?: string; // Personal notes for read books
+  whyOnShelf?: string; // Reason why book is on shelf if unread
+  oneThing?: string; // "One thing that stayed with me"
+  buyUrl?: string; // Affiliate buy link
   year_read?: number;
+  // Backward compatibility optional fields
+  review?: string;
+  takeaways?: string[];
 }
 
 export interface GalleryItem {
