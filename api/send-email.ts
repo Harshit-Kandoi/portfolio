@@ -1,29 +1,41 @@
+interface CustomRequest {
+  httpMethod?: string;
+  method?: string;
+  body?: unknown;
+  json?: () => Promise<unknown>;
+}
+
+interface CustomResponse {
+  setHeader: (name: string, value: string) => void;
+  status: (code: number) => { json: (data: unknown) => void; end: () => void };
+}
+
 // Helper to normalize incoming request payload across Netlify Event, Web Request, and Express Req
-async function getRequestDetails(req: any): Promise<{ method: string; body: any }> {
+async function getRequestDetails(req: CustomRequest): Promise<{ method: string; body: Record<string, unknown> }> {
   const method = (req?.httpMethod || req?.method || 'POST').toUpperCase();
-  let body: any = {};
+  let body: Record<string, unknown> = {};
 
   if (typeof req?.body === 'string') {
     try {
-      body = JSON.parse(req.body);
+      body = JSON.parse(req.body) as Record<string, unknown>;
     } catch {
       body = {};
     }
   } else if (typeof req?.json === 'function') {
     try {
-      body = await req.json();
+      body = (await req.json()) as Record<string, unknown>;
     } catch {
       body = {};
     }
   } else if (req?.body && typeof req.body === 'object') {
-    body = req.body;
+    body = req.body as Record<string, unknown>;
   }
 
   return { method, body };
 }
 
 // Helper to send response cleanly across Netlify, Web Request, and Express
-function sendResponse(req: any, res: any, statusCode: number, data: any) {
+function sendResponse(req: unknown, res: CustomResponse | undefined, statusCode: number, data: unknown) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -40,7 +52,7 @@ function sendResponse(req: any, res: any, statusCode: number, data: any) {
   }
 
   // Web Standard Response (if environment supports Response class and req is Request)
-  if (typeof Response !== 'undefined' && req instanceof Request) {
+  if (typeof Response !== 'undefined' && typeof Request !== 'undefined' && req instanceof Request) {
     return new Response(JSON.stringify(data), { status: statusCode, headers: corsHeaders });
   }
 
@@ -52,8 +64,7 @@ function sendResponse(req: any, res: any, statusCode: number, data: any) {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default async function handler(req: any, res?: any) {
+export default async function handler(req: CustomRequest, res?: CustomResponse) {
   const { method, body } = await getRequestDetails(req);
 
   if (method === 'OPTIONS') {
@@ -65,7 +76,11 @@ export default async function handler(req: any, res?: any) {
   }
 
   try {
-    const { email, subject, message } = body || {};
+    const { email, subject, message } = (body || {}) as {
+      email?: string;
+      subject?: string;
+      message?: string;
+    };
 
     if (!email || !message) {
       return sendResponse(req, res, 400, { error: 'Email and message are required' });
