@@ -112,15 +112,25 @@ export async function openRazorpayCheckout({
       }),
     });
 
-    const orderData = await response.json();
+    let orderData: { order_id?: string; amount?: number; currency?: string; error?: string } = {};
+    try {
+      const rawText = await response.text();
+      orderData = JSON.parse(rawText);
+    } catch {
+      onError?.(`Server endpoint returned non-JSON response (${response.status}). Please check Netlify deployment logs.`);
+      return;
+    }
 
     if (!response.ok || !orderData.order_id) {
-      const errorMsg = orderData.error || 'Failed to create Razorpay order';
+      const errorMsg = orderData.error || `Failed to create Razorpay order (HTTP ${response.status})`;
       onError?.(errorMsg);
       return;
     }
 
-    const razorpayKey = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_TG6oFSJdLLYnaL';
+    const envKey = import.meta.env.VITE_RAZORPAY_KEY_ID;
+    const razorpayKey = (typeof envKey === 'string' && envKey.trim().length > 0)
+      ? envKey.trim()
+      : 'rzp_test_TG6oFSJdLLYnaL';
 
     // Step 2: Open Razorpay Modal
     const options = {
