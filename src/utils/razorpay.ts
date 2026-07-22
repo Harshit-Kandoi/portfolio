@@ -1,6 +1,24 @@
+export interface RazorpayResponse {
+  razorpay_payment_id: string;
+  razorpay_order_id: string;
+  razorpay_signature: string;
+}
+
+export interface RazorpayFailedResponse {
+  error?: {
+    description?: string;
+    reason?: string;
+  };
+}
+
+export interface RazorpayInstance {
+  open(): void;
+  on(event: string, handler: (response: RazorpayFailedResponse) => void): void;
+}
+
 declare global {
   interface Window {
-    Razorpay: any;
+    Razorpay: new (options: Record<string, unknown>) => RazorpayInstance;
   }
 }
 
@@ -124,8 +142,9 @@ export async function openRazorpayCheckout({
           } else {
             onError?.(verifyData.error || 'Payment signature verification failed.');
           }
-        } catch (err: any) {
-          onError?.(err.message || 'Error verifying payment signature');
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : 'Error verifying payment signature';
+          onError?.(msg);
         }
       },
       modal: {
@@ -137,13 +156,14 @@ export async function openRazorpayCheckout({
 
     const rzp = new window.Razorpay(options);
 
-    rzp.on('payment.failed', function (response: any) {
+    rzp.on('payment.failed', function (response: RazorpayFailedResponse) {
       const msg = response.error?.description || response.error?.reason || 'Payment failed';
       onError?.(msg);
     });
 
     rzp.open();
-  } catch (err: any) {
-    onError?.(err.message || 'An error occurred during Razorpay checkout.');
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : 'An error occurred during Razorpay checkout.';
+    onError?.(msg);
   }
 }

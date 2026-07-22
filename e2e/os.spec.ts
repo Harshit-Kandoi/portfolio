@@ -20,9 +20,9 @@ test.describe('Desktop Workspace OS Core Functionality', () => {
     // Verify specific icons exist on desktop — aria-labels use "Open {name} from desktop" format
     const appIcons = [
       'About.exe', 'Projects.exe', 'Experience.exe', 'Skills.exe', 'Resume.pdf',
-      'Terminal.exe', 'AI Assistant', 'Blog Reader.exe', 'Achievements.exe',
-      'Gaming Profile', 'Contact.exe', 'Settings.exe', 'Snake.exe',
-      'Portfolio Swipe', 'Buy Me Coffee ☕'
+      'Terminal.exe', 'Chatbot.exe', 'Blog.exe', 'Awards.exe',
+      'Gaming.exe', 'Contact.exe', 'Settings.exe', 'Snake.exe',
+      'Swipe.exe', 'Coffee.exe'
     ];
 
     for (const app of appIcons) {
@@ -145,7 +145,7 @@ test.describe('Desktop Workspace OS Core Functionality', () => {
 
   test('should converse with the AI Assistant and trigger shortcut actions', async ({ page }) => {
     // Open AI Assistant
-    await page.locator('button[aria-label="Open AI Assistant from desktop"]').dblclick();
+    await page.locator('button[aria-label="Open Chatbot from desktop"]').dblclick();
     await expect(page.locator('#ai-window-title')).toBeVisible();
 
     const chatInput = page.locator('input[placeholder="Ask me anything..."]');

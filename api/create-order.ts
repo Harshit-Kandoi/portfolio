@@ -40,15 +40,12 @@ export default async function handler(req: Request, res: Response) {
       key_secret: keySecret,
     });
 
-    const options: any = {
+    const options: Parameters<typeof razorpay.orders.create>[0] = {
       amount: Math.round(numericAmount),
       currency: currency || 'INR',
       receipt: receipt || `receipt_${Date.now()}`,
+      ...(notes && typeof notes === 'object' ? { notes: notes as Record<string, string | number> } : {}),
     };
-
-    if (notes && typeof notes === 'object') {
-      options.notes = notes;
-    }
 
     const order = await razorpay.orders.create(options);
 
@@ -57,11 +54,12 @@ export default async function handler(req: Request, res: Response) {
       amount: order.amount,
       currency: order.currency,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error creating Razorpay order:', err);
-    if (err.statusCode === 401 || (err.error && err.error.code === 'BAD_REQUEST_ERROR' && err.error.description?.includes('Authentication'))) {
+    const errorObj = err as { statusCode?: number; message?: string; error?: { code?: string; description?: string } };
+    if (errorObj.statusCode === 401 || (errorObj.error && errorObj.error.code === 'BAD_REQUEST_ERROR' && errorObj.error.description?.includes('Authentication'))) {
       return res.status(401).json({ error: 'Razorpay API authentication failed' });
     }
-    return res.status(500).json({ error: err.message || 'Failed to create Razorpay order' });
+    return res.status(500).json({ error: errorObj.message || 'Failed to create Razorpay order' });
   }
 }

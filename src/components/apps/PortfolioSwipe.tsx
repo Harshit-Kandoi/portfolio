@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useOSStore } from '../../store/useOSStore';
 import {
   Heart,
@@ -507,7 +507,8 @@ const ROLES: Role[] = [
   }
 ];
 
-export default function PortfolioSwipe({ isMobileView }: { isMobileView?: boolean } = {}) {
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+export default function PortfolioSwipe(props?: { isMobileView?: boolean }) {
   const theme = useOSStore((s) => s.theme);
   const unlockAchievement = useOSStore((s) => s.unlockAchievement);
   const addNotification   = useOSStore((s) => s.addNotification);
@@ -581,7 +582,7 @@ export default function PortfolioSwipe({ isMobileView }: { isMobileView?: boolea
     }, 320);
   };
 
-  const swipe = (direction: 'left' | 'right') => {
+  const swipe = useCallback((direction: 'left' | 'right') => {
     if (stack.length === 0 || swiping) return;
     setSwiping(direction);
     const current = stack[0];
@@ -607,7 +608,7 @@ export default function PortfolioSwipe({ isMobileView }: { isMobileView?: boolea
         addNotification('🎉 All roles swiped!', 'You\'ve explored all available engineering roles.', 'achievement', 'career');
       }
     }, 300);
-  };
+  }, [stack, swiping, x, addNotification, unlockAchievement]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -642,7 +643,7 @@ export default function PortfolioSwipe({ isMobileView }: { isMobileView?: boolea
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [stack, selected, matchOverlay]);
+  }, [stack, selected, matchOverlay, swipe]);
 
   // ─── Detailed Profile View ──────────────────────────────────────────────────
   if (selected) {

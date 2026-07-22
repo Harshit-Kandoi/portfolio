@@ -82,7 +82,9 @@ export default function LibraryApp({ isMobileView }: { isMobileView?: boolean } 
     resizeRef.current = null;
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {}
+    } catch {
+      // ignore pointer capture error
+    }
   };
 
   useEffect(() => {

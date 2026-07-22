@@ -5,7 +5,7 @@ import {
   Settings as GearIcon, User, Briefcase, Award, FileText, Send, 
   Search, Cpu, HardDrive, Wifi, Volume2, Bell, LogOut, Moon, Sun, 
   Gamepad2, Github, Linkedin, Smartphone, Mail, Phone, Database,
-  Coffee, Heart, BookMarked, StickyNote, /* Image as ImageIcon, */ Package, ShoppingBag
+  Coffee, Heart, BookMarked, StickyNote, /* Image as ImageIcon, */ Package
 } from 'lucide-react';
 
 import Window from './Window';

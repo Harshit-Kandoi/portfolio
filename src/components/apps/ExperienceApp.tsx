@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { experience } from '../../data/experience';
-import { Briefcase, GraduationCap, Award, ExternalLink, MapPin } from 'lucide-react';
+import { ExternalLink, MapPin } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 
 export default function ExperienceApp({ isMobileView }: { isMobileView?: boolean } = {}) {
@@ -79,13 +79,7 @@ export default function ExperienceApp({ isMobileView }: { isMobileView?: boolean
         ) : (
           <div className="relative max-w-3xl mx-auto px-4 sm:px-8 py-8">
             {filteredItems.map((item, idx) => {
-              const isWork = item.type === 'work';
-              const isEdu = item.type === 'education';
               const isLast = idx === filteredItems.length - 1;
-
-              let Icon = Award;
-              if (isWork) Icon = Briefcase;
-              else if (isEdu) Icon = GraduationCap;
 
               const periodLabel = item.period || item.date || '';
               const nodeColor = NODE_COLORS[item.type] || NODE_COLORS.Course;

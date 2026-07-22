@@ -1,11 +1,11 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { useOSStore, AppTheme } from '../../store/useOSStore';
 import { 
   Wifi, Signal, Battery, Search, Bell, Settings as GearIcon, 
   Volume2, Sun, Palette, Trash2, Bluetooth, Zap, ChevronLeft, ChevronRight, Gamepad2,
   User, Folder, Briefcase, Award, FileText, Terminal as TermIcon,
   MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon, Heart, Coffee, ExternalLink,
-  BookMarked, StickyNote, /* Image as ImageIcon, */ Package, ShoppingBag
+  BookMarked, StickyNote, /* Image as ImageIcon, */ Package
 } from 'lucide-react';
 import { playWindowSound } from '../../utils/sounds';
 import Wallpaper from './Wallpaper';
@@ -73,7 +73,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [activeRecentIdx, setActiveRecentIdx] = useState(0);
 
-  const checkRecentsScroll = () => {
+  const checkRecentsScroll = useCallback(() => {
     if (!recentsRef.current) return;
     const { scrollLeft, scrollWidth, clientWidth } = recentsRef.current;
     setCanScrollLeft(scrollLeft > 10);
@@ -82,14 +82,14 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
     const cardWidth = 208;
     const idx = Math.round(scrollLeft / cardWidth);
     setActiveRecentIdx(Math.max(0, Math.min(idx, mobileRecents.length - 1)));
-  };
+  }, [mobileRecents.length]);
 
   useEffect(() => {
     if (showRecents) {
       const timer = setTimeout(checkRecentsScroll, 60);
       return () => clearTimeout(timer);
     }
-  }, [showRecents, mobileRecents.length]);
+  }, [showRecents, mobileRecents.length, checkRecentsScroll]);
 
   const scrollRecents = (direction: 'left' | 'right') => {
     if (!recentsRef.current) return;

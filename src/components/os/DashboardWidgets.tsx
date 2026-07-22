@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { X, GitBranch, GitMerge, Star, Upload, Zap, TrendingUp, Users, Folder, FileText, ExternalLink, Linkedin } from 'lucide-react';
-import { fetchGitHubStats, fetchGitHubActivity, GitHubStats, ActivityItem } from '../../services/github';
+import { X, GitBranch, Users, Folder, FileText, ExternalLink, Linkedin } from 'lucide-react';
+import { fetchGitHubStats, GitHubStats } from '../../services/github';
 import { fetchMediumStats, MediumStats } from '../../services/medium';
 import { projects } from '../../data/projects';
 import { blogPosts } from '../../data/blogs';
@@ -9,19 +9,6 @@ import { useOSStore } from '../../store/useOSStore';
 interface DashboardWidgetsProps {
   onClose: () => void;
 }
-
-
-
-const activityIconMap: Record<string, React.ReactNode> = {
-  '⬆️': <Upload className="w-3.5 h-3.5" />,
-  '🔀': <GitMerge className="w-3.5 h-3.5" />,
-  '🔁': <GitBranch className="w-3.5 h-3.5" />,
-  '⭐': <Star className="w-3.5 h-3.5" />,
-  '✨': <Zap className="w-3.5 h-3.5" />,
-  '🐛': <GitBranch className="w-3.5 h-3.5" />,
-  '🍴': <GitBranch className="w-3.5 h-3.5" />,
-  '🚀': <Upload className="w-3.5 h-3.5" />,
-};
 
 function StatCard({
   icon,

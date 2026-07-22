@@ -449,7 +449,7 @@ export const useOSStore = create<OSState>((set, get) => ({
   resetDesktop: () => {
     // Close all windows and reset positions
     const { INITIAL_WINDOWS_RESET } = { INITIAL_WINDOWS_RESET: INITIAL_WINDOWS };
-    set((state) => ({
+    set(() => ({
       activeWindowId: null,
       windows: INITIAL_WINDOWS_RESET.map(w => ({ ...w, isOpen: false, isMinimized: false, isMaximized: false })),
       theme: 'cyberpunk',

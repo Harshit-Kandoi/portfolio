@@ -38,7 +38,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
   // Keep foodRef in sync with initial food state on mount
   useEffect(() => {
     foodRef.current = food;
-  }, []);
+  }, [food]);
   const [score, setScore]     = useState(0);
   const [highScore, setHighScore] = useState(() => {
     try { return parseInt(localStorage.getItem(SNAKE_CONFIG.localStorageKey) || '0', 10); } catch { return 0; }

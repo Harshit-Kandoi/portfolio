@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Package, Star, Github, ExternalLink, Zap, CheckCircle2, Clock, Archive, Terminal as TerminalIcon } from 'lucide-react';
+import { Package, Github, ExternalLink, Zap, CheckCircle2, Clock, Archive, Terminal as TerminalIcon } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 import { Product, fetchProducts } from '../../services/supabase';
 import { PRODUCTS_SEED } from '../../data/products';

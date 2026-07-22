@@ -19,10 +19,8 @@ import {
   Layers,
   Code2,
   Terminal,
-  ShieldCheck,
   CreditCard,
   X,
-  MessageSquare,
   Box,
   Wrench,
   Palette,
@@ -436,7 +434,6 @@ export default function MarketplaceApp({ isMobileView }: { isMobileView?: boolea
                     item={item}
                     cardBg={cardBg}
                     badgeBg={badgeBg}
-                    isLight={isLight}
                     copiedId={copiedId}
                     processingId={processingId}
                     onCopyInstall={handleCopyInstall}
@@ -585,7 +582,6 @@ function MarketplaceCard({
   item,
   cardBg,
   badgeBg,
-  isLight,
   copiedId,
   processingId,
   onCopyInstall,
@@ -596,7 +592,6 @@ function MarketplaceCard({
   item: MarketplaceItem;
   cardBg: string;
   badgeBg: string;
-  isLight: boolean;
   copiedId: string | null;
   processingId: string | null;
   onCopyInstall: (item: MarketplaceItem) => void;

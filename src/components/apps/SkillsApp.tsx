@@ -539,7 +539,6 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
                       {catSkills.map((sk, idx) => {
                         const skPos = getCoordinates(cat, idx, catSkills.length, true);
                         const isSelected = selectedSkill?.name === sk.name && isLocked;
-                        const isHovered = hoveredSkill?.name === sk.name;
                         const isTarget = targetSkill?.name === sk.name;
                         const shortName = SKILL_SHORT_NAMES[sk.name] || sk.name;
 

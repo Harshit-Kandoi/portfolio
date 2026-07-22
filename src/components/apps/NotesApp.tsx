@@ -50,7 +50,9 @@ const getInitialPinnedIds = (): string[] => {
   try {
     const saved = localStorage.getItem('notes_user_pinned');
     if (saved) return JSON.parse(saved);
-  } catch (e) {}
+  } catch {
+    // ignore storage error
+  }
   return NOTES_SEED.filter((n) => n.is_featured).map((n) => n.id);
 };
 
@@ -58,7 +60,9 @@ const getInitialRecentIds = (): string[] => {
   try {
     const saved = localStorage.getItem('notes_recently_viewed');
     if (saved) return JSON.parse(saved);
-  } catch (e) {}
+  } catch {
+    // ignore storage error
+  }
   return [];
 };
 
@@ -176,7 +180,9 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
       const next = [note.id, ...prev.filter((id) => id !== note.id)];
       try {
         localStorage.setItem('notes_recently_viewed', JSON.stringify(next));
-      } catch (e) {}
+      } catch {
+        // ignore storage error
+      }
       return next;
     });
   };
@@ -188,7 +194,9 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
       const next = isPinned ? prev.filter((id) => id !== noteId) : [...prev, noteId];
       try {
         localStorage.setItem('notes_user_pinned', JSON.stringify(next));
-      } catch (e) {}
+      } catch {
+        // ignore storage error
+      }
       return next;
     });
   };
@@ -196,9 +204,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
   useEffect(() => {
     fetchNotes(NOTES_SEED).then((data) => {
       setNotes(data);
-      if (!selected && data.length > 0) {
-        handleSelectNote(data[0]);
-      }
+      setSelected((prev) => prev ?? data[0] ?? null);
     });
   }, []);
 

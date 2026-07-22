@@ -148,11 +148,9 @@ const AssistantBubbleWrapper = ({ msg, openWindow, isNew }: { msg: ChatMessage; 
   );
 };
 
-export default function AIAssistantApp({ isMobileView }: { isMobileView?: boolean } = {}) {
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+export default function AIAssistantApp(props?: { isMobileView?: boolean }) {
   const { chatMessages, addChatMessage, openWindow, closeWindow, unlockAchievement } = useOSStore();
-  const globalViewMode = useOSStore((state) => state.viewMode);
-  const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
-  const isMobile = isMobileView || globalViewMode === 'mobile' || isSimulatingMobile;
   const [inputText, setInputText] = useState('');
   const [unsupportedCount, setUnsupportedCount] = useState(0);
   const [selfDestructActive, setSelfDestructActive] = useState(false);

@@ -50,8 +50,9 @@ export default async function handler(req: Request, res: Response) {
         error: 'Invalid payment signature. Verification failed.',
       });
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error verifying Razorpay payment:', err);
-    return res.status(500).json({ error: err.message || 'Internal server error during verification' });
+    const msg = err instanceof Error ? err.message : 'Internal server error during verification';
+    return res.status(500).json({ error: msg });
   }
 }

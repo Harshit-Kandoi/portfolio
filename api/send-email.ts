@@ -71,8 +71,9 @@ ${message.trim()}
     } else {
       return res.status(response.status).json({ success: false, error: data });
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error in send-email API handler:', err);
-    return res.status(500).json({ error: err.message || 'Internal server error' });
+    const msg = err instanceof Error ? err.message : 'Internal server error';
+    return res.status(500).json({ error: msg });
   }
 }

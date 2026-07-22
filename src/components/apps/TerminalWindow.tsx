@@ -14,7 +14,6 @@ const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRi
 export default function TerminalWindow({ isMobileView }: { isMobileView?: boolean } = {}) {
   const { openWindow, setTheme, addTerminalCommand, viewMode, isSimulatingMobile } = useOSStore();
   const isMobile = isMobileView || viewMode === 'mobile' || isSimulatingMobile;
-  const sessionStart = React.useRef(Date.now());
   const [history, setHistory] = useState<HistoryItem[]>([
     {
       command: 'system_init',

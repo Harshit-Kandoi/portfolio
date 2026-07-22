@@ -16,7 +16,7 @@ function getPlatformStyle(platform: string) {
   return PLATFORM_COLORS[platform] || PLATFORM_COLORS.default;
 }
 
-export default function PublicationsApp({ isMobileView }: { isMobileView?: boolean } = {}) {
+export default function PublicationsApp() {
   const theme = useOSStore((s) => s.theme);
   const isLight = theme === 'light';
 

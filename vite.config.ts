@@ -24,7 +24,7 @@ function expressApiPlugin(): Plugin {
             if (dataStr) {
               try {
                 body = JSON.parse(dataStr);
-              } catch (e) {
+              } catch {
                 body = {};
               }
             }
@@ -34,14 +34,14 @@ function expressApiPlugin(): Plugin {
           const handler = handlerModule.default;
 
           if (typeof handler === 'function') {
-            const expressReq: any = {
+            const expressReq = {
               ...req,
               body,
               query: {},
               method: req.method,
             };
 
-            const expressRes: any = {
+            const expressRes = {
               setHeader(name: string, value: string) {
                 res.setHeader(name, value);
                 return expressRes;
@@ -50,16 +50,16 @@ function expressApiPlugin(): Plugin {
                 res.statusCode = code;
                 return expressRes;
               },
-              json(data: any) {
+              json(data: unknown) {
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify(data));
                 return expressRes;
               },
-              send(data: any) {
+              send(data: string | Buffer) {
                 res.end(data);
                 return expressRes;
               },
-              end(data?: any) {
+              end(data?: string | Buffer) {
                 res.end(data);
                 return expressRes;
               },

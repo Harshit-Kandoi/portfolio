@@ -91,7 +91,8 @@ export default function LockScreen() {
 
   const formattedTime = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   const formattedDate = time.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
-  const isMobile = viewMode === 'mobile';
+  const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
+  const isMobile = viewMode === 'mobile' || isSimulatingMobile || (typeof window !== 'undefined' && window.innerWidth < 768);
 
   if (isMobile) {
     // Circumference of r=36 SVG progress circle (2 * PI * 36)
@@ -175,6 +176,7 @@ export default function LockScreen() {
 
             {/* Interactive Sensor Core Button */}
             <button
+              onClick={handleUnlock}
               onPointerDown={startScan}
               onPointerUp={resetScan}
               onPointerLeave={resetScan}

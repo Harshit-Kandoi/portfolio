@@ -243,8 +243,6 @@ export function useGitHubStats(): UseGitHubStatsResult {
 
   useEffect(() => {
     let cancelled = false;
-    // Only set loading true if we don't already have cached stats
-    if (!stats) setLoading(true);
 
     fetchGitHubStats()
       .then((s) => {

@@ -5,7 +5,7 @@ import { Music, Award, MapPin, Code2, Sparkles, Quote, Target, Terminal, GitBran
 import { trackEvent } from '../../utils/analytics';
 import { useGitHubStats } from '../../services/github';
 import { formatUptimeHHMMSS } from '../../utils/system';
-import { toSpotifyEmbedUrl, toSpotifyExternalUrl, FALLBACK_SPOTIFY_EMBED } from '../../utils/spotify';
+import { toSpotifyEmbedUrl, toSpotifyExternalUrl } from '../../utils/spotify';
 
 const QUOTES = [
   "Good backend systems disappear. Users notice them only when they're broken.",

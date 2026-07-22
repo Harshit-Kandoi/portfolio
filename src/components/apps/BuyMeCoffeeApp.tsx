@@ -29,7 +29,8 @@ const THANKS_MESSAGES = [
   '🚀 Fueled and ready for deployment. Thank you!',
 ];
 
-export default function BuyMeCoffeeApp({ isMobileView }: { isMobileView?: boolean } = {}) {
+/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+export default function BuyMeCoffeeApp(props?: { isMobileView?: boolean }) {
   const theme = useOSStore((s) => s.theme);
   const addNotification   = useOSStore((s) => s.addNotification);
   const unlockAchievement = useOSStore((s) => s.unlockAchievement);
@@ -43,7 +44,6 @@ export default function BuyMeCoffeeApp({ isMobileView }: { isMobileView?: boolea
 
   // Dynamic Live Exchange Rate State (defaults to 87 INR fallback)
   const [exchangeRate, setExchangeRate] = useState<number>(87);
-  const [isRateLoading, setIsRateLoading] = useState<boolean>(true);
 
   // Payment states
   const [isProcessing, setIsProcessing] = useState(false);
@@ -69,9 +69,6 @@ export default function BuyMeCoffeeApp({ isMobileView }: { isMobileView?: boolea
       })
       .catch((err) => {
         console.warn('Could not fetch live exchange rate, using fallback rate:', err);
-      })
-      .finally(() => {
-        if (isMounted) setIsRateLoading(false);
       });
     return () => {
       isMounted = false;
