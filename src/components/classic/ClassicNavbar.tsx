@@ -9,7 +9,7 @@ interface Props {
 }
 
 const NAV_LINKS = [
-  { id: 'hero',       label: 'About'      },
+  { id: 'about',      label: 'About'      },
   { id: 'projects',   label: 'Projects'   },
   { id: 'experience', label: 'Experience' },
   { id: 'skills',     label: 'Skills'     },

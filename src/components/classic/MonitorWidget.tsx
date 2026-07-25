@@ -3,6 +3,7 @@ import { Monitor, Zap } from 'lucide-react';
 
 interface Props {
   onLaunch: (rect: DOMRect) => void;
+  isDark?: boolean;
 }
 
 // Mini animated nebula for the monitor preview screen
@@ -105,7 +106,7 @@ function MiniNebula() {
   );
 }
 
-export default function MonitorWidget({ onLaunch }: Props) {
+export default function MonitorWidget({ onLaunch, isDark = true }: Props) {
   const screenRef = useRef<HTMLDivElement>(null);
   const [powered, setPowered] = useState(false);
   const [launching, setLaunching] = useState(false);
@@ -266,20 +267,20 @@ export default function MonitorWidget({ onLaunch }: Props) {
       {/* Caption below the monitor */}
       <div className="mt-10 text-center space-y-2 max-w-md mx-auto flex flex-col items-center justify-center">
         <div className="flex items-center justify-center space-x-2">
-          <Monitor className="w-4 h-4" style={{ color: '#a855f7' }} />
-          <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#a855f7' }}>
+          <Monitor className="w-4 h-4" style={{ color: isDark ? '#a855f7' : '#9333ea' }} />
+          <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: isDark ? '#c084fc' : '#7e22ce' }}>
             Interactive Edition
           </span>
         </div>
-        <h3 className="text-2xl font-bold text-white text-center" style={{ textAlign: 'center' }}>
+        <h3 className={`text-2xl font-bold text-center ${isDark ? 'text-white' : 'text-slate-900'}`} style={{ textAlign: 'center' }}>
           Portfolio OS
         </h3>
-        <p className="text-sm leading-relaxed text-center" style={{ color: 'rgba(255,255,255,0.6)', textAlign: 'center' }}>
+        <p className="text-sm leading-relaxed text-center" style={{ color: isDark ? 'rgba(255,255,255,0.6)' : '#475569', textAlign: 'center' }}>
           Experience this portfolio as a desktop operating system.
           <br />
           Apps, terminal, AI assistant, games and more.
         </p>
-        <p className="text-xs text-center font-medium pt-1" style={{ color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>
+        <p className="text-xs text-center font-medium pt-1" style={{ color: isDark ? 'rgba(255,255,255,0.4)' : '#64748b', textAlign: 'center' }}>
           Click the monitor to enter
         </p>
       </div>

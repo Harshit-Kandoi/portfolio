@@ -242,10 +242,10 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
             <h3 className="text-sm font-bold tracking-wider uppercase text-purple-500">Bio Profile</h3>
           </div>
           <p className={`text-xs leading-relaxed text-justify ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
-            I build backend systems that move data reliably, automate messy workflows, and make cloud infrastructure behave. Most days I'm designing event-driven serverless architectures on <strong>GCP</strong>. The rest of the time I'm experimenting with <strong>AI agents</strong>, local developer tools, and ways to remove repetitive engineering work entirely.
+            I build backend applications that automate business workflows and simplify operational processes. My work focuses on API integrations, cloud-native services on Google Cloud Platform, and backend development using Java and Python. I enjoy building reliable systems that solve real business problems through automation.
           </p>
           <p className={`text-xs leading-relaxed text-justify ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
-            Currently at <strong>ThoughtIn Solutions</strong>, writing clean components in Java, Python, and TypeScript. I started with YOLO ML models and data pipeline engineering — which gave me an obsession with making systems that are fast, observable, and hard to break silently.
+            Currently, I'm an Associate Software Engineer at <strong>ThoughtIn Solutions</strong>, where I develop internal business applications using Java, Python, React, and GCP services such as Cloud Functions, Pub/Sub, and Firestore. Outside of work, I explore AI agents, developer tools, and practical automation to improve engineering workflows.
           </p>
 
           {/* Quest Cards */}

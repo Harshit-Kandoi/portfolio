@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   Github, Linkedin, Mail, Phone, BookOpen, Database,
   MapPin, Briefcase, GraduationCap, Award, ChevronDown, ChevronUp,
-  ExternalLink, Send, CheckCircle, ArrowDown, Sparkles, FileText,
+  ExternalLink, Send, CheckCircle, ArrowDown, Sparkles, FileText, Code2,
 } from 'lucide-react';
 import ClassicNavbar from './ClassicNavbar';
 import MonitorWidget from './MonitorWidget';
@@ -107,7 +107,7 @@ function Hero({ isDark }: { isDark: boolean }) {
 
         <p className="text-base sm:text-lg leading-relaxed max-w-xl mx-auto"
           style={{ color: isDark ? 'rgba(255,255,255,0.6)' : '#475569', textAlign: 'center' }}>
-          I build AI-powered products and backend systems. Currently an Associate Software Engineer at ThoughtIn Solutions, focused on GCP, React, and workflow automation.
+          I build backend applications that automate business workflows and simplify operational processes. Currently an Associate Software Engineer at ThoughtIn Solutions, focused on GCP, Java, Python, and workflow automation.
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -170,7 +170,120 @@ function Hero({ isDark }: { isDark: boolean }) {
   );
 }
 
-// ─── Projects ────────────────────────────────────────────────────────────────
+// ─── About Section ────────────────────────────────────────────────────────────
+
+function AboutSection({ isDark }: { isDark: boolean }) {
+  const cardBg = isDark ? 'rgba(255,255,255,0.03)' : '#ffffff';
+  const cardBorder = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(226,232,240,0.9)';
+  const cardShadow = isDark ? '0 8px 32px rgba(0,0,0,0.3)' : '0 10px 30px rgba(148,163,184,0.12)';
+
+  return (
+    <section id="about" className="py-24 px-6 relative border-t" style={{ borderColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}>
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-14">
+          <div className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: isDark ? '#a855f7' : '#9333ea' }}>
+            Background &amp; Focus
+          </div>
+          <h2 className={`text-3xl sm:text-4xl font-black mb-4 ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            About Me
+          </h2>
+          <p className="text-sm max-w-xl mx-auto" style={{ color: isDark ? 'rgba(255,255,255,0.5)' : '#64748b', textAlign: 'center' }}>
+            Backend engineer &amp; AI developer focused on cloud architectures, data pipelines, and workflow automation.
+          </p>
+        </div>
+
+        {/* 2-Column Responsive Grid on Desktop & Tablet */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+          {/* Left Column: Detailed Bio & Key Specs */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="p-6 sm:p-8 rounded-2xl space-y-4" style={{ background: cardBg, border: cardBorder, boxShadow: cardShadow }}>
+              <div className="flex items-center space-x-2">
+                <span className="h-2 w-2 rounded-full bg-purple-500 animate-ping" />
+                <h3 className="text-xs font-bold tracking-wider uppercase text-purple-500">Professional Bio</h3>
+              </div>
+              <p className="text-xs sm:text-sm leading-relaxed" style={{ color: isDark ? 'rgba(255,255,255,0.85)' : '#334155' }}>
+                I build backend applications that automate business workflows and simplify operational processes. My work focuses on API integrations, cloud-native services on Google Cloud Platform, and backend development using Java and Python. I enjoy building reliable systems that solve real business problems through automation.
+              </p>
+              <p className="text-xs sm:text-sm leading-relaxed" style={{ color: isDark ? 'rgba(255,255,255,0.7)' : '#475569' }}>
+                Currently, I'm an Associate Software Engineer at <strong>ThoughtIn Solutions</strong>, where I develop internal business applications using Java, Python, React, and GCP services such as Cloud Functions, Pub/Sub, and Firestore. Outside of work, I explore AI agents, developer tools, and practical automation to improve engineering workflows.
+              </p>
+            </div>
+
+            {/* Specs / Highlights Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px]">
+              <div className="p-4 rounded-xl flex flex-col items-center text-center space-y-1.5 transition-transform duration-200 hover:scale-[1.02]" style={{ background: cardBg, border: cardBorder, boxShadow: cardShadow }}>
+                <Award className="w-5 h-5 text-amber-400" />
+                <span className="font-bold text-xs" style={{ color: isDark ? '#fef08a' : '#854d0e' }}>Google ACE</span>
+                <span className="text-[10px]" style={{ color: isDark ? 'rgba(255,255,255,0.45)' : '#64748b' }}>Certified Cloud Engineer</span>
+              </div>
+
+              <div className="p-4 rounded-xl flex flex-col items-center text-center space-y-1.5 transition-transform duration-200 hover:scale-[1.02]" style={{ background: cardBg, border: cardBorder, boxShadow: cardShadow }}>
+                <Sparkles className="w-5 h-5 text-emerald-400" />
+                <span className="font-bold text-xs" style={{ color: isDark ? '#6ee7b7' : '#065f46' }}>90%+ Accuracy</span>
+                <span className="text-[10px]" style={{ color: isDark ? 'rgba(255,255,255,0.45)' : '#64748b' }}>YOLO Real-time Model</span>
+              </div>
+
+              <div className="p-4 rounded-xl flex flex-col items-center text-center space-y-1.5 transition-transform duration-200 hover:scale-[1.02]" style={{ background: cardBg, border: cardBorder, boxShadow: cardShadow }}>
+                <Code2 className="w-5 h-5 text-purple-400" />
+                <span className="font-bold text-xs" style={{ color: isDark ? '#e9d5ff' : '#6b21a8' }}>Zero Cloud Cost</span>
+                <span className="text-[10px]" style={{ color: isDark ? 'rgba(255,255,255,0.45)' : '#64748b' }}>Local GCP Emulator</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column: Active Quests & Milestones */}
+          <div className="lg:col-span-5 space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              {[
+                { label: 'CURRENT QUEST',      value: 'Building scalable AI systems',     color: isDark ? '#c084fc' : '#9333ea', border: 'rgba(168,85,247,0.3)' },
+                { label: 'CURRENTLY BUILDING', value: 'Financial Mirror App',             color: isDark ? '#34d399' : '#059669', border: 'rgba(16,185,129,0.3)' },
+                { label: 'CURRENT OBSESSION',  value: 'Event-driven Architectures',       color: isDark ? '#fbbf24' : '#d97706', border: 'rgba(245,158,11,0.3)' },
+                { label: 'LEVELING UP',        value: 'Kubernetes • Cloud • AI Agents',   color: isDark ? '#60a5fa' : '#2563eb', border: 'rgba(59,130,246,0.3)' },
+              ].map(card => (
+                <div key={card.label} className="p-4 rounded-xl transition-transform duration-200 hover:scale-[1.02]"
+                  style={{
+                    background: cardBg,
+                    border: `1px solid ${card.border}`,
+                    boxShadow: cardShadow
+                  }}>
+                  <span className="text-[9px] font-black uppercase tracking-wider block" style={{ color: card.color }}>{card.label}</span>
+                  <p className={`font-semibold mt-1 text-xs leading-snug ${isDark ? 'text-white' : 'text-slate-900'}`}>{card.value}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Milestones Card */}
+            <div className="p-6 rounded-2xl space-y-3" style={{ background: cardBg, border: cardBorder, boxShadow: cardShadow }}>
+              <div className="flex items-center space-x-2 mb-2">
+                <CheckCircle className="w-4 h-4 text-purple-400" />
+                <h4 className="text-xs font-bold uppercase tracking-wider text-purple-400">Milestones &amp; Goals</h4>
+              </div>
+              <div className="space-y-2.5 text-xs">
+                {[
+                  { done: true, text: 'Google ACE Certified' },
+                  { done: false, text: 'AI Developer Certification' },
+                  { done: false, text: 'Build & Launch SaaS Product' },
+                  { done: false, text: 'Publish Kaggle Dataset' },
+                ].map(item => (
+                  <div key={item.text} className="flex items-center space-x-2.5">
+                    <span className={item.done ? 'text-emerald-400 font-bold' : 'text-gray-500'}>
+                      {item.done ? '✓' : '□'}
+                    </span>
+                    <span className={item.done ? (isDark ? 'text-emerald-300 line-through decoration-emerald-600' : 'text-emerald-700 line-through decoration-emerald-500') : (isDark ? 'text-gray-300' : 'text-slate-700')}>
+                      {item.text}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
 
 const CATEGORIES = ['All', 'Products & Software', 'AI & Machine Learning', 'Cloud & Backend'];
 
@@ -686,7 +799,7 @@ function Contact({ isDark }: { isDark: boolean }) {
 
 // ─── OS Portal Section ────────────────────────────────────────────────────────
 
-function OSPortal({ onLaunch }: { onLaunch: (rect: DOMRect) => void }) {
+function OSPortal({ onLaunch, isDark }: { onLaunch: (rect: DOMRect) => void; isDark: boolean }) {
   return (
     <section id="os-portal" className="py-24 px-6">
       <div className="max-w-4xl mx-auto">
@@ -694,7 +807,11 @@ function OSPortal({ onLaunch }: { onLaunch: (rect: DOMRect) => void }) {
         <div className="flex items-center space-x-6 mb-16">
           <div className="flex-1 h-px" style={{ background: 'linear-gradient(to right, transparent, rgba(168,85,247,0.3))' }} />
           <div className="flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-semibold"
-            style={{ background: 'rgba(168,85,247,0.08)', border: '1px solid rgba(168,85,247,0.2)', color: '#c084fc' }}>
+            style={{
+              background: isDark ? 'rgba(168,85,247,0.08)' : 'rgba(147,51,234,0.08)',
+              border: isDark ? '1px solid rgba(168,85,247,0.2)' : '1px solid rgba(147,51,234,0.2)',
+              color: isDark ? '#c084fc' : '#7e22ce'
+            }}>
             <span>✦</span>
             <span>One more thing</span>
             <span>✦</span>
@@ -703,7 +820,7 @@ function OSPortal({ onLaunch }: { onLaunch: (rect: DOMRect) => void }) {
         </div>
 
         <div className="flex justify-center">
-          <MonitorWidget onLaunch={onLaunch} />
+          <MonitorWidget onLaunch={onLaunch} isDark={isDark} />
         </div>
       </div>
     </section>
@@ -713,7 +830,7 @@ function OSPortal({ onLaunch }: { onLaunch: (rect: DOMRect) => void }) {
 // ─── Root ─────────────────────────────────────────────────────────────────────
 
 export default function ClassicPortfolio({ onTransition }: { onTransition: (rect: DOMRect) => void }) {
-  const sectionIds = ['hero', 'projects', 'experience', 'skills', 'contact', 'os-portal'];
+  const sectionIds = ['hero', 'about', 'projects', 'experience', 'skills', 'contact', 'os-portal'];
   const activeSection = useIntersectionObserver(sectionIds);
   const [transitionRect, setTransitionRect] = useState<DOMRect | null>(null);
 
@@ -759,11 +876,12 @@ export default function ClassicPortfolio({ onTransition }: { onTransition: (rect
       />
 
       <Hero isDark={isDark} />
+      <AboutSection isDark={isDark} />
       <Projects isDark={isDark} />
       <Experience isDark={isDark} />
       <Skills isDark={isDark} />
       <Contact isDark={isDark} />
-      <OSPortal onLaunch={handleLaunch} />
+      <OSPortal onLaunch={handleLaunch} isDark={isDark} />
 
       {/* Transition overlay */}
       {transitionRect && <OSTransitionOverlay initialRect={transitionRect} />}
