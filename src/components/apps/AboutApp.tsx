@@ -166,7 +166,6 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
   }, []);
 
   const isLight = theme === 'light';
-  const textMuted = isLight ? 'text-gray-500' : 'text-gray-400';
   const boxBg = isLight
     ? 'bg-white border-gray-200/80 shadow-sm'
     : 'bg-white/5 border-white/10 backdrop-blur-md';
@@ -214,22 +213,22 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
           </div>
 
           <div className="w-full">
-            <h2 className="text-sm font-bold text-white tracking-wide text-center">{ghStats?.name || 'Harshit Kandoi'}</h2>
-            <p className="text-[10px] text-purple-400 font-semibold mt-0.5 text-center">Software &amp; AI Engineer</p>
-            <p className="text-[9px] text-emerald-400 font-bold mt-1 animate-pulse text-center">● Available for interesting projects</p>
+            <h2 className={`text-sm font-bold tracking-wide text-center ${isLight ? 'text-slate-900' : 'text-white'}`}>{ghStats?.name || 'Harshit Kandoi'}</h2>
+            <p className="text-[10px] text-purple-500 font-semibold mt-0.5 text-center">Software &amp; AI Engineer</p>
+            <p className="text-[9px] text-emerald-500 font-bold mt-1 animate-pulse text-center">● Available for interesting projects</p>
           </div>
 
-          <div className={`w-full space-y-2 text-[10px] sm:text-xs pt-3 border-t border-white/10 text-left ${textMuted}`}>
+          <div className={`w-full space-y-2 text-[10px] sm:text-xs pt-3 border-t border-white/10 text-left ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>
             <div className="flex items-center space-x-2">
-              <MapPin className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+              <MapPin className="w-3.5 h-3.5 text-purple-500 shrink-0" />
               <span>{ghStats?.location || 'Jaipur, Rajasthan, India'}</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Code2 className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+              <Code2 className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
               <span>Java • Python • GCP • React</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Award className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <Award className="w-3.5 h-3.5 text-amber-500 shrink-0" />
               <span>Google ACE Certified</span>
             </div>
           </div>
@@ -239,13 +238,13 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
         <div className={`${isMobile ? '' : 'col-span-2'} space-y-4`}>
           <div className="flex items-center space-x-2">
             <span className="h-1.5 w-1.5 rounded-full bg-purple-500 animate-ping" />
-            <h3 className="text-sm font-bold tracking-wider uppercase text-purple-400">Bio Profile</h3>
+            <h3 className="text-sm font-bold tracking-wider uppercase text-purple-500">Bio Profile</h3>
           </div>
-          <p className="text-xs leading-relaxed text-justify text-gray-300">
-            I build backend systems that move data reliably, automate messy workflows, and make cloud infrastructure behave. Most days I'm designing event-driven serverless architectures on <strong>GCP</strong>. The rest of the time I'm experimenting with <strong>AI agents</strong>, local developer tools, and ways to remove repetitive engineering work entirely.
+          <p className={`text-xs leading-relaxed text-justify ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
+            I build backend applications that automate business workflows and simplify operational processes. My work focuses on API integrations, cloud-native services on Google Cloud Platform, and backend development using Java and Python. I enjoy building reliable systems that solve real business problems through automation.
           </p>
-          <p className="text-xs leading-relaxed text-justify text-gray-300">
-            Currently at <strong>ThoughtIn Solutions</strong>, writing clean components in Java, Python, and TypeScript. I started with YOLO ML models and data pipeline engineering — which gave me an obsession with making systems that are fast, observable, and hard to break silently.
+          <p className={`text-xs leading-relaxed text-justify ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
+            Currently, I'm an Associate Software Engineer at <strong>ThoughtIn Solutions</strong>, where I develop internal business applications using Java, Python, React, and GCP services such as Cloud Functions, Pub/Sub, and Firestore. Outside of work, I explore AI agents, developer tools, and practical automation to improve engineering workflows.
           </p>
 
           {/* Quest Cards */}
@@ -253,7 +252,7 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
             {QUEST_CARDS.map((card) => (
               <div key={card.label} className={`p-3 rounded-xl border ${boxBg} ${card.border} hover:scale-[1.02] transition-transform duration-200`}>
                 <span className={`text-[8px] font-black uppercase tracking-widest ${card.color}`}>{card.label}</span>
-                <p className="font-semibold mt-1 text-white text-[11px] leading-snug">{card.value}</p>
+                <p className={`font-semibold mt-1 text-[11px] leading-snug ${isLight ? 'text-slate-900' : 'text-white'}`}>{card.value}</p>
               </div>
             ))}
           </div>
@@ -270,7 +269,7 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
         <div className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${boxBg} shadow-lg`}>
           <div className="flex items-start space-x-2">
             <Quote className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-            <p className="text-[11px] italic text-gray-300 leading-normal transition-all duration-500">
+            <p className={`text-[11px] italic leading-normal transition-all duration-500 ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
               "{activeQuote}"
             </p>
           </div>
@@ -279,15 +278,15 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
           <div className="pt-2 border-t border-white/5">
             <div className="flex items-center space-x-1.5 mb-2">
               <Target className="w-3 h-3 text-indigo-400" />
-              <span className="text-[9px] font-black uppercase tracking-wider text-indigo-400">Mission Log · 2026</span>
+              <span className="text-[9px] font-black uppercase tracking-wider text-indigo-500">Mission Log · 2026</span>
             </div>
             <div className="space-y-1">
               {MISSION_LOG.map((item) => (
                 <div key={item.text} className="flex items-center space-x-2 text-[10px]">
-                  <span className={item.done ? 'text-emerald-400' : 'text-gray-500'}>
+                  <span className={item.done ? 'text-emerald-500 font-bold' : (isLight ? 'text-slate-400' : 'text-gray-500')}>
                     {item.done ? '✓' : '□'}
                   </span>
-                  <span className={item.done ? 'text-emerald-300 line-through decoration-emerald-700' : 'text-gray-300'}>
+                  <span className={item.done ? (isLight ? 'text-emerald-700 font-semibold line-through decoration-emerald-500' : 'text-emerald-300 line-through decoration-emerald-700') : (isLight ? 'text-slate-700 font-medium' : 'text-gray-300')}>
                     {item.text}
                   </span>
                 </div>
@@ -299,36 +298,36 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
 
       {/* Behind the Screen */}
       <div className="space-y-2.5">
-        <h3 className="text-xs font-bold tracking-wider uppercase text-purple-400 flex items-center space-x-1.5">
+        <h3 className="text-xs font-bold tracking-wider uppercase text-purple-500 flex items-center space-x-1.5">
           <Sparkles className="w-3.5 h-3.5 animate-pulse" />
           <span>Behind the Screen</span>
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px] text-gray-300">
+        <div className={`grid grid-cols-1 sm:grid-cols-3 gap-3 text-[11px] ${isLight ? 'text-slate-800' : 'text-gray-300'}`}>
 
           <div className={`p-4 rounded-xl border ${boxBg} hover:border-purple-500/30 transition group`}>
-            <p className="font-bold text-white text-[11px] mb-2">🔍 Offline GCP Emulator</p>
-            <div className="space-y-1 text-[10px] text-gray-400">
-              <div>✓ <span className="text-emerald-400">Zero cloud cost</span> during development</div>
-              <div>✓ <span className="text-emerald-400">Local Pub/Sub</span> + Firestore support</div>
-              <div>✓ <span className="text-emerald-400">Reduced debug cycles</span> by ~10×</div>
+            <p className={`font-bold text-[11px] mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>🔍 Offline GCP Emulator</p>
+            <div className={`space-y-1 text-[10px] ${isLight ? 'text-slate-700 font-medium' : 'text-gray-400'}`}>
+              <div>✓ <span className="text-emerald-600 font-bold">Zero cloud cost</span> during development</div>
+              <div>✓ <span className="text-emerald-600 font-bold">Local Pub/Sub</span> + Firestore support</div>
+              <div>✓ <span className="text-emerald-600 font-bold">Reduced debug cycles</span> by ~10×</div>
             </div>
           </div>
 
           <div className={`p-4 rounded-xl border ${boxBg} hover:border-purple-500/30 transition group`}>
-            <p className="font-bold text-white text-[11px] mb-2">⚡ YOLOv5 ASL Detector</p>
-            <div className="space-y-1 text-[10px] text-gray-400">
-              <div>✓ <span className="text-emerald-400">90%+ accuracy</span> in real-time inference</div>
-              <div>✓ <span className="text-emerald-400">Custom dataset</span> curated from scratch</div>
-              <div>✓ <span className="text-emerald-400">OpenCV pipeline</span> with webcam input</div>
+            <p className={`font-bold text-[11px] mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>⚡ YOLOv5 ASL Detector</p>
+            <div className={`space-y-1 text-[10px] ${isLight ? 'text-slate-700 font-medium' : 'text-gray-400'}`}>
+              <div>✓ <span className="text-emerald-600 font-bold">90%+ accuracy</span> in real-time inference</div>
+              <div>✓ <span className="text-emerald-600 font-bold">Custom dataset</span> curated from scratch</div>
+              <div>✓ <span className="text-emerald-600 font-bold">OpenCV pipeline</span> with webcam input</div>
             </div>
           </div>
 
           <div className={`p-4 rounded-xl border ${boxBg} hover:border-purple-500/30 transition group`}>
-            <p className="font-bold text-white text-[11px] mb-2">☕ Fuel Source Protocol</p>
-            <div className="space-y-1 text-[10px] text-gray-400">
-              <div>✓ <span className="text-emerald-400">Synthwave</span> for deep focus sessions</div>
-              <div>✓ <span className="text-emerald-400">4–6 cups</span> average coding day</div>
-              <div>✓ <span className="text-emerald-400">Rajasthani Folk</span> for architecture design</div>
+            <p className={`font-bold text-[11px] mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>☕ Fuel Source Protocol</p>
+            <div className={`space-y-1 text-[10px] ${isLight ? 'text-slate-700 font-medium' : 'text-gray-400'}`}>
+              <div>✓ <span className="text-emerald-600 font-bold">Synthwave</span> for deep focus sessions</div>
+              <div>✓ <span className="text-emerald-600 font-bold">4–6 cups</span> average coding day</div>
+              <div>✓ <span className="text-emerald-600 font-bold">Rajasthani Folk</span> for architecture design</div>
             </div>
           </div>
 

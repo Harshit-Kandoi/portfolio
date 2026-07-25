@@ -323,21 +323,25 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
                 <h3 className="text-sm font-bold leading-snug">{selectedProject.title}</h3>
               </div>
 
-              {/* Duration and Status metadata widgets */}
-              <div className="grid grid-cols-2 gap-2 text-[10px]">
-                <div className={`p-2.5 rounded-lg border ${isLight ? 'bg-gray-100 border-gray-200' : 'bg-white/5 border-white/5'}`}>
-                  <span className="text-gray-400 block text-[8px] uppercase tracking-wider">Duration</span>
-                  <span className="font-bold text-white mt-0.5 block">{selectedProject.duration || 'N/A'}</span>
+              {/* Metadata Grid */}
+              <div className="grid grid-cols-3 gap-2 text-[10px]">
+                <div className={`p-2.5 rounded-lg border ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-white/5 border-white/5'}`}>
+                  <span className={`block text-[8px] uppercase tracking-wider ${isLight ? 'text-slate-600 font-bold' : 'text-gray-400'}`}>Role</span>
+                  <span className={`font-bold mt-0.5 block ${isLight ? 'text-slate-900' : 'text-white'}`}>{selectedProject.role}</span>
                 </div>
-                <div className={`p-2.5 rounded-lg border ${isLight ? 'bg-gray-100 border-gray-200' : 'bg-white/5 border-white/5'}`}>
-                  <span className="text-gray-400 block text-[8px] uppercase tracking-wider">Status</span>
-                  <span className="font-bold text-emerald-400 mt-0.5 block">{selectedProject.status || 'Completed'}</span>
+                <div className={`p-2.5 rounded-lg border ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-white/5 border-white/5'}`}>
+                  <span className={`block text-[8px] uppercase tracking-wider ${isLight ? 'text-slate-600 font-bold' : 'text-gray-400'}`}>Duration</span>
+                  <span className={`font-bold mt-0.5 block ${isLight ? 'text-slate-900' : 'text-white'}`}>{selectedProject.duration || 'N/A'}</span>
+                </div>
+                <div className={`p-2.5 rounded-lg border ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-white/5 border-white/5'}`}>
+                  <span className={`block text-[8px] uppercase tracking-wider ${isLight ? 'text-slate-600 font-bold' : 'text-gray-400'}`}>Status</span>
+                  <span className="font-bold text-emerald-500 mt-0.5 block">{selectedProject.status || 'Completed'}</span>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <h4 className={`text-[10px] font-bold uppercase tracking-wider ${textMuted}`}>Summary</h4>
-                <p className={`text-xs leading-relaxed text-justify ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>{selectedProject.description}</p>
+                <h4 className={`text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-700' : textMuted}`}>Summary</h4>
+                <p className={`text-xs leading-relaxed text-justify ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>{selectedProject.description}</p>
               </div>
 
               <div className="space-y-2">

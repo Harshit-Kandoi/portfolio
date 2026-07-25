@@ -295,23 +295,23 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
         {/* Left column: Get Connected channels */}
         <div className={`${isMobile ? 'col-span-1' : 'md:col-span-1'} space-y-4`}>
           <div className={`p-5 rounded-2xl border ${cardBg} shadow-lg space-y-4`}>
-            <h3 className="text-xs font-bold text-white border-b border-white/5 pb-2 flex items-center space-x-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+            <h3 className={`text-xs font-bold border-b pb-2 flex items-center space-x-1.5 ${isLight ? 'text-slate-900 border-slate-200' : 'text-white border-white/5'}`}>
+              <Sparkles className="w-3.5 h-3.5 text-purple-500" />
               <span>Get Connected</span>
             </h3>
             
             <div className="space-y-3.5 text-xs">
               
               {/* Email Card */}
-              <div className="space-y-1.5 p-2.5 rounded-xl bg-white/5 border border-white/5">
+              <div className={`space-y-1.5 p-2.5 rounded-xl border ${isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-white/5 border-white/5'}`}>
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] font-bold text-gray-400 uppercase flex items-center space-x-1">
-                    <Mail className="w-3 h-3 text-purple-400" />
+                  <span className={`text-[9px] font-bold uppercase flex items-center space-x-1 ${isLight ? 'text-slate-700' : 'text-gray-400'}`}>
+                    <Mail className="w-3 h-3 text-purple-500" />
                     <span>Email Address</span>
                   </span>
                 </div>
-                <p className="text-[10px] font-bold text-white truncate">{PORTFOLIO_META.email}</p>
-                <div className="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-white/5">
+                <p className={`text-[10px] font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{PORTFOLIO_META.email}</p>
+                <div className={`grid grid-cols-2 gap-1.5 pt-1.5 border-t ${isLight ? 'border-slate-200' : 'border-white/5'}`}>
                   <button 
                     onClick={() => handleCopy(PORTFOLIO_META.email, 'Email')}
                     className="py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[9px] font-bold flex items-center justify-center space-x-1 transition"
@@ -331,15 +331,15 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
               </div>
 
               {/* Phone Card */}
-              <div className="space-y-1.5 p-2.5 rounded-xl bg-white/5 border border-white/5">
+              <div className={`space-y-1.5 p-2.5 rounded-xl border ${isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-white/5 border-white/5'}`}>
                 <div className="flex justify-between items-center">
-                  <span className="text-[9px] font-bold text-gray-400 uppercase flex items-center space-x-1">
-                    <Phone className="w-3 h-3 text-emerald-400" />
+                  <span className={`text-[9px] font-bold uppercase flex items-center space-x-1 ${isLight ? 'text-slate-700' : 'text-gray-400'}`}>
+                    <Phone className="w-3 h-3 text-emerald-500" />
                     <span>Phone Number</span>
                   </span>
                 </div>
-                <p className="text-[10px] font-bold text-white truncate">{PORTFOLIO_META.phone}</p>
-                <div className="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-white/5">
+                <p className={`text-[10px] font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{PORTFOLIO_META.phone}</p>
+                <div className={`grid grid-cols-2 gap-1.5 pt-1.5 border-t ${isLight ? 'border-slate-200' : 'border-white/5'}`}>
                   <button 
                     onClick={() => handleCopy(PORTFOLIO_META.phone, 'Phone')}
                     className="py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[9px] font-bold flex items-center justify-center space-x-1 transition"
@@ -375,8 +375,9 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                     href={PORTFOLIO_META.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() => trackEvent('contact_github_click')}
-                    className="flex items-center space-x-1.5 p-2 rounded-lg bg-gray-600/15 hover:bg-gray-600/25 text-gray-300 transition"
+                    className={`flex items-center space-x-1.5 p-2 rounded-lg transition ${
+                      isLight ? 'bg-slate-200 text-slate-900 hover:bg-slate-300' : 'bg-gray-600/15 hover:bg-gray-600/25 text-gray-300'
+                    }`}
                   >
                     <Github className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-bold">GitHub</span>
@@ -385,7 +386,7 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                     href={PORTFOLIO_META.medium}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-1.5 p-2 rounded-lg bg-cyan-600/10 hover:bg-cyan-600/20 text-cyan-400 transition"
+                    className="flex items-center space-x-1.5 p-2 rounded-lg bg-cyan-600/10 hover:bg-cyan-600/20 text-cyan-500 transition"
                   >
                     <BookOpen className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-bold">Medium</span>
@@ -394,7 +395,7 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                     href={PORTFOLIO_META.kaggle}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-1.5 p-2 rounded-lg bg-amber-600/10 hover:bg-amber-600/20 text-amber-400 transition"
+                    className="flex items-center space-x-1.5 p-2 rounded-lg bg-amber-600/10 hover:bg-amber-600/20 text-amber-500 transition"
                   >
                     <Database className="w-3.5 h-3.5" />
                     <span className="text-[10px] font-bold">Kaggle</span>
@@ -411,15 +412,15 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
           {success ? (
             /* Successful Transmission Output */
             <div className={`p-8 rounded-2xl border text-center space-y-5 flex flex-col items-center justify-center shadow-xl ${cardBg}`}>
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shadow-lg shadow-emerald-500/10">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 shadow-lg shadow-emerald-500/10">
                 <CheckCircle className="w-8 h-8 animate-bounce" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-base font-bold text-white tracking-wide">✓ Delivery Successful</h3>
-                <p className="text-xs text-emerald-400 font-mono">Message transmitted directly to Harshit via Resend API</p>
+                <h3 className={`text-base font-bold tracking-wide ${isLight ? 'text-slate-900' : 'text-white'}`}>✓ Delivery Successful</h3>
+                <p className="text-xs text-emerald-600 font-mono font-bold">Message transmitted directly to Harshit via Resend API</p>
               </div>
-              <p className="text-xs text-gray-300 leading-relaxed max-w-sm">
-                Your direct message payload was encrypted and routed to <span className="text-purple-300 font-semibold">{DESTINATION_EMAIL}</span>. Harshit will get back to you shortly.
+              <p className={`text-xs leading-relaxed max-w-sm ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
+                Your direct message payload was encrypted and routed to <span className="text-purple-600 font-semibold">{DESTINATION_EMAIL}</span>. Harshit will get back to you shortly.
               </p>
               <button
                 onClick={handleResetForm}
@@ -500,13 +501,13 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
           ) : (
             /* Input Form */
             <form onSubmit={handleSubmit} className={`p-6 rounded-2xl border ${cardBg} shadow-lg space-y-4`}>
-              <div className="flex items-center justify-between border-b border-white/5 pb-2">
-                <h3 className="text-xs font-bold text-white flex items-center space-x-1.5">
-                  <Mail className="w-3.5 h-3.5 text-purple-400" />
+              <div className={`flex items-center justify-between border-b pb-2 ${isLight ? 'border-slate-200' : 'border-white/5'}`}>
+                <h3 className={`text-xs font-bold flex items-center space-x-1.5 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                  <Mail className="w-3.5 h-3.5 text-purple-500" />
                   <span>Direct Message</span>
                 </h3>
                 {cooldownRemaining > 0 && (
-                  <span className="text-[9px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-400/20 flex items-center space-x-1">
+                  <span className="text-[9px] font-bold text-amber-500 bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-400/20 flex items-center space-x-1">
                     <Clock className="w-2.5 h-2.5 animate-spin" />
                     <span>Rate Limit: {cooldownRemaining}s</span>
                   </span>
@@ -515,17 +516,15 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
 
               {/* Validation Error Alert */}
               {errorMessage && (
-                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-start space-x-2">
-                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                  <span className="text-[11px] leading-snug">{errorMessage}</span>
+                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs flex items-start space-x-2">
+                  <AlertCircle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                  <span>{errorMessage}</span>
                 </div>
               )}
 
               {/* Anti-Spam Honeypot Hidden Input */}
-              <div className="hidden aria-hidden" style={{ display: 'none', opacity: 0, position: 'absolute', top: '-9999px', left: '-9999px' }}>
-                <label htmlFor="website">Website</label>
+              <div className="hidden" aria-hidden="true">
                 <input
-                  id="website"
                   type="text"
                   name="website"
                   tabIndex={-1}
@@ -537,27 +536,27 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
 
               <div className={`grid ${isMobile ? 'grid-cols-1 gap-3' : 'grid-cols-1 sm:grid-cols-2 gap-4'}`}>
                 <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Your Email *</label>
+                  <label className={`text-[9px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-700 font-extrabold' : 'text-gray-400'}`}>Your Email *</label>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 bg-white/5 border border-white/10 placeholder-gray-500 transition ${
-                      isLight ? 'bg-white border-gray-300 text-gray-800' : 'text-white'
+                    className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 border transition ${
+                      isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
                     }`}
                     placeholder="name@domain.com"
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Subject *</label>
+                  <label className={`text-[9px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-700 font-extrabold' : 'text-gray-400'}`}>Subject *</label>
                   <input
                     type="text"
                     required
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 bg-white/5 border border-white/10 placeholder-gray-500 transition ${
-                      isLight ? 'bg-white border-gray-300 text-gray-800' : 'text-white'
+                    className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 border transition ${
+                      isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
                     }`}
                     placeholder="Project Inquiry / Job Opportunity"
                   />
@@ -565,14 +564,14 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
               </div>
 
               <div className="space-y-1">
-                <label className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Message * (min 10 chars)</label>
+                <label className={`text-[9px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-700 font-extrabold' : 'text-gray-400'}`}>Message * (min 10 chars)</label>
                 <textarea
                   required
                   rows={4}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 bg-white/5 border border-white/10 placeholder-gray-500 transition ${
-                    isLight ? 'bg-white border-gray-300 text-gray-800' : 'text-white'
+                  className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 border transition ${
+                    isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
                   }`}
                   placeholder="Hey Harshit, I checked out your Portfolio OS..."
                 />

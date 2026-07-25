@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useOSStore, VISITOR_ACHIEVEMENTS } from '../../store/useOSStore';
-import { Trophy, Star, Lock, CheckCircle, Zap, Award, User, ExternalLink } from 'lucide-react';
+import { Trophy, Star, Lock, CheckCircle, Zap, Award, ExternalLink } from 'lucide-react';
 
 interface DevCredential {
   id: string;
@@ -170,7 +170,7 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
   const globalViewMode = useOSStore((s) => s.viewMode);
   const isSimulatingMobile = useOSStore((s) => s.isSimulatingMobile);
   const isMobile       = isMobileView || globalViewMode === 'mobile' || isSimulatingMobile;
-  const [tab, setTab]  = useState<'visitor' | 'dev'>('visitor');
+  const [tab, setTab]  = useState<'visitor' | 'dev'>('dev');
 
   const { current, next, progress } = getLevelInfo(xp);
   const isLight = theme === 'light';
@@ -188,22 +188,22 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-3">
             <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center shadow-lg`}>
-              <Trophy className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-white`} />
+              <Award className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-white`} />
             </div>
             <div>
-              <h2 className="text-sm font-black text-white">Your Session XP</h2>
-              <p className={`text-xs font-bold ${current.color}`}>{current.label}</p>
+              <h2 className="text-sm font-black text-white">Certifications & Credentials</h2>
+              <p className={`text-xs font-bold text-purple-300`}>Verified Developer Achievements</p>
             </div>
           </div>
           <div className="text-right">
             <p className={`${isMobile ? 'text-xl' : 'text-2xl'} font-black text-amber-400 font-mono`}>{xp} XP</p>
-            <p className="text-[9px] text-gray-400">{unlockedCount}/{totalAchieves} unlocked</p>
+            <p className="text-[9px] text-gray-400">{unlockedCount}/{totalAchieves} badges earned</p>
           </div>
         </div>
 
         {/* XP Progress Bar */}
         <div>
-          <div className="flex justify-between text-[9px] text-gray-500 mb-1">
+          <div className="flex justify-between text-[9px] text-gray-400 mb-1">
             <span>{current.label}</span>
             {next && <span>{next.label} ({next.min} XP)</span>}
           </div>
@@ -218,18 +218,18 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
 
       {/* Tab Switcher */}
       <div className="flex border-b border-white/5 shrink-0">
-        {(['visitor', 'dev'] as const).map((t) => (
+        {(['dev', 'visitor'] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`flex-1 py-2.5 text-[11px] font-bold uppercase tracking-wider transition flex items-center justify-center space-x-1.5 ${
               tab === t
-                ? 'border-b-2 border-purple-500 text-purple-300'
-                : isLight ? 'text-gray-400 hover:text-gray-600' : 'text-gray-600 hover:text-gray-400'
+                ? 'border-b-2 border-purple-500 text-purple-300 bg-white/5'
+                : isLight ? 'text-gray-500 hover:text-gray-800' : 'text-gray-400 hover:text-gray-200'
             }`}
           >
-            {t === 'visitor' ? <User className="w-3 h-3" /> : <Award className="w-3 h-3" />}
-            <span>{t === 'visitor' ? 'Your Journey' : 'Dev Credentials'}</span>
+            {t === 'dev' ? <Award className="w-3.5 h-3.5 text-purple-400" /> : <Trophy className="w-3.5 h-3.5 text-amber-400" />}
+            <span>{t === 'dev' ? 'Certifications' : 'Explorer Badges'}</span>
           </button>
         ))}
       </div>
@@ -240,14 +240,14 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
           {/* Stats Row */}
           <div className="grid grid-cols-3 gap-2.5 mb-2">
             {[
-              { label: 'Achievements', value: `${unlockedCount}/${totalAchieves}`, icon: Trophy, color: 'text-amber-400' },
-              { label: 'Earned XP', value: `${earnedXP}`, icon: Zap, color: 'text-purple-400' },
-              { label: 'Progress', value: `${Math.round((unlockedCount / totalAchieves) * 100)}%`, icon: Star, color: 'text-cyan-400' },
+              { label: 'Achievements', value: `${unlockedCount}/${totalAchieves}`, icon: Trophy, color: 'text-amber-500' },
+              { label: 'Earned XP', value: `${earnedXP}`, icon: Zap, color: 'text-purple-500' },
+              { label: 'Progress', value: `${Math.round((unlockedCount / totalAchieves) * 100)}%`, icon: Star, color: 'text-cyan-500' },
             ].map(({ label, value, icon: Icon, color }) => (
               <div key={label} className={`rounded-xl p-2 border text-center ${cardBg}`}>
                 <Icon className={`w-3.5 h-3.5 mx-auto mb-0.5 ${color}`} />
-                <p className="text-xs font-black">{value}</p>
-                <p className="text-[8px] text-gray-400 truncate">{label}</p>
+                <p className={`text-xs font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>{value}</p>
+                <p className={`text-[8px] truncate ${isLight ? 'text-slate-600 font-bold' : 'text-gray-400'}`}>{label}</p>
               </div>
             ))}
           </div>
@@ -258,30 +258,30 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
               <div
                 key={ach.id}
                 className={`flex items-start space-x-3 ${isMobile ? 'p-2.5' : 'p-3'} rounded-xl border transition ${cardBg} ${
-                  unlocked ? 'border-purple-500/25 shadow-[0_0_10px_rgba(168,85,247,0.05)]' : 'opacity-55'
+                  unlocked ? 'border-purple-500/25 shadow-sm' : 'opacity-55'
                 }`}
               >
                 {/* Icon */}
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0 ${
-                  unlocked ? 'bg-amber-500/10 border border-amber-500/20' : 'bg-white/3 border border-white/5 grayscale'
+                  unlocked ? (isLight ? 'bg-amber-100 border border-amber-300' : 'bg-amber-500/10 border border-amber-500/20') : (isLight ? 'bg-slate-100 border border-slate-200 grayscale' : 'bg-white/3 border border-white/5 grayscale')
                 }`}>
-                  {unlocked ? ach.emoji : <Lock className="w-4 h-4 text-gray-600" />}
+                  {unlocked ? ach.emoji : <Lock className={`w-4 h-4 ${isLight ? 'text-slate-400' : 'text-gray-600'}`} />}
                 </div>
 
                 {/* Content */}
                 <div className="flex-grow min-w-0">
                   <div className="flex items-start justify-between space-x-2">
-                    <p className={`text-xs font-bold leading-tight ${unlocked ? '' : 'opacity-50'}`}>
+                    <p className={`text-xs font-bold leading-tight ${unlocked ? (isLight ? 'text-slate-900' : 'text-white') : 'opacity-50'}`}>
                       {unlocked ? ach.title : '???'}
                     </p>
                     {unlocked && (
                       <div className="flex items-center space-x-1 shrink-0">
-                        <Zap className="w-2.5 h-2.5 text-amber-400" />
-                        <span className="text-[10px] text-amber-400 font-bold">+{ach.xp}</span>
+                        <Zap className="w-2.5 h-2.5 text-amber-500" />
+                        <span className="text-[10px] text-amber-500 font-bold">+{ach.xp}</span>
                       </div>
                     )}
                   </div>
-                  <p className={`text-[10px] mt-0.5 leading-snug ${unlocked ? 'text-gray-400' : 'text-gray-700 italic'}`}>
+                  <p className={`text-[10px] mt-0.5 leading-snug ${unlocked ? (isLight ? 'text-slate-700 font-medium' : 'text-gray-300') : (isLight ? 'text-slate-500 italic' : 'text-gray-600 italic')}`}>
                     {unlocked ? ach.description : 'Keep exploring to unlock this achievement...'}
                   </p>
                 </div>
@@ -289,8 +289,8 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
                 {/* Status */}
                 <div className="shrink-0">
                   {unlocked
-                    ? <CheckCircle className="w-4 h-4 text-emerald-400" />
-                    : <Lock className="w-4 h-4 text-gray-700" />
+                    ? <CheckCircle className="w-4 h-4 text-emerald-500" />
+                    : <Lock className={`w-4 h-4 ${isLight ? 'text-slate-400' : 'text-gray-700'}`} />
                   }
                 </div>
               </div>
@@ -302,8 +302,8 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
       {/* ── Dev Credentials Tab ─────────────────────────────────────────── */}
       {tab === 'dev' && (
         <div className={`flex-grow overflow-y-auto ${isMobile ? 'p-3 space-y-3' : 'p-4 space-y-4'} custom-scrollbar`}>
-          <p className="text-[10px] text-gray-500 text-center pb-1">
-            Harshit's certifications, awards & professional milestones.
+          <p className={`text-[10px] text-center pb-1 ${isLight ? 'text-slate-700 font-bold' : 'text-gray-400'}`}>
+            Harshit's certifications, awards &amp; professional milestones.
           </p>
           {DEV_CREDENTIALS.map((cert) => (
             <div key={cert.id} className={`rounded-2xl border overflow-hidden transition-all duration-300 hover:border-purple-500/40 ${cardBg}`}>
@@ -312,7 +312,7 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
                   <span className="text-2xl shrink-0">{cert.emoji}</span>
                   <div>
                     <h3 className="text-xs font-black text-white leading-tight">{cert.title}</h3>
-                    <p className="text-[10px] text-white/80 font-medium mt-0.5">
+                    <p className="text-[10px] text-white/90 font-semibold mt-0.5">
                       {cert.org} · Issued {cert.issued}{cert.expires ? ` · Expires ${cert.expires}` : ''}
                     </p>
                   </div>
@@ -331,12 +331,14 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
                 )}
               </div>
               <div className="px-4 py-3 space-y-2.5">
-                <p className="text-[11px] leading-relaxed opacity-75">{cert.description}</p>
+                <p className={`text-[11px] leading-relaxed ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>{cert.description}</p>
                 
                 {cert.credentialId && (
-                  <div className="flex items-center space-x-1.5 text-[10px] opacity-70">
-                    <span className="font-semibold text-purple-400">Credential ID:</span>
-                    <code className="bg-purple-500/10 text-purple-300 px-1.5 py-0.5 rounded font-mono text-[9.5px] border border-purple-500/20">{cert.credentialId}</code>
+                  <div className="flex items-center space-x-1.5 text-[10px]">
+                    <span className="font-bold text-purple-500">Credential ID:</span>
+                    <code className={`px-1.5 py-0.5 rounded font-mono text-[9.5px] border ${
+                      isLight ? 'bg-purple-50 text-purple-900 border-purple-200 font-bold' : 'bg-purple-500/10 text-purple-300 border-purple-500/20'
+                    }`}>{cert.credentialId}</code>
                   </div>
                 )}
 
@@ -345,7 +347,9 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
                     {cert.skills.map((skill, sIdx) => (
                       <span
                         key={`${cert.id}-${skill}-${sIdx}`}
-                        className="px-2 py-0.5 rounded-full text-[9px] font-semibold bg-purple-500/10 text-purple-300 border border-purple-500/20"
+                        className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+                          isLight ? 'bg-purple-50 text-purple-800 border-purple-200' : 'bg-purple-500/10 text-purple-300 border-purple-500/20'
+                        }`}
                       >
                         {skill}
                       </span>

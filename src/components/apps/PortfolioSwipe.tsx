@@ -990,22 +990,24 @@ export default function PortfolioSwipe(props?: { isMobileView?: boolean }) {
 
   // ─── Main Swipe View Deck ──────────────────────────────────────────────────
   return (
-    <div className={`flex flex-col flex-grow h-full relative overflow-hidden select-none ${bg}`}>
+    <div className={`flex flex-col flex-grow h-full relative overflow-hidden select-none ${isLight ? 'bg-gray-50 text-slate-900' : 'bg-slate-950 text-white'}`}>
       {/* Background Particles & Grid */}
-      <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
+      <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(#888_1px,transparent_1px)] [background-size:16px_16px]" />
 
       {/* Top Header Bar */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-white/10 shrink-0 z-20 bg-slate-950/60 backdrop-blur-md">
+      <div className={`flex items-center justify-between px-5 py-3 border-b shrink-0 z-20 backdrop-blur-md ${
+        isLight ? 'bg-white/90 border-slate-200 text-slate-900 shadow-xs' : 'bg-slate-950/60 border-white/10 text-white'
+      }`}>
         <div className="flex items-center space-x-3 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-purple-600 flex items-center justify-center shadow-lg shadow-rose-500/20 shrink-0 animate-pulse">
             <Heart className="w-4 h-4 text-white fill-white" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center space-x-1.5">
-              <h2 className="text-xs sm:text-sm font-black text-white tracking-tight truncate">Engineering Matchmaker</h2>
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping shrink-0" />
+              <h2 className={`text-xs sm:text-sm font-black tracking-tight truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>Engineering Matchmaker</h2>
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
             </div>
-            <p className="text-[9.5px] text-slate-400 font-medium truncate">Role-based developer specialization profiles</p>
+            <p className={`text-[9.5px] font-medium truncate ${isLight ? 'text-slate-600' : 'text-slate-400'}`}>Role-based developer specialization profiles</p>
           </div>
         </div>
 

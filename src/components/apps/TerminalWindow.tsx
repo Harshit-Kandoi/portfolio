@@ -12,17 +12,21 @@ interface HistoryItem {
 const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
 
 export default function TerminalWindow({ isMobileView }: { isMobileView?: boolean } = {}) {
-  const { openWindow, setTheme, addTerminalCommand, viewMode, isSimulatingMobile } = useOSStore();
+  const { openWindow, setTheme, addTerminalCommand, viewMode, isSimulatingMobile, theme } = useOSStore();
   const isMobile = isMobileView || viewMode === 'mobile' || isSimulatingMobile;
+  const isLight = theme === 'light';
+
   const [history, setHistory] = useState<HistoryItem[]>([
     {
       command: 'system_init',
       output: (
-        <div className="text-gray-400">
-          Welcome to Harshit-OS v2.0.0 Terminal.
-          Type <span className="text-yellow-400">help</span> for a list of available commands.
+        <div className={isLight ? 'text-slate-800 font-medium' : 'text-gray-400'}>
+          Welcome to Harshit-OS v2.0.0 Terminal. Type{' '}
+          <span className={isLight ? 'text-purple-700 font-bold' : 'text-yellow-400'}>help</span> for a list of available commands.
           <br />
-          <span className="text-gray-600 text-[10px]">Psst: try <span className="text-green-500">sudo hire harshit</span> 👀</span>
+          <span className={`text-[10px] ${isLight ? 'text-slate-600 font-semibold' : 'text-gray-600'}`}>
+            Psst: try <span className={isLight ? 'text-emerald-700 font-bold' : 'text-green-500'}>sudo hire harshit</span> 👀
+          </span>
         </div>
       ),
     },
@@ -204,32 +208,28 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
     switch (cmd) {
       case 'help':
         output = (
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-green-400">
-            <div><span className="text-yellow-300 font-bold">help</span> - list commands</div>
-            <div><span className="text-yellow-300 font-bold">about</span> - profiles Harshit</div>
-            <div><span className="text-yellow-300 font-bold">skills</span> - skills dashboard</div>
-            <div><span className="text-yellow-300 font-bold">projects</span> - open projects app</div>
-            <div><span className="text-yellow-300 font-bold">resume</span> - view resume PDF</div>
-            <div><span className="text-yellow-300 font-bold">github</span> - open profile</div>
-            <div><span className="text-yellow-300 font-bold">linkedin</span> - open LinkedIn</div>
-            <div><span className="text-yellow-300 font-bold">clear</span> - clear output</div>
-            <div><span className="text-yellow-300 font-bold">theme [name]</span> - set OS theme</div>
-            <div><span className="text-yellow-300 font-bold">contact</span> - open contact box</div>
-            <div><span className="text-yellow-300 font-bold">matrix</span> - toggle digital rain</div>
-            <div><span className="text-yellow-300 font-bold">neofetch</span> - system config</div>
-            <div><span className="text-yellow-300 font-bold">whoami</span> - developer level</div>
-            <div><span className="text-yellow-300 font-bold">fortune</span> - developer quote</div>
-            <div><span className="text-yellow-300 font-bold">ascii</span> - retro logos</div>
-            <div><span className="text-yellow-300 font-bold">uptime</span> - session uptime</div>
-            <div><span className="text-yellow-300 font-bold">ping [host]</span> - ping a host</div>
-            {/* Phase 3 new commands */}
-            <div><span className="text-yellow-300 font-bold">library</span> - view books read</div>
-            <div><span className="text-yellow-300 font-bold">notes</span> - tech notes/wiki</div>
-            {/* <div><span className="text-yellow-300 font-bold">gallery</span> - photo gallery</div> */}
-            <div><span className="text-yellow-300 font-bold">products</span> - product list</div>
-            {/* <div><span className="text-yellow-300 font-bold">publications</span> - articles written</div> */}
-            {/* <div><span className="text-yellow-300 font-bold">marketplace</span> - tools & services</div> */}
-            <div className="text-gray-600 text-[10px] col-span-2 sm:col-span-3 pt-1">🥚 There may be hidden commands. Keep exploring.</div>
+          <div className={`grid grid-cols-2 sm:grid-cols-3 gap-2 ${isLight ? 'text-slate-800 font-medium' : 'text-green-400'}`}>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>help</span> - list commands</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>about</span> - profiles Harshit</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>skills</span> - skills dashboard</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>projects</span> - open projects app</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>resume</span> - view resume PDF</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>github</span> - open profile</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>linkedin</span> - open LinkedIn</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>clear</span> - clear output</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>theme [name]</span> - set OS theme</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>contact</span> - open contact box</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>matrix</span> - toggle digital rain</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>neofetch</span> - system config</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>whoami</span> - developer level</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>fortune</span> - developer quote</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>ascii</span> - retro logos</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>uptime</span> - session uptime</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>ping [host]</span> - ping a host</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>library</span> - view books read</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>notes</span> - tech notes/wiki</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>products</span> - product list</div>
+            <div className={`text-[10px] col-span-2 sm:col-span-3 pt-1 ${isLight ? 'text-slate-500 font-semibold' : 'text-gray-600'}`}>🥚 There may be hidden commands. Keep exploring.</div>
           </div>
         );
         break;
@@ -238,35 +238,35 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
         output = (
           <div className="space-y-1">
             <p className="text-yellow-300 font-bold">Harshit Kandoi - Software Engineer / AI / Cloud Developer</p>
-            <p className="text-gray-300">Focuses on building robust local emulators, generative AI structures, and automation data pipelines.</p>
-            <p className="text-xs text-gray-500">Opening About.exe application...</p>
+            <p className="text-emerald-200">Focuses on building robust local emulators, generative AI structures, and automation data pipelines.</p>
+            <p className="text-xs text-gray-400">Opening About.exe application...</p>
           </div>
         );
         setTimeout(() => openWindow('about'), 600);
         break;
 
       case 'skills':
-        output = <p className="text-gray-300">Opening Skills.exe constellation application...</p>;
+        output = <p className="text-emerald-200">Opening Skills.exe constellation application...</p>;
         setTimeout(() => openWindow('skills'), 600);
         break;
 
       case 'projects':
-        output = <p className="text-gray-300">Opening Projects.exe File Explorer...</p>;
+        output = <p className="text-emerald-200">Opening Projects.exe File Explorer...</p>;
         setTimeout(() => openWindow('projects'), 600);
         break;
 
       case 'resume':
-        output = <p className="text-gray-300">Opening Resume.pdf Viewer...</p>;
+        output = <p className="text-emerald-200">Opening Resume.pdf Viewer...</p>;
         setTimeout(() => openWindow('resume'), 600);
         break;
 
       case 'github':
-        output = <p className="text-blue-400">Navigating to https://github.com/Harshit-Kandoi...</p>;
+        output = <p className="text-cyan-400 font-bold">Navigating to https://github.com/Harshit-Kandoi...</p>;
         setTimeout(() => window.open('https://github.com/Harshit-Kandoi', '_blank'), 500);
         break;
 
       case 'linkedin':
-        output = <p className="text-blue-400">Navigating to https://linkedin.com/in/harshit-kandoi...</p>;
+        output = <p className="text-cyan-400 font-bold">Navigating to https://linkedin.com/in/harshit-kandoi...</p>;
         setTimeout(() => window.open('https://linkedin.com/in/harshit-kandoi', '_blank'), 500);
         break;
 
@@ -279,10 +279,10 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
         const validThemes: AppTheme[] = ['dark', 'light', 'cyberpunk', 'midnight', 'nord', 'glass', 'retro'];
         if (validThemes.includes(themeName)) {
           setTheme(themeName);
-          output = <p className="text-emerald-400">Theme switched to <span className="font-bold">{themeName}</span></p>;
+          output = <p className="text-emerald-400 font-bold">Theme switched to <span className="font-bold">{themeName}</span></p>;
         } else {
           output = (
-            <p className="text-red-400">
+            <p className="text-red-400 font-bold">
               Invalid theme name. Options: {validThemes.join(', ')}
             </p>
           );
@@ -291,44 +291,25 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
       }
 
       case 'contact':
-        output = <p className="text-gray-300">Opening Contact.exe app...</p>;
+        output = <p className="text-emerald-200">Opening Contact.exe app...</p>;
         setTimeout(() => openWindow('contact'), 600);
         break;
 
       // Phase 3 commands
       case 'library':
-        output = <p className="text-gray-300">Opening Library.exe app...</p>;
+        output = <p className="text-emerald-200">Opening Library.exe app...</p>;
         setTimeout(() => openWindow('library'), 600);
         break;
 
       case 'notes':
-        output = <p className="text-gray-300">Opening Notes.exe app...</p>;
+        output = <p className="text-emerald-200">Opening Notes.exe app...</p>;
         setTimeout(() => openWindow('notes'), 600);
         break;
 
-      /* case 'gallery':
-        output = <p className="text-gray-300">Opening Gallery.exe app...</p>;
-        setTimeout(() => openWindow('gallery'), 600);
-        break; */
-
       case 'products':
-        output = <p className="text-gray-300">Opening Products.exe app...</p>;
+        output = <p className="text-emerald-200">Opening Products.exe app...</p>;
         setTimeout(() => openWindow('products'), 600);
         break;
-
-      /*
-      case 'publications':
-        output = <p className="text-gray-300">Opening Papers.exe app...</p>;
-        setTimeout(() => openWindow('publications'), 600);
-        break;
-      */
-
-      /*
-      case 'marketplace':
-        output = <p className="text-gray-300">Opening Store.exe app...</p>;
-        setTimeout(() => openWindow('marketplace'), 600);
-        break;
-      */
 
       case 'matrix':
         trackEvent('terminal_easter_egg', { easter_egg: 'matrix' });
@@ -337,8 +318,8 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
 
       case 'neofetch':
         output = (
-          <div className="flex space-x-6 text-xs text-gray-300 font-mono leading-relaxed">
-            <div className="text-green-500 font-bold hidden sm:block">
+          <div className="flex space-x-6 text-xs text-emerald-200 font-mono leading-relaxed">
+            <div className="text-green-400 font-bold hidden sm:block">
               {`   /\\_/\\
   ( o.o )
    > ^ <
@@ -347,18 +328,18 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
   (_(_|_)`}
             </div>
             <div className="space-y-1">
-              <div><span className="text-blue-400 font-bold">harshit@portfolio-os</span></div>
-              <div>-------------------------</div>
-              <div><span className="text-blue-400">OS</span>: Developer Portfolio OS v2.4.0</div>
-              <div><span className="text-blue-400">Kernel</span>: React 18 / Zustand / Tailwind v3</div>
-              <div><span className="text-blue-400">Uptime</span>: 1h 43m</div>
-              <div><span className="text-blue-400">Shell</span>: zsh 5.9</div>
-              <div><span className="text-blue-400">Resolution</span>: {window.innerWidth}x{window.innerHeight}</div>
-              <div><span className="text-blue-400">Theme</span>: {useOSStore.getState().theme.toUpperCase()}</div>
-              <div><span className="text-blue-400">CPU</span>: Apple M2 Max (12 Cores)</div>
-              <div><span className="text-blue-400">GPU</span>: Apple M2 Max (30 Cores)</div>
-              <div><span className="text-blue-400">Developer</span>: Harshit Kandoi</div>
-              <div><span className="text-blue-400">Role</span>: Software & AI Engineer</div>
+              <div><span className="text-cyan-400 font-bold">harshit@portfolio-os</span></div>
+              <div className="text-gray-500">-------------------------</div>
+              <div><span className="text-cyan-400">OS</span>: Developer Portfolio OS v2.4.0</div>
+              <div><span className="text-cyan-400">Kernel</span>: React 18 / Zustand / Tailwind v3</div>
+              <div><span className="text-cyan-400">Uptime</span>: {formatUptimeHuman()}</div>
+              <div><span className="text-cyan-400">Shell</span>: zsh 5.9</div>
+              <div><span className="text-cyan-400">Resolution</span>: {window.innerWidth}x{window.innerHeight}</div>
+              <div><span className="text-cyan-400">Theme</span>: {useOSStore.getState().theme.toUpperCase()}</div>
+              <div><span className="text-cyan-400">CPU</span>: Apple M2 Max (12 Cores)</div>
+              <div><span className="text-cyan-400">GPU</span>: Apple M2 Max (30 Cores)</div>
+              <div><span className="text-cyan-400">Developer</span>: Harshit Kandoi</div>
+              <div><span className="text-cyan-400">Role</span>: Software &amp; AI Engineer</div>
             </div>
           </div>
         );
@@ -366,7 +347,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
 
       case 'whoami':
         output = (
-          <div className="space-y-1 text-gray-300">
+          <div className="space-y-1 text-emerald-200">
             <p><span className="text-yellow-300 font-bold">User</span>: guest (External Recruiter/Visitor)</p>
             <p><span className="text-yellow-300 font-bold">Permissions</span>: Read-Only (Interactive Sandbox)</p>
             <p><span className="text-yellow-300 font-bold">Active Shell</span>: zsh (simulated)</p>
@@ -500,10 +481,12 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
   return (
     <div
       onClick={focusInput}
-      className={`flex-grow flex flex-col font-mono text-xs md:text-sm p-3.5 w-full h-full min-h-0 cursor-text overflow-y-auto overscroll-contain transition-all duration-500 ${
+      className={`flex-grow flex flex-col font-mono text-xs md:text-sm p-3.5 w-full h-full min-h-0 cursor-text overflow-y-auto overscroll-contain transition-all duration-300 ${
         devMode
           ? 'bg-black text-green-300 shadow-[inset_0_0_30px_rgba(0,255,0,0.08)]'
-          : 'bg-black text-green-400'
+          : isLight
+            ? 'bg-white text-slate-900'
+            : 'bg-black text-green-400'
       }`}
       style={{ overscrollBehavior: 'contain', touchAction: 'pan-y' }}
       ref={containerRef}
@@ -529,22 +512,28 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
           {history.map((item, idx) => (
             <div key={idx} className="space-y-1">
               <div className="flex items-center space-x-2">
-                <span className="text-blue-400"><span className="hidden sm:inline">guest@</span>harshit-os:~$</span>
-                <span>{item.command}</span>
+                <span className={isLight ? 'text-purple-700 font-bold' : 'text-blue-400'}>
+                  <span className="hidden sm:inline">guest@</span>harshit-os:~$
+                </span>
+                <span className={isLight ? 'text-slate-900 font-bold' : 'text-white'}>{item.command}</span>
               </div>
               <div className="pl-4">{item.output}</div>
             </div>
           ))}
           
           <div className="flex items-center space-x-2">
-            <span className="text-blue-400"><span className="hidden sm:inline">guest@</span>harshit-os:~$</span>
+            <span className={isLight ? 'text-purple-700 font-bold' : 'text-blue-400'}>
+              <span className="hidden sm:inline">guest@</span>harshit-os:~$
+            </span>
             <input
               ref={inputRef}
               type="text"
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex-grow bg-transparent focus:outline-none text-green-400 font-mono caret-green-400 border-none p-0 text-base sm:text-xs md:text-sm"
+              className={`flex-grow bg-transparent focus:outline-none font-mono border-none p-0 text-base sm:text-xs md:text-sm ${
+                isLight ? 'text-slate-900 font-bold caret-purple-600' : 'text-green-400 caret-green-400'
+              }`}
               autoFocus={!isMobile}
             />
           </div>

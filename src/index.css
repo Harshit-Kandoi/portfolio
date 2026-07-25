@@ -60,16 +60,28 @@
 
 html {
   scroll-behavior: smooth;
-  overflow: hidden;
-  height: 100dvh;
-  width: 100vw;
+  min-height: 100%;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 body {
-  overflow: hidden;
-  height: 100dvh;
-  width: 100vw;
-  position: fixed;
+  min-height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  margin: 0;
+  padding: 0;
+}
+
+/* ─── OS Mode Viewport Lock (only active when inside Portfolio OS) ───────── */
+html.os-mode,
+html.os-mode body {
+  overflow: hidden !important;
+  height: 100dvh !important;
+  width: 100vw !important;
+  position: fixed !important;
+  touch-action: none !important;
 }
 
 * {
@@ -430,4 +442,75 @@ body {
 /* ─── Window Bounds Debug Overlay ────────────────────────────────────────────── */
 .debug-window-bounds .window-glass {
   outline: 1px solid rgba(239,68,68,0.6) !important;
+}
+
+/* ─── Classic Portfolio Mode ─────────────────────────────────────────────────── */
+/* Unlock scroll when Classic View is active (OS locks overflow: hidden globally) */
+html.classic-mode,
+html.classic-mode body {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: auto !important;
+  min-height: 100% !important;
+  max-height: none !important;
+  position: relative !important;
+  width: 100% !important;
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-y: auto !important;
+  user-select: auto !important;
+  -webkit-user-select: auto !important;
+}
+
+/* Section entrance animation on scroll */
+@keyframes classicFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.classic-fade-up {
+  animation: classicFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Monitor idle float */
+@keyframes monitorFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-8px); }
+}
+
+.monitor-float {
+  animation: monitorFloat 4s ease-in-out infinite;
+}
+
+/* Monitor screen power-on pulse */
+@keyframes monitorPowerOn {
+  0%   { opacity: 0.3; filter: brightness(0.4) saturate(0.5); }
+  50%  { opacity: 1;   filter: brightness(1.6) saturate(1.2); }
+  100% { opacity: 1;   filter: brightness(1)   saturate(1);   }
+}
+
+.monitor-power-on {
+  animation: monitorPowerOn 0.35s ease-out forwards;
+}
+
+/* OS transition overlay — clip-path driven by inline styles, just set the transition */
+.os-transition-overlay {
+  transition: clip-path 0.28s cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Skill bar animated fill */
+@keyframes skillBarFill {
+  from { width: 0%; }
+  to   { width: var(--skill-pct); }
+}
+
+.skill-bar-animated {
+  animation: skillBarFill 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  width: var(--skill-pct);
 }

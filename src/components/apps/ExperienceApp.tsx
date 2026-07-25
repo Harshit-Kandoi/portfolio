@@ -93,7 +93,7 @@ export default function ExperienceApp({ isMobileView }: { isMobileView?: boolean
                 >
                   {/* Left: Date column */}
                   <div className={`${isMobile ? 'w-20' : 'w-28 sm:w-32'} shrink-0 text-right flex flex-col items-end justify-start pt-1`}>
-                    <span className={`text-[10px] sm:text-xs font-semibold leading-tight ${isLight ? 'text-gray-500' : 'text-gray-500'}`}>
+                    <span className={`text-[10px] sm:text-xs font-semibold leading-tight ${isLight ? 'text-slate-700 font-bold' : 'text-gray-400'}`}>
                       {periodLabel}
                     </span>
                   </div>
@@ -104,7 +104,7 @@ export default function ExperienceApp({ isMobileView }: { isMobileView?: boolean
                       <div
                         className={`absolute top-3 bottom-[-2.5rem] w-0.5 pointer-events-none ${
                           isLight
-                            ? 'bg-purple-300/60'
+                            ? 'bg-purple-300/80'
                             : 'bg-purple-500/40'
                         }`}
                       />
@@ -116,11 +116,11 @@ export default function ExperienceApp({ isMobileView }: { isMobileView?: boolean
                   <div className="flex-1 min-w-0 pb-2">
                     {/* Role + @ Company */}
                     <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mb-2">
-                      <h3 className={`text-sm font-bold leading-snug ${isLight ? 'text-gray-800' : 'text-white'}`}>
+                      <h3 className={`text-sm font-bold leading-snug ${isLight ? 'text-slate-900' : 'text-white'}`}>
                         {item.role || item.title}
                       </h3>
                       {(item.company || item.organization) && (
-                        <span className={`text-sm font-medium ${companyColor}`}>
+                        <span className={`text-sm font-bold ${companyColor}`}>
                           @ {item.company || item.organization}
                         </span>
                       )}
@@ -129,13 +129,13 @@ export default function ExperienceApp({ isMobileView }: { isMobileView?: boolean
                     {/* Location */}
                     {item.location && (
                       <div className="flex items-center gap-1 mb-2">
-                        <MapPin className="w-3 h-3 text-gray-600 shrink-0" />
-                        <span className="text-[10px] text-gray-500">{item.location}</span>
+                        <MapPin className={`w-3 h-3 shrink-0 ${isLight ? 'text-slate-500' : 'text-gray-500'}`} />
+                        <span className={`text-[10px] ${isLight ? 'text-slate-600 font-medium' : 'text-gray-500'}`}>{item.location}</span>
                       </div>
                     )}
 
                     {/* Description */}
-                    <div className={`text-xs leading-relaxed mb-3 ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>
+                    <div className={`text-xs leading-relaxed mb-3 ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
                       {Array.isArray(item.description) ? (
                         <ul className="space-y-1 list-disc list-inside">
                           {item.description.map((bullet, bIdx) => (

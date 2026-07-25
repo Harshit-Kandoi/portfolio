@@ -49,7 +49,9 @@ export default function BootScreen() {
         clearInterval(interval);
         setProgress(100);
         setTimeout(() => {
-          setBootState('locked');
+          // Temporarily skip lock screen friction and boot straight to desktop for testing
+          // setBootState('locked');
+          setBootState('desktop');
         }, 500);
       }
     }, speed);

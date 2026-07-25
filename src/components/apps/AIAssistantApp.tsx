@@ -108,9 +108,13 @@ const AssistantBubbleWrapper = ({ msg, openWindow, isNew }: { msg: ChatMessage; 
   const [isDone, setIsDone] = useState(!isNew);
   const isAssistant = msg.sender === 'assistant';
 
+  const isLight = useOSStore((s) => s.theme) === 'light';
+
   if (!isAssistant) {
     return (
-      <div className="p-3 rounded-2xl text-xs leading-relaxed text-justify bg-purple-950/40 text-purple-300 border border-purple-800/30 shadow-sm">
+      <div className={`p-3 rounded-2xl text-xs leading-relaxed text-justify border shadow-sm ${
+        isLight ? 'bg-purple-100 text-purple-950 font-medium border-purple-200' : 'bg-purple-950/40 text-purple-200 border-purple-800/30'
+      }`}>
         {msg.text}
       </div>
     );
@@ -119,7 +123,9 @@ const AssistantBubbleWrapper = ({ msg, openWindow, isNew }: { msg: ChatMessage; 
   const shortcuts = getBubbleShortcuts(msg.text, openWindow);
 
   return (
-    <div className="p-3 rounded-2xl text-xs bg-white/5 text-gray-300 border border-white/5 flex flex-col space-y-2.5 shadow-sm">
+    <div className={`p-3 rounded-2xl text-xs flex flex-col space-y-2.5 shadow-sm border ${
+      isLight ? 'bg-slate-100 text-slate-800 border-slate-200 font-medium' : 'bg-white/5 text-gray-300 border-white/5'
+    }`}>
       {isNew ? (
         <AssistantBubble 
           text={msg.text} 

@@ -4,14 +4,14 @@
 // ============================================================
 
 export const SPOTIFY_CONFIG = {
-  playlistId: '37i9dQZF1DX8Ueb9qMvV2n',
-  embedUrl: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX8Ueb9qMvV2n?utm_source=generator&theme=0',
-  externalUrl: 'https://open.spotify.com/playlist/37i9dQZF1DX8Ueb9qMvV2n',
+  playlistId: '679wCT6dVMDBxrYa5NcrXL',
+  embedUrl: 'https://open.spotify.com/embed/playlist/679wCT6dVMDBxrYa5NcrXL?utm_source=generator&theme=0',
+  externalUrl: 'https://open.spotify.com/playlist/679wCT6dVMDBxrYa5NcrXL?si=Cbn3aWpuSn244xMib3T8pg',
   label: 'Coding & Focus Beats',
   playlists: [
-    { id: 'lofi', label: 'Lofi Beats', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX8Ueb9qMvV2n?utm_source=generator&theme=0' },
+    { id: 'lofi', label: 'Lofi Beats', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DWWQRwui0ExPn?utm_source=generator&theme=0' },
     { id: 'focus', label: 'Deep Focus', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DX0SM0LYsmbMT?utm_source=generator&theme=0' },
-    { id: 'synth', label: 'Synthwave', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXdLENyawioXt?utm_source=generator&theme=0' },
+    { id: 'synth', label: 'Synthwave', url: 'https://open.spotify.com/embed/playlist/1YIe34rcmLjCYpY9wJoM2p?utm_source=generator&theme=0' },
     { id: 'chill', label: 'Chill Coding', url: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0' },
   ],
 };
@@ -55,6 +55,7 @@ export const SESSION_KEYS = {
   sessionRestore: 'portfolio-os-session-restore',
   soundEnabled: 'portfolio-os-sound-enabled',
   volume: 'portfolio-os-volume',
+  portalMode: 'portfolio-os-portal-mode',
 };
 
 export const APP_VERSION = import.meta.env.VITE_APP_VERSION || '2.4.0';

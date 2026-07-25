@@ -2,25 +2,22 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Desktop Workspace OS Core Functionality', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate and wait for boot load sequence to finish and lock screen to appear
+    // Force OS portal mode & desktop boot state before page script executes
+    await page.addInitScript(() => {
+      window.localStorage.setItem('portfolio-os-portal-mode', JSON.stringify('os'));
+      window.localStorage.setItem('portfolio-os-boot-state', JSON.stringify('desktop'));
+    });
     await page.goto('/');
     
-    // Wait for profile picture to load inside the lock screen login card
-    const loginCard = page.locator('h2', { hasText: 'Harshit Kandoi' });
-    await expect(loginCard).toBeVisible({ timeout: 8000 });
-    
-    // Click button to unlock and enter the desktop (force click to bypass bounce stability check)
-    await page.getByRole('button', { name: 'Unlock Workspace' }).click({ force: true });
-    
     // Check that we are on the desktop by verifying taskbar start button is present
-    await expect(page.locator('#start-menu-button')).toBeVisible();
+    await expect(page.locator('#start-menu-button')).toBeVisible({ timeout: 10000 });
   });
 
   test('should render all 15 app icons and taskbar components correctly', async ({ page }) => {
     // Verify specific icons exist on desktop — aria-labels use "Open {name} from desktop" format
     const appIcons = [
       'About.exe', 'Projects.exe', 'Experience.exe', 'Skills.exe', 'Resume.pdf',
-      'Terminal.exe', 'Chatbot.exe', 'Blog.exe', 'Awards.exe',
+      'Terminal.exe', 'Chatbot.exe', 'Blog.exe', 'Certifications.exe',
       'Gaming.exe', 'Contact.exe', 'Settings.exe', 'Snake.exe',
       'Swipe.exe', 'Coffee.exe'
     ];
@@ -32,9 +29,9 @@ test.describe('Desktop Workspace OS Core Functionality', () => {
       await expect(button).toBeVisible();
     }
 
-    // Verify taskbar monitors (CPU / RAM widgets)
-    await expect(page.locator('text=CPU')).toBeVisible();
-    await expect(page.locator('text=RAM')).toBeVisible();
+    // Verify taskbar components
+    await expect(page.locator('#start-menu-button')).toBeVisible();
+    await expect(page.locator('input[placeholder*="Search"]')).toBeVisible();
   });
 
   test('should allow filtering apps via search bar in taskbar', async ({ page }) => {

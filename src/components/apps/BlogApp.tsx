@@ -138,9 +138,9 @@ export default function BlogApp({ isMobileView }: { isMobileView?: boolean } = {
               )}
             </div>
 
-            <h2 className="text-lg sm:text-2xl font-bold leading-normal text-white">{selectedPost.title}</h2>
+            <h2 className={`text-lg sm:text-2xl font-bold leading-normal ${isLight ? 'text-slate-900' : 'text-white'}`}>{selectedPost.title}</h2>
             
-            <div className={`flex items-center space-x-4 text-xs font-semibold ${textMuted}`}>
+            <div className={`flex items-center space-x-4 text-xs font-semibold ${isLight ? 'text-slate-600' : textMuted}`}>
               <span className="flex items-center space-x-1">
                 <Calendar className="w-3.5 h-3.5 text-purple-400" />
                 <span>{selectedPost.date}</span>
@@ -155,15 +155,17 @@ export default function BlogApp({ isMobileView }: { isMobileView?: boolean } = {
           {selectedPost.tags && selectedPost.tags.length > 0 && (
             <div className="flex flex-wrap gap-1.5 pt-1">
               {selectedPost.tags.map((tag) => (
-                <span key={tag} className="text-[10px] bg-white/5 border border-white/10 text-gray-300 px-2 py-0.5 rounded-full">
+                <span key={tag} className={`text-[10px] px-2 py-0.5 rounded-full ${
+                  isLight ? 'bg-slate-100 border border-slate-200 text-slate-700 font-semibold' : 'bg-white/5 border border-white/10 text-gray-300'
+                }`}>
                   #{tag}
                 </span>
               ))}
             </div>
           )}
 
-          <div className="border-t border-white/10 dark:border-gray-800 pt-5">
-            <p className={`text-sm leading-relaxed text-justify mb-8 ${isLight ? 'text-gray-600' : 'text-gray-300'}`}>
+          <div className={`border-t pt-5 ${isLight ? 'border-slate-200' : 'border-white/10'}`}>
+            <p className={`text-sm leading-relaxed text-justify mb-8 ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
               {selectedPost.excerpt}
               <br /><br />
               This article covers deep technical concepts regarding AI/ML, compiler acceleration, optimization, dependency caching, or container management. Read the complete publication on Medium to view code snippets, benchmarks, and interactive community discussions.
@@ -259,8 +261,8 @@ export default function BlogApp({ isMobileView }: { isMobileView?: boolean } = {
                   </div>
 
                   <div className="space-y-1">
-                    <h3 className="text-xs font-bold leading-relaxed line-clamp-2 text-white">{post.title}</h3>
-                    <p className={`text-[10px] line-clamp-2 leading-relaxed ${textMuted}`}>{post.excerpt}</p>
+                    <h3 className={`text-xs font-bold leading-relaxed line-clamp-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>{post.title}</h3>
+                    <p className={`text-[10px] line-clamp-2 leading-relaxed ${isLight ? 'text-slate-700 font-medium' : textMuted}`}>{post.excerpt}</p>
                   </div>
 
                   <div className={`flex items-center justify-between text-[8px] font-bold uppercase tracking-wider mt-auto pt-2 border-t border-white/5 ${textMuted}`}>
