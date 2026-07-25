@@ -1,11 +1,14 @@
 import { test, expect, Page } from '@playwright/test';
 
 async function ensureUnlocked(page: Page) {
-  const unlockBtn = page.locator('button[aria-label="Touch & Hold Fingerprint to Unlock Mobile OS"]');
-  await expect(unlockBtn).toBeVisible({ timeout: 10000 });
-  await unlockBtn.click({ force: true });
-
   const searchInput = page.locator('input[placeholder="Search application grid..."]');
+  const isSearchVisible = await searchInput.isVisible().catch(() => false);
+  if (!isSearchVisible) {
+    const unlockBtn = page.locator('button[aria-label="Touch & Hold Fingerprint to Unlock Mobile OS"]');
+    if (await unlockBtn.isVisible().catch(() => false)) {
+      await unlockBtn.click({ force: true });
+    }
+  }
   await expect(searchInput).toBeVisible({ timeout: 10000 });
 }
 

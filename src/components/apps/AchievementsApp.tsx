@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useOSStore, VISITOR_ACHIEVEMENTS } from '../../store/useOSStore';
-import { Trophy, Star, Lock, CheckCircle, Zap, Award, User, ExternalLink } from 'lucide-react';
+import { Trophy, Star, Lock, CheckCircle, Zap, Award, ExternalLink } from 'lucide-react';
 
 interface DevCredential {
   id: string;

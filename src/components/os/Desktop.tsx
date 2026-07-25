@@ -1,9 +1,9 @@
 import { useEffect, useState, lazy, Suspense, useRef } from 'react';
 import { useOSStore, AppTheme } from '../../store/useOSStore';
 import { 
-  Folder, Terminal as TermIcon, MessageSquare, BookOpen, Trophy, 
+  Folder, Terminal as TermIcon, MessageSquare, BookOpen, 
   Settings as GearIcon, User, Briefcase, Award, FileText, Send, 
-  Search, Cpu, HardDrive, Wifi, Volume2, Bell, LogOut, Moon, Sun, 
+  Search, Wifi, Volume2, Bell, LogOut, Moon, Sun, 
   Gamepad2, Github, Linkedin, Smartphone, Mail, Phone, Database,
   Coffee, Heart, BookMarked, StickyNote, /* Image as ImageIcon, */ Package,
   LayoutTemplate
@@ -60,8 +60,6 @@ export default function Desktop() {
   const welcomeNotifSent = useRef(false);
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [cpuUsage, setCpuUsage] = useState(24);
-  const [ramUsage, setRamUsage] = useState(48);
   const [showVolumePopup, setShowVolumePopup] = useState(false);
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false);
   const [showDashboard, setShowDashboard] = useState(false);

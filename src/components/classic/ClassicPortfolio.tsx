@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Github, Linkedin, Mail, Phone, BookOpen, Database,
-  MapPin, Briefcase, GraduationCap, Award, ChevronDown, ChevronUp,
+  MapPin, Briefcase, GraduationCap, Award,
   ExternalLink, Send, CheckCircle, ArrowDown, Sparkles, FileText, Code2,
 } from 'lucide-react';
 import ClassicNavbar from './ClassicNavbar';

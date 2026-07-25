@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
-import { useOSStore, AppTheme } from '../../store/useOSStore';
+import { useOSStore } from '../../store/useOSStore';
 import { 
   Wifi, Signal, Battery, Search, Bell, BellOff, Settings as GearIcon, 
-  Volume2, Sun, Palette, Trash2, Bluetooth, Zap, ChevronLeft, ChevronRight, Gamepad2,
+  Volume2, Sun, Trash2, Bluetooth, Zap, ChevronLeft, ChevronRight, Gamepad2,
   User, Folder, Briefcase, Award, FileText, Terminal as TermIcon,
   MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon, Heart, Coffee, ExternalLink,
   BookMarked, StickyNote, /* Image as ImageIcon, */ Package, LayoutTemplate

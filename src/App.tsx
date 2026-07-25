@@ -255,8 +255,7 @@ function App() {
           )}
 
           {bootState === 'booting' && <BootScreen />}
-          {/* LockScreen commented out temporarily for testing to reduce UX entry friction */}
-          {/* {bootState === 'locked' && <LockScreen />} */}
+          {bootState === 'locked' && <LockScreen />}
           {bootState === 'powered_off' && <PoweredOffScreen />}
           
           {(bootState === 'desktop' || bootState === 'locked') && (

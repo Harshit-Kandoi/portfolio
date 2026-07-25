@@ -166,7 +166,6 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
   }, []);
 
   const isLight = theme === 'light';
-  const textMuted = isLight ? 'text-gray-500' : 'text-gray-400';
   const boxBg = isLight
     ? 'bg-white border-gray-200/80 shadow-sm'
     : 'bg-white/5 border-white/10 backdrop-blur-md';
