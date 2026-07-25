@@ -165,7 +165,9 @@ export default function ProductsApp({ isMobileView }: { isMobileView?: boolean }
                     <div className="flex gap-2 mt-4">
                       {p.repo_url && (
                         <a href={p.repo_url} target="_blank" rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 text-[11px] font-semibold bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-1.5 rounded-xl transition text-gray-300 hover:text-white">
+                          className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-xl transition border ${
+                            isLight ? 'bg-slate-200 hover:bg-slate-300 border-slate-300 text-slate-900 shadow-xs' : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300 hover:text-white'
+                          }`}>
                           <Github className="w-3.5 h-3.5" /> Source
                         </a>
                       )}

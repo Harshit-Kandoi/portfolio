@@ -840,13 +840,13 @@ function DesktopSettingsView() {
                         onClick={() => setLayoutOverride(opt.id as 'auto'|'desktop'|'tablet'|'mobile')}
                         className={`p-3 rounded-xl border text-left flex flex-col transition-all ${
                           layoutOverride === opt.id
-                            ? 'bg-[var(--accent-muted)] border-[var(--accent-border)] text-white'
-                            : 'bg-black/20 border-white/5 hover:bg-white/5 text-gray-300'
+                            ? 'bg-[var(--accent-muted)] border-[var(--accent-border)] text-white font-bold'
+                            : isLight ? 'bg-slate-100 border-slate-200 text-slate-800 hover:bg-slate-200' : 'bg-black/20 border-white/5 hover:bg-white/5 text-gray-300'
                         }`}
                       >
                         <span className="text-base">{opt.icon}</span>
-                        <span className="text-[10px] font-bold mt-1.5 block">{opt.label}</span>
-                        <span className="text-[9px] text-gray-400">{opt.desc}</span>
+                        <span className={`text-[10px] font-bold mt-1.5 block ${isLight ? 'text-slate-900' : ''}`}>{opt.label}</span>
+                        <span className={`text-[9px] ${isLight ? 'text-slate-600 font-medium' : 'text-gray-400'}`}>{opt.desc}</span>
                       </button>
                     ))}
                   </div>
@@ -958,17 +958,19 @@ function DesktopSettingsView() {
               ].map((item, i) => (
                 <div key={i} className={`flex items-center justify-between ${i > 0 ? 'border-t border-white/5 pt-4' : ''}`}>
                   <div>
-                    <p className="text-xs font-bold text-white">{item.label}</p>
-                    <p className="text-[10px] text-gray-500 mt-0.5 max-w-xs leading-normal">{item.desc}</p>
+                    <p className={`text-xs font-bold ${isLight ? 'text-slate-900' : 'text-white'}`}>{item.label}</p>
+                    <p className={`text-[10px] mt-0.5 max-w-xs leading-normal ${isLight ? 'text-slate-600 font-medium' : 'text-gray-400'}`}>{item.desc}</p>
                   </div>
                   <ToggleSwitch id={`dev-${i}`} checked={item.checked} onChange={item.onChange} />
                 </div>
               ))}
 
-              <div className="border-t border-white/5 pt-4 space-y-2">
+              <div className={`border-t pt-4 space-y-2 ${isLight ? 'border-slate-200' : 'border-white/5'}`}>
                 <button
                   onClick={() => { resetDesktop(); playClickSound(); }}
-                  className="w-full flex items-center space-x-2 px-4 py-2.5 rounded-xl border border-white/10 text-gray-300 bg-white/5 hover:bg-white/10 text-xs font-bold transition"
+                  className={`w-full flex items-center space-x-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition ${
+                    isLight ? 'bg-slate-200 hover:bg-slate-300 border-slate-300 text-slate-900 shadow-xs' : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300'
+                  }`}
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Reset Window Layout</span>
@@ -990,7 +992,9 @@ function DesktopSettingsView() {
                     URL.revokeObjectURL(url);
                     playClickSound();
                   }}
-                  className="w-full flex items-center space-x-2 px-4 py-2.5 rounded-xl border border-white/10 text-gray-300 bg-white/5 hover:bg-white/10 text-xs font-bold transition"
+                  className={`w-full flex items-center space-x-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition ${
+                    isLight ? 'bg-slate-200 hover:bg-slate-300 border-slate-300 text-slate-900 shadow-xs' : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300'
+                  }`}
                 >
                   <BarChart2 className="w-3.5 h-3.5" />
                   <span>Export Settings as JSON</span>

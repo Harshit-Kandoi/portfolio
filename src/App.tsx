@@ -1,10 +1,12 @@
-import { useEffect, lazy, Suspense, useState, useRef } from 'react';
+import { useEffect, lazy, Suspense, useState, useRef, useCallback } from 'react';
 import { useOSStore } from './store/useOSStore';
 import BootScreen from './components/os/BootScreen';
 import LockScreen from './components/os/LockScreen';
 import Desktop from './components/os/Desktop';
 import Wallpaper from './components/os/Wallpaper';
 import PoweredOffScreen from './components/os/PoweredOffScreen';
+import ClassicPortfolio from './components/classic/ClassicPortfolio';
+import OSTransitionOverlay from './components/classic/OSTransitionOverlay';
 
 const AndroidOS = lazy(() => import('./components/os/AndroidOS'));
 
@@ -18,12 +20,45 @@ function App() {
   const dockSize = useOSStore((state) => state.dockSize);
   const showFPS = useOSStore((state) => state.showFPS);
   const showWindowBounds = useOSStore((state) => state.showWindowBounds);
-  
+  const portalMode = useOSStore((state) => state.portalMode);
+  const setPortalMode = useOSStore((state) => state.setPortalMode);
+  const setBootState = useOSStore((state) => state.setBootState);
   const viewMode = useOSStore((state) => state.viewMode);
   const setViewMode = useOSStore((state) => state.setViewMode);
   const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
   const setIsSimulatingMobile = useOSStore((state) => state.setIsSimulatingMobile);
   const layoutOverride = useOSStore((state) => state.layoutOverride);
+
+  // Transition state — managed at App level so overlay survives portalMode switch
+  const [transitionRect, setTransitionRect] = useState<DOMRect | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  // ── Classic → OS transition handler ────────────────────────────────────────
+  const handleClassicTransition = useCallback((rect: DOMRect) => {
+    setTransitionRect(rect);
+    setIsTransitioning(true);
+    // Skip boot + lock — the zoom transition IS the entry experience
+    setBootState('desktop');
+    // After overlay animation completes, switch portal to OS
+    setTimeout(() => {
+      setPortalMode('os');
+      setIsTransitioning(false);
+      setTransitionRect(null);
+    }, 320);
+  }, [setPortalMode, setBootState]);
+
+  // ── Toggle html/body os-mode class for OS mode viewport lock ───────────────
+  useEffect(() => {
+    const root = document.documentElement;
+    const body = document.body;
+    if (portalMode === 'os') {
+      root.classList.add('os-mode');
+      body.classList.add('os-mode');
+    } else {
+      root.classList.remove('os-mode');
+      body.classList.remove('os-mode');
+    }
+  }, [portalMode]);
 
   // FPS counter
   const [fps, setFps] = useState(60);
@@ -167,110 +202,129 @@ function App() {
 
   return (
     <div
-      className={`h-dvh w-screen overflow-hidden font-sans select-none relative ${themeWrapperClass} ${accentClass} ${animClass} ${dockClass} ${boundsClass}`}
+      className={`font-sans relative ${
+        portalMode === 'os'
+          ? `h-dvh w-screen overflow-hidden select-none ${themeWrapperClass} ${accentClass} ${animClass} ${dockClass} ${boundsClass}`
+          : 'min-h-screen w-full text-white bg-[#05060f]'
+      }`}
     >
-      {/* FPS Counter overlay */}
-      {showFPS && bootState === 'desktop' && (
-        <div className="fps-counter" aria-hidden="true">{fps} FPS</div>
+      {/* ── Classic Portfolio Mode ─────────────────────────────────────────── */}
+      {portalMode === 'classic' && !isTransitioning && (
+        <ClassicPortfolio onTransition={handleClassicTransition} />
       )}
 
-      {/* ── Mobile Landscape Lock Overlay ──────────────────────────────────── */}
-      {isLandscapeMobile && (
-        <div className="fixed inset-0 z-[99999] bg-[#07070a] flex flex-col items-center justify-center text-white select-none">
-          <div className="flex flex-col items-center space-y-5 px-8 text-center animate-fade-in">
-            {/* Animated rotate icon */}
-            <div className="relative">
-              <div className="w-20 h-20 rounded-3xl border-4 border-purple-500/60 flex items-center justify-center bg-purple-500/10 shadow-[0_0_40px_rgba(168,85,247,0.3)]">
-                <svg className="w-10 h-10 text-purple-400 animate-[spin_3s_ease-in-out_infinite]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-                  <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div className="absolute -inset-2 rounded-[32px] border border-purple-500/20 animate-pulse" />
-            </div>
-            <div>
-              <h2 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-1">
-                Please Rotate Your Device
-              </h2>
-              <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
-                Portfolio OS is designed for portrait mode. Rotate your phone for the best experience.
-              </p>
-            </div>
-            <div className="flex items-center space-x-2 text-[11px] text-gray-600">
-              <span className="w-1.5 h-1.5 rounded-full bg-purple-500/60 animate-pulse" />
-              <span>harshitkandoi.in</span>
-            </div>
-          </div>
-        </div>
+      {/* Transition overlay — shown during Classic→OS animation */}
+      {isTransitioning && transitionRect && (
+        <OSTransitionOverlay initialRect={transitionRect} />
       )}
 
-      {bootState === 'booting' && <BootScreen />}
-      {bootState === 'locked' && <LockScreen />}
-      {bootState === 'powered_off' && <PoweredOffScreen />}
-      
-      {bootState === 'desktop' && (
-        <Suspense fallback={
-          <div className="fixed inset-0 bg-[#07070a] flex items-center justify-center text-purple-400 font-mono text-sm">
-            <span className="animate-pulse">Loading Mobile OS...</span>
-          </div>
-        }>
-          {viewMode === 'mobile' ? (
-            <AndroidOS isFullscreen={true} />
-          ) : (
-            <>
-              <Wallpaper type={wallpaper} />
-              <Desktop />
-              
-              {/* Android Smartphone Simulator Frame Overlay on Desktop + Tablet landscape */}
-              {(viewMode === 'desktop' || viewMode === 'tablet') && isSimulatingMobile && (
-                <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in">
-                  
-                  {/* Floating Action Button to close simulator */}
-                  <button 
-                    onClick={() => setIsSimulatingMobile(false)}
-                    className="absolute top-6 right-6 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-full text-xs shadow-xl flex items-center space-x-1.5 transition duration-200 hover:scale-[1.05] active:scale-[0.95] z-[600]"
-                    aria-label="Exit Mobile OS Simulator"
-                  >
-                    <span>✕ Exit Mobile OS Simulator</span>
-                  </button>
-
-                  {/* CSS Designed Smartphone Mockup Frame */}
-                  <div className="relative w-[375px] h-[780px] bg-[#0c0d12] rounded-[52px] p-3 shadow-2xl border-[6px] border-[#1d1f27] ring-8 ring-black/75 overflow-hidden transition-all duration-300 transform scale-90 sm:scale-100">
-                    
-                    {/* Top Speaker Grille & Punch Hole Camera (Dynamic Island style) */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-44 h-7 bg-black rounded-b-[20px] z-[999] flex items-center justify-between px-6">
-                      <div className="w-1.5 h-1.5 bg-[#151515] rounded-full" />
-                      <div className="w-3.5 h-3.5 bg-[#08080a] rounded-full border-2 border-[#1c1c24] flex items-center justify-center">
-                        <div className="w-1.5 h-1.5 bg-blue-950/40 rounded-full" />
-                      </div>
-                      <div className="w-1.5 h-1.5 bg-transparent" />
-                    </div>
-
-                    {/* Left and Right Side Buttons */}
-                    <div className="absolute -left-[6px] top-32 w-[6px] h-12 bg-[#1d1f27] rounded-l-md" />
-                    <div className="absolute -left-[6px] top-48 w-[6px] h-12 bg-[#1d1f27] rounded-l-md" />
-                    <div className="absolute -right-[6px] top-40 w-[6px] h-20 bg-[#1d1f27] rounded-r-md" />
-
-                    {/* Simulated Screen Inner Container */}
-                    <div className="w-full h-full rounded-[42px] overflow-hidden relative bg-black border border-white/5">
-                      <Suspense fallback={
-                        <div className="flex flex-col items-center justify-center h-full bg-[#0c0d12] text-purple-400 font-mono text-xs">
-                          <span className="animate-pulse">Booting Mobile OS...</span>
-                        </div>
-                      }>
-                        <AndroidOS isFullscreen={false} />
-                      </Suspense>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </>
+      {/* ── OS Mode ───────────────────────────────────────────────────────── */}
+      {portalMode === 'os' && (
+        <>
+          {/* FPS Counter overlay */}
+          {showFPS && bootState === 'desktop' && (
+            <div className="fps-counter" aria-hidden="true">{fps} FPS</div>
           )}
-        </Suspense>
-      )}
 
-      {/* Retro CRT Scanlines & Flicker Overlay */}
-      {isRetro && bootState === 'desktop' && (
-        <div className="pointer-events-none fixed inset-0 z-[9999] scanlines-overlay opacity-30" />
+          {/* ── Mobile Landscape Lock Overlay ──────────────────────────────────── */}
+          {isLandscapeMobile && (
+            <div className="fixed inset-0 z-[99999] bg-[#07070a] flex flex-col items-center justify-center text-white select-none">
+              <div className="flex flex-col items-center space-y-5 px-8 text-center animate-fade-in">
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-3xl border-4 border-purple-500/60 flex items-center justify-center bg-purple-500/10 shadow-[0_0_40px_rgba(168,85,247,0.3)]">
+                    <svg className="w-10 h-10 text-purple-400 animate-[spin_3s_ease-in-out_infinite]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                      <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <div className="absolute -inset-2 rounded-[32px] border border-purple-500/20 animate-pulse" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-1">
+                    Please Rotate Your Device
+                  </h2>
+                  <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
+                    Portfolio OS is designed for portrait mode. Rotate your phone for the best experience.
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2 text-[11px] text-gray-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500/60 animate-pulse" />
+                  <span>harshitkandoi.in</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {bootState === 'booting' && <BootScreen />}
+          {/* LockScreen commented out temporarily for testing to reduce UX entry friction */}
+          {/* {bootState === 'locked' && <LockScreen />} */}
+          {bootState === 'powered_off' && <PoweredOffScreen />}
+          
+          {(bootState === 'desktop' || bootState === 'locked') && (
+            <Suspense fallback={
+              <div className="fixed inset-0 bg-[#07070a] flex items-center justify-center text-purple-400 font-mono text-sm">
+                <span className="animate-pulse">Loading Mobile OS...</span>
+              </div>
+            }>
+              {viewMode === 'mobile' ? (
+                <AndroidOS isFullscreen={true} />
+              ) : (
+                <>
+                  <Wallpaper type={wallpaper} />
+                  <Desktop />
+                  
+                  {/* Android Smartphone Simulator Frame Overlay on Desktop + Tablet landscape */}
+                  {(viewMode === 'desktop' || viewMode === 'tablet') && isSimulatingMobile && (
+                    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in">
+                      
+                      {/* Floating Action Button to close simulator */}
+                      <button 
+                        onClick={() => setIsSimulatingMobile(false)}
+                        className="absolute top-6 right-6 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-full text-xs shadow-xl flex items-center space-x-1.5 transition duration-200 hover:scale-[1.05] active:scale-[0.95] z-[600]"
+                        aria-label="Exit Mobile OS Simulator"
+                      >
+                        <span>✕ Exit Mobile OS Simulator</span>
+                      </button>
+
+                      {/* CSS Designed Smartphone Mockup Frame */}
+                      <div className="relative w-[375px] h-[780px] bg-[#0c0d12] rounded-[52px] p-3 shadow-2xl border-[6px] border-[#1d1f27] ring-8 ring-black/75 overflow-hidden transition-all duration-300 transform scale-90 sm:scale-100">
+                        
+                        {/* Top Speaker Grille & Punch Hole Camera (Dynamic Island style) */}
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-44 h-7 bg-black rounded-b-[20px] z-[999] flex items-center justify-between px-6">
+                          <div className="w-1.5 h-1.5 bg-[#151515] rounded-full" />
+                          <div className="w-3.5 h-3.5 bg-[#08080a] rounded-full border-2 border-[#1c1c24] flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 bg-blue-950/40 rounded-full" />
+                          </div>
+                          <div className="w-1.5 h-1.5 bg-transparent" />
+                        </div>
+
+                        {/* Left and Right Side Buttons */}
+                        <div className="absolute -left-[6px] top-32 w-[6px] h-12 bg-[#1d1f27] rounded-l-md" />
+                        <div className="absolute -left-[6px] top-48 w-[6px] h-12 bg-[#1d1f27] rounded-l-md" />
+                        <div className="absolute -right-[6px] top-40 w-[6px] h-20 bg-[#1d1f27] rounded-r-md" />
+
+                        {/* Simulated Screen Inner Container */}
+                        <div className="w-full h-full rounded-[42px] overflow-hidden relative bg-black border border-white/5">
+                          <Suspense fallback={
+                            <div className="flex flex-col items-center justify-center h-full bg-[#0c0d12] text-purple-400 font-mono text-xs">
+                              <span className="animate-pulse">Booting Mobile OS...</span>
+                            </div>
+                          }>
+                            <AndroidOS isFullscreen={false} />
+                          </Suspense>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </Suspense>
+          )}
+
+          {/* Retro CRT Scanlines & Flicker Overlay */}
+          {isRetro && bootState === 'desktop' && (
+            <div className="pointer-events-none fixed inset-0 z-[9999] scanlines-overlay opacity-30" />
+          )}
+        </>
       )}
     </div>
   );

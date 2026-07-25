@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { WallpaperType } from '../../store/useOSStore';
+import { WallpaperType, useOSStore } from '../../store/useOSStore';
 
 interface WallpaperProps {
   type: WallpaperType;
@@ -7,6 +7,8 @@ interface WallpaperProps {
 
 export default function Wallpaper({ type }: WallpaperProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const theme = useOSStore((state) => state.theme);
+  const isLight = theme === 'light';
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -28,9 +30,9 @@ export default function Wallpaper({ type }: WallpaperProps) {
 
     // Cosmic Gas Clouds for Nebula Theme
     const gasClouds = [
-      { x: width * 0.3, y: height * 0.4, vx: 0.15, vy: 0.08, r: 250, color: 'rgba(168, 85, 247, 0.15)' }, // Purple
-      { x: width * 0.7, y: height * 0.6, vx: -0.1, vy: 0.12, r: 320, color: 'rgba(236, 72, 153, 0.12)' }, // Pink
-      { x: width * 0.5, y: height * 0.3, vx: 0.08, vy: -0.09, r: 280, color: 'rgba(99, 102, 241, 0.15)' }, // Blue Indigo
+      { x: width * 0.3, y: height * 0.4, vx: 0.15, vy: 0.08, r: 250, color: isLight ? 'rgba(168, 85, 247, 0.18)' : 'rgba(168, 85, 247, 0.15)' }, // Purple
+      { x: width * 0.7, y: height * 0.6, vx: -0.1, vy: 0.12, r: 320, color: isLight ? 'rgba(236, 72, 153, 0.15)' : 'rgba(236, 72, 153, 0.12)' }, // Pink
+      { x: width * 0.5, y: height * 0.3, vx: 0.08, vy: -0.09, r: 280, color: isLight ? 'rgba(99, 102, 241, 0.18)' : 'rgba(99, 102, 241, 0.15)' }, // Blue Indigo
     ];
 
     // Constellation Particles
@@ -39,7 +41,9 @@ export default function Wallpaper({ type }: WallpaperProps) {
 
     const initParticles = () => {
       particles = [];
-      const colors = ['#c084fc', '#f472b6', '#818cf8', '#38bdf8'];
+      const colors = isLight 
+        ? ['#9333ea', '#db2777', '#4f46e5', '#0284c7'] 
+        : ['#c084fc', '#f472b6', '#818cf8', '#38bdf8'];
       for (let i = 0; i < numParticles; i++) {
         particles.push({
           x: Math.random() * width,
@@ -69,11 +73,11 @@ export default function Wallpaper({ type }: WallpaperProps) {
 
       if (type === 'nebula') {
         // 1. Draw Space background gradient
-        ctx.fillStyle = '#060212';
+        ctx.fillStyle = isLight ? '#f1f5f9' : '#060212';
         ctx.fillRect(0, 0, width, height);
 
         // 2. Draw moving soft cosmic gas clouds (blended)
-        ctx.globalCompositeOperation = 'screen';
+        ctx.globalCompositeOperation = isLight ? 'multiply' : 'screen';
         gasClouds.forEach((cloud) => {
           cloud.x += cloud.vx;
           cloud.y += cloud.vy;
@@ -84,7 +88,7 @@ export default function Wallpaper({ type }: WallpaperProps) {
 
           const radGrad = ctx.createRadialGradient(cloud.x, cloud.y, 0, cloud.x, cloud.y, cloud.r);
           radGrad.addColorStop(0, cloud.color);
-          radGrad.addColorStop(1, 'rgba(6, 2, 18, 0)');
+          radGrad.addColorStop(1, isLight ? 'rgba(241, 245, 249, 0)' : 'rgba(6, 2, 18, 0)');
           
           ctx.fillStyle = radGrad;
           ctx.beginPath();
@@ -93,24 +97,21 @@ export default function Wallpaper({ type }: WallpaperProps) {
         });
         ctx.globalCompositeOperation = 'source-over';
 
-        // 3. Draw horizontal glowing horizon neon sunrise lines at the bottom
+        // 3. Draw horizontal glowing horizon lines at the bottom
         const horizonGrad = ctx.createLinearGradient(0, height - 200, 0, height);
         horizonGrad.addColorStop(0, 'rgba(168, 85, 247, 0)');
-        horizonGrad.addColorStop(0.7, 'rgba(99, 102, 241, 0.08)');
-        horizonGrad.addColorStop(1, 'rgba(236, 72, 153, 0.18)');
+        horizonGrad.addColorStop(0.7, isLight ? 'rgba(99, 102, 241, 0.05)' : 'rgba(99, 102, 241, 0.08)');
+        horizonGrad.addColorStop(1, isLight ? 'rgba(236, 72, 153, 0.1)' : 'rgba(236, 72, 153, 0.18)');
         ctx.fillStyle = horizonGrad;
         ctx.fillRect(0, height - 200, width, 200);
 
-        // Neon horizon line
-        ctx.strokeStyle = 'rgba(236, 72, 153, 0.4)';
+        // Horizon line
+        ctx.strokeStyle = isLight ? 'rgba(219, 39, 119, 0.3)' : 'rgba(236, 72, 153, 0.4)';
         ctx.lineWidth = 1.5;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#ec4899';
         ctx.beginPath();
         ctx.moveTo(0, height - 1);
         ctx.lineTo(width, height - 1);
         ctx.stroke();
-        ctx.shadowBlur = 0; // reset
 
         // 4. Draw pulsing nodes and connection paths
         particles.forEach((p, idx) => {
@@ -128,18 +129,15 @@ export default function Wallpaper({ type }: WallpaperProps) {
           ctx.beginPath();
           ctx.arc(p.x, p.y, currentRadius, 0, Math.PI * 2);
           ctx.fillStyle = p.color;
-          ctx.shadowBlur = 12;
-          ctx.shadowColor = p.color;
           ctx.fill();
-          ctx.shadowBlur = 0; // reset
 
           // Draw connection links
           for (let j = idx + 1; j < particles.length; j++) {
             const p2 = particles[j];
             const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
             if (dist < 130) {
-              const alpha = (1 - dist / 130) * 0.18;
-              ctx.strokeStyle = `rgba(139, 92, 246, ${alpha})`;
+              const alpha = (1 - dist / 130) * (isLight ? 0.25 : 0.18);
+              ctx.strokeStyle = isLight ? `rgba(124, 58, 237, ${alpha})` : `rgba(139, 92, 246, ${alpha})`;
               ctx.lineWidth = 0.8;
               ctx.beginPath();
               ctx.moveTo(p.x, p.y);
@@ -152,11 +150,11 @@ export default function Wallpaper({ type }: WallpaperProps) {
       
       else if (type === 'particles') {
         // Space dust particles + drifting Code snippets
-        ctx.fillStyle = '#05030a';
+        ctx.fillStyle = isLight ? '#f8fafc' : '#05030a';
         ctx.fillRect(0, 0, width, height);
 
         ctx.font = '9px Courier New';
-        ctx.fillStyle = 'rgba(99, 102, 241, 0.28)';
+        ctx.fillStyle = isLight ? 'rgba(124, 58, 237, 0.35)' : 'rgba(99, 102, 241, 0.28)';
 
         particles.forEach((p) => {
           p.x += p.vx * 1.5;
@@ -174,10 +172,10 @@ export default function Wallpaper({ type }: WallpaperProps) {
       
       else if (type === 'matrix') {
         // Green digit matrix rain
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+        ctx.fillStyle = isLight ? 'rgba(248, 250, 252, 0.15)' : 'rgba(0, 0, 0, 0.06)';
         ctx.fillRect(0, 0, width, height);
 
-        ctx.fillStyle = '#0f0';
+        ctx.fillStyle = isLight ? '#059669' : '#0f0';
         ctx.font = '14px Courier New';
 
         yPositions.forEach((y, index) => {
@@ -195,10 +193,10 @@ export default function Wallpaper({ type }: WallpaperProps) {
       
       else if (type === 'grid') {
         // Technical grid with slow panning offsets
-        ctx.fillStyle = '#02000a';
+        ctx.fillStyle = isLight ? '#f8fafc' : '#02000a';
         ctx.fillRect(0, 0, width, height);
 
-        ctx.strokeStyle = 'rgba(0, 242, 254, 0.04)';
+        ctx.strokeStyle = isLight ? 'rgba(147, 51, 234, 0.1)' : 'rgba(0, 242, 254, 0.04)';
         ctx.lineWidth = 1;
 
         gridOffset = (gridOffset + 0.25) % 40;
@@ -218,7 +216,7 @@ export default function Wallpaper({ type }: WallpaperProps) {
         }
 
         // Draw structural radar circles in center
-        ctx.strokeStyle = 'rgba(168, 85, 247, 0.06)';
+        ctx.strokeStyle = isLight ? 'rgba(147, 51, 234, 0.12)' : 'rgba(168, 85, 247, 0.06)';
         ctx.beginPath();
         ctx.arc(width / 2, height / 2, 250, 0, Math.PI * 2);
         ctx.stroke();
@@ -236,7 +234,7 @@ export default function Wallpaper({ type }: WallpaperProps) {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationId);
     };
-  }, [type]);
+  }, [type, theme, isLight]);
 
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none" />;
 }

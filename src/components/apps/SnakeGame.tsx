@@ -261,16 +261,16 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
       {/* Header */}
       <div className="flex items-center justify-between w-full max-w-sm">
         <div className="space-y-0.5">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Score</p>
-          <p className="text-2xl font-black text-emerald-400 font-mono">{score.toString().padStart(4, '0')}</p>
+          <p className={`text-[10px] uppercase tracking-wider ${isLight ? 'text-slate-700 font-extrabold' : 'text-gray-400 font-bold'}`}>Score</p>
+          <p className="text-2xl font-black text-emerald-500 font-mono">{score.toString().padStart(4, '0')}</p>
         </div>
         <div className="text-center">
-          <p className="text-xs font-black uppercase tracking-widest text-purple-400">🐍 SNAKE</p>
-          <p className="text-[9px] text-gray-500">Nokia OS Edition</p>
+          <p className="text-xs font-black uppercase tracking-widest text-purple-500">🐍 SNAKE</p>
+          <p className={`text-[9px] ${isLight ? 'text-slate-500 font-medium' : 'text-gray-500'}`}>Nokia OS Edition</p>
         </div>
         <div className="space-y-0.5 text-right">
-          <p className="text-[10px] text-gray-400 uppercase tracking-wider font-bold">Best</p>
-          <p className="text-2xl font-black text-amber-400 font-mono">{highScore.toString().padStart(4, '0')}</p>
+          <p className={`text-[10px] uppercase tracking-wider ${isLight ? 'text-slate-700 font-extrabold' : 'text-gray-400 font-bold'}`}>Best</p>
+          <p className="text-2xl font-black text-amber-500 font-mono">{highScore.toString().padStart(4, '0')}</p>
         </div>
       </div>
 
@@ -310,7 +310,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
             {dead ? (
               <>
                 <p className="text-red-400 text-lg font-black font-mono tracking-widest animate-pulse">GAME OVER</p>
-                <p className="text-gray-400 text-xs">Score: <span className="text-white font-bold">{score}</span></p>
+                <p className="text-gray-300 text-xs">Score: <span className="text-white font-bold">{score}</span></p>
                 <button onClick={reset} className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition active:scale-95">
                   <RotateCcw className="w-3.5 h-3.5" /><span>Play Again</span>
                 </button>
@@ -318,7 +318,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
             ) : (
               <>
                 <p className="text-emerald-400 text-sm font-black font-mono tracking-widest animate-pulse">PRESS START</p>
-                <p className="text-gray-500 text-[10px]">Arrow keys / WASD / Swipe to play</p>
+                <p className="text-gray-300 text-[10px]">Arrow keys / WASD / Swipe to play</p>
                 <button onClick={reset} className="flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition active:scale-95">
                   <Play className="w-3.5 h-3.5" /><span>Start Game</span>
                 </button>
@@ -340,20 +340,32 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
         <button
           onClick={() => { if (!dead) setRunning((r) => !r); }}
           disabled={dead}
-          className="flex items-center space-x-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition disabled:opacity-40"
+          className={`flex items-center space-x-1.5 font-bold text-xs px-3.5 py-1.5 rounded-lg transition disabled:opacity-40 ${
+            isLight 
+              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-900 shadow-xs' 
+              : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
+          }`}
         >
           {running ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
           <span>{running ? 'Pause' : 'Resume'}</span>
         </button>
         <button
           onClick={reset}
-          className="flex items-center space-x-1.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-xs px-3 py-1.5 rounded-lg transition"
+          className={`flex items-center space-x-1.5 font-bold text-xs px-3.5 py-1.5 rounded-lg transition ${
+            isLight 
+              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-900 shadow-xs' 
+              : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
+          }`}
         >
           <RotateCcw className="w-3.5 h-3.5" /><span>Restart</span>
         </button>
         <button
           onClick={() => setMuted((m) => !m)}
-          className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white transition"
+          className={`p-1.5 rounded-lg transition ${
+            isLight 
+              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-800 shadow-xs' 
+              : 'bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white'
+          }`}
           title={muted ? 'Unmute' : 'Mute'}
         >
           {muted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
@@ -362,7 +374,9 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
 
       {/* Nokia style controller keypad */}
       {isMobile && (
-        <div className="flex flex-col items-center bg-slate-900/40 p-4 rounded-3xl border border-white/5 shadow-inner w-full max-w-[220px] touch-none">
+        <div className={`flex flex-col items-center p-4 rounded-3xl border shadow-inner w-full max-w-[220px] touch-none ${
+          isLight ? 'bg-slate-200/90 border-slate-300' : 'bg-slate-900/40 border-white/5'
+        }`}>
           <div className="grid grid-cols-3 gap-2 w-full touch-none">
             <div></div>
             <button

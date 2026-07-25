@@ -37,7 +37,7 @@ export const projects: Project[] = [
     technologies: ["Electron", "React", "TypeScript", "Node.js"],
     github: "https://github.com/Harshit-Kandoi/pixel-buddy",
     featured: true,
-    duration: "2 Months",
+    duration: "May 2025",
     status: "⭐ High Potential (WIP)"
   },
   {
@@ -49,7 +49,7 @@ export const projects: Project[] = [
     technologies: ["Python", "BeautifulSoup4", "Selenium", "Pandas"],
     github: "https://github.com/Harshit-Kandoi/web-image-scrapper",
     featured: false,
-    duration: "1 Month",
+    duration: "Feb 2025",
     status: "✅ Utility"
   },
   {
@@ -61,7 +61,7 @@ export const projects: Project[] = [
     technologies: ["Python", "Scikit-learn", "Streamlit", "Pandas", "SVD"],
     github: "https://github.com/Harshit-Kandoi/movie-recommender",
     featured: false,
-    duration: "1 Month",
+    duration: "Dec 2024",
     status: "✅ Portfolio Project"
   },
   {
@@ -73,7 +73,7 @@ export const projects: Project[] = [
     technologies: ["Python", "CLI", "SQLite"],
     github: "https://github.com/Harshit-Kandoi/Personal-budget-tracker",
     featured: false,
-    duration: "2 Weeks",
+    duration: "Oct 2024",
     status: "Learning Project"
   },
   {
@@ -85,7 +85,7 @@ export const projects: Project[] = [
     technologies: ["React", "Node.js", "Express", "MongoDB"],
     github: "https://github.com/Harshit-Kandoi/ecommerce",
     featured: false,
-    duration: "1 Month",
+    duration: "Nov 2024",
     status: "Under Evaluation"
   },
 
@@ -99,7 +99,7 @@ export const projects: Project[] = [
     technologies: ["Python", "YOLOv8", "PyTorch", "OpenCV", "Computer Vision"],
     github: "https://github.com/Harshit-Kandoi/Yolo_Plastic_Classification",
     featured: true,
-    duration: "3 Months",
+    duration: "Apr 2025 - Jul 2025",
     status: "Good Research Project"
   },
   {
@@ -110,8 +110,8 @@ export const projects: Project[] = [
     category: ["AI & Machine Learning"],
     technologies: ["Python", "YOLOv5", "PyTorch", "OpenCV"],
     github: "https://github.com/Harshit-Kandoi/ASL-letter-detection",
-    featured: false,
-    duration: "2 Months",
+    featured: true,
+    duration: "Mar 2025",
     status: "Good ML Demo"
   },
   {
@@ -123,7 +123,7 @@ export const projects: Project[] = [
     technologies: ["Python", "Scikit-learn", "NLTK", "TF-IDF"],
     github: "https://github.com/Harshit-Kandoi/upflairs/tree/main/email",
     featured: false,
-    duration: "2 Weeks",
+    duration: "Jul 2024",
     status: "Classic ML Project"
   },
   {
@@ -134,8 +134,8 @@ export const projects: Project[] = [
     category: ["AI & Machine Learning"],
     technologies: ["Python", "Scikit-learn", "Pandas", "XGBoost"],
     github: "https://github.com/Harshit-Kandoi/crops",
-    featured: false,
-    duration: "1 Month",
+    featured: true,
+    duration: "Jun 2024 - Aug 2024",
     status: "Good Beginner ML"
   },
   {
@@ -147,7 +147,7 @@ export const projects: Project[] = [
     technologies: ["Python", "Scikit-learn", "Pandas", "LightGBM"],
     github: "https://github.com/Harshit-Kandoi/house-sale-prediction/tree/main/house%20sale%20prediction",
     featured: false,
-    duration: "2 Weeks",
+    duration: "Jul 2024",
     status: "Learning (Archived)"
   },
   {
@@ -159,7 +159,7 @@ export const projects: Project[] = [
     technologies: ["Python", "Scikit-learn", "Pandas", "Seaborn"],
     github: "https://github.com/Harshit-Kandoi/titanic",
     featured: false,
-    duration: "1 Week",
+    duration: "Jun 2024",
     status: "Learning (Archived)"
   },
   // {
@@ -183,7 +183,7 @@ export const projects: Project[] = [
     technologies: ["Python", "PyTorch", "NumPy", "CNN", "RNN"],
     github: "https://github.com/Harshit-Kandoi/upflairs",
     featured: false,
-    duration: "1 Month",
+    duration: "Jul 2024",
     status: "Learning (Archived)"
   },
 
@@ -197,7 +197,7 @@ export const projects: Project[] = [
     technologies: ["Python", "PyTorch", "Deep Q-Learning", "Pygame"],
     github: "https://github.com/Harshit-Kandoi/Snake-Reinforcement-Learning",
     featured: true,
-    duration: "2 Months",
+    duration: "Jan 2025",
     status: "Excellent Research Project"
   },
   {
@@ -209,7 +209,7 @@ export const projects: Project[] = [
     technologies: ["Python", "PyTorch", "ViZDoom", "OpenCV", "DQN"],
     github: "https://github.com/Harshit-Kandoi/doom_reinforcement_learning",
     featured: false,
-    duration: "2 Months",
+    duration: "Feb 2025",
     status: "Excellent Research Project"
   },
 
@@ -223,7 +223,7 @@ export const projects: Project[] = [
     technologies: ["Power BI", "SQL", "DAX", "Excel"],
     github: "https://github.com/Harshit-Kandoi/Credit-Card-Financial-Dashboard",
     featured: false,
-    duration: "1 Month",
+    duration: "Aug 2024",
     status: "Strong Dashboard"
   },
   {
@@ -235,7 +235,7 @@ export const projects: Project[] = [
     technologies: ["SQL", "Power BI", "Excel", "Data Analytics"],
     github: "https://github.com/Harshit-Kandoi/pizza-sales",
     featured: false,
-    duration: "2 Weeks",
+    duration: "Sep 2024",
     status: "Good Analytics Project"
   },
 
@@ -249,7 +249,7 @@ export const projects: Project[] = [
     technologies: ["Python", "Docker", "GCP", "Firestore", "Pub/Sub"],
     github: "https://github.com/Harshit-Kandoi/Local-GCP-Emulator",
     featured: true,
-    duration: "2 Months",
+    duration: "Aug 2025",
     status: "Active Learning"
   },
   {
@@ -261,7 +261,7 @@ export const projects: Project[] = [
     technologies: ["GCP", "Python", "Docker", "Cloud Run"],
     github: "https://github.com/Harshit-Kandoi/GCP-learning",
     featured: false,
-    duration: "1 Month",
+    duration: "May 2025",
     status: "Learning (Archived)"
   },
   {
@@ -273,7 +273,7 @@ export const projects: Project[] = [
     technologies: ["Python", "Pydantic", "FastAPI", "Type System"],
     github: "https://github.com/Harshit-Kandoi/pydantic-learning",
     featured: false,
-    duration: "2 Weeks",
+    duration: "Jun 2025",
     status: "Learning (Archived)"
   },
 

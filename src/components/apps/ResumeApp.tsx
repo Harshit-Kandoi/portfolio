@@ -40,15 +40,15 @@ export default function ResumeApp(props?: { isMobileView?: boolean }) {
           </div>
           
           <div className="space-y-1">
-            <h2 className="text-sm font-bold text-white tracking-wide">Resume.pdf</h2>
-            <p className="text-[10px] text-purple-400 font-semibold uppercase tracking-wider">Harshit Kandoi</p>
+            <h2 className={`text-sm font-bold tracking-wide ${isLight ? 'text-slate-900' : 'text-white'}`}>Resume.pdf</h2>
+            <p className="text-[10px] text-purple-500 font-semibold uppercase tracking-wider">Harshit Kandoi</p>
           </div>
 
-          <p className="text-[11px] text-gray-400 leading-relaxed px-2">
+          <p className={`text-[11px] leading-relaxed px-2 ${isLight ? 'text-slate-700 font-medium' : 'text-gray-400'}`}>
             View Harshit's resume detailing professional experience at ThoughtIn Solutions, GCP Cloud certifications, and core stack technologies.
           </p>
 
-          <div className="w-full pt-4 border-t border-white/10 flex flex-col space-y-2">
+          <div className={`w-full pt-4 border-t ${isLight ? 'border-slate-200' : 'border-white/10'} flex flex-col space-y-2`}>
             <a
               href="/Resume.pdf"
               download="Harshit_Kandoi_Resume.pdf"
@@ -63,7 +63,9 @@ export default function ResumeApp(props?: { isMobileView?: boolean }) {
               href={resumeLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs py-2.5 px-4 rounded-xl border border-gray-800 flex items-center justify-center space-x-2 transition"
+              className={`w-full font-semibold text-xs py-2.5 px-4 rounded-xl border flex items-center justify-center space-x-2 transition ${
+                isLight ? 'bg-slate-200 hover:bg-slate-300 border-slate-300 text-slate-900' : 'bg-slate-900 hover:bg-slate-800 text-white border-gray-800'
+              }`}
             >
               <ExternalLink className="w-4 h-4" />
               <span>View Google Drive</span>
@@ -80,8 +82,8 @@ export default function ResumeApp(props?: { isMobileView?: boolean }) {
       {/* PDF Viewer Top Controls Bar */}
       <div className={`p-3 flex items-center justify-between space-x-2 shrink-0 ${controlBg}`}>
         <div className="flex items-center space-x-2">
-          <FileText className="w-4 h-4 text-purple-400" />
-          <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Resume Viewer</span>
+          <FileText className="w-4 h-4 text-purple-500" />
+          <span className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-slate-700' : 'text-gray-400'}`}>Resume Viewer</span>
         </div>
 
         <div className="flex items-center space-x-2">

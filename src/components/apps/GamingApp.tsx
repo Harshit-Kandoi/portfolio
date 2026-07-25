@@ -149,24 +149,24 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
           </div>
 
           {[
-            { key: 'strength' as const, label: 'Strength', sub: 'React Frontend', icon: Sword, color: 'text-red-400',     base: strength,  preview: previewStrength },
-            { key: 'magic'    as const, label: 'Magic',    sub: 'AI Engineering', icon: Sparkles, color: 'text-yellow-400', base: magic,     preview: previewMagic    },
-            { key: 'defense'  as const, label: 'Defense',  sub: 'Cloud Infra',    icon: Shield, color: 'text-blue-400',   base: defense,   preview: previewDefense  },
-            { key: 'speed'    as const, label: 'Speed',    sub: 'Problem Solving',icon: Zap, color: 'text-emerald-400',  base: speed,     preview: previewSpeed    },
+            { key: 'strength' as const, label: 'Strength', sub: 'React Frontend', icon: Sword, color: 'text-red-500',     base: strength,  preview: previewStrength },
+            { key: 'magic'    as const, label: 'Magic',    sub: 'AI Engineering', icon: Sparkles, color: 'text-amber-500', base: magic,     preview: previewMagic    },
+            { key: 'defense'  as const, label: 'Defense',  sub: 'Cloud Infra',    icon: Shield, color: 'text-blue-500',   base: defense,   preview: previewDefense  },
+            { key: 'speed'    as const, label: 'Speed',    sub: 'Problem Solving',icon: Zap, color: 'text-emerald-500',  base: speed,     preview: previewSpeed    },
           ].map(({ key, label, sub, icon: Icon, color, base, preview }) => (
             <div key={key} className="flex items-center space-x-2 text-[11px]">
               <Icon className={`w-3.5 h-3.5 shrink-0 ${color}`} />
               <div className="flex-grow">
                 <div className="flex justify-between mb-0.5">
-                  <span className="text-gray-300 font-medium">{label} <span className="text-[9px] text-gray-500">({sub})</span></span>
-                  <span className="font-black text-white">
+                  <span className={`font-semibold ${isLight ? 'text-slate-800' : 'text-gray-300'}`}>{label} <span className={`text-[9px] ${isLight ? 'text-slate-600' : 'text-gray-500'}`}>({sub})</span></span>
+                  <span className={`font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>
                     {allocationMode ? preview : base}
                     {allocationMode && previewBonus[key] > 0 && (
-                      <span className="text-emerald-400 text-[9px] ml-1">+{previewBonus[key]}</span>
+                      <span className="text-emerald-500 text-[9px] ml-1">+{previewBonus[key]}</span>
                     )}
                   </span>
                 </div>
-                <div className="h-1 rounded-full bg-white/5 overflow-hidden">
+                <div className={`h-1 rounded-full overflow-hidden ${isLight ? 'bg-slate-200' : 'bg-white/5'}`}>
                   <div className={`h-full rounded-full ${color.replace('text-', 'bg-')}/60 transition-all duration-300`}
                     style={{ width: `${Math.min(100, (allocationMode ? preview : base) / 1.2)}%` }} />
                 </div>
@@ -174,22 +174,22 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
               {allocationMode && (
                 <div className="flex items-center space-x-1 shrink-0">
                   <button onClick={() => adjustPreview(key, -1)} disabled={previewBonus[key] <= 0}
-                    className="w-4 h-4 rounded bg-white/10 text-gray-400 hover:text-white text-xs disabled:opacity-30 transition flex items-center justify-center">−</button>
+                    className={`w-4 h-4 rounded text-xs disabled:opacity-30 transition flex items-center justify-center ${isLight ? 'bg-slate-200 text-slate-800 hover:bg-slate-300' : 'bg-white/10 text-gray-400 hover:text-white'}`}>−</button>
                   <button onClick={() => adjustPreview(key, 1)} disabled={remainingPreview <= 0}
-                    className="w-4 h-4 rounded bg-white/10 text-gray-400 hover:text-white text-xs disabled:opacity-30 transition flex items-center justify-center">+</button>
+                    className={`w-4 h-4 rounded text-xs disabled:opacity-30 transition flex items-center justify-center ${isLight ? 'bg-slate-200 text-slate-800 hover:bg-slate-300' : 'bg-white/10 text-gray-400 hover:text-white'}`}>+</button>
                 </div>
               )}
             </div>
           ))}
 
           {allocationMode && (
-            <p className="text-[8px] text-gray-600 italic text-center pt-1">Preview only — stats are not permanently changed.</p>
+            <p className={`text-[8px] italic text-center pt-1 ${isLight ? 'text-slate-500' : 'text-gray-600'}`}>Preview only — stats are not permanently changed.</p>
           )}
         </div>
 
         {/* RPG Inventory Items */}
         <div className={`p-4 rounded-xl border space-y-3.5 ${boxBg}`}>
-          <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-400 flex items-center space-x-1">
+          <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-500 flex items-center space-x-1">
             <Backpack className="w-3.5 h-3.5" />
             <span>Inventory</span>
           </h4>
@@ -203,9 +203,9 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
                           inv.id === 'python_scroll' ? Sparkles :
                           inv.id === 'git_token' ? Flame : Sword;
               
-              const rarityColor = inv.rarity === 'Legendary' ? 'text-amber-400 bg-amber-500/10 border-amber-500/25 hover:border-amber-400' :
-                                  inv.rarity === 'Epic' ? 'text-purple-400 bg-purple-500/10 border-purple-500/25 hover:border-purple-400' :
-                                  'text-blue-400 bg-blue-500/10 border-blue-500/25 hover:border-blue-400';
+              const rarityColor = inv.rarity === 'Legendary' ? 'text-amber-500 bg-amber-500/10 border-amber-500/30 hover:border-amber-500 font-bold' :
+                                  inv.rarity === 'Epic' ? 'text-purple-500 bg-purple-500/10 border-purple-500/30 hover:border-purple-500 font-bold' :
+                                  'text-blue-500 bg-blue-500/10 border-blue-500/30 hover:border-blue-500 font-bold';
 
               return (
                 <div
@@ -226,10 +226,12 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
 
       {/* Combat Activity logs terminal */}
       <div className="flex-grow flex flex-col min-h-[140px] space-y-2">
-        <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-400">Combat Log</h4>
+        <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-500">Combat Log</h4>
         <div
           ref={combatLogRef}
-          className="flex-grow bg-black rounded-xl p-4 font-mono text-[11px] text-emerald-400 border border-white/10 overflow-y-auto space-y-1.5 h-44 custom-scrollbar"
+          className={`flex-grow rounded-xl p-4 font-mono text-[11px] text-emerald-400 border overflow-y-auto space-y-1.5 h-44 custom-scrollbar ${
+            isLight ? 'bg-slate-900 border-slate-700' : 'bg-black border-white/10'
+          }`}
         >
           {combatLogs.map((log, idx) => (
             <div key={idx} className="flex items-start space-x-1 animate-fade-in">
@@ -243,28 +245,32 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
       {/* Inventory Item Details Modal */}
       {selectedItem && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[20000] flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-gray-800 p-6 rounded-2xl w-full max-w-sm space-y-4 text-white relative shadow-2xl animate-scale-up">
+          <div className={`p-6 rounded-2xl w-full max-w-sm space-y-4 relative shadow-2xl animate-scale-up border ${
+            isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-gray-800 text-white'
+          }`}>
             <button 
               onClick={() => setSelectedItem(null)}
-              className="absolute top-3 right-3 p-1 rounded-md hover:bg-white/10 text-gray-400 hover:text-white transition"
+              className={`absolute top-3 right-3 p-1 rounded-md transition ${isLight ? 'text-slate-500 hover:bg-slate-100 hover:text-slate-900' : 'text-gray-400 hover:bg-white/10 hover:text-white'}`}
             >
               <X className="w-4 h-4" />
             </button>
             <div className="flex items-center space-x-3.5">
-              <div className="w-12 h-12 rounded-xl bg-purple-900/40 border border-purple-500/25 flex items-center justify-center flex-shrink-0">
-                <Backpack className="w-6 h-6 text-purple-400" />
+              <div className="w-12 h-12 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
+                <Backpack className="w-6 h-6 text-purple-500" />
               </div>
               <div>
-                <h3 className="text-xs font-bold leading-tight">{selectedItem.name}</h3>
+                <h3 className={`text-xs font-bold leading-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>{selectedItem.name}</h3>
                 <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded uppercase mt-1.5 inline-block ${
-                  selectedItem.rarity === 'Legendary' ? 'bg-amber-600/20 text-amber-400 border border-amber-500/20' :
-                  selectedItem.rarity === 'Epic' ? 'bg-purple-600/20 text-purple-400 border border-purple-500/20' :
-                  'bg-blue-600/20 text-blue-400 border border-blue-500/20'
+                  selectedItem.rarity === 'Legendary' ? 'bg-amber-500/20 text-amber-600 border border-amber-500/30' :
+                  selectedItem.rarity === 'Epic' ? 'bg-purple-500/20 text-purple-600 border border-purple-500/30' :
+                  'bg-blue-500/20 text-blue-600 border border-blue-500/30'
                 }`}>{selectedItem.rarity} {selectedItem.category}</span>
               </div>
             </div>
-            <p className="text-[10px] text-gray-400 leading-relaxed text-justify">{selectedItem.description}</p>
-            <div className="bg-white/5 p-2.5 rounded-lg border border-white/5 text-[10px] font-bold text-purple-300">
+            <p className={`text-[10px] leading-relaxed text-justify ${isLight ? 'text-slate-700 font-medium' : 'text-gray-400'}`}>{selectedItem.description}</p>
+            <div className={`p-2.5 rounded-lg border text-[10px] font-bold ${
+              isLight ? 'bg-purple-50 border-purple-200 text-purple-900' : 'bg-white/5 border-white/5 text-purple-300'
+            }`}>
               ⚡ Boost: {selectedItem.statBoost}
             </div>
           </div>

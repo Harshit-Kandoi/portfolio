@@ -131,6 +131,19 @@ const persistedDockSize      = safeGet<DockSize>(SESSION_KEYS.dockSize, 'medium'
 const persistedPerfMode      = safeGet<PerformanceMode>(SESSION_KEYS.performanceMode, 'balanced');
 const persistedAccentColor   = safeGet<AccentColor>(SESSION_KEYS.accentColor, 'purple');
 const persistedSessionRestore= safeGet<boolean>(SESSION_KEYS.sessionRestore, true);
+const getInitialPortalMode = (): 'classic' | 'os' => {
+  const cached = safeGet<'classic' | 'os' | null>(SESSION_KEYS.portalMode, null);
+  if (cached === 'classic' || cached === 'os') {
+    return cached;
+  }
+  // Default for first-time visitors: Mobile OS for phones (<768px), Static Portfolio for Desktop/Tablet (>=768px)
+  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    return 'os';
+  }
+  return 'classic';
+};
+
+const persistedPortalMode = getInitialPortalMode();
 
 // ─── Window defaults ─────────────────────────────────────────────────────────
 const INITIAL_WINDOWS: WindowInstance[] = [
@@ -142,7 +155,7 @@ const INITIAL_WINDOWS: WindowInstance[] = [
   { id: 'terminal',     title: 'Terminal.exe',        isOpen: false, isMinimized: false, isMaximized: false, x: 220, y: 160, width: 720,  height: 470, zIndex: 1 },
   { id: 'ai',           title: 'AI Assistant',        isOpen: false, isMinimized: false, isMaximized: false, x: 500, y: 80,  width: 440,  height: 600, zIndex: 1 },
   { id: 'blog',         title: 'Blog.exe',            isOpen: false, isMinimized: false, isMaximized: false, x: 140, y: 100, width: 840,  height: 600, zIndex: 1 },
-  { id: 'achievements', title: 'Awards.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 250, y: 130, width: 720,  height: 520, zIndex: 1 },
+  { id: 'achievements', title: 'Certifications.exe',  isOpen: false, isMinimized: false, isMaximized: false, x: 250, y: 130, width: 720,  height: 520, zIndex: 1 },
   { id: 'gaming',       title: 'Gaming.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 160, y: 80,  width: 700,  height: 560, zIndex: 1 },
   { id: 'contact',      title: 'Contact.exe',         isOpen: false, isMinimized: false, isMaximized: false, x: 280, y: 140, width: 680,  height: 540, zIndex: 1 },
   { id: 'settings',     title: 'Settings.exe',        isOpen: false, isMinimized: false, isMaximized: false, x: 300, y: 150, width: 620,  height: 480, zIndex: 1 },
@@ -289,6 +302,10 @@ interface OSState {
   // Layout Override
   layoutOverride: 'auto' | 'desktop' | 'tablet' | 'mobile';
   setLayoutOverride: (override: 'auto' | 'desktop' | 'tablet' | 'mobile') => void;
+
+  // Portal mode (Classic View vs OS Mode)
+  portalMode: 'classic' | 'os';
+  setPortalMode: (mode: 'classic' | 'os') => void;
 }
 
 // Helper to normalize zIndices of open windows to prevent infinite drift
@@ -382,6 +399,9 @@ export const useOSStore = create<OSState>((set, get) => ({
   showMobileSettings: false,
   mobileBrightness: 1.0,
   layoutOverride: 'auto',
+
+  // Portal Mode
+  portalMode: persistedPortalMode,
 
   // App Lists
   notifications: [],
@@ -785,4 +805,8 @@ export const useOSStore = create<OSState>((set, get) => ({
   setShowMobileSettings: (showMobileSettings) => set({ showMobileSettings }),
   setMobileBrightness: (mobileBrightness) => set({ mobileBrightness }),
   setLayoutOverride: (layoutOverride) => set({ layoutOverride }),
+  setPortalMode: (portalMode) => {
+    safeSet(SESSION_KEYS.portalMode, portalMode);
+    set({ portalMode });
+  },
 }));

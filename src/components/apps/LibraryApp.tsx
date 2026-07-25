@@ -175,18 +175,18 @@ export default function LibraryApp({ isMobileView }: { isMobileView?: boolean } 
                   </>
                 )}
               </p>
-              <p className="text-xs text-gray-300 leading-relaxed font-normal">{noteText}</p>
+              <p className={`text-xs leading-relaxed font-medium ${isLight ? 'text-slate-800' : 'text-gray-300'}`}>{noteText}</p>
             </div>
           )}
 
           {/* Lightweight Callout: One Thing That Stayed With Me */}
           {book.oneThing && (
-            <div className="border-l-2 border-amber-400/80 pl-3 py-1.5 my-2 bg-amber-500/5 rounded-r-lg">
-              <p className="text-[9px] uppercase font-bold text-amber-400 tracking-wider flex items-center gap-1">
-                <Lightbulb className="w-3 h-3 text-amber-400" />
+            <div className={`border-l-2 border-amber-400/80 pl-3 py-1.5 my-2 rounded-r-lg ${isLight ? 'bg-amber-100/60' : 'bg-amber-500/5'}`}>
+              <p className="text-[9px] uppercase font-bold text-amber-500 tracking-wider flex items-center gap-1">
+                <Lightbulb className="w-3 h-3 text-amber-500" />
                 One thing that stayed with me
               </p>
-              <p className="text-xs text-amber-100/90 italic font-medium mt-0.5">
+              <p className={`text-xs italic font-medium mt-0.5 ${isLight ? 'text-amber-950 font-semibold' : 'text-amber-100/90'}`}>
                 "{book.oneThing}"
               </p>
             </div>

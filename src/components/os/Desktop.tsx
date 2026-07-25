@@ -5,7 +5,8 @@ import {
   Settings as GearIcon, User, Briefcase, Award, FileText, Send, 
   Search, Cpu, HardDrive, Wifi, Volume2, Bell, LogOut, Moon, Sun, 
   Gamepad2, Github, Linkedin, Smartphone, Mail, Phone, Database,
-  Coffee, Heart, BookMarked, StickyNote, /* Image as ImageIcon, */ Package
+  Coffee, Heart, BookMarked, StickyNote, /* Image as ImageIcon, */ Package,
+  LayoutTemplate
 } from 'lucide-react';
 
 import Window from './Window';
@@ -54,7 +55,7 @@ export default function Desktop() {
     windows, theme, setTheme, openWindow, startMenuOpen, setStartMenuOpen,
     notifications, addNotification, closeAllWindows, setBootState,
     viewMode, isSimulatingMobile, setIsSimulatingMobile, xp,
-    hasVisited, isShuttingDown, initiateShutdown,
+    hasVisited, isShuttingDown, initiateShutdown, setPortalMode,
   } = useOSStore();
   const welcomeNotifSent = useRef(false);
 
@@ -228,10 +229,8 @@ export default function Desktop() {
     openWindow(id);
   };
 
-  const handleThemeCycle = () => {
-    const themes: AppTheme[] = ['midnight', 'dark', 'light', 'cyberpunk', 'nord', 'retro', 'glass'];
-    const currentIdx = themes.indexOf(theme);
-    const nextTheme = themes[(currentIdx + 1) % themes.length];
+  const handleThemeToggle = () => {
+    const nextTheme: AppTheme = theme === 'light' ? 'dark' : 'light';
     setTheme(nextTheme);
     playWindowSound('open');
   };
@@ -266,7 +265,7 @@ export default function Desktop() {
     { id: 'terminal',     title: 'Terminal.exe',     icon: TermIcon,      color: 'from-slate-700 to-slate-900'  },
     { id: 'ai',           title: 'Chatbot.exe',     icon: MessageSquare, color: 'from-pink-500 to-rose-400'    },
     { id: 'blog',         title: 'Blog.exe',         icon: BookOpen,      color: 'from-sky-500 to-blue-600'     },
-    { id: 'achievements', title: 'Awards.exe',        icon: Trophy,        color: 'from-yellow-400 to-amber-500' },
+    { id: 'achievements', title: 'Certifications.exe', icon: Award, color: 'from-yellow-400 to-amber-500' },
     { id: 'gaming',       title: 'Gaming.exe',       icon: Gamepad2,      color: 'from-red-500 to-pink-500'     },
     { id: 'contact',      title: 'Contact.exe',      icon: Send,          color: 'from-teal-400 to-emerald-500' },
     { id: 'settings',     title: 'Settings.exe',     icon: GearIcon,      color: 'from-slate-400 to-slate-600'  },
@@ -390,28 +389,6 @@ export default function Desktop() {
 
         {/* System Info & Widgets Tray */}
         <div className="flex items-center space-x-4">
-          
-          {/* CPU Monitor */}
-          <div className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-xs border ${
-            theme === 'light' 
-              ? 'bg-purple-50/80 border-purple-200/80 text-purple-900 font-semibold shadow-xs' 
-              : 'bg-white/5 border-white/10 text-white'
-          }`}>
-            <Cpu className={`w-3.5 h-3.5 ${theme === 'light' ? 'text-purple-600' : 'text-indigo-400'}`} />
-            <span className="hidden sm:inline">CPU</span>
-            <span className="font-bold">{cpuUsage}%</span>
-          </div>
-
-          {/* RAM Monitor */}
-          <div className={`flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-xs border ${
-            theme === 'light' 
-              ? 'bg-pink-50/80 border-pink-200/80 text-pink-900 font-semibold shadow-xs' 
-              : 'bg-white/5 border-white/10 text-white'
-          }`}>
-            <HardDrive className={`w-3.5 h-3.5 ${theme === 'light' ? 'text-pink-600' : 'text-pink-400'}`} />
-            <span className="hidden sm:inline">RAM</span>
-            <span className="font-bold">{ramUsage}%</span>
-          </div>
 
           {/* Dashboard Widget Toggle */}
           <button
@@ -428,8 +405,22 @@ export default function Desktop() {
             <Database className="w-3.5 h-3.5" />
             <span className="hidden lg:inline">Dashboard</span>
           </button>
-
-
+          
+          {/* Normal Portfolio Button */}
+          <button
+            onClick={() => setPortalMode('classic')}
+            className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all hover:scale-105 active:scale-95 ${
+              theme === 'light'
+                ? 'bg-purple-100 text-purple-950 border border-purple-300 hover:bg-purple-200 shadow-sm'
+                : 'bg-white/10 text-purple-300 border border-purple-500/40 hover:bg-white/15 hover:border-purple-400/60 shadow-sm'
+            }`}
+            title="Switch to Normal Portfolio View"
+            aria-label="Switch to Classic Portfolio View"
+          >
+            <LayoutTemplate className="w-3.5 h-3.5 text-purple-400" />
+            <span>Normal Portfolio</span>
+          </button>
+          
           {/* Socials Shortcuts Tray */}
           <div className={`hidden lg:flex items-center space-x-3 border-l pl-4 ${theme === 'light' ? 'border-gray-300' : 'border-white/10'}`}>
             {/* GitHub */}
@@ -492,13 +483,14 @@ export default function Desktop() {
             >
               <GearIcon className={`w-4 h-4 hover:rotate-90 transition-transform duration-300 ${theme === 'light' ? 'text-purple-700' : 'text-purple-400'}`} />
             </button>
+
             <button 
-              onClick={handleThemeCycle} 
+              onClick={handleThemeToggle} 
               className={`p-1 rounded-md transition hover:scale-105 active:scale-95 ${
                 theme === 'light' ? 'text-indigo-700 hover:bg-gray-200/80' : 'text-gray-400 hover:text-white hover:bg-white/10'
               }`}
-              title={`Cycle Theme (Current: ${theme})`}
-              aria-label="Cycle theme"
+              title={theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
+              aria-label="Toggle theme mode"
             >
               {theme === 'light' ? <Moon className="w-4 h-4 text-indigo-600" /> : <Sun className="w-4 h-4 text-yellow-400" />}
             </button>
@@ -646,14 +638,20 @@ export default function Desktop() {
                 handleIconDoubleClick(app.id);
               }
             }}
-            className="flex flex-col items-center justify-center rounded-xl cursor-pointer hover:bg-white/5 border border-transparent hover:border-white/10 active:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all select-none group text-center w-24 h-24"
+            className={`flex flex-col items-center justify-center rounded-xl cursor-pointer transition-all select-none group text-center w-24 h-24 ${
+              theme === 'light' ? 'hover:bg-black/5 hover:border-black/10' : 'hover:bg-white/5 hover:border-white/10'
+            } border border-transparent active:scale-95`}
             aria-label={`Open ${app.title.replace('.exe', '')} from desktop`}
             title={app.title}
           >
             <div className={`rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-lg shadow-black/20 group-hover:scale-105 transition-transform w-12 h-12`}>
               <app.icon className="w-6 h-6" />
             </div>
-            <span className="text-[10px] font-medium tracking-wide mt-2 text-gray-200 truncate block w-full px-1 text-shadow">
+            <span className={`text-[10px] tracking-wide mt-1.5 truncate block max-w-full px-1.5 py-0.5 rounded-md ${
+              theme === 'light' 
+                ? 'text-slate-900 bg-white/90 shadow-xs border border-slate-200/90 font-bold backdrop-blur-xs' 
+                : 'text-gray-100 font-medium text-shadow'
+            }`}>
               {app.title}
             </span>
           </button>

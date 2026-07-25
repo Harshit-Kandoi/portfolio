@@ -726,16 +726,16 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
 
           {/* Skill Domain Summary & Key Architectural Highlights */}
           {skillMeta && (
-            <div className="shrink-0 p-3 rounded-xl bg-white/5 border border-white/5 space-y-2 mb-2">
-              <p className="text-[11px] text-gray-300 leading-relaxed font-normal">
+            <div className={`shrink-0 p-3 rounded-xl border space-y-2 mb-2 ${isLight ? 'bg-slate-100/90 border-slate-200 text-slate-800' : 'bg-white/5 border-white/5 text-gray-300'}`}>
+              <p className={`text-[11px] leading-relaxed font-normal ${isLight ? 'text-slate-800' : 'text-gray-300'}`}>
                 {skillMeta.summary}
               </p>
-              <div className="pt-1.5 border-t border-white/5 space-y-1">
-                <p className="text-[9px] font-bold uppercase tracking-wider text-purple-400">Domain Highlights</p>
+              <div className={`pt-1.5 border-t space-y-1 ${isLight ? 'border-slate-200' : 'border-white/5'}`}>
+                <p className="text-[9px] font-bold uppercase tracking-wider text-purple-500">Domain Highlights</p>
                 <div className="grid grid-cols-1 gap-1">
                   {skillMeta.keyPoints.map((point, pIdx) => (
-                    <div key={pIdx} className="flex items-center space-x-1.5 text-[10px] text-gray-300">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-400 shrink-0" />
+                    <div key={pIdx} className={`flex items-center space-x-1.5 text-[10px] ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
+                      <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
                       <span className="truncate">{point}</span>
                     </div>
                   ))}
@@ -746,30 +746,34 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
 
           {/* Connected Portfolio Projects - Scrollable Container */}
           <div className="flex-1 min-h-0 flex flex-col my-1">
-            <h4 className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-gray-400 flex items-center justify-between mb-2">
+            <h4 className={`shrink-0 text-[10px] font-bold uppercase tracking-wider flex items-center justify-between mb-2 ${isLight ? 'text-slate-700' : 'text-gray-400'}`}>
               <span className="flex items-center space-x-1.5">
-                <Library className="w-3.5 h-3.5 text-indigo-400" />
+                <Library className="w-3.5 h-3.5 text-indigo-500" />
                 <span>Matching Projects</span>
               </span>
-              <span className="text-[9px] font-mono text-purple-400">({relatedProjects.length})</span>
+              <span className="text-[9px] font-mono text-purple-500 font-bold">({relatedProjects.length})</span>
             </h4>
             
             <div className="flex-1 overflow-y-auto custom-scrollbar space-y-1.5 pr-1">
               {relatedProjects.map((p) => (
                 <div
                   key={p.id}
-                  className="p-2.5 rounded-lg bg-white/5 border border-white/5 hover:border-purple-500/30 flex items-center justify-between text-[11px] transition"
+                  className={`p-2.5 rounded-lg border flex items-center justify-between text-[11px] transition ${
+                    isLight 
+                      ? 'bg-slate-100/90 border-slate-200 hover:border-purple-400' 
+                      : 'bg-white/5 border-white/5 hover:border-purple-500/30'
+                  }`}
                 >
                   <div className="flex flex-col min-w-0 pr-2">
-                    <span className="font-semibold truncate text-white">{p.title}</span>
-                    <span className="text-[9px] text-gray-400 truncate">{p.technologies.slice(0, 3).join(', ')}</span>
+                    <span className={`font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{p.title}</span>
+                    <span className={`text-[9px] truncate ${isLight ? 'text-slate-600 font-medium' : 'text-gray-400'}`}>{p.technologies.slice(0, 3).join(', ')}</span>
                   </div>
                   {p.github || p.demo ? (
                     <a
                       href={p.github || p.demo}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-purple-400 hover:text-purple-300 font-bold text-[9px] uppercase flex items-center space-x-0.5 shrink-0 px-2 py-1 bg-purple-500/10 rounded border border-purple-500/20"
+                      className="text-purple-500 hover:text-purple-600 font-bold text-[9px] uppercase flex items-center space-x-0.5 shrink-0 px-2 py-1 bg-purple-500/10 rounded border border-purple-500/20"
                     >
                       <span>View</span>
                       <Target className="w-2.5 h-2.5" />
@@ -780,10 +784,12 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
             </div>
           </div>
           
-          {/* Bottom Info Box - Fully Opaque (NO transparency overlay!) */}
-          <div className="shrink-0 mt-2 p-3 rounded-xl bg-[#141327] border border-purple-500/30 flex items-start space-x-2 text-[10px] text-gray-300 shadow-md">
-            <Info className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
-            <p className="leading-relaxed text-gray-300">
+          {/* Bottom Info Box - Fully Opaque */}
+          <div className={`shrink-0 mt-2 p-3 rounded-xl border flex items-start space-x-2 text-[10px] shadow-md ${
+            isLight ? 'bg-purple-50 border-purple-200 text-purple-950 font-medium' : 'bg-[#141327] border-purple-500/30 text-gray-300'
+          }`}>
+            <Info className="w-4 h-4 text-purple-500 shrink-0 mt-0.5" />
+            <p className="leading-relaxed">
               {isLocked
                 ? `Node "${selectedSkill?.name}" is locked. Click any node to lock a new selection.`
                 : 'Hover over any node to preview. Click any node to lock it in place.'}

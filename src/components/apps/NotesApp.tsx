@@ -67,7 +67,7 @@ const getInitialRecentIds = (): string[] => {
 };
 
 // Custom Markdown renderer tailored for personal notebook entries
-function RenderContent({ content, isMaximized }: { content: string; isMaximized: boolean }) {
+function RenderContent({ content, isMaximized, isLight = false }: { content: string; isMaximized: boolean; isLight?: boolean }) {
   const lines = content.split('\n');
   const elements: React.ReactNode[] = [];
   let inCode = false;
@@ -110,26 +110,28 @@ function RenderContent({ content, isMaximized }: { content: string; isMaximized:
       );
     } else if (line.startsWith('## ')) {
       elements.push(
-        <h2 key={key} className={`font-extrabold text-white mt-4 mb-2 ${isMaximized ? 'text-base' : 'text-sm'}`}>
+        <h2 key={key} className={`font-extrabold mt-4 mb-2 ${isLight ? 'text-slate-900' : 'text-white'} ${isMaximized ? 'text-base' : 'text-sm'}`}>
           {line.slice(3)}
         </h2>
       );
     } else if (line.startsWith('- ')) {
       elements.push(
-        <li key={key} className={`text-gray-300 leading-relaxed ml-4 list-disc ${isMaximized ? 'text-xs my-0.5' : 'text-[11px] my-0.5'}`}>
+        <li key={key} className={`leading-relaxed ml-4 list-disc ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'} ${isMaximized ? 'text-xs my-0.5' : 'text-[11px] my-0.5'}`}>
           <span dangerouslySetInnerHTML={{ __html: formatInline(line.slice(2)) }} />
         </li>
       );
     } else if (line.startsWith('1. ') || line.startsWith('2. ') || line.startsWith('3. ') || line.startsWith('4. ')) {
       elements.push(
-        <div key={key} className={`flex items-start gap-2 text-gray-300 ${isMaximized ? 'text-xs my-1' : 'text-[11px] my-1'}`}>
-          <span className="font-semibold text-purple-400 select-none">{line.slice(0, 3)}</span>
+        <div key={key} className={`flex items-start gap-2 ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'} ${isMaximized ? 'text-xs my-1' : 'text-[11px] my-1'}`}>
+          <span className="font-semibold text-purple-500 select-none">{line.slice(0, 3)}</span>
           <span dangerouslySetInnerHTML={{ __html: formatInline(line.slice(3)) }} />
         </div>
       );
     } else if (line.startsWith('> ')) {
       elements.push(
-        <blockquote key={key} className={`border-l-2 border-purple-500 pl-3 my-2 text-purple-200/90 italic bg-purple-500/5 py-1 rounded-r-md ${isMaximized ? 'text-xs' : 'text-[11px]'}`}>
+        <blockquote key={key} className={`border-l-2 border-purple-500 pl-3 my-2 italic py-1 rounded-r-md ${
+          isLight ? 'bg-purple-100/60 text-purple-950 font-medium' : 'bg-purple-500/5 text-purple-200/90'
+        } ${isMaximized ? 'text-xs' : 'text-[11px]'}`}>
           <span dangerouslySetInnerHTML={{ __html: formatInline(line.slice(2)) }} />
         </blockquote>
       );
@@ -137,7 +139,7 @@ function RenderContent({ content, isMaximized }: { content: string; isMaximized:
       elements.push(
         <p
           key={key}
-          className={`text-gray-300 leading-relaxed my-1.5 ${isMaximized ? 'text-xs' : 'text-[11px]'}`}
+          className={`leading-relaxed my-1.5 ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'} ${isMaximized ? 'text-xs' : 'text-[11px]'}`}
           dangerouslySetInnerHTML={{ __html: formatInline(line) }}
         />
       );
@@ -415,21 +417,23 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
                   </div>
 
                   {/* Title */}
-                  <p className="text-[11px] font-semibold text-gray-100 leading-snug line-clamp-2">
+                  <p className={`text-[11px] leading-snug line-clamp-2 ${isLight ? 'text-slate-900 font-bold' : 'text-gray-100 font-semibold'}`}>
                     {note.title}
                   </p>
 
                   {/* Snippet */}
                   {snippet && (
-                    <p className="text-[10px] text-gray-400 line-clamp-1 mt-1 font-normal italic opacity-80">
+                    <p className={`text-[10px] line-clamp-1 mt-1 font-normal italic opacity-90 ${isLight ? 'text-slate-600 font-medium' : 'text-gray-400'}`}>
                       "{snippet}"
                     </p>
                   )}
 
                   {/* Footer metadata */}
-                  <div className="flex items-center justify-between mt-2 text-[9px] text-gray-500 font-mono">
+                  <div className={`flex items-center justify-between mt-2 text-[9px] font-mono ${isLight ? 'text-slate-600 font-medium' : 'text-gray-400'}`}>
                     <span>{note.last_updated || note.date}</span>
-                    <span className="px-1.5 py-0.2 rounded bg-white/5 text-gray-300 border border-white/10 capitalize">
+                    <span className={`px-1.5 py-0.2 rounded border capitalize ${
+                      isLight ? 'bg-slate-200/80 text-slate-800 border-slate-300 font-semibold' : 'bg-white/5 text-gray-300 border-white/10'
+                    }`}>
                       {noteType}
                     </span>
                   </div>
@@ -503,7 +507,9 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
 
               {/* Title */}
               <h1
-                className={`font-extrabold tracking-tight text-white leading-snug ${
+                className={`font-extrabold tracking-tight leading-snug ${
+                  isLight ? 'text-slate-900' : 'text-white'
+                } ${
                   isMaximized ? 'text-2xl' : 'text-lg sm:text-xl'
                 }`}
               >
@@ -549,11 +555,11 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
             )}
 
             {selected.thought && (
-              <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4 space-y-2">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-purple-300">
-                  <Brain className="w-3.5 h-3.5 text-purple-400" /> Unfiltered Thought
+              <div className={`rounded-xl border p-4 space-y-2 ${isLight ? 'bg-slate-100/90 border-slate-200 text-slate-900' : 'bg-white/[0.02] border-white/5'}`}>
+                <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-purple-700' : 'text-purple-300'}`}>
+                  <Brain className="w-3.5 h-3.5 text-purple-500" /> Unfiltered Thought
                 </div>
-                <p className={`text-gray-200 leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                <p className={`leading-relaxed ${isLight ? 'text-slate-800 font-medium' : 'text-gray-200'} ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
                   {selected.thought}
                 </p>
               </div>
@@ -561,22 +567,24 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
 
             {/* 2. TYPE: MEMORY */}
             {selected.what_i_remember && (
-              <div className="rounded-xl bg-gradient-to-r from-amber-950/30 via-orange-950/20 to-slate-900/40 border border-amber-500/20 p-4 space-y-2">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
-                  <BookOpen className="w-3.5 h-3.5 text-amber-400" /> What I Remember
+              <div className={`rounded-xl border p-4 space-y-2 ${
+                isLight ? 'bg-amber-50 border-amber-200 text-amber-950 font-medium' : 'bg-gradient-to-r from-amber-950/30 via-orange-950/20 to-slate-900/40 border-amber-500/20'
+              }`}>
+                <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-amber-700' : 'text-amber-300'}`}>
+                  <BookOpen className="w-3.5 h-3.5 text-amber-500" /> What I Remember
                 </div>
-                <p className={`text-amber-100/90 leading-relaxed italic ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                <p className={`leading-relaxed italic ${isLight ? 'text-amber-950 font-medium' : 'text-amber-100/90'} ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
                   "{selected.what_i_remember}"
                 </p>
               </div>
             )}
 
             {selected.why_it_stuck && (
-              <div className="rounded-xl bg-white/[0.02] border border-white/5 p-3.5 space-y-1.5">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-orange-400">
-                  <Sparkles className="w-3.5 h-3.5 text-orange-400" /> Why It Stuck
+              <div className={`rounded-xl border p-3.5 space-y-1.5 ${isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-white/[0.02] border-white/5'}`}>
+                <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-orange-700' : 'text-orange-400'}`}>
+                  <Sparkles className="w-3.5 h-3.5 text-orange-500" /> Why It Stuck
                 </div>
-                <p className={`text-gray-200 leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                <p className={`leading-relaxed ${isLight ? 'text-slate-800 font-medium' : 'text-gray-200'} ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
                   {selected.why_it_stuck}
                 </p>
               </div>
@@ -584,33 +592,35 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
 
             {/* 3. TYPE: PRINCIPLE */}
             {selected.the_rule && (
-              <div className="rounded-xl bg-gradient-to-r from-emerald-950/40 via-teal-950/30 to-slate-900/40 border border-emerald-500/25 p-4 space-y-2">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> The Operating Rule
+              <div className={`rounded-xl border p-4 space-y-2 ${
+                isLight ? 'bg-emerald-50 border-emerald-200 text-emerald-950 font-semibold' : 'bg-gradient-to-r from-emerald-950/40 via-teal-950/30 to-slate-900/40 border-emerald-500/25'
+              }`}>
+                <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-emerald-700' : 'text-emerald-300'}`}>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> The Operating Rule
                 </div>
-                <p className={`font-semibold text-emerald-100 leading-relaxed ${isMaximized ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'}`}>
+                <p className={`font-semibold leading-relaxed ${isLight ? 'text-emerald-950' : 'text-emerald-100'} ${isMaximized ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'}`}>
                   "{selected.the_rule}"
                 </p>
               </div>
             )}
 
             {selected.where_i_learned_it && (
-              <div className="rounded-xl bg-white/[0.02] border border-white/5 p-3.5 space-y-1.5">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                  <FileText className="w-3.5 h-3.5 text-purple-400" /> Where I Learned It
+              <div className={`rounded-xl border p-3.5 space-y-1.5 ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-white/[0.02] border-white/5'}`}>
+                <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-700' : 'text-gray-400'}`}>
+                  <FileText className="w-3.5 h-3.5 text-purple-500" /> Where I Learned It
                 </div>
-                <p className={`text-gray-300 leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                <p className={`leading-relaxed ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'} ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
                   {selected.where_i_learned_it}
                 </p>
               </div>
             )}
 
             {selected.exception && (
-              <div className="rounded-xl bg-rose-500/5 border border-rose-500/20 p-3.5 space-y-1.5">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-rose-300">
-                  <AlertCircle className="w-3.5 h-3.5 text-rose-400" /> The Exception / Caveat
+              <div className={`rounded-xl border p-3.5 space-y-1.5 ${isLight ? 'bg-rose-50 border-rose-200 text-rose-950' : 'bg-rose-500/5 border-rose-500/20'}`}>
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-rose-600">
+                  <AlertCircle className="w-3.5 h-3.5 text-rose-500" /> The Exception / Caveat
                 </div>
-                <p className={`text-rose-100/90 italic leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                <p className={`italic leading-relaxed ${isLight ? 'text-rose-950 font-medium' : 'text-rose-100/90'} ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
                   "{selected.exception}"
                 </p>
               </div>
@@ -618,41 +628,41 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
 
             {/* 4. TYPE: QUESTION */}
             {selected.question && (
-              <div className="rounded-xl bg-gradient-to-r from-sky-950/40 via-indigo-950/30 to-slate-900/40 border border-sky-500/25 p-4 space-y-2">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-sky-300">
-                  <HelpCircle className="w-3.5 h-3.5 text-sky-400" /> Core Question
+              <div className={`rounded-xl border p-4 space-y-2 ${isLight ? 'bg-sky-50 border-sky-200 text-sky-950' : 'bg-gradient-to-r from-sky-950/40 via-indigo-950/30 to-slate-900/40 border-sky-500/25'}`}>
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-sky-600">
+                  <HelpCircle className="w-3.5 h-3.5 text-sky-500" /> Core Question
                 </div>
-                <p className={`font-bold text-sky-100 leading-relaxed ${isMaximized ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'}`}>
+                <p className={`font-bold leading-relaxed ${isLight ? 'text-sky-950' : 'text-sky-100'} ${isMaximized ? 'text-sm sm:text-base' : 'text-xs sm:text-sm'}`}>
                   "{selected.question}"
                 </p>
               </div>
             )}
 
             {selected.why_i_care && (
-              <div className="rounded-xl bg-white/[0.02] border border-white/5 p-3.5 space-y-1.5">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-gray-400">
-                  <Brain className="w-3.5 h-3.5 text-sky-400" /> Why I Care
+              <div className={`rounded-xl border p-3.5 space-y-1.5 ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-white/[0.02] border-white/5'}`}>
+                <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-700' : 'text-gray-400'}`}>
+                  <Brain className="w-3.5 h-3.5 text-sky-500" /> Why I Care
                 </div>
-                <p className={`text-gray-300 leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                <p className={`leading-relaxed ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'} ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
                   {selected.why_i_care}
                 </p>
               </div>
             )}
 
             {selected.possible_answers && selected.possible_answers.length > 0 && (
-              <div className="rounded-xl bg-white/[0.02] border border-white/5 p-3.5 space-y-2">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-sky-400">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" /> Possible Answers / Working Hypotheses
+              <div className={`rounded-xl border p-3.5 space-y-2 ${isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-white/[0.02] border-white/5'}`}>
+                <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-sky-700' : 'text-sky-400'}`}>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-sky-500" /> Possible Answers / Working Hypotheses
                 </div>
                 <ul className="space-y-1.5">
                   {selected.possible_answers.map((ans, idx) => (
                     <li
                       key={idx}
-                      className={`flex items-start gap-2 text-gray-200 ${
+                      className={`flex items-start gap-2 ${isLight ? 'text-slate-800 font-medium' : 'text-gray-200'} ${
                         isMaximized ? 'text-xs' : 'text-[11px]'
                       }`}
                     >
-                      <span className="w-1.5 h-1.5 rounded-full bg-sky-400/80 mt-1.5 shrink-0" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-sky-500 mt-1.5 shrink-0" />
                       <span className="leading-relaxed">{ans}</span>
                     </li>
                   ))}
@@ -662,22 +672,22 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
 
             {/* 5. TYPE: JOURNAL */}
             {selected.what_happened && (
-              <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4 space-y-2">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-purple-300">
-                  <FileText className="w-3.5 h-3.5 text-purple-400" /> Unfiltered Entry
+              <div className={`rounded-xl border p-4 space-y-2 ${isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-white/[0.02] border-white/5'}`}>
+                <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-purple-700' : 'text-purple-300'}`}>
+                  <FileText className="w-3.5 h-3.5 text-purple-500" /> Unfiltered Entry
                 </div>
-                <p className={`text-gray-200 leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                <p className={`leading-relaxed ${isLight ? 'text-slate-800 font-medium' : 'text-gray-200'} ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
                   {selected.what_happened}
                 </p>
               </div>
             )}
 
             {selected.what_surprised_me && (
-              <div className="rounded-xl bg-amber-500/10 border border-amber-500/25 p-3.5 space-y-1.5">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" /> What Surprised Me
+              <div className={`rounded-xl border p-3.5 space-y-1.5 ${isLight ? 'bg-amber-50 border-amber-200' : 'bg-amber-500/10 border-amber-500/25'}`}>
+                <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-amber-700' : 'text-amber-300'}`}>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" /> What Surprised Me
                 </div>
-                <p className={`text-amber-100/90 italic leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                <p className={`italic leading-relaxed ${isLight ? 'text-amber-950 font-medium' : 'text-amber-100/90'} ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
                   "{selected.what_surprised_me}"
                 </p>
               </div>
@@ -685,21 +695,23 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
 
             {/* Markdown Content (if any) */}
             {selected.content && (
-              <div className="pt-2 border-t border-white/5">
-                <RenderContent content={selected.content} isMaximized={isMaximized} />
+              <div className={`pt-2 border-t ${isLight ? 'border-slate-200' : 'border-white/5'}`}>
+                <RenderContent content={selected.content} isMaximized={isMaximized} isLight={isLight} />
               </div>
             )}
 
             {/* "Still Thinking..." Closing Block */}
             {selected.still_thinking && (
-              <div className="rounded-xl bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-indigo-500/10 border border-amber-500/30 p-4 space-y-1.5 relative overflow-hidden my-4">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" /> Still Thinking...
+              <div className={`rounded-xl border p-4 space-y-1.5 relative overflow-hidden my-4 ${
+                isLight ? 'bg-amber-50 border-amber-200 text-amber-950' : 'bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-indigo-500/10 border-amber-500/30 text-amber-100/90'
+              }`}>
+                <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-amber-800' : 'text-amber-300'}`}>
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" /> Still Thinking...
                 </div>
-                <p className={`italic text-amber-100/90 leading-relaxed ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
+                <p className={`italic leading-relaxed ${isLight ? 'text-amber-950 font-medium' : 'text-amber-100/90'} ${isMaximized ? 'text-xs sm:text-sm' : 'text-xs'}`}>
                   "{selected.still_thinking}"
                 </p>
-                <div className="pt-1 text-[9px] text-amber-400/60 font-mono">
+                <div className={`pt-1 text-[9px] font-mono ${isLight ? 'text-amber-800 font-semibold' : 'text-amber-400/60'}`}>
                   — Unresolved curiosity (open to evolving)
                 </div>
               </div>
@@ -707,12 +719,12 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
 
             {/* Interconnected Connected Thoughts Section */}
             {relatedNotes.length > 0 && (
-              <div className="pt-4 border-t border-white/5 space-y-2.5">
+              <div className={`pt-4 border-t space-y-2.5 ${isLight ? 'border-slate-200' : 'border-white/5'}`}>
                 <div className="flex items-center justify-between">
-                  <h3 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Lightbulb className="w-3 h-3 text-amber-400" /> Connected Thoughts ({relatedNotes.length})
+                  <h3 className={`text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 ${isLight ? 'text-slate-700' : 'text-gray-400'}`}>
+                    <Lightbulb className="w-3 h-3 text-amber-500" /> Connected Thoughts ({relatedNotes.length})
                   </h3>
-                  <span className="text-[9px] text-gray-500 italic">Interconnected Vault</span>
+                  <span className={`text-[9px] italic ${isLight ? 'text-slate-500' : 'text-gray-500'}`}>Interconnected Vault</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -724,23 +736,27 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
                       <button
                         key={relNote.id}
                         onClick={() => handleSelectNote(relNote)}
-                        className="text-left p-2.5 rounded-lg border border-white/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-purple-500/30 transition group flex flex-col justify-between"
+                        className={`text-left p-2.5 rounded-lg border transition group flex flex-col justify-between ${
+                          isLight
+                            ? 'bg-white border-slate-200 hover:bg-slate-100 hover:border-purple-400 shadow-xs text-slate-900'
+                            : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-purple-500/30'
+                        }`}
                       >
                         <div>
-                          <div className="flex items-center justify-between text-[9px] text-purple-400 mb-1">
-                            <span className="capitalize text-purple-300/80">{noteType}</span>
+                          <div className={`flex items-center justify-between text-[9px] mb-1 ${isLight ? 'text-purple-600 font-bold' : 'text-purple-400'}`}>
+                            <span className="capitalize">{noteType}</span>
                             {statusCfg && <span>{statusCfg.label.split(' ')[0]}</span>}
                           </div>
-                          <h4 className="text-[11px] font-semibold text-gray-200 group-hover:text-purple-300 transition line-clamp-1">
+                          <h4 className={`text-[11px] font-bold transition line-clamp-1 ${isLight ? 'text-slate-900 group-hover:text-purple-700' : 'text-gray-200 group-hover:text-purple-300'}`}>
                             {relNote.title}
                           </h4>
                           {snippet && (
-                            <p className="text-[10px] text-gray-400 line-clamp-1 mt-0.5 italic">
+                            <p className={`text-[10px] line-clamp-1 mt-0.5 italic ${isLight ? 'text-slate-600 font-medium' : 'text-gray-400'}`}>
                               "{snippet}"
                             </p>
                           )}
                         </div>
-                        <div className="flex items-center justify-end gap-1 text-[9px] text-purple-400 font-medium mt-2">
+                        <div className={`flex items-center justify-end gap-1 text-[9px] font-bold mt-2 ${isLight ? 'text-purple-600' : 'text-purple-400'}`}>
                           Read entry <ArrowRight className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition" />
                         </div>
                       </button>

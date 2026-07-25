@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { useOSStore, AppTheme } from '../../store/useOSStore';
 import { 
-  Wifi, Signal, Battery, Search, Bell, Settings as GearIcon, 
+  Wifi, Signal, Battery, Search, Bell, BellOff, Settings as GearIcon, 
   Volume2, Sun, Palette, Trash2, Bluetooth, Zap, ChevronLeft, ChevronRight, Gamepad2,
   User, Folder, Briefcase, Award, FileText, Terminal as TermIcon,
   MessageSquare, BookOpen, Trophy, Send, VolumeX, Moon, Heart, Coffee, ExternalLink,
-  BookMarked, StickyNote, /* Image as ImageIcon, */ Package
+  BookMarked, StickyNote, /* Image as ImageIcon, */ Package, LayoutTemplate
 } from 'lucide-react';
 import { playWindowSound } from '../../utils/sounds';
 import Wallpaper from './Wallpaper';
@@ -59,6 +59,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
     soundEnabled, setSoundEnabled,
     volume, setVolume,
     batteryLevel, batteryCharging, setBatteryLevel,
+    setPortalMode,
   } = useOSStore();
 
   const [sysTime, setSysTime] = useState(new Date());
@@ -66,6 +67,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
   const [wifiEnabled, setWifiEnabled] = useState(true);
   const [bluetoothEnabled, setBluetoothEnabled] = useState(true);
   const [airplaneMode, setAirplaneMode] = useState(false);
+  const [alertsEnabled, setAlertsEnabled] = useState(true);
   const flashlight = false;
   const [showRecents, setShowRecents] = useState(false);
   const recentsRef = useRef<HTMLDivElement>(null);
@@ -162,7 +164,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
     { id: 'terminal', title: 'Terminal', icon: TermIcon, color: 'from-slate-700 to-slate-900', category: 'dev' },
     { id: 'ai', title: 'AI Assistant', icon: MessageSquare, color: 'from-pink-500 to-rose-400', category: 'social' },
     { id: 'blog', title: 'Tech Blog', icon: BookOpen, color: 'from-sky-500 to-blue-600', category: 'social' },
-    { id: 'achievements', title: 'Badges', icon: Trophy, color: 'from-yellow-400 to-amber-500', category: 'game' },
+    { id: 'achievements', title: 'Certifications', icon: Award, color: 'from-yellow-400 to-amber-500', category: 'work' },
     { id: 'gaming', title: 'Gaming OS', icon: Gamepad2, color: 'from-red-500 to-pink-500', category: 'game' },
     { id: 'snake', title: 'Snake 3310', icon: SnakeIcon, color: 'from-green-600 to-emerald-500', category: 'game' },
     { id: 'swipe', title: 'Swipe Match', icon: Heart, color: 'from-rose-500 to-pink-500', category: 'social' },
@@ -244,6 +246,10 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
   };
 
   const handleLaunchApp = (appId: string) => {
+    if (appId === 'classic-portal') {
+      setPortalMode('classic');
+      return;
+    }
     playWindowSound('open');
     openMobileApp(appId);
     setShowRecents(false);
@@ -506,29 +512,27 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                 <span className="text-[10px] font-semibold">Sounds</span>
               </button>
 
-              {/* Theme Cycle Toggle */}
+              {/* Alerts / Do Not Disturb Toggle */}
               <button 
                 onClick={() => {
-                  const themes: AppTheme[] = ['midnight', 'dark', 'light', 'cyberpunk', 'nord', 'retro', 'glass'];
-                  const currentIdx = themes.indexOf(theme);
-                  const nextTheme = themes[(currentIdx + 1) % themes.length];
-                  setTheme(nextTheme);
+                  const nextVal = !alertsEnabled;
+                  setAlertsEnabled(nextVal);
                   addNotification(
-                    '🎨 Theme Switched',
-                    `Applied ${nextTheme.toUpperCase()} style override.`,
-                    'success',
+                    nextVal ? '🔔 Alerts Active' : '🔕 Alerts Muted',
+                    nextVal ? 'Notification alerts enabled.' : 'Notification alerts silenced.',
+                    'info',
                     'system'
                   );
                 }}
                 className={`p-3 rounded-2xl border flex flex-col items-center justify-center space-y-1.5 active:scale-95 transition ${
-                  theme === 'light' 
-                    ? 'bg-gray-200/60 border-gray-300/40 text-purple-700 hover:bg-gray-200' 
-                    : 'bg-white/5 border-white/5 text-purple-300 hover:bg-white/10'
+                  alertsEnabled 
+                    ? 'bg-amber-600 border-amber-500 text-white shadow-md' 
+                    : (theme === 'light' ? 'bg-gray-200/60 border-gray-300/40 text-gray-500 hover:bg-gray-200' : 'bg-white/5 border-white/5 text-gray-500')
                 }`}
-                aria-label="Cycle Theme"
+                aria-label={alertsEnabled ? "Mute notification alerts" : "Enable notification alerts"}
               >
-                <Palette className="w-5 h-5" />
-                <span className="text-[10px] font-semibold truncate capitalize w-16 text-center">{theme}</span>
+                {alertsEnabled ? <Bell className="w-5 h-5" /> : <BellOff className="w-5 h-5" />}
+                <span className="text-[10px] font-semibold text-center">{alertsEnabled ? 'Alerts On' : 'Alerts Off'}</span>
               </button>
             </div>
 
@@ -570,6 +574,23 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                 />
               </div>
             </div>
+
+            {/* Switch to Normal View Hero Tile — positioned below System Volume box & above Notifications */}
+            <button
+              onClick={() => { setPortalMode('classic'); setShowMobileSettings(false); }}
+              className="w-full p-3.5 rounded-2xl flex items-center justify-between border bg-gradient-to-r from-purple-900/40 via-indigo-900/40 to-slate-900/40 border-purple-500/30 text-white shadow-lg active:scale-98 transition"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="p-2 rounded-xl bg-purple-500/20 text-purple-300">
+                  <LayoutTemplate className="w-5 h-5" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-bold">Normal Portfolio View</div>
+                  <div className="text-[10px] text-purple-200/70">Switch back to classic web view</div>
+                </div>
+              </div>
+              <span className="text-xs font-semibold px-3.5 py-1 rounded-full bg-purple-600 text-white shadow-sm">Switch →</span>
+            </button>
 
             {/* Active System Notifications */}
             <div className="space-y-2.5">
