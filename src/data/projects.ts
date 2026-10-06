@@ -29,6 +29,30 @@ export const projects: Project[] = [
     status: "⭐ Flagship Startup (Beta)"
   },
   {
+    id: 25,
+    title: "ClearCue-AI",
+    description: "Active AI product repository currently in development. Scope and public details are intentionally light until the build direction is finalized.",
+    image: "https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Products & Software", "AI & Machine Learning"],
+    technologies: ["AI", "Product Engineering", "Automation"],
+    github: "https://github.com/Harshit-Kandoi/ClearCue-AI",
+    featured: true,
+    duration: "Ongoing",
+    status: "Active Build"
+  },
+  {
+    id: 26,
+    title: "Company Page",
+    description: "Minimal company/studio page for positioning freelance services, product work, process, and contact flows with a calm console-inspired interface.",
+    image: "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Products & Software"],
+    technologies: ["Next.js", "React", "CSS", "Content Design"],
+    github: "https://github.com/Harshit-Kandoi/Company-page",
+    featured: true,
+    duration: "Ongoing",
+    status: "Active Build"
+  },
+  {
     id: 3,
     title: "Pixel Buddy",
     description: "Desktop productivity companion that reminds users to drink water, take breaks and maintain healthy computer habits.",
@@ -37,8 +61,8 @@ export const projects: Project[] = [
     technologies: ["Electron", "React", "TypeScript", "Node.js"],
     github: "https://github.com/Harshit-Kandoi/pixel-buddy",
     featured: true,
-    duration: "May 2025",
-    status: "⭐ High Potential (WIP)"
+    duration: "Ongoing",
+    status: "Active Build"
   },
   {
     id: 4,
@@ -55,13 +79,13 @@ export const projects: Project[] = [
   {
     id: 5,
     title: "Movie Recommender System",
-    description: "ML-based recommendation engine suggesting movies based on similarity, user ratings, and content features.",
+    description: "Web-based recommendation engine using collaborative and content-based filtering to generate personalized movie suggestions from large datasets.",
     image: "https://images.pexels.com/photos/7991375/pexels-photo-7991375.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
     category: ["Products & Software", "AI & Machine Learning"],
-    technologies: ["Python", "Scikit-learn", "Streamlit", "Pandas", "SVD"],
+    technologies: ["Python", "SQLAlchemy", "Scikit-learn", "Pandas", "SVD"],
     github: "https://github.com/Harshit-Kandoi/movie-recommender",
     featured: false,
-    duration: "Dec 2024",
+    duration: "Oct 2024 - Nov 2024",
     status: "✅ Portfolio Project"
   },
   {
@@ -104,15 +128,26 @@ export const projects: Project[] = [
   },
   {
     id: 9,
-    title: "ASL Letter Detection",
-    description: "Detects American Sign Language alphabets in real-time using computer vision and object detection models.",
+    title: "ASL Hand Sign Detection System",
+    description: "Real-time ASL recognition system for 26 hand signs with 90%+ accuracy using YOLOv5 and webcam-based inference.",
     image: "https://images.pexels.com/photos/4101143/pexels-photo-4101143.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
     category: ["AI & Machine Learning"],
-    technologies: ["Python", "YOLOv5", "PyTorch", "OpenCV"],
+    technologies: ["Python", "YOLOv5", "PyTorch", "OpenCV", "Webcam Inference"],
     github: "https://github.com/Harshit-Kandoi/ASL-letter-detection",
     featured: true,
-    duration: "Mar 2025",
-    status: "Good ML Demo"
+    duration: "Mar 2025 - Apr 2025",
+    status: "90%+ Accuracy"
+  },
+  {
+    id: 27,
+    title: "Whisper Transcription Web Application",
+    description: "Web-based speech-to-text application using Python, Flask, and OpenAI Whisper to convert audio and video uploads into structured text.",
+    image: "https://images.pexels.com/photos/7586662/pexels-photo-7586662.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    category: ["Products & Software", "AI & Machine Learning"],
+    technologies: ["Python", "Flask", "OpenAI Whisper", "Speech-to-Text"],
+    featured: false,
+    duration: "Feb 2025 - Mar 2025",
+    status: "AI Utility"
   },
   {
     id: 10,
@@ -249,7 +284,7 @@ export const projects: Project[] = [
     technologies: ["Python", "Docker", "GCP", "Firestore", "Pub/Sub"],
     github: "https://github.com/Harshit-Kandoi/Local-GCP-Emulator",
     featured: true,
-    duration: "Aug 2025",
+    duration: "Jun 2025 - Jul 2025",
     status: "Active Learning"
   },
   {

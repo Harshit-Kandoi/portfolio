@@ -136,10 +136,8 @@ const getInitialPortalMode = (): 'classic' | 'os' => {
   if (cached === 'classic' || cached === 'os') {
     return cached;
   }
-  // Default for first-time visitors: Mobile OS for phones (<768px), Static Portfolio for Desktop/Tablet (>=768px)
-  if (typeof window !== 'undefined' && window.innerWidth < 768) {
-    return 'os';
-  }
+  // Default for first-time visitors: the scroll-first portfolio on every viewport.
+  // The OS remains available as an explicit interactive mode.
   return 'classic';
 };
 

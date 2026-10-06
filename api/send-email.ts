@@ -101,7 +101,7 @@ export default async function handler(req: CustomRequest, res?: CustomResponse) 
       },
       body: JSON.stringify({
         from: 'Portfolio OS <onboarding@resend.dev>',
-        to: ['kandoiharshitsdlp@gmail.com'],
+        to: ['hello@harshitkandoi.in'],
         reply_to: email.trim(),
         subject: `[Portfolio OS] ${subject ? subject.trim() : 'Direct Message'}`,
         html: `

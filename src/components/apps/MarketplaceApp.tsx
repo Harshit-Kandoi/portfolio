@@ -564,7 +564,7 @@ export default function MarketplaceApp({ isMobileView }: { isMobileView?: boolea
                 Cancel
               </button>
               <a
-                href={`mailto:kandoiharshitsdlp@gmail.com?subject=Booking Inquiry: ${encodeURIComponent(selectedServiceItem.name)}&body=Hi Harshit,%0A%0AI would like to book or inquire about your service: ${encodeURIComponent(selectedServiceItem.name)}.`}
+                href={`mailto:hello@harshitkandoi.in?subject=Booking Inquiry: ${encodeURIComponent(selectedServiceItem.name)}&body=Hi Harshit,%0A%0AI would like to book or inquire about your service: ${encodeURIComponent(selectedServiceItem.name)}.`}
                 className="px-4 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-rose-500 to-pink-600 hover:opacity-90 text-white flex items-center gap-1.5 transition shadow-md shadow-rose-500/20"
               >
                 <Calendar className="w-3.5 h-3.5" /> Book Call / Inquire via Email

@@ -68,7 +68,7 @@ export default function ResumeApp(props?: { isMobileView?: boolean }) {
               }`}
             >
               <ExternalLink className="w-4 h-4" />
-              <span>View Google Drive</span>
+              <span>Open PDF</span>
             </a>
           </div>
         </div>

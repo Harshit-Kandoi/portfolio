@@ -171,7 +171,7 @@ export default function DashboardWidgets({ onClose }: DashboardWidgetsProps) {
                 <Linkedin className="w-2.5 h-2.5 fill-current" />
               </div>
             </div>
-            <p className="text-[10px] text-gray-500 truncate">Software & AI Engineer · ThoughtIn Solutions</p>
+            <p className="text-[10px] text-gray-500 truncate">Full Stack Software Engineer · ThoughtIn Solutions</p>
           </div>
           <ExternalLink className="w-3.5 h-3.5 text-gray-600 group-hover:text-blue-400 transition shrink-0" />
         </a>

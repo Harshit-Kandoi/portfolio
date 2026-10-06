@@ -23,7 +23,7 @@ export const socialLinks: SocialLink[] = [
   },
   {
     platform: 'Email',
-    url: 'mailto:kandoiharshitsdlp@gmail.com',
+    url: 'mailto:hello@harshitkandoi.in',
     icon: 'mail'
   },
   {
@@ -33,4 +33,4 @@ export const socialLinks: SocialLink[] = [
   }
 ];
 
-export const resumeLink = 'https://drive.google.com/file/d/1QrYODMiJ7sW1JOqmqJDB2dJkjJbSYnUr/view?usp=sharing';
+export const resumeLink = '/Resume.pdf';

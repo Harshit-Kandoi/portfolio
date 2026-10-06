@@ -28,6 +28,32 @@ export const PRODUCTS_SEED: Product[] = [
     is_featured: true,
   },
   {
+    id: '12',
+    name: 'ClearCue-AI',
+    tagline: 'Active AI product repository currently in development.',
+    description: 'An in-progress AI product build from my current workspace. Public details are intentionally light until the product direction is finalized.',
+    logo_url: '',
+    demo_url: undefined,
+    repo_url: 'https://github.com/Harshit-Kandoi/ClearCue-AI',
+    tags: ['AI', 'Product Engineering', 'Automation'],
+    status: 'wip',
+    stars: 0,
+    is_featured: true,
+  },
+  {
+    id: '13',
+    name: 'Company Page',
+    tagline: 'Minimal studio/company page for freelance positioning.',
+    description: 'A calm company-style page for presenting services, process, product work, and contact flows with a simple console-inspired interaction model.',
+    logo_url: '',
+    demo_url: undefined,
+    repo_url: 'https://github.com/Harshit-Kandoi/Company-page',
+    tags: ['Next.js', 'React', 'CSS', 'Content Design'],
+    status: 'wip',
+    stars: 0,
+    is_featured: true,
+  },
+  {
     id: '3',
     name: 'Pixel Buddy',
     tagline: 'Desktop productivity companion for healthy computer habits.',
@@ -145,4 +171,3 @@ export const PRODUCTS_SEED: Product[] = [
     is_featured: false,
   },
 ];
-

@@ -431,10 +431,10 @@ export default function Desktop() {
               <Linkedin className="w-4 h-4" />
               <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>LinkedIn</span>
             </a>
-            {/* Gmail */}
-            <a href="mailto:kandoiharshitsdlp@gmail.com" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-rose-600 hover:text-rose-800' : 'text-rose-400'}`} title="Gmail">
+            {/* Email */}
+            <a href="mailto:hello@harshitkandoi.in" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-rose-600 hover:text-rose-800' : 'text-rose-400'}`} title="Email">
               <Mail className="w-4 h-4" />
-              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>Gmail</span>
+              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>Email</span>
             </a>
             {/* Phone */}
             <a href="tel:+917850098453" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-emerald-700 hover:text-emerald-900' : 'text-emerald-400'}`} title="Phone">

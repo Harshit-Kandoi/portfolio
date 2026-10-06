@@ -15,15 +15,16 @@ const QUOTES = [
 ];
 
 const QUEST_CARDS = [
-  { label: 'CURRENT QUEST',      value: 'Building scalable AI systems',     color: 'text-purple-400',  border: 'border-purple-500/20' },
-  { label: 'CURRENTLY BUILDING', value: 'Financial Mirror',                  color: 'text-emerald-400', border: 'border-emerald-500/20' },
+  { label: 'CURRENT QUEST',      value: 'Building useful AI and cloud systems', color: 'text-purple-400',  border: 'border-purple-500/20' },
+  { label: 'CURRENTLY BUILDING', value: 'Financial Mirror • ClearCue-AI • Pixel Buddy', color: 'text-emerald-400', border: 'border-emerald-500/20' },
   { label: 'CURRENT OBSESSION',  value: 'Event-driven Architectures',        color: 'text-amber-400',   border: 'border-amber-500/20' },
   { label: 'LEVELING UP',        value: 'Kubernetes • Clouds • Agents',      color: 'text-blue-400',    border: 'border-blue-500/20' },
 ];
 
 const MISSION_LOG = [
   { done: true,  text: 'Google ACE Certified'              },
-  { done: false, text: 'AI Developer Certification'        },
+  { done: true,  text: 'System Design Masterclass'         },
+  { done: false, text: 'M.Tech AI & ML in progress'        },
   { done: false, text: 'Build & Launch SaaS Product'       },
   { done: false, text: 'Active on LinkedIn & Medium'       },
   { done: false, text: 'Publish Kaggle Dataset'            },
@@ -214,7 +215,7 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
 
           <div className="w-full">
             <h2 className={`text-sm font-bold tracking-wide text-center ${isLight ? 'text-slate-900' : 'text-white'}`}>{ghStats?.name || 'Harshit Kandoi'}</h2>
-            <p className="text-[10px] text-purple-500 font-semibold mt-0.5 text-center">Software &amp; AI Engineer</p>
+            <p className="text-[10px] text-purple-500 font-semibold mt-0.5 text-center">Full Stack Software Engineer</p>
             <p className="text-[9px] text-emerald-500 font-bold mt-1 animate-pulse text-center">● Available for interesting projects</p>
           </div>
 
@@ -229,7 +230,7 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
             </div>
             <div className="flex items-center space-x-2">
               <Award className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span>Google ACE Certified</span>
+              <span>Google ACE • System Design</span>
             </div>
           </div>
         </div>
@@ -241,10 +242,10 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
             <h3 className="text-sm font-bold tracking-wider uppercase text-purple-500">Bio Profile</h3>
           </div>
           <p className={`text-xs leading-relaxed text-justify ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
-            I build backend applications that automate business workflows and simplify operational processes. My work focuses on API integrations, cloud-native services on Google Cloud Platform, and backend development using Java and Python. I enjoy building reliable systems that solve real business problems through automation.
+            I build full-stack applications that automate business workflows and simplify operational processes. My work focuses on API integrations, cloud-native services on Google Cloud Platform, AI proof-of-concepts, and backend development using Java and Python.
           </p>
           <p className={`text-xs leading-relaxed text-justify ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
-            Currently, I'm an Associate Software Engineer at <strong>ThoughtIn Solutions</strong>, where I develop internal business applications using Java, Python, React, and GCP services such as Cloud Functions, Pub/Sub, and Firestore. Outside of work, I explore AI agents, developer tools, and practical automation to improve engineering workflows.
+            Currently, I'm an Associate Software Engineer at <strong>ThoughtIn Solutions</strong>, where I develop internal business applications, event-driven cloud workflows, and analytics/reporting tools using Java, Python, React, and GCP services such as Cloud Functions, Pub/Sub, and Firestore. Outside of work, I am starting an M.Tech in AI & ML and building practical product experiments.
           </p>
 
           {/* Quest Cards */}

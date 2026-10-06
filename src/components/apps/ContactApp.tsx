@@ -9,7 +9,7 @@ import { PORTFOLIO_META } from '../../data/config';
 import { playNotificationSound } from '../../utils/sounds';
 import { trackEvent } from '../../utils/analytics';
 
-const DESTINATION_EMAIL = 'kandoiharshitsdlp@gmail.com';
+const DESTINATION_EMAIL = PORTFOLIO_META.email;
 const RATE_LIMIT_SECONDS = 30;
 const STORAGE_KEY_LAST_SENT = 'portfolio_os_contact_last_sent';
 
@@ -606,4 +606,3 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
     </div>
   );
 }
-

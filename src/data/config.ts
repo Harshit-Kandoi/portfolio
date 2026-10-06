@@ -18,9 +18,9 @@ export const SPOTIFY_CONFIG = {
 
 export const PORTFOLIO_META = {
   name: 'Harshit Kandoi',
-  role: 'Software & AI Engineer',
+  role: 'Full Stack Software Engineer',
   location: 'Jaipur, Rajasthan, India',
-  email: 'kandoiharshitsdlp@gmail.com',
+  email: 'hello@harshitkandoi.in',
   phone: '+91 78500 98453',
   github: 'https://github.com/Harshit-Kandoi',
   linkedin: 'https://linkedin.com/in/harshit-kandoi',

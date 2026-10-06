@@ -36,8 +36,8 @@ export const SYSTEM_NOTIFICATION_POOL: ToastDef[] = [
     action: 'products',
   },
   {
-    title: '💼 Software & AI Engineer',
-    message: 'Harshit builds GCP cloud workflows & ML models at ThoughtIn Solutions.',
+    title: '💼 Full Stack Software Engineer',
+    message: 'Harshit builds GCP cloud workflows, AI POCs, and business automation at ThoughtIn Solutions.',
     type: 'info',
     category: 'career',
     action: 'experience',
@@ -51,7 +51,7 @@ export const SYSTEM_NOTIFICATION_POOL: ToastDef[] = [
   },
   {
     title: '📄 2026 Resume Ready',
-    message: 'Download or view Harshit Kandoi’s full Software & AI Engineer resume.',
+    message: 'Download or view Harshit Kandoi’s latest Full Stack Software Engineer resume.',
     type: 'info',
     category: 'career',
     action: 'resume',
@@ -121,14 +121,14 @@ export const SYSTEM_NOTIFICATION_POOL: ToastDef[] = [
   },
   {
     title: '⚡ Tech Stack & Skills',
-    message: 'Inspect Python, GCP, FastAPI, TypeScript, React & Docker capabilities.',
+    message: 'Inspect Python, Java, GCP, React, Docker, and automation capabilities.',
     type: 'info',
     category: 'portfolio',
     action: 'skills',
   },
   {
-    title: '🎓 GenAI & Cloud Certs',
-    message: 'View Microsoft & LinkedIn Learning Generative AI professional credentials.',
+    title: '🎓 System Design & Cloud Certs',
+    message: 'View System Design, Google ACE, QA automation, Docker, and AI learning credentials.',
     type: 'achievement',
     category: 'career',
     action: 'achievements',
