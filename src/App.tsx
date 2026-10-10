@@ -105,8 +105,9 @@ function App() {
     return () => { if (frameRef.current) cancelAnimationFrame(frameRef.current); };
   }, [showFPS]);
 
-  // ── Ctrl+K opens Start Menu ────────────────────────────────────────────────
+  // ── Ctrl+K opens Start Menu (OS mode only; classic keeps the browser shortcut) ──
   useEffect(() => {
+    if (portalMode !== 'os') return;
     const handleCtrlK = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
@@ -116,12 +117,13 @@ function App() {
     };
     window.addEventListener('keydown', handleCtrlK);
     return () => window.removeEventListener('keydown', handleCtrlK);
-  }, []);
+  }, [portalMode]);
 
   // ── History API back-button trap ─────────────────────────────────────────────
   // Pushes a dummy history state so the Android/iOS back gesture stays inside the app.
+  // OS mode only: the classic site must let visitors leave with Back.
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || portalMode !== 'os') return;
     // Push initial dummy state
     window.history.pushState({ portfolioOS: true }, '', window.location.href);
 
@@ -141,7 +143,7 @@ function App() {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [portalMode]);
 
   // Set viewMode dynamically based on screen size or override
   useEffect(() => {

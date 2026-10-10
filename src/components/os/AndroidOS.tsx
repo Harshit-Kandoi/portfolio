@@ -759,7 +759,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
         ) : null}
 
         {/* ================= RECENTS TASK CAROUSEL SWITCHER ================= */}
-        {showRecents && !activeMobileApp && (
+        {showRecents && (
           <div className="flex-grow flex flex-col justify-between pt-6 pb-2 animate-fade-in h-full overflow-hidden relative">
             <div className="w-full flex flex-col items-center justify-center text-center px-4">
               <span className={`text-xs font-bold ${theme === 'light' ? 'text-gray-700' : 'text-gray-400'} uppercase tracking-widest block text-center`}>Active Background Apps</span>

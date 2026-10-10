@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { trackEvent } from '../../utils/analytics';
+import { PORTFOLIO_META } from '../../data/config';
 
 // ─── Interfaces & Decoupled View Model Architecture ───────────────────────────
 export interface ProjectItem {
@@ -968,7 +969,7 @@ export default function PortfolioSwipe(props?: { isMobileView?: boolean }) {
                 <span>Resume</span>
               </button>
               <button
-                onClick={() => window.open('https://linkedin.com', '_blank')}
+                onClick={() => window.open(PORTFOLIO_META.linkedin, '_blank')}
                 className="flex items-center justify-center space-x-1.5 bg-white/10 hover:bg-white/15 text-white border border-white/10 text-xs font-bold py-2.5 px-3 rounded-xl active:scale-95 transition shadow"
               >
                 <Linkedin className="w-3.5 h-3.5 text-blue-400" />

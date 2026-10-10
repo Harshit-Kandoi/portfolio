@@ -126,10 +126,10 @@ export default function MonitorWidget({ onLaunch, isDark = true }: Props) {
   };
 
   return (
-    <div className="flex flex-col items-center">
-      {/* Monitor body */}
+    <div className="flex flex-col items-center w-full">
+      {/* Monitor body — fills its column up to 520px so it never spills past the grid */}
       <div
-        className="relative group cursor-pointer select-none"
+        className="relative group cursor-pointer select-none w-full max-w-[520px]"
         onClick={handleLaunch}
         style={{ filter: launching ? 'none' : undefined }}
       >
@@ -137,7 +137,7 @@ export default function MonitorWidget({ onLaunch, isDark = true }: Props) {
         <div
           className="relative rounded-2xl overflow-hidden transition-all duration-500"
           style={{
-            width: 'min(520px, 88vw)',
+            width: '100%',
             background: 'linear-gradient(145deg, #1a1a2e 0%, #111127 50%, #0d0d1e 100%)',
             padding: '10px 10px 28px 10px',
             boxShadow: launching

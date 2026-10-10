@@ -9,8 +9,7 @@ export const projects: Project[] = [
     image: "https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
     category: ["Products & Software"],
     technologies: ["React", "TypeScript", "Zustand", "Tailwind CSS", "Vite"],
-    // github: "https://github.com/Harshit-Kandoi/portfolio",
-    demo: "https://harshitkandoi.in",
+    github: "https://github.com/Harshit-Kandoi/portfolio",
     featured: true,
     duration: "Ongoing",
     status: "⭐ Flagship (Beta)"
@@ -35,7 +34,7 @@ export const projects: Project[] = [
     image: "https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
     category: ["Products & Software", "AI & Machine Learning"],
     technologies: ["AI", "Product Engineering", "Automation"],
-    github: "https://github.com/Harshit-Kandoi/ClearCue-AI",
+    demo: "https://www.harshitkandoi.in/clearcue-ai",
     featured: true,
     duration: "Ongoing",
     status: "Active Build"
@@ -47,7 +46,7 @@ export const projects: Project[] = [
     image: "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
     category: ["Products & Software"],
     technologies: ["Next.js", "React", "CSS", "Content Design"],
-    github: "https://github.com/Harshit-Kandoi/Company-page",
+    demo: "https://www.harshitkandoi.in",
     featured: true,
     duration: "Ongoing",
     status: "Active Build"

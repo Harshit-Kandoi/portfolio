@@ -56,8 +56,8 @@ const heroTabs = [
     id: 'now',
     label: 'Now',
     title: 'Associate Software Engineer',
-    meta: 'ThoughtIn Solutions · GCP · backend automation',
-    body: 'Building cloud-native workflows, API integrations, and internal systems that remove repetitive operational work.',
+    meta: 'ThoughtIn Solutions · Full stack · GCP',
+    body: 'Building React frontends, backend APIs, databases, and cloud workflows that remove repetitive operational work.',
   },
   {
     id: 'work',
@@ -83,7 +83,7 @@ const heroTabs = [
 ];
 
 const proofCards = [
-  { label: 'Current role', value: 'Associate Software Engineer', note: 'Backend, GCP, automation' },
+  { label: 'Current role', value: 'Associate Software Engineer', note: 'Frontend, backend, databases, GCP' },
   { label: 'Certification', value: 'System Design + Google ACE', note: 'Architecture and cloud proof' },
   { label: 'Education', value: 'M.Tech AI & ML', note: 'BITS Pilani distance program' },
   { label: 'Availability', value: 'Open', note: 'Freelance and recruiter conversations' },
@@ -159,7 +159,7 @@ function Hero({ onLaunch }: { onLaunch: (rect?: DOMRect) => void }) {
         </div>
 
         <p className="minimal-eyebrow">Full Stack Software Engineer</p>
-        <h1>Harshit Kandoi builds backend automation, cloud workflows, AI tools, and useful web apps.</h1>
+        <h1>Harshit Kandoi builds full stack web apps, cloud workflows, and AI tools.</h1>
         <p className="minimal-hero-lead">
           I work across Python, Java, React, GCP, and data-heavy systems to turn messy processes into software that
           teams can trust.
@@ -526,7 +526,7 @@ function ContactSection() {
   );
 }
 
-function LabSection({ onLaunch }: { onLaunch: (rect: DOMRect) => void }) {
+function LabSection({ onLaunch, isDark }: { onLaunch: (rect: DOMRect) => void; isDark: boolean }) {
   return (
     <section id="lab" className="minimal-section minimal-lab-section">
       <div className="minimal-lab-copy">
@@ -537,7 +537,7 @@ function LabSection({ onLaunch }: { onLaunch: (rect: DOMRect) => void }) {
           portfolio interface.
         </p>
       </div>
-      <MonitorWidget onLaunch={onLaunch} isDark />
+      <MonitorWidget onLaunch={onLaunch} isDark={isDark} />
     </section>
   );
 }
@@ -558,6 +558,41 @@ export default function ClassicPortfolio({ onTransition }: { onTransition: (rect
     });
   }, []);
 
+  // Shared links like /#contact still land on the section, then the hash is dropped
+  // so the URL stays in sync with the navbar (which never writes a hash).
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (!id) return;
+    // 'instant' overrides the global smooth scroll-behavior so the jump isn't animated.
+    const jump = () => document.getElementById(id)?.scrollIntoView({ behavior: 'instant', block: 'start' });
+    jump();
+    window.history.replaceState(window.history.state, '', window.location.pathname + window.location.search);
+    // Content above the target keeps growing briefly after mount; stay aligned while it settles.
+    const resizeObserver = new ResizeObserver(jump);
+    resizeObserver.observe(document.body);
+    const stop = () => resizeObserver.disconnect();
+    const timer = window.setTimeout(stop, 4000);
+    window.addEventListener('wheel', stop, { once: true, passive: true });
+    window.addEventListener('touchstart', stop, { once: true, passive: true });
+    window.addEventListener('keydown', stop, { once: true });
+    return () => {
+      stop();
+      window.clearTimeout(timer);
+      window.removeEventListener('wheel', stop);
+      window.removeEventListener('touchstart', stop);
+      window.removeEventListener('keydown', stop);
+    };
+  }, []);
+
+  // In-page anchors scroll smoothly without adding a hash or a history entry.
+  const handleAnchorClick = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+    const anchor = (event.target as HTMLElement).closest<HTMLAnchorElement>('a[href^="#"]');
+    const target = anchor && document.getElementById(anchor.getAttribute('href')!.slice(1));
+    if (!target) return;
+    event.preventDefault();
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, []);
+
   const handleLaunch = useCallback((rect?: DOMRect) => {
     const fallback = rect || new DOMRect(window.innerWidth / 2 - 130, window.innerHeight / 2 - 80, 260, 160);
     setTransitionRect(fallback);
@@ -565,7 +600,7 @@ export default function ClassicPortfolio({ onTransition }: { onTransition: (rect
   }, [onTransition]);
 
   return (
-    <div className={`minimal-portfolio ${theme === 'dark' ? 'theme-dark' : 'theme-light'}`}>
+    <div className={`minimal-portfolio ${theme === 'dark' ? 'theme-dark' : 'theme-light'}`} onClick={handleAnchorClick}>
       <ClassicNavbar
         activeSection={activeSection}
         onEnterOS={handleLaunch}
@@ -581,7 +616,7 @@ export default function ClassicPortfolio({ onTransition }: { onTransition: (rect
         <ExperienceSection />
         <ProcessSection />
         <ContactSection />
-        <LabSection onLaunch={(rect) => handleLaunch(rect)} />
+        <LabSection onLaunch={(rect) => handleLaunch(rect)} isDark={theme === 'dark'} />
       </main>
 
       {transitionRect && <OSTransitionOverlay initialRect={transitionRect} />}

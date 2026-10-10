@@ -327,7 +327,7 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
               <div className="grid grid-cols-3 gap-2 text-[10px]">
                 <div className={`p-2.5 rounded-lg border ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-white/5 border-white/5'}`}>
                   <span className={`block text-[8px] uppercase tracking-wider ${isLight ? 'text-slate-600 font-bold' : 'text-gray-400'}`}>Role</span>
-                  <span className={`font-bold mt-0.5 block ${isLight ? 'text-slate-900' : 'text-white'}`}>{selectedProject.role}</span>
+                  <span className={`font-bold mt-0.5 block ${isLight ? 'text-slate-900' : 'text-white'}`}>{selectedProject.role || '—'}</span>
                 </div>
                 <div className={`p-2.5 rounded-lg border ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-white/5 border-white/5'}`}>
                   <span className={`block text-[8px] uppercase tracking-wider ${isLight ? 'text-slate-600 font-bold' : 'text-gray-400'}`}>Duration</span>

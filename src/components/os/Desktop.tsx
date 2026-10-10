@@ -77,31 +77,19 @@ export default function Desktop() {
     'System halted.',
   ];
 
-  // Update clocks and system monitors
+  // Update clock
   useEffect(() => {
     const clockTimer = setInterval(() => setSysTime(new Date()), 1000);
-    const cpuTimer = setInterval(() => {
-      setCpuUsage((prev) => {
-        const delta = Math.floor(Math.random() * 7) - 3;
-        return Math.max(10, Math.min(90, prev + delta));
-      });
-      setRamUsage((prev) => {
-        const delta = Math.floor(Math.random() * 3) - 1;
-        return Math.max(30, Math.min(85, prev + delta));
-      });
-    }, 4000);
-
-    return () => {
-      clearInterval(clockTimer);
-      clearInterval(cpuTimer);
-    };
+    return () => clearInterval(clockTimer);
   }, []);
 
   // Keyboard Navigation / Shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Escape closes focused window
-      if (e.key === 'Escape') {
+      // Escape closes focused window (but not while typing in Terminal/AI inputs)
+      const target = e.target as HTMLElement | null;
+      const isTyping = !!target && (target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName));
+      if (e.key === 'Escape' && !isTyping) {
         const activeId = useOSStore.getState().activeWindowId;
         if (activeId) {
           e.preventDefault();
