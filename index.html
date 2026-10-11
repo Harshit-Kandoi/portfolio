@@ -5,47 +5,46 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- Primary Meta Tags -->
-    <title>Harshit Kandoi — Full Stack Engineer & Google Cloud ACE</title>
-    <meta name="description" content="Full Stack Software Engineer and Google Cloud ACE building cloud-native systems, AI proof-of-concepts, backend automation, and practical product workflows." />
-    <meta name="keywords" content="Harshit Kandoi, Full Stack Software Engineer, Google Cloud ACE, GCP, Python, Java, React, AI, Backend Developer, Portfolio" />
+    <!-- Primary Meta Tags (keep in sync with src/data/config.ts — checked by src/__tests__/seo.test.ts) -->
+    <title>Harshit Kandoi — Software Engineer · Full Stack &amp; Google Cloud</title>
+    <meta name="description" content="Harshit Kandoi is an Associate Software Engineer at ThoughtIn Solutions, building full stack web apps, Google Cloud workflows and AI tools with React, Python and Java." />
     <meta name="author" content="Harshit Kandoi" />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://harshitkandoi.in/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <link rel="canonical" href="https://www.harshitkandoi.in/portfolio/" />
 
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://harshitkandoi.in/" />
-    <meta property="og:title" content="Harshit Kandoi — Full Stack Engineer & Google Cloud ACE" />
-    <meta property="og:description" content="Full Stack Software Engineer and Google Cloud ACE building cloud-native systems, AI proof-of-concepts, backend automation, and practical product workflows." />
-    <meta property="og:image" content="https://harshitkandoi.in/og-preview.png" />
+    <!-- Open Graph -->
+    <meta property="og:type" content="profile" />
+    <meta property="og:url" content="https://www.harshitkandoi.in/portfolio/" />
+    <meta property="og:title" content="Harshit Kandoi — Software Engineer · Full Stack &amp; Google Cloud" />
+    <meta property="og:description" content="Harshit Kandoi is an Associate Software Engineer at ThoughtIn Solutions, building full stack web apps, Google Cloud workflows and AI tools with React, Python and Java." />
+    <meta property="og:image" content="https://www.harshitkandoi.in/portfolio/og-preview.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Harshit Kandoi — Full Stack Engineer & Google Cloud ACE" />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:image:alt" content="Harshit Kandoi — Software Engineer portfolio" />
+    <meta property="og:locale" content="en_IN" />
     <meta property="og:site_name" content="Harshit Kandoi" />
+    <meta property="profile:first_name" content="Harshit" />
+    <meta property="profile:last_name" content="Kandoi" />
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@Harshit78500" />
     <meta name="twitter:creator" content="@Harshit78500" />
-    <meta name="twitter:url" content="https://harshitkandoi.in/" />
-    <meta name="twitter:title" content="Harshit Kandoi — Full Stack Engineer & Google Cloud ACE" />
-    <meta name="twitter:description" content="Full Stack Software Engineer and Google Cloud ACE building cloud-native systems, AI proof-of-concepts, backend automation, and practical product workflows." />
-    <meta name="twitter:image" content="https://harshitkandoi.in/og-preview.png" />
-    <meta name="twitter:image:alt" content="Harshit Kandoi — Full Stack Engineer & Google Cloud ACE" />
+    <meta name="twitter:title" content="Harshit Kandoi — Software Engineer · Full Stack &amp; Google Cloud" />
+    <meta name="twitter:description" content="Harshit Kandoi is an Associate Software Engineer at ThoughtIn Solutions, building full stack web apps, Google Cloud workflows and AI tools with React, Python and Java." />
+    <meta name="twitter:image" content="https://www.harshitkandoi.in/portfolio/og-preview.png" />
+    <meta name="twitter:image:alt" content="Harshit Kandoi — Software Engineer portfolio" />
 
     <!-- PWA Manifest & Theme -->
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#07070a" />
+    <meta name="theme-color" content="#f7f4ed" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Portfolio OS" />
     <meta name="mobile-web-app-capable" content="yes" />
 
-    <!-- Preload Hero Lockscreen Assets to Optimize LCP -->
-    <link rel="preload" as="image" href="/wallpaper.webp" type="image/webp" fetchpriority="high" />
-    <link rel="preload" as="image" href="/profile.webp" type="image/webp" fetchpriority="high" />
+    <!-- Profile photo is in the classic hero card -->
+    <link rel="preload" as="image" href="/profile.webp" type="image/webp" />
 
     <!-- Fonts and Icons: preload then swap in async to avoid render-blocking -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -55,82 +54,72 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
 
-    <!-- Structured Data (JSON-LD) -->
+    <!-- Structured Data (JSON-LD): ProfilePage + Person -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Harshit Kandoi",
-      "jobTitle": "Full Stack Software Engineer",
-      "description": "Full Stack Software Engineer and Google Cloud ACE building cloud-native systems, AI proof-of-concepts, backend automation, and practical product workflows.",
-      "email": "hello@harshitkandoi.in",
-      "url": "https://harshitkandoi.in/",
-      "image": "https://harshitkandoi.in/og-preview.png",
-      "worksFor": {
-        "@type": "Organization",
-        "name": "ThoughtIn Solutions"
-      },
-      "sameAs": [
-        "https://github.com/Harshit-Kandoi",
-        "https://linkedin.com/in/harshit-kandoi",
-        "https://x.com/Harshit78500",
-        "https://medium.com/@kandoiharshitsdlp"
-      ],
-      "knowsAbout": [
-        "Software Engineering",
-        "Full Stack Development",
-        "Google Cloud Platform (GCP)",
-        "Python",
-        "Java",
-        "React",
-        "Machine Learning",
-        "AI & Automation",
-        "Event-driven Architecture"
-      ]
+      "@type": "ProfilePage",
+      "url": "https://www.harshitkandoi.in/portfolio/",
+      "name": "Harshit Kandoi — Portfolio",
+      "mainEntity": {
+        "@type": "Person",
+        "@id": "https://www.harshitkandoi.in/portfolio/#person",
+        "name": "Harshit Kandoi",
+        "jobTitle": "Associate Software Engineer",
+        "description": "Full stack software engineer working with React, Python, Java and Google Cloud.",
+        "url": "https://www.harshitkandoi.in/portfolio/",
+        "image": "https://www.harshitkandoi.in/portfolio/profile.webp",
+        "email": "mailto:hello@harshitkandoi.in",
+        "address": { "@type": "PostalAddress", "addressLocality": "Jaipur", "addressRegion": "Rajasthan", "addressCountry": "IN" },
+        "worksFor": { "@type": "Organization", "name": "ThoughtIn Solutions" },
+        "alumniOf": [
+          { "@type": "CollegeOrUniversity", "name": "B.K. Birla Institute of Engineering and Technology" }
+        ],
+        "hasCredential": [
+          { "@type": "EducationalOccupationalCredential", "name": "Google Associate Cloud Engineer", "credentialCategory": "certification" }
+        ],
+        "sameAs": [
+          "https://github.com/Harshit-Kandoi",
+          "https://linkedin.com/in/harshit-kandoi",
+          "https://medium.com/@kandoiharshitsdlp",
+          "https://x.com/Harshit78500"
+        ],
+        "knowsAbout": ["Full Stack Development", "React", "Python", "Java", "Google Cloud Platform", "Cloud Functions", "Pub/Sub", "Firestore", "Machine Learning"]
+      }
     }
     </script>
   </head>
   <body>
-    <!-- Fallback SEO content for crawler indexing -->
+    <!-- Fallback content for crawlers and visitors without JavaScript -->
     <noscript>
-      <div style="padding: 20px; font-family: sans-serif; max-width: 800px; margin: 0 auto; line-height: 1.6;">
-        <h1>Harshit Kandoi | Full Stack Software Engineer | Google Cloud Certified (ACE)</h1>
-        <p>Harshit Kandoi is a Full Stack Software Engineer and Google Associate Cloud Engineer (ACE). He specializes in Python, Java, React, cloud-native services on Google Cloud Platform (GCP), event-driven automation, and AI proof-of-concepts.</p>
-        
-        <h2>Professional Experience</h2>
+      <main style="padding: 20px; font-family: sans-serif; max-width: 800px; margin: 0 auto; line-height: 1.6;">
+        <h1>Harshit Kandoi — Associate Software Engineer</h1>
+        <p>Full stack software engineer at ThoughtIn Solutions in Jaipur, India, working across React, JavaScript, Python, Java, databases and Google Cloud (Cloud Functions, Pub/Sub, Firestore). Google Associate Cloud Engineer.</p>
+
+        <h2>Experience</h2>
         <ul>
-          <li>
-            <strong>Associate Software Engineer at ThoughtIn Solutions</strong>
-            <p>Develops and supports full-stack business applications using React, JavaScript, Java, Python, and GCP. Builds event-driven cloud workflows, AI proof-of-concepts, and internal analytics/reporting tools for business operations.</p>
-          </li>
+          <li><strong>Associate Software Engineer, ThoughtIn Solutions</strong> (Aug 2025 – present): full stack business applications, event-driven GCP workflows, AI proof-of-concepts and an internal analytics and reporting tool.</li>
+          <li><strong>Software Engineer Intern, ThoughtIn Solutions</strong> (May – Aug 2025): backend services and cloud workflows with Python, Cloud Functions, Pub/Sub, Firestore and App Engine.</li>
+          <li><strong>AI Intern (Computer Vision), Anantagni Industries</strong> (Apr – Jul 2025): YOLO-based plastic waste classification.</li>
+          <li><strong>Data Science Intern, Upflairs</strong> (Jun – Aug 2024): crop classification models and ML workflows.</li>
         </ul>
 
         <h2>Education</h2>
         <ul>
-          <li><strong>M.Tech. Artificial Intelligence & Machine Learning</strong>: BITS Pilani Distance Program, Oct 2026 - Present.</li>
-          <li><strong>B.Tech. CSE (Data Science)</strong>: B.K. Birla Institute of Engineering and Technology, 2021 - 2025.</li>
+          <li>M.Tech. Artificial Intelligence &amp; Machine Learning, BITS Pilani (distance), Oct 2026 – present</li>
+          <li>B.Tech. CSE (Data Science), B.K. Birla Institute of Engineering and Technology, 2021 – 2025</li>
         </ul>
 
-        <h2>Technical Skills</h2>
+        <h2>Selected projects</h2>
         <ul>
-          <li><strong>Languages</strong>: Python, Java, JavaScript, SQL</li>
-          <li><strong>Backend & Databases</strong>: REST APIs, API integration, Flask, Firestore, MySQL, SQLAlchemy</li>
-          <li><strong>Cloud & Infrastructure</strong>: Google Cloud Platform (GCP), Firestore, Pub/Sub, Cloud Functions, Docker, CI/CD, Git/GitHub</li>
-          <li><strong>AI, ML & Automation</strong>: PyTorch, TensorFlow, YOLOv5, computer vision, OpenCV, Deep Q-Learning (RL), LLM Prompt Engineering, Web Scraping (Selenium)</li>
+          <li><strong>Portfolio OS</strong>: this site — a scrollable portfolio with an optional desktop-style interactive mode.</li>
+          <li><strong>Financial Mirror</strong>: AI-assisted personal finance awareness product (beta).</li>
+          <li><strong>Local GCP Emulator</strong>: local stand-ins for Google Cloud services for offline development.</li>
+          <li><strong>Reinforcement learning agents</strong>: Snake and Doom agents trained with deep Q-learning.</li>
         </ul>
 
-        <h2>Featured Software Engineering Projects</h2>
-        <ul>
-          <li><strong>Local GCP Emulator</strong>: Docker container offline infrastructure simulating Firestore and Pub/Sub queues for local development.</li>
-          <li><strong>ASL Sign Language Detection</strong>: Custom YOLOv5 computer vision model with 90%+ real-time accuracy.</li>
-          <li><strong>Doom Deep Q-Learning Agent</strong>: Deep reinforcement learning agent trained to navigate complex game maps.</li>
-          <li><strong>Movie Recommender System</strong>: Hybrid SVD collaborative and content filtering engine.</li>
-          <li><strong>Portfolio OS</strong>: Interactive desktop-style portfolio with 10+ applets and animations.</li>
-          <li><strong>Real-time Face Recognition</strong>: Multi-face detection and recognition using OpenCV and Haar Cascades.</li>
-        </ul>
-        <!-- <h2>Publications & Articles</h2> -->
-        <!-- <p>Author of technical articles on Towards Artificial Intelligence covering Mojo for AI development, custom Large Language Models (LoRA), Docker virtualization guide, and Rust-powered next-gen package management (UV).</p> -->
-      </div>
+        <p>Contact: <a href="mailto:hello@harshitkandoi.in">hello@harshitkandoi.in</a> · <a href="https://github.com/Harshit-Kandoi">GitHub</a> · <a href="https://linkedin.com/in/harshit-kandoi">LinkedIn</a></p>
+      </main>
     </noscript>
 
     <div id="root"></div>

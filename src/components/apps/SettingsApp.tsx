@@ -5,14 +5,14 @@ import {
 } from '../../store/useOSStore';
 import {
   Monitor, Volume2, Palette, ShieldAlert, Smartphone, Cpu,
-  CheckCircle2, Sun, RefreshCw, Sparkles, Zap, Layers,
+  CheckCircle2, Sun, Zap, Layers,
   Layout, Gauge, Keyboard, Database, RotateCcw, Code2,
   Settings, ChevronRight, Play, BarChart2
 } from 'lucide-react';
 import { playThemeSwitchSound, playVolumePreviewSound, playClickSound } from '../../utils/sounds';
 import { APP_VERSION } from '../../data/config';
+import { useDeviceBattery } from '../../hooks/useDeviceBattery';
 
-type UpdateState = 'idle' | 'checking' | 'done';
 type Section =
   | 'appearance' | 'audio' | 'display' | 'desktop'
   | 'performance' | 'emulator' | 'keyboard' | 'session'
@@ -125,22 +125,11 @@ function MobileSettingsView() {
     theme, setTheme, wallpaper, setWallpaper,
     soundEnabled, setSoundEnabled, volume, setVolume,
     mobileBrightness, setMobileBrightness,
-    batteryLevel, batteryCharging, batterySaver, setBatterySaver,
+    batterySaver, setBatterySaver,
   } = useOSStore();
+  const battery = useDeviceBattery();
 
-  const [updateState, setUpdateState] = useState<UpdateState>('idle');
-  const [screenTimeout, setScreenTimeout] = useState<'30s' | '1m' | '2m' | '5m' | 'never'>('2m');
   const volumeThrottleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const estHours = batterySaver
-    ? Math.max(1, Math.round((batteryLevel / 100) * 22))
-    : Math.max(1, Math.round((batteryLevel / 100) * 16));
-
-  const handleCheckUpdate = () => {
-    if (updateState !== 'idle') return;
-    setUpdateState('checking');
-    setTimeout(() => setUpdateState('done'), 2200);
-  };
 
   const handleVolumeChange = (v: number) => {
     setVolume(v);
@@ -159,20 +148,13 @@ function MobileSettingsView() {
     { title: 'Resume', cat: 'System' },
     { title: 'Terminal', cat: 'Dev' },
     { title: 'AI Assistant', cat: 'Social' },
-    { title: 'Tech Blog', cat: 'Social' },
+    { title: 'Writing', cat: 'Social' },
     { title: 'Badges', cat: 'Gaming' },
-    { title: 'Gaming OS', cat: 'Gaming' },
-    { title: 'Snake 3310', cat: 'Gaming' },
+    { title: 'Arcade', cat: 'Gaming' },
     { title: 'Swipe Match', cat: 'Social' },
-    { title: 'Buy Coffee', cat: 'System' },
     { title: 'Say Hello', cat: 'Social' },
     { title: 'Settings', cat: 'System' },
-    { title: 'Library', cat: 'System' },
-    { title: 'Notes', cat: 'Work' },
-    // { title: 'Gallery', cat: 'System' },
     { title: 'Products', cat: 'Work' },
-    // { title: 'Publications', cat: 'Social' },
-    // { title: 'Marketplace', cat: 'System' },
   ];
 
   return (
@@ -218,22 +200,6 @@ function MobileSettingsView() {
           }} />
         </div>
 
-        {/* Screen Timeout */}
-        <div className="space-y-1.5 pt-1 border-t border-white/5">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Screen Timeout</p>
-          <div className="grid grid-cols-5 gap-1">
-            {(['30s', '1m', '2m', '5m', 'never'] as const).map(t => (
-              <button key={t} onClick={() => setScreenTimeout(t)}
-                className={`py-1.5 rounded-lg text-[10px] font-semibold border text-center transition-all ${
-                  screenTimeout === t
-                    ? 'bg-purple-600/25 border-purple-500 text-white'
-                    : 'bg-black/20 border-white/5 text-gray-400 hover:bg-white/5'
-                }`}>
-                {t === 'never' ? 'Never' : t}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* 2. Sound */}
@@ -323,10 +289,13 @@ function MobileSettingsView() {
           </div>
           <ToggleSwitch id="mobile-battery-saver" checked={batterySaver} onChange={() => setBatterySaver(!batterySaver)} />
         </div>
-        <div className="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-lg flex items-center justify-between text-[10px]">
-          <span className="font-semibold text-emerald-300">Status: {batteryLevel}% · {batteryCharging ? 'Charging' : 'Discharging'}</span>
-          <span className={`${batterySaver ? 'text-emerald-400 font-bold' : 'text-gray-400'}`}>~{estHours} hrs remaining{batterySaver ? ' (Saver Active)' : ''}</span>
-        </div>
+        {/* Real device battery (Chromium only); hidden where the browser doesn't expose it. */}
+        {battery && (
+          <div className="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-lg flex items-center justify-between text-[10px]">
+            <span className="font-semibold text-emerald-300">Device battery: {battery.level}% · {battery.charging ? 'Charging' : 'On battery'}</span>
+            {batterySaver && <span className="text-emerald-400 font-bold">Saver active</span>}
+          </div>
+        )}
       </div>
 
       {/* 6. About Device */}
@@ -364,13 +333,7 @@ function MobileSettingsView() {
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             <p className="text-[11px] font-bold text-white">Portfolio OS v{APP_VERSION}</p>
           </div>
-          <p className="text-[9px] text-emerald-300 font-semibold">System is up to date</p>
-          <button onClick={handleCheckUpdate} disabled={updateState !== 'idle'}
-            className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 disabled:opacity-60 text-white text-[10px] font-bold py-1.5 px-3 rounded-lg transition self-start flex items-center space-x-1.5">
-            {updateState === 'checking' && <RefreshCw className="w-3 h-3 animate-spin" />}
-            {updateState === 'done' && <CheckCircle2 className="w-3 h-3 text-white" />}
-            <span>{updateState === 'checking' ? 'Checking…' : updateState === 'done' ? 'All Good!' : 'Check Update'}</span>
-          </button>
+          <p className="text-[9px] text-emerald-300 font-semibold">You&apos;re on v{APP_VERSION}, the version currently deployed.</p>
         </div>
       </div>
 
@@ -388,26 +351,17 @@ function DesktopSettingsView() {
     dockSize, setDockSize,
     performanceMode, setPerformanceMode,
     accentColor, setAccentColor,
-    sessionRestore, setSessionRestore,
     showFPS, setShowFPS,
-    debugMode, setDebugMode,
     showWindowBounds, setShowWindowBounds,
     viewMode, isSimulatingMobile, setIsSimulatingMobile,
     layoutOverride, setLayoutOverride,
     resetDesktop,
   } = useOSStore();
 
-  const [updateState, setUpdateState] = useState<UpdateState>('idle');
   const [activeSection, setActiveSection] = useState<Section>('appearance');
   const [versionClickCount, setVersionClickCount] = useState(0);
   const [devUnlocked, setDevUnlocked] = useState(false);
   const volumeThrottleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleCheckUpdate = () => {
-    if (updateState !== 'idle') return;
-    setUpdateState('checking');
-    setTimeout(() => setUpdateState('done'), 2200);
-  };
 
   const handleVolumeChange = (v: number) => {
     setVolume(v);
@@ -905,19 +859,8 @@ function DesktopSettingsView() {
             <SectionTitle label="Session & Reset" icon={Database} />
 
             <div className={`p-4 rounded-2xl border space-y-5 ${cardBg}`}>
-              {/* Session restore */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-white">Restore Previous Session</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5 max-w-xs leading-normal">
-                    When enabled, your window positions and last opened apps are remembered between visits.
-                  </p>
-                </div>
-                <ToggleSwitch id="session-restore-toggle" checked={sessionRestore} onChange={() => setSessionRestore(!sessionRestore)} />
-              </div>
-
               {/* Reset Desktop */}
-              <div className="border-t border-white/5 pt-4 space-y-3">
+              <div className="space-y-3">
                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Reset Desktop</p>
                 <div className={`p-3 rounded-xl bg-red-950/20 border border-red-500/15 text-[10px] text-gray-400 leading-relaxed space-y-1`}>
                   <p>Performing a desktop reset will:</p>
@@ -954,7 +897,6 @@ function DesktopSettingsView() {
               {[
                 { label: 'Show FPS Counter',     desc: 'Displays live frames per second in the top-right corner',       checked: showFPS,         onChange: () => { setShowFPS(!showFPS); playClickSound(); } },
                 { label: 'Show Window Bounds',   desc: 'Outlines all active windows with a red debug border',            checked: showWindowBounds, onChange: () => { setShowWindowBounds(!showWindowBounds); playClickSound(); } },
-                { label: 'Debug Mode',           desc: 'Enables console logging and verbose error output in DevTools',   checked: debugMode,       onChange: () => { setDebugMode(!debugMode); playClickSound(); } },
               ].map((item, i) => (
                 <div key={i} className={`flex items-center justify-between ${i > 0 ? 'border-t border-white/5 pt-4' : ''}`}>
                   <div>
@@ -983,7 +925,7 @@ function DesktopSettingsView() {
                       uiScale: state.uiScale, windowAnimation: state.windowAnimation,
                       dockSize: state.dockSize, performanceMode: state.performanceMode,
                       accentColor: state.accentColor, volume: state.volume,
-                      soundEnabled: state.soundEnabled, sessionRestore: state.sessionRestore,
+                      soundEnabled: state.soundEnabled,
                     };
                     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
@@ -1007,7 +949,7 @@ function DesktopSettingsView() {
         {/* ── SYSTEM UPDATE ──────────────────────────────────────────── */}
         {activeSection === 'system' && (
           <div className="space-y-5">
-            <SectionTitle label="System Update & Device Info" icon={Cpu} />
+            <SectionTitle label="Version" icon={Cpu} />
 
             <div className={`p-4 rounded-2xl border space-y-4 ${cardBg}`}>
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-emerald-500/5 border border-emerald-500/10 p-4 rounded-xl">
@@ -1016,34 +958,9 @@ function DesktopSettingsView() {
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <h4 className="text-xs font-bold text-white">Portfolio OS v{APP_VERSION}</h4>
                   </div>
-                  <p className="text-[10px] text-emerald-300 font-semibold">System is up to date</p>
-                  <p className="text-[9.5px] text-gray-500">Security patch: July 2026 · Jaipur, Rajasthan</p>
+                  <p className="text-[10px] text-emerald-300 font-semibold">You&apos;re on v{APP_VERSION}, the version currently deployed.</p>
                 </div>
-                <button
-                  onClick={handleCheckUpdate}
-                  disabled={updateState !== 'idle'}
-                  className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 disabled:opacity-60 text-white text-[11px] font-bold py-2 px-4 rounded-xl transition flex items-center space-x-2 shrink-0"
-                >
-                  {updateState === 'checking' && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
-                  {updateState === 'done' && <CheckCircle2 className="w-3.5 h-3.5" />}
-                  <span>{updateState === 'checking' ? 'Checking…' : updateState === 'done' ? 'All Good!' : 'Check for Update'}</span>
-                </button>
               </div>
-
-              {updateState === 'done' && (
-                <div className="bg-emerald-950/30 border border-emerald-500/15 rounded-xl p-4 flex items-start space-x-3 animate-fade-in">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0">
-                    <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-emerald-300">✅ You're all up to date!</p>
-                    <p className="text-[10.5px] text-gray-400 leading-relaxed max-w-sm">
-                      Harshit is continuously shipping new skills, projects, and ideas. Check back soon for the next update!
-                    </p>
-                    <p className="text-[9.5px] text-gray-500 italic">Last sync: Portfolio OS v{APP_VERSION} · July 2026</p>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}

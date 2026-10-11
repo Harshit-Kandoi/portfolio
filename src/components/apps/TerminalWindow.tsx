@@ -3,6 +3,8 @@ import { useOSStore, AppTheme } from '../../store/useOSStore';
 import { playTerminalClick } from '../../utils/sounds';
 import { trackEvent } from '../../utils/analytics';
 import { formatUptimeHuman } from '../../utils/system';
+import { APP_VERSION, PORTFOLIO_META } from '../../data/config';
+import { experience } from '../../data/experience';
 
 interface HistoryItem {
   command: string;
@@ -10,6 +12,59 @@ interface HistoryItem {
 }
 
 const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+
+// Targets for `open <name>`: app ids (merged-app aliases like 'blog' still work) or external links.
+const OPEN_TARGETS: Record<string, { label: string; app?: string; url?: string }> = {
+  about: { label: 'About.exe', app: 'about' },
+  projects: { label: 'Projects.exe', app: 'projects' },
+  experience: { label: 'Experience.exe', app: 'experience' },
+  skills: { label: 'Skills.exe', app: 'skills' },
+  resume: { label: 'Resume.pdf', app: 'resume' },
+  contact: { label: 'Contact.exe', app: 'contact' },
+  certifications: { label: 'Certifications.exe', app: 'achievements' },
+  arcade: { label: 'Arcade.exe', app: 'arcade' },
+  snake: { label: 'Arcade.exe (Snake)', app: 'snake' },
+  writing: { label: 'Writing.exe', app: 'writing' },
+  blog: { label: 'Writing.exe (Blog)', app: 'blog' },
+  notes: { label: 'Writing.exe (Notes)', app: 'notes' },
+  products: { label: 'Products.exe', app: 'products' },
+  settings: { label: 'Settings.exe', app: 'settings' },
+  ai: { label: 'AI Assistant', app: 'ai' },
+  github: { label: PORTFOLIO_META.github, url: PORTFOLIO_META.github },
+  linkedin: { label: PORTFOLIO_META.linkedin, url: PORTFOLIO_META.linkedin },
+  medium: { label: PORTFOLIO_META.medium, url: PORTFOLIO_META.medium },
+};
+
+/** `ping` can't send ICMP from a browser; this measures a real HTTP round-trip to this site instead. */
+function HttpPing({ target }: { target: string }) {
+  const origin = window.location.origin;
+  const [result, setResult] = useState<string>('measuring...');
+
+  useEffect(() => {
+    let cancelled = false;
+    const start = performance.now();
+    fetch(`${origin}/?ping=${Date.now()}`, { method: 'HEAD', cache: 'no-store' })
+      .then((res) => {
+        if (!cancelled) setResult(`HTTP ${res.status} in ${Math.round(performance.now() - start)} ms`);
+      })
+      .catch(() => {
+        if (!cancelled) setResult('request failed (offline?)');
+      });
+    return () => { cancelled = true; };
+  }, [origin]);
+
+  return (
+    <div className="space-y-0.5 text-gray-400 text-[11px]">
+      {target && (
+        <p>
+          ping: browsers can&apos;t send ICMP, so {target} can&apos;t be pinged from here. Try{' '}
+          <span className="text-yellow-300">open github</span>.
+        </p>
+      )}
+      <p>HTTP round-trip to {origin}: <span className="text-emerald-300 font-bold">{result}</span></p>
+    </div>
+  );
+}
 
 export default function TerminalWindow({ isMobileView }: { isMobileView?: boolean } = {}) {
   const { openWindow, setTheme, addTerminalCommand, viewMode, isSimulatingMobile, theme } = useOSStore();
@@ -21,7 +76,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
       command: 'system_init',
       output: (
         <div className={isLight ? 'text-slate-800 font-medium' : 'text-gray-400'}>
-          Welcome to Harshit-OS v2.0.0 Terminal. Type{' '}
+          Welcome to Harshit-OS v{APP_VERSION} Terminal. Type{' '}
           <span className={isLight ? 'text-purple-700 font-bold' : 'text-yellow-400'}>help</span> for a list of available commands.
           <br />
           <span className={`text-[10px] ${isLight ? 'text-slate-600 font-semibold' : 'text-gray-600'}`}>
@@ -149,7 +204,6 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
               <div className="space-y-1">
                 <p className="text-green-400 font-bold animate-pulse">🔓 DEVELOPER MODE UNLOCKED</p>
                 <p className="text-gray-400 text-[11px]">Welcome, engineer. You found it.</p>
-                <p className="text-gray-600 text-[10px]">XP +999 · Achievement: <span className="text-yellow-400">Up Up Down Down</span></p>
               </div>
             ),
           },
@@ -211,11 +265,14 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
           <div className={`grid grid-cols-2 sm:grid-cols-3 gap-2 ${isLight ? 'text-slate-800 font-medium' : 'text-green-400'}`}>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>help</span> - list commands</div>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>about</span> - profiles Harshit</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>experience</span> - work timeline</div>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>skills</span> - skills dashboard</div>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>projects</span> - open projects app</div>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>resume</span> - view resume PDF</div>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>github</span> - open profile</div>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>linkedin</span> - open LinkedIn</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>open [app]</span> - open an app/link</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>blog</span> - open Writing.exe</div>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>clear</span> - clear output</div>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>theme [name]</span> - set OS theme</div>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>contact</span> - open contact box</div>
@@ -225,8 +282,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>fortune</span> - developer quote</div>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>ascii</span> - retro logos</div>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>uptime</span> - session uptime</div>
-            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>ping [host]</span> - ping a host</div>
-            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>library</span> - view books read</div>
+            <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>ping</span> - HTTP latency</div>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>notes</span> - tech notes/wiki</div>
             <div><span className={`font-bold ${isLight ? 'text-purple-700' : 'text-yellow-300'}`}>products</span> - product list</div>
             <div className={`text-[10px] col-span-2 sm:col-span-3 pt-1 ${isLight ? 'text-slate-500 font-semibold' : 'text-gray-600'}`}>🥚 There may be hidden commands. Keep exploring.</div>
@@ -237,8 +293,8 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
       case 'about':
         output = (
           <div className="space-y-1">
-            <p className="text-yellow-300 font-bold">Harshit Kandoi - Software Engineer / AI / Cloud Developer</p>
-            <p className="text-emerald-200">Focuses on building robust local emulators, generative AI structures, and automation data pipelines.</p>
+            <p className="text-yellow-300 font-bold">{PORTFOLIO_META.name} - {PORTFOLIO_META.role} @ {PORTFOLIO_META.company}</p>
+            <p className="text-emerald-200">{PORTFOLIO_META.headline}</p>
             <p className="text-xs text-gray-400">Opening About.exe application...</p>
           </div>
         );
@@ -261,14 +317,60 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
         break;
 
       case 'github':
-        output = <p className="text-cyan-400 font-bold">Navigating to https://github.com/Harshit-Kandoi...</p>;
-        setTimeout(() => window.open('https://github.com/Harshit-Kandoi', '_blank'), 500);
+        output = <p className="text-cyan-400 font-bold">Navigating to {PORTFOLIO_META.github}...</p>;
+        setTimeout(() => window.open(PORTFOLIO_META.github, '_blank', 'noopener,noreferrer'), 500);
         break;
 
       case 'linkedin':
-        output = <p className="text-cyan-400 font-bold">Navigating to https://linkedin.com/in/harshit-kandoi...</p>;
-        setTimeout(() => window.open('https://linkedin.com/in/harshit-kandoi', '_blank'), 500);
+        output = <p className="text-cyan-400 font-bold">Navigating to {PORTFOLIO_META.linkedin}...</p>;
+        setTimeout(() => window.open(PORTFOLIO_META.linkedin, '_blank', 'noopener,noreferrer'), 500);
         break;
+
+      case 'experience': {
+        const work = experience.filter((e) => e.type === 'work');
+        const edu = experience.filter((e) => e.type === 'education');
+        output = (
+          <div className="space-y-1 text-emerald-200">
+            {work.map((e) => (
+              <p key={e.id}>
+                <span className="text-cyan-400">{e.period}</span>{' '}
+                <span className="text-yellow-300 font-bold">{e.role}</span> · {e.company}
+              </p>
+            ))}
+            <p className="text-gray-500 pt-1">-- education --</p>
+            {edu.map((e) => (
+              <p key={e.id}>
+                <span className="text-cyan-400">{e.period}</span> {e.role} · {e.company}
+              </p>
+            ))}
+            <p className="text-gray-500 text-[10px] pt-1">Run <span className="text-yellow-300">open experience</span> for details.</p>
+          </div>
+        );
+        break;
+      }
+
+      case 'blog':
+        output = <p className="text-emerald-200">Opening blog posts in Writing.exe...</p>;
+        setTimeout(() => openWindow('blog'), 600);
+        break;
+
+      case 'open': {
+        const target = OPEN_TARGETS[args[0] ?? ''];
+        if (!target) {
+          output = (
+            <p className="text-red-400">
+              open: unknown target{args[0] ? ` '${args[0]}'` : ''}. Options: {Object.keys(OPEN_TARGETS).join(', ')}
+            </p>
+          );
+        } else {
+          output = <p className="text-emerald-200">Opening {target.label}...</p>;
+          setTimeout(() => {
+            if (target.url) window.open(target.url, '_blank', 'noopener,noreferrer');
+            else if (target.app) openWindow(target.app);
+          }, 500);
+        }
+        break;
+      }
 
       case 'clear':
         setHistory([]);
@@ -295,14 +397,8 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
         setTimeout(() => openWindow('contact'), 600);
         break;
 
-      // Phase 3 commands
-      case 'library':
-        output = <p className="text-emerald-200">Opening Library.exe app...</p>;
-        setTimeout(() => openWindow('library'), 600);
-        break;
-
       case 'notes':
-        output = <p className="text-emerald-200">Opening Notes.exe app...</p>;
+        output = <p className="text-emerald-200">Opening dev notes in Writing.exe...</p>;
         setTimeout(() => openWindow('notes'), 600);
         break;
 
@@ -330,16 +426,17 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
             <div className="space-y-1">
               <div><span className="text-cyan-400 font-bold">harshit@portfolio-os</span></div>
               <div className="text-gray-500">-------------------------</div>
-              <div><span className="text-cyan-400">OS</span>: Developer Portfolio OS v2.4.0</div>
+              <div><span className="text-cyan-400">OS</span>: Portfolio OS v{APP_VERSION}</div>
               <div><span className="text-cyan-400">Kernel</span>: React 18 / Zustand / Tailwind v3</div>
               <div><span className="text-cyan-400">Uptime</span>: {formatUptimeHuman()}</div>
-              <div><span className="text-cyan-400">Shell</span>: zsh 5.9</div>
+              <div><span className="text-cyan-400">Shell</span>: portfolio-sh (simulated)</div>
               <div><span className="text-cyan-400">Resolution</span>: {window.innerWidth}x{window.innerHeight}</div>
               <div><span className="text-cyan-400">Theme</span>: {useOSStore.getState().theme.toUpperCase()}</div>
-              <div><span className="text-cyan-400">CPU</span>: Apple M2 Max (12 Cores)</div>
-              <div><span className="text-cyan-400">GPU</span>: Apple M2 Max (30 Cores)</div>
-              <div><span className="text-cyan-400">Developer</span>: Harshit Kandoi</div>
-              <div><span className="text-cyan-400">Role</span>: Software &amp; AI Engineer</div>
+              {navigator.hardwareConcurrency > 0 && (
+                <div><span className="text-cyan-400">CPU</span>: {navigator.hardwareConcurrency} logical cores (your device)</div>
+              )}
+              <div><span className="text-cyan-400">Developer</span>: {PORTFOLIO_META.name}</div>
+              <div><span className="text-cyan-400">Role</span>: {PORTFOLIO_META.role} @ {PORTFOLIO_META.company}</div>
             </div>
           </div>
         );
@@ -350,7 +447,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
           <div className="space-y-1 text-emerald-200">
             <p><span className="text-yellow-300 font-bold">User</span>: guest (External Recruiter/Visitor)</p>
             <p><span className="text-yellow-300 font-bold">Permissions</span>: Read-Only (Interactive Sandbox)</p>
-            <p><span className="text-yellow-300 font-bold">Active Shell</span>: zsh (simulated)</p>
+            <p><span className="text-yellow-300 font-bold">Active Shell</span>: portfolio-sh (simulated)</p>
             <p><span className="text-yellow-300 font-bold">Status</span>: Connected from {window.location.hostname || "local-recruiters"}</p>
           </div>
         );
@@ -390,10 +487,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
             <div>projects/</div>
             <div>resume_pdf</div>
             <div>contact_info/</div>
-            <div>library/</div>
             <div>notes/</div>
-            {/* <div>publications/</div> */}
-            {/* <div>marketplace/</div> */}
           </div>
         );
         break;
@@ -406,10 +500,11 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
         if (args[0] === 'about.txt') {
           output = (
             <div className="space-y-1 text-gray-300">
-              <p><span className="text-yellow-300">Name:</span> Harshit Kandoi</p>
-              <p><span className="text-yellow-300">Role:</span> Backend + AI + Cloud Engineer</p>
+              <p><span className="text-yellow-300">Name:</span> {PORTFOLIO_META.name}</p>
+              <p><span className="text-yellow-300">Role:</span> {PORTFOLIO_META.role} @ {PORTFOLIO_META.company}</p>
               <p><span className="text-yellow-300">Stack:</span> Java · Python · GCP · React · Docker</p>
-              <p><span className="text-yellow-300">Focus:</span> Event-driven systems · LLM orchestration · Serverless</p>
+              <p><span className="text-yellow-300">Focus:</span> Full-stack apps · Event-driven cloud workflows · AI proof-of-concepts</p>
+              <p><span className="text-yellow-300">Status:</span> {PORTFOLIO_META.availability}</p>
               <p className="text-gray-500 text-[10px] italic mt-1">"Good backend systems disappear. Users notice them only when they're broken."</p>
             </div>
           );
@@ -446,26 +541,15 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
         const uptimeText = formatUptimeHuman();
         output = (
           <p className="text-green-400">
-            up {uptimeText} · load avg: 0.42 0.77 1.01
+            up {uptimeText} (since this browser session started)
           </p>
         );
         break;
       }
 
-      case 'ping': {
-        const target = args[0] || 'harshit';
-        output = (
-          <div className="space-y-0.5 text-gray-300 text-[11px]">
-            <p>PING {target}.dev (127.0.0.1): 56 data bytes</p>
-            {[12, 8, 11, 9].map((ms, i) => (
-              <p key={i}>64 bytes from {target}.dev: icmp_seq={i} ttl=64 time={ms} ms</p>
-            ))}
-            <p className="text-emerald-400 mt-1">--- {target}.dev ping statistics ---</p>
-            <p className="text-gray-400">4 packets transmitted · avg: 10ms · Response: <span className="text-emerald-300 font-bold">Available</span></p>
-          </div>
-        );
+      case 'ping':
+        output = <HttpPing target={args[0] ?? ''} />;
         break;
-      }
 
       default:
         output = (

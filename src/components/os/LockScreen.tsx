@@ -2,6 +2,8 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useOSStore } from '../../store/useOSStore';
 import { ArrowRight, Clock, Fingerprint, CheckCircle2 } from 'lucide-react';
 import { playUnlockSound } from '../../utils/sounds';
+import { PORTFOLIO_META } from '../../data/config';
+import { asset } from '../../utils/paths';
 
 export default function LockScreen() {
   const setBootState = useOSStore((state) => state.setBootState);
@@ -16,6 +18,10 @@ export default function LockScreen() {
 
   const startTimeRef = useRef<number | null>(null);
   const animFrameRef = useRef<number | null>(null);
+  const unlockTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Synchronous guards (state updates are async, so they can't stop re-entry within one event burst)
+  const scanningRef = useRef(false);
+  const verifiedRef = useRef(false);
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -36,10 +42,13 @@ export default function LockScreen() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleUnlock]);
 
-  // Handle fingerprint press & hold
-  const startScan = useCallback((e?: React.SyntheticEvent) => {
-    if (e && e.cancelable) e.preventDefault();
-    if (isVerified) return;
+  // Handle fingerprint press & hold (pointer events cover mouse, pen and touch)
+  const startScan = useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
+    if (e.cancelable) e.preventDefault();
+    if (verifiedRef.current || scanningRef.current) return;
+    scanningRef.current = true;
+    // Keep receiving pointerup even if the finger drifts slightly off the sensor
+    e.currentTarget.setPointerCapture?.(e.pointerId);
 
     setIsScanning(true);
     startTimeRef.current = performance.now();
@@ -57,35 +66,36 @@ export default function LockScreen() {
         animFrameRef.current = requestAnimationFrame(tick);
       } else {
         // Hold completed successfully
+        animFrameRef.current = null;
+        scanningRef.current = false;
+        verifiedRef.current = true;
         setIsVerified(true);
         setIsScanning(false);
         setScanProgress(100);
         playUnlockSound();
-        setTimeout(() => {
-          handleUnlock();
-        }, 350);
+        unlockTimeoutRef.current = setTimeout(handleUnlock, 350);
       }
     };
 
     animFrameRef.current = requestAnimationFrame(tick);
-  }, [isVerified, handleUnlock]);
+  }, [handleUnlock]);
 
   const resetScan = useCallback(() => {
-    if (isVerified) return;
+    if (verifiedRef.current) return;
     if (animFrameRef.current) {
       cancelAnimationFrame(animFrameRef.current);
       animFrameRef.current = null;
     }
     startTimeRef.current = null;
+    scanningRef.current = false;
     setIsScanning(false);
     setScanProgress(0);
-  }, [isVerified]);
+  }, []);
 
   useEffect(() => {
     return () => {
-      if (animFrameRef.current) {
-        cancelAnimationFrame(animFrameRef.current);
-      }
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+      if (unlockTimeoutRef.current) clearTimeout(unlockTimeoutRef.current);
     };
   }, []);
 
@@ -104,18 +114,18 @@ export default function LockScreen() {
       <div
         className="fixed inset-0 select-none z-[9990] flex flex-col justify-between p-6 text-white bg-[#03001e] bg-cover bg-center"
         style={{
-          backgroundImage: `radial-gradient(circle at center, rgba(13, 10, 49, 0.5) 0%, rgba(3, 0, 30, 0.95) 100%), url('/wallpaper.webp')`,
+          backgroundImage: `radial-gradient(circle at center, rgba(13, 10, 49, 0.5) 0%, rgba(3, 0, 30, 0.95) 100%), url(${asset('wallpaper.webp')})`,
         }}
       >
         {/* Mobile Top Bar */}
         <div className="flex justify-between items-start w-full px-2 pt-2 text-xs text-gray-400">
           <div className="flex flex-col">
-            <span className="font-bold text-white text-xs">Harshit's Phone</span>
-            <span className="text-[9px] text-gray-500 font-medium">Jaipur, Rajasthan, India</span>
+            <span className="font-bold text-white text-xs">{PORTFOLIO_META.name.split(' ')[0]}'s Phone</span>
+            <span className="text-[9px] text-gray-500 font-medium">{PORTFOLIO_META.location}</span>
           </div>
           <div className="flex items-center space-x-1 mt-0.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Open to Work</span>
+            <span>{PORTFOLIO_META.availability}</span>
           </div>
         </div>
 
@@ -176,14 +186,10 @@ export default function LockScreen() {
 
             {/* Interactive Sensor Core Button */}
             <button
-              onClick={handleUnlock}
               onPointerDown={startScan}
               onPointerUp={resetScan}
-              onPointerLeave={resetScan}
               onPointerCancel={resetScan}
-              onTouchStart={startScan}
-              onTouchEnd={resetScan}
-              onTouchCancel={resetScan}
+              onContextMenu={(e) => e.preventDefault()}
               className={`absolute w-20 h-20 rounded-full flex items-center justify-center transition-all duration-200 cursor-pointer shadow-xl select-none z-20 ${
                 isVerified
                   ? 'bg-emerald-500/20 border-2 border-emerald-400 shadow-[0_0_35px_rgba(16,185,129,0.7)] scale-105'
@@ -194,7 +200,7 @@ export default function LockScreen() {
               aria-label="Touch & Hold Fingerprint to Unlock Mobile OS"
             >
               {isVerified ? (
-                <CheckCircle2 className="w-9 h-9 text-emerald-400 animate-scale-up" />
+                <CheckCircle2 className="w-9 h-9 text-emerald-400 animate-fade-in" />
               ) : (
                 <div className="relative w-9 h-9 flex items-center justify-center">
                   {/* Unfilled base fingerprint */}
@@ -239,18 +245,18 @@ export default function LockScreen() {
     <div
       className="fixed inset-0 select-none z-[9990] flex flex-col justify-between p-8 text-white bg-[#03001e] bg-cover bg-center"
       style={{
-        backgroundImage: `radial-gradient(circle at center, rgba(13, 10, 49, 0.4) 0%, rgba(3, 0, 30, 0.95) 100%), url('/wallpaper.webp')`,
+        backgroundImage: `radial-gradient(circle at center, rgba(13, 10, 49, 0.4) 0%, rgba(3, 0, 30, 0.95) 100%), url(${asset('wallpaper.webp')})`,
       }}
     >
       {/* Top Bar with Time & Weather status info */}
       <div className="flex justify-between items-start max-w-6xl mx-auto w-full mt-4">
         <div className="flex flex-col">
-          <span className="text-sm font-medium tracking-wide text-gray-300">Harshit's Workspace</span>
-          <span className="text-xs text-gray-400">Rajasthan, India</span>
+          <span className="text-sm font-medium tracking-wide text-gray-300">{PORTFOLIO_META.name.split(' ')[0]}'s Workspace</span>
+          <span className="text-xs text-gray-400">{PORTFOLIO_META.location}</span>
         </div>
         <div className="flex items-center space-x-2 text-xs text-gray-300 bg-white/5 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
           <Clock className="w-3.5 h-3.5" />
-          <span>Status: Open to Work</span>
+          <span>{PORTFOLIO_META.availability}</span>
         </div>
       </div>
 
@@ -271,10 +277,10 @@ export default function LockScreen() {
       <div className="flex flex-col items-center justify-center mb-8 max-w-md mx-auto w-full">
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-3xl w-full flex flex-col items-center text-center shadow-2xl animate-slide-up">
           <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-tr from-purple-500 to-indigo-500 border border-white/30 flex items-center justify-center mb-4">
-            <img src="/profile.webp" alt="Harshit Kandoi" width="64" height="64" className="w-full h-full object-cover" />
+            <img src={asset('profile.webp')} alt={PORTFOLIO_META.name} width="64" height="64" className="w-full h-full object-cover" />
           </div>
-          <h2 className="w-full text-center text-lg font-semibold tracking-wide">Harshit Kandoi</h2>
-          <p className="w-full text-center text-xs text-purple-200 mt-1 mb-8">Software &amp; AI Engineer</p>
+          <h2 className="w-full text-center text-lg font-semibold tracking-wide">{PORTFOLIO_META.name}</h2>
+          <p className="w-full text-center text-xs text-purple-200 mt-1 mb-8">{PORTFOLIO_META.role} · {PORTFOLIO_META.company}</p>
 
           <button
             onClick={handleUnlock}

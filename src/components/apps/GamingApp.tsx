@@ -1,8 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useOSStore } from '../../store/useOSStore';
 import { Sword, Shield, Zap, Sparkles, Trophy, Backpack, Flame, X, RotateCcw, Check } from 'lucide-react';
 import { playNotificationSound, playTerminalClick } from '../../utils/sounds';
 import { initialCombatLogs, inventoryItems, InventoryItem } from '../../data/gamingData';
+import { asset } from '../../utils/paths';
 
 export default function GamingApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const xp = useOSStore((state) => state.xp);
@@ -17,6 +18,10 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
   const [isFighting, setIsFighting] = useState(false);
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const combatLogRef = useRef<HTMLDivElement>(null);
+  const combatTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // Cancel pending combat steps if the window closes mid-fight.
+  useEffect(() => () => combatTimersRef.current.forEach(clearTimeout), []);
 
   // Preview allocation (sandboxed — does NOT change real stats)
   const [allocationMode, setAllocationMode] = useState(false);
@@ -78,16 +83,20 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
     const enemy = enemies[Math.floor(Math.random() * enemies.length)];
     setCombatLogs((prev) => [...prev, `⚔️ Encountered a wild [${enemy.name}]!`]);
 
-    setTimeout(() => {
+    const later = (fn: () => void, ms: number) => combatTimersRef.current.push(setTimeout(fn, ms));
+    combatTimersRef.current.forEach(clearTimeout);
+    combatTimersRef.current = [];
+
+    later(() => {
       const attackPower = strength + magic;
       setCombatLogs((prev) => [...prev, `💥 Harshit casts Generative API spell! Deals ${attackPower} damage.`]);
     }, 600);
 
-    setTimeout(() => {
+    later(() => {
       setCombatLogs((prev) => [...prev, `🛡️ Harshit's Docker shield absorbs ${enemy.name}'s bugs!`]);
     }, 1200);
 
-    setTimeout(() => {
+    later(() => {
       setCombatLogs((prev) => [...prev, `🎉 Defeated [${enemy.name}]! Earned +${enemy.xpReward} XP.`]);
       addXP(enemy.xpReward);
       playNotificationSound();
@@ -107,7 +116,7 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
         {/* Pixel Character Avatar */}
         <div className={`p-4 rounded-xl border flex flex-col items-center text-center space-y-3 ${boxBg}`}>
           <div className="w-20 h-20 bg-gradient-to-tr from-purple-800 to-indigo-600 rounded-2xl flex items-center justify-center relative overflow-hidden border border-white/20 select-none shadow-lg">
-            <img src="/gaming profile.webp" alt="Harshit Character" className="w-full h-full object-cover" />
+            <img src={asset('gaming profile.webp')} alt="Harshit Character" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_40%,_rgba(0,0,0,0.4))] animate-pulse" />
           </div>
           <div>

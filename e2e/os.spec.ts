@@ -7,19 +7,18 @@ test.describe('Desktop Workspace OS Core Functionality', () => {
       window.localStorage.setItem('portfolio-os-portal-mode', JSON.stringify('os'));
       window.localStorage.setItem('portfolio-os-boot-state', JSON.stringify('desktop'));
     });
-    await page.goto('/');
+    await page.goto('./');
     
     // Check that we are on the desktop by verifying taskbar start button is present
     await expect(page.locator('#start-menu-button')).toBeVisible({ timeout: 10000 });
   });
 
-  test('should render all 15 app icons and taskbar components correctly', async ({ page }) => {
+  test('should render every desktop app icon and taskbar components correctly', async ({ page }) => {
     // Verify specific icons exist on desktop — aria-labels use "Open {name} from desktop" format
     const appIcons = [
       'About.exe', 'Projects.exe', 'Experience.exe', 'Skills.exe', 'Resume.pdf',
-      'Terminal.exe', 'Chatbot.exe', 'Blog.exe', 'Certifications.exe',
-      'Gaming.exe', 'Contact.exe', 'Settings.exe', 'Snake.exe',
-      'Swipe.exe', 'Coffee.exe'
+      'Terminal.exe', 'Chatbot.exe', 'Writing.exe', 'Certifications.exe',
+      'Arcade.exe', 'Contact.exe', 'Settings.exe', 'Swipe.exe', 'Products.exe'
     ];
 
     for (const app of appIcons) {

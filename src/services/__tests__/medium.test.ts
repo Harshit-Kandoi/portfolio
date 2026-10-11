@@ -35,18 +35,20 @@ describe('Medium Service Unit Tests', () => {
     const stats = await fetchMediumStats();
     expect(stats.articles.length).toBe(1);
     expect(stats.articles[0].title).toBe('Building Scalable RAG Systems with Vector Databases');
-    expect(stats.followers).toBe(98);
+    expect(stats.latestPostsCount).toBe(1);
+    expect(stats.followers).toBeUndefined();
   });
 
-  it('should fall back to default stats if RSS fetch fails', async () => {
+  it('should return an empty result (no invented numbers) if RSS fetch fails', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn().mockImplementation(() => Promise.reject(new Error('Network error')))
     );
 
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
     const stats = await fetchMediumStats();
-    expect(stats.followers).toBe(98);
-    expect(stats.articlesCount).toBe(10);
+    expect(stats.followers).toBeUndefined();
+    expect(stats.latestPostsCount).toBe(0);
     expect(stats.articles).toEqual([]);
   });
 });

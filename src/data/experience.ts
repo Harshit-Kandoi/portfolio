@@ -43,7 +43,7 @@ export const experience: ExperienceItem[] = [
       "Created image processing and dataset workflows for model training, evaluation, and deployment.",
       "Curated and prepared 3,000+ plastic images across multiple material categories using automated web scraping, labeling, augmentation, and dataset organization."
     ],
-    skills: ["Python", "YOLOv5", "OpenCV", "PyTorch", "Computer Vision", "BeautifulSoup", "Selenium"],
+    skills: ["Python", "YOLO", "OpenCV", "PyTorch", "Computer Vision", "BeautifulSoup", "Selenium"],
     type: "work"
   },
 

@@ -119,6 +119,8 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileOpen}
               className={`md:hidden p-2 rounded-lg transition ${isDark ? 'text-[#f4ebdd]/60 hover:text-[#f4ebdd]' : 'text-[#695f53] hover:text-[#241f19]'}`}
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}

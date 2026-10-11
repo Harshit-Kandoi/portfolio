@@ -6,8 +6,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    // Only pick up unit/integration tests inside src/ — never touch e2e/ Playwright specs
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    // Unit tests in src/ and netlify/functions/ — never touch e2e/ Playwright specs
+    include: ['src/**/*.{test,spec}.{ts,tsx}', 'netlify/**/*.{test,spec}.ts'],
     exclude: ['node_modules', 'e2e'],
   },
 });

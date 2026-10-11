@@ -24,6 +24,7 @@ import { experience } from '../../data/experience';
 import { skills } from '../../data/skills';
 import { resumeLink } from '../../data/navigation';
 import { PORTFOLIO_META } from '../../data/config';
+import { asset, apiUrl } from '../../utils/paths';
 
 function useIntersectionObserver(ids: string[]): string {
   const [activeId, setActiveId] = useState(ids[0] || '');
@@ -183,7 +184,7 @@ function Hero({ onLaunch }: { onLaunch: (rect?: DOMRect) => void }) {
 
       <aside className="minimal-hero-panel" aria-label="Profile snapshot">
         <div className="minimal-profile-card">
-          <img src="/profile.webp" alt="Harshit Kandoi" />
+          <img src={asset('profile.webp')} alt="Harshit Kandoi" />
           <div>
             <span>HK / 2026</span>
             <strong>{PORTFOLIO_META.name}</strong>
@@ -258,7 +259,7 @@ function WorkSection() {
         {featuredProjects.map((project, index) => (
           <article key={project.id} className={index === 0 ? 'minimal-project-card featured' : 'minimal-project-card'}>
             <div className="minimal-project-media">
-              <img src={project.image} alt="" />
+              <img src={project.image} alt="" width={960} height={640} loading="lazy" decoding="async" />
               <span>{project.status || project.duration || 'Project'}</span>
             </div>
             <div className="minimal-project-body">
@@ -422,7 +423,7 @@ function ProcessSection() {
 }
 
 function ContactSection() {
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [form, setForm] = useState({ name: '', email: '', message: '', website: '' });
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -431,13 +432,14 @@ function ContactSection() {
 
     setStatus('sending');
     try {
-      const res = await fetch('/api/send-email', {
+      const res = await fetch(apiUrl('send-email'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: form.email.trim(),
           subject: `Portfolio Contact from ${form.name.trim()}`,
           message: `Name: ${form.name}\nEmail: ${form.email}\n\nMessage:\n${form.message}`,
+          website: form.website,
         }),
       });
 
@@ -485,6 +487,17 @@ function ContactSection() {
       </div>
 
       <form onSubmit={handleSubmit} className="minimal-contact-form">
+        {/* Honeypot: hidden from people, filled by spam bots; the server drops these. */}
+        <input
+          type="text"
+          name="website"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          value={form.website}
+          onChange={(event) => setForm({ ...form, website: event.target.value })}
+          style={{ position: 'absolute', left: '-10000px', width: 1, height: 1, opacity: 0 }}
+        />
         <label>
           <span>Name</span>
           <input
@@ -600,7 +613,11 @@ export default function ClassicPortfolio({ onTransition }: { onTransition: (rect
   }, [onTransition]);
 
   return (
-    <div className={`minimal-portfolio ${theme === 'dark' ? 'theme-dark' : 'theme-light'}`} onClick={handleAnchorClick}>
+    <div
+      className={`minimal-portfolio ${theme === 'dark' ? 'theme-dark' : 'theme-light'}`}
+      onClick={handleAnchorClick}
+      data-track-scope="classic"
+    >
       <ClassicNavbar
         activeSection={activeSection}
         onEnterOS={handleLaunch}

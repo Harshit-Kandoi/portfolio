@@ -1,13 +1,13 @@
-import React, { useRef } from 'react';
+import { useRef } from 'react';
 import { Download, Printer, ExternalLink, FileText } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 import { resumeLink } from '../../data/navigation';
 import { trackEvent } from '../../utils/analytics';
 
-/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-export default function ResumeApp(props?: { isMobileView?: boolean }) {
+export default function ResumeApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((state) => state.theme);
   const viewMode = useOSStore((state) => state.viewMode);
+  const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const handlePrint = () => {
@@ -26,14 +26,14 @@ export default function ResumeApp(props?: { isMobileView?: boolean }) {
   };
 
   const isLight = theme === 'light';
-  const controlBg = isLight ? 'bg-gray-150 border-b border-gray-200' : 'bg-slate-900 border-b border-white/5';
-  const isMobile = viewMode === 'mobile';
+  const controlBg = isLight ? 'bg-gray-100 border-b border-gray-200' : 'bg-slate-900 border-b border-white/5';
+  const isMobile = isMobileView || viewMode === 'mobile' || isSimulatingMobile;
 
   if (isMobile) {
     return (
       <div className={`flex flex-col flex-grow h-full overflow-y-auto p-6 items-center justify-center space-y-6 ${isLight ? 'bg-white text-gray-800' : 'bg-slate-950 text-purple-100'}`}>
         <div className={`w-full max-w-sm border p-6 rounded-2xl flex flex-col items-center text-center space-y-4 shadow-xl ${
-          isLight ? 'bg-gray-50 border-gray-250' : 'bg-white/5 border-white/10'
+          isLight ? 'bg-gray-50 border-gray-200' : 'bg-white/5 border-white/10'
         }`}>
           <div className="w-16 h-16 rounded-2xl bg-purple-600/20 text-purple-400 border border-purple-500/25 flex items-center justify-center shadow-lg shadow-purple-500/5">
             <FileText className="w-8 h-8" />
@@ -50,7 +50,7 @@ export default function ResumeApp(props?: { isMobileView?: boolean }) {
 
           <div className={`w-full pt-4 border-t ${isLight ? 'border-slate-200' : 'border-white/10'} flex flex-col space-y-2`}>
             <a
-              href="/Resume.pdf"
+              href={resumeLink}
               download="Harshit_Kandoi_Resume.pdf"
               onClick={() => trackEvent('resume_download')}
               className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold text-xs py-2.5 px-4 rounded-xl flex items-center justify-center space-x-2 transition shadow-lg shadow-purple-500/10"
@@ -88,7 +88,7 @@ export default function ResumeApp(props?: { isMobileView?: boolean }) {
 
         <div className="flex items-center space-x-2">
           <a
-            href="/Resume.pdf"
+            href={resumeLink}
             download="Harshit_Kandoi_Resume.pdf"
             onClick={() => trackEvent('resume_download')}
             className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-white flex items-center space-x-1.5 text-xs font-semibold transition"
@@ -113,7 +113,7 @@ export default function ResumeApp(props?: { isMobileView?: boolean }) {
       <div className="flex-grow p-4 flex justify-center items-stretch bg-gray-900">
         <iframe
           ref={iframeRef}
-          src="/Resume.pdf"
+          src={resumeLink}
           className="w-full max-w-[850px] border border-gray-800 rounded-lg shadow-2xl bg-white"
           title="Resume PDF Viewer"
         />

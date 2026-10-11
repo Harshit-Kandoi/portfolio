@@ -1,64 +1,78 @@
-# 🖥️ Developer Portfolio OS v2
+# Harshit Kandoi — Portfolio (v3)
 
-An immersive, desktop operating system experience built directly inside the browser. It showcases professional credentials, projects, and skills through an interactive web-based windowing environment.
+A scroll-first portfolio with an optional **interactive mode**: a desktop-style "Portfolio OS" (and an Android-style shell on phones) with windows, a terminal, an offline assistant and a small arcade.
 
----
-
-## ✨ Features
-
-- **🌐 Full Windowing Desktop Environment**: Open, drag, minimize, maximize, resize, and manage multiple application windows simultaneously.
-- **📱 Android OS Mobile Simulator**: Seamless responsive design that adapts to tablets and mobile layouts, rendering as a fully interactive simulated smartphone.
-- **🎨 Curated Theme Engine & Soundscapes**: Supports multiple UI themes (Midnight Purple, Cyberpunk, Nord Icy, Eclipse Dark, Arctic Light) paired with retro notification and toggle sound effects.
-- **🧠 AI Assistant Integration**: Interactive chat assistant to query developer info and trigger OS commands (e.g., opening apps).
-- **🕹️ Gamification & Achievements**: System XP tracking, command-line achievements, and boot screens to gamify user interaction.
-- **💻 Fully Functional Terminal**: Run CLI commands (`help`, `about`, `projects`, `clear`, etc.) with command history mapping.
+Live at **https://www.harshitkandoi.in/portfolio/**.
 
 ---
 
-## 🛠️ Technology Stack
+## Features
 
-- **Framework**: React 18 & TypeScript
-- **Styling**: TailwindCSS & CSS3 Variables
-- **State Management**: Zustand
-- **Animations**: Framer Motion
-- **Icons & Graphics**: Lucide React
-- **Bundler**: Vite
+- **Classic portfolio** (default for every visitor): hero, selected work, services, experience, contact form.
+- **Interactive mode**: draggable/resizable windows, themes, sounds, achievements and XP.
+  - Apps: About, Projects, Experience, Skills, Certifications, Resume, Products, Contact, Swipe, Terminal, Assistant, **Writing** (blog + dev notes), **Arcade** (dev RPG + Snake), Settings.
+  - **Assistant** runs fully offline (no LLM/API calls): a small intent engine answers from `src/data`.
+- **Android shell** on phones and as a simulator on desktop.
 
----
+## Tech
 
-## 🚀 Getting Started
+React 18 · TypeScript · Vite · Tailwind CSS · Zustand · Framer Motion · Lucide · Netlify Functions · Vitest · Playwright · Lighthouse CI
 
-### Prerequisites
+## Getting started
 
-- Node.js (v18 or higher)
-- npm or yarn
+Requires Node.js 22+.
 
-### Installation & Run
+```bash
+npm install
+npm run dev        # http://localhost:5173/portfolio/
+```
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Harshit-Kandoi/portfolio.git
-   cd portfolio
-   ```
+`npm run dev` also runs the Netlify functions in `netlify/functions` at `/portfolio/api/*`, so the contact form and GitHub stats work locally (put `RESEND_API_KEY` in `.env`; see `.env.example`).
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+| Script | What it does |
+| --- | --- |
+| `npm run build` / `npm run preview` | Production build / serve it at `localhost:4173/portfolio/` |
+| `npm run typecheck` · `npm run lint` | TypeScript and ESLint |
+| `npm test` | Unit tests (Vitest) |
+| `npm run test:e2e` | Browser tests (Playwright) |
+| `npm run lighthouse` | Build + Lighthouse (mobile, median of 3 runs) |
+| `npm run fetch-medium` | Refresh `src/data/blogs.ts` from Medium (`--dry-run` to preview) |
 
-3. Launch development server:
-   ```bash
-   npm run dev
-   ```
+## Where content lives
 
-4. Build for production:
-   ```bash
-   npm run build
-   ```
+- **Identity** (name, role, links, site URL, version): `src/data/config.ts` → `PORTFOLIO_META`, `APP_VERSION`.
+- **Experience, education, certifications**: `src/data/experience.ts`.
+- **Projects**: `src/data/projects.ts` (Products, Swipe and the classic page read from it).
+- **SEO**: `index.html` (title, description, canonical, JSON-LD). `src/__tests__/seo.test.ts` fails if it drifts from `config.ts`.
 
----
+## Deployment
 
-## 📈 SEO & Performance Optimization
+Netlify builds `dist/` and deploys `netlify/functions` (see `netlify.toml`). The app is built with `base: '/portfolio/'`:
 
-- **React Lazy & Suspense**: Dynamically loads heavy app components and the simulated Android OS framework to maximize page loading speeds (improving TBT, LCP, and general Google ranking metrics).
-- **Metadata and Schema (JSON-LD)**: Configured structure for SEO bot crawling and indexing of full-stack software engineer credentials.
+- On this Netlify site, `/` redirects to `/portfolio/` and `/portfolio/*` maps onto the files in `dist/`.
+- To serve it from the company domain, the company site proxies the path to this site, e.g. in the company site's `netlify.toml`:
+
+  ```toml
+  [[redirects]]
+    from = "/portfolio/*"
+    to = "https://<portfolio-site>.netlify.app/portfolio/:splat"
+    status = 200
+    force = true
+  ```
+
+### Environment variables (Netlify → Site configuration → Environment variables)
+
+| Variable | Used by | Notes |
+| --- | --- | --- |
+| `RESEND_API_KEY` | `send-email` function | Required for the contact form |
+| `CONTACT_TO`, `CONTACT_FROM` | `send-email` | `CONTACT_FROM` must be a domain verified in Resend |
+| `ALLOWED_ORIGINS` | `send-email` | Extra origins allowed to post (comma-separated) |
+| `GITHUB_TOKEN` | `github-stats` function | Optional, server-only (never `VITE_`-prefixed) |
+| `VITE_GA_MEASUREMENT_ID`, `VITE_POSTHOG_KEY`, `VITE_POSTHOG_HOST` | Analytics | Public by design |
+| `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` | Notes / Products | Optional; bundled data is used when unset |
+
+The contact form function is rate limited at Netlify's edge (5 requests/minute per IP), checks the request origin, has a honeypot field and escapes everything it puts in the email.
+
+## Analytics
+
+Google Analytics 4 and PostHog (both respect Do Not Track). Every link/button click on the classic page is recorded as a `ui_click` event with a label, section and link type; PostHog heatmaps are enabled. See `ANALYTICS.md`.

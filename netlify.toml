@@ -5,12 +5,38 @@
 [functions]
   directory = "netlify/functions"
 
+# The app is built with base "/portfolio/" so it can live at www.harshitkandoi.in/portfolio/
+# (the company site proxies /portfolio/* to this site). Files are published at the root of
+# dist/, so /portfolio/<file> is mapped back onto them.
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+  from = "/"
+  to = "/portfolio/"
+  status = 301
 
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/portfolio"
+  to = "/portfolio/"
+  status = 301
+
+[[redirects]]
+  from = "/portfolio/*"
+  to = "/:splat"
   status = 200
+
+# Vite asset filenames are content-hashed, so they can be cached forever.
+[[headers]]
+  for = "/portfolio/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

@@ -152,8 +152,12 @@ function RenderContent({ content, isMaximized, isLight = false }: { content: str
   return <div className="space-y-1">{elements}</div>;
 }
 
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+
+// Notes can come from Supabase, so escape first and only then add our own markup.
 function formatInline(str: string): string {
-  return str
+  return escapeHtml(str)
     .replace(/`([^`]+)`/g, '<code class="bg-black/30 text-emerald-300 px-1 py-0.5 rounded font-mono text-[10px]">$1</code>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-semibold text-white">$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em class="italic text-purple-200/90">$1</em>');
@@ -162,7 +166,7 @@ function formatInline(str: string): string {
 export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
   const windows = useOSStore((s) => s.windows);
-  const notesWin = windows.find((w) => w.id === 'notes');
+  const notesWin = windows.find((w) => w.id === 'writing');
   const isMaximized = notesWin?.isMaximized ?? false;
 
   const isLight = theme === 'light';

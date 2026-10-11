@@ -33,12 +33,15 @@ import {
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { trackEvent } from '../../utils/analytics';
 import { PORTFOLIO_META } from '../../data/config';
+import { projects } from '../../data/projects';
+import { blogPosts } from '../../data/blogs';
+import { experience } from '../../data/experience';
+import { resumeLink } from '../../data/navigation';
 
 // ─── Interfaces & Decoupled View Model Architecture ───────────────────────────
 export interface ProjectItem {
   name: string;
   desc: string;
-  stars?: number;
   lang: string;
   langColor: string;
   github?: string;
@@ -48,8 +51,7 @@ export interface ProjectItem {
 export interface BlogPostItem {
   title: string;
   excerpt: string;
-  readingTime: number;
-  claps?: number;
+  readingTime?: number;
   link: string;
   category: string;
 }
@@ -87,7 +89,6 @@ export interface RoleIdentity {
   avatarIcon: React.ReactNode;
   bannerText: string;
   statusChip: string;
-  resumeFileName: string;
   tailoredSkills: string[];
   verified: boolean;
   accentGlow: string;
@@ -113,64 +114,91 @@ export interface Role extends RoleIdentity {
   content: RoleContent;
 }
 
+// ─── Source-of-truth helpers (derive from src/data so this app can't drift) ───
+const LANG_COLORS: Record<string, string> = {
+  Python: '#3572A5',
+  TypeScript: '#3178c6',
+  JavaScript: '#f1e05a',
+  SQL: '#e38c00',
+  'Power BI': '#f2c811',
+  React: '#61dafb',
+};
+const PRIMARY_LANGS = ['TypeScript', 'JavaScript', 'Python', 'SQL', 'Power BI'];
+
+function toProjectItem(title: string, overrides: Partial<ProjectItem> = {}): ProjectItem | undefined {
+  const p = projects.find((x) => x.title === title);
+  if (!p) return undefined;
+  const lang = p.technologies.find((t) => PRIMARY_LANGS.includes(t)) ?? p.technologies[0] ?? '';
+  return {
+    name: p.title,
+    desc: p.description,
+    lang,
+    langColor: LANG_COLORS[lang] ?? '#8b949e',
+    github: p.github,
+    demo: p.demo,
+    ...overrides,
+  };
+}
+
+function pickProjects(...titles: string[]): ProjectItem[] {
+  return titles.map((t) => toProjectItem(t)).filter((p): p is ProjectItem => !!p);
+}
+
+function toBlogItem(linkId: string): BlogPostItem | undefined {
+  const b = blogPosts.find((x) => x.link.includes(linkId) || x.canonical?.includes(linkId));
+  if (!b) return undefined;
+  return {
+    title: b.title,
+    excerpt: b.excerpt,
+    readingTime: b.readingTime,
+    link: b.canonical ?? b.link,
+    category: b.category,
+  };
+}
+
+const findExperience = (company: string) =>
+  experience.find((e) => e.type === 'work' && e.company?.startsWith(company));
+
+const upflairsRole = findExperience('Upflairs')?.role ?? 'Data Science Intern';
+const anantagniRole = findExperience('Anantagni')?.role ?? 'AI Intern (Computer Vision)';
+const btech = experience.find((e) => e.type === 'education' && e.role?.startsWith('Bachelor'));
+const btechCgpa = (Array.isArray(btech?.description) ? btech.description : [])
+  .find((d) => d.startsWith('CGPA'))
+  ?.match(/\d+(\.\d+)?/)?.[0];
+const articleCount = `${blogPosts.length} Articles`;
+
+// Shared, truthful card metadata (owner is employed; ~1.5 years professional experience)
+const EXPERIENCE_SUMMARY = '~1.5 Yrs Experience';
+const LOCATION = 'Remote / Jaipur';
+const AVAILABILITY = PORTFOLIO_META.availability;
+
 // ─── Curation Dataset (Real Candidate Content from Harshit Kandoi) ──────────────
+// `company` is the profile track shown under the role title — not an employer claim.
 const ROLES: Role[] = [
   {
     id: 'ml-engineer',
     title: 'Machine Learning Engineer',
-    company: 'Computer Vision & AI Lab',
+    company: 'Profile track · ML & Computer Vision',
     match: 97,
-    location: 'Remote / Jaipur',
-    experience: '2+ Years',
-    bannerText: '🔥 High-conviction candidate for CV & ML infrastructure.',
-    resumeFileName: 'Harshit_Kandoi_ML_Engineer_Resume.pdf',
-    tailoredSkills: ['PyTorch', 'YOLOv8', 'OpenCV', 'Scikit-learn', 'Model Optimization'],
+    location: LOCATION,
+    experience: EXPERIENCE_SUMMARY,
+    bannerText: `🔥 ${anantagniRole} background + hands-on PyTorch projects.`,
+    tailoredSkills: ['PyTorch', 'YOLOv8', 'OpenCV', 'Scikit-learn', 'Computer Vision'],
     avatarBg: 'bg-gradient-to-tr from-purple-600 to-indigo-500 ring-4 ring-purple-400/30',
     avatarIcon: <Cpu className="w-9 h-9 text-white drop-shadow-md" />,
-    availability: 'Immediate',
-    tagline: 'End-to-end ML pipelines and Computer Vision models that scale.',
+    availability: AVAILABILITY,
+    tagline: 'End-to-end ML pipelines and Computer Vision models.',
     heroGradient: 'from-purple-600 via-indigo-600 to-blue-600',
     verified: true,
-    statusChip: '🔥 97% Match • Top 5%',
+    statusChip: '🔥 97% Match • ML & CV',
     accentGlow: 'rgba(99, 102, 241, 0.25)',
     content: {
-      bestSuitedFor: 'AI research labs & computer vision startups building production ML tools',
+      bestSuitedFor: 'AI teams & computer vision startups building practical ML tools',
       idealRoles: ['ML Engineer', 'AI Engineer', 'Computer Vision Specialist', 'NLP Engineer'],
       currentlyExploring: ['Local LLMs', 'LoRA Fine-tuning', 'PyTorch Inference Optimization'],
-      featuredProject: {
-        name: 'YOLO Plastic Classification',
-        desc: 'Computer Vision model classifying plastic waste types (PET, HDPE) with ~75% accuracy for automated recycling systems.',
-        stars: 142,
-        lang: 'Python',
-        langColor: '#3572A5',
-        github: 'https://github.com/Harshit-Kandoi/Yolo_Plastic_Classification'
-      },
-      recommendedRead: {
-        title: 'Mastering LoRA: A Gentle Path to Custom Large Language Models',
-        excerpt: 'Step-by-step guide to fine-tuning LLMs with Low-Rank Adaptation (LoRA) — dramatically reducing compute requirements.',
-        readingTime: 10,
-        claps: 240,
-        link: 'https://medium.com/towards-artificial-intelligence/mastering-lora-a-gentle-path-to-custom-large-language-models-a37e2d65b627',
-        category: 'LLM & Fine-tuning'
-      },
-      supportingProjects: [
-        {
-          name: 'Snake Reinforcement Learning',
-          desc: 'Deep Q-Network RL agent trained in PyTorch and Pygame to play Snake autonomously with high scores.',
-          stars: 98,
-          lang: 'Python',
-          langColor: '#3572A5',
-          github: 'https://github.com/Harshit-Kandoi/Snake-Reinforcement-Learning'
-        },
-        {
-          name: 'ASL Letter Detection',
-          desc: 'Real-time American Sign Language alphabet detection using YOLOv5 & PyTorch computer vision pipelines.',
-          stars: 76,
-          lang: 'Python',
-          langColor: '#3572A5',
-          github: 'https://github.com/Harshit-Kandoi/ASL-letter-detection'
-        }
-      ],
+      featuredProject: toProjectItem('YOLO Plastic Classification'),
+      recommendedRead: toBlogItem('a37e2d65b627'),
+      supportingProjects: pickProjects('Snake Reinforcement Learning', 'ASL Hand Sign Detection System'),
       stack: [
         { name: 'Python', glow: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-300 shadow-indigo-500/20' },
         { name: 'PyTorch', glow: 'bg-rose-500/15 border-rose-500/30 text-rose-300 shadow-rose-500/20' },
@@ -181,152 +209,88 @@ const ROLES: Role[] = [
       impactMetrics: [
         { icon: '🎯', metric: '~75% Acc.', label: 'CV Detection Model', category: 'AI Models' },
         { icon: '⚡', metric: 'Deep Q-Net', label: 'Autonomous RL Agent', category: 'Projects' },
-        { icon: '🧠', metric: '10k+ Readers', label: 'Towards AI Articles', category: 'Blogs' },
-        { icon: '🎓', metric: '8.35 CGPA', label: 'B.Tech CSE Data Science', category: 'Experience' }
+        { icon: '🧠', metric: articleCount, label: 'Published on Medium', category: 'Blogs' },
+        ...(btechCgpa ? [{ icon: '🎓', metric: `${btechCgpa} CGPA`, label: 'B.Tech CSE Data Science', category: 'Experience' as const }] : [])
       ],
       relatedApps: [
         { id: 'ai', name: 'AI Assistant', icon: <Sparkles className="w-3.5 h-3.5 text-purple-400" /> },
-        { id: 'blog', name: 'Blog.exe', icon: <BookOpen className="w-3.5 h-3.5 text-cyan-400" /> },
+        { id: 'blog', name: 'Writing.exe', icon: <BookOpen className="w-3.5 h-3.5 text-cyan-400" /> },
         { id: 'terminal', name: 'Terminal', icon: <Terminal className="w-3.5 h-3.5 text-emerald-400" /> }
       ],
-      aboutMe: 'I design, train, and deploy end-to-end Machine Learning and Computer Vision models. Experienced in object detection (YOLO), reinforcement learning (DQN), and model optimization.',
-      whyFit: 'Strong mathematical intuition, hands-on PyTorch experience, computer vision internship background at Anantagni, and published AI technical author.'
+      aboutMe: 'I build and train Machine Learning and Computer Vision models, with hands-on work in object detection (YOLO) and reinforcement learning (DQN).',
+      whyFit: `Hands-on PyTorch experience, ${anantagniRole} internship at Anantagni Industries (YOLO-based plastic classification), and technical articles on Medium / Towards AI.`
     }
   },
   {
     id: 'backend-engineer',
     title: 'Backend / API Engineer',
-    company: 'ThoughtIn Solutions (Cloud Core)',
+    company: 'Profile track · Cloud & Backend',
     match: 91,
-    location: 'Gurugram / Remote',
-    experience: '1.5+ Years',
+    location: LOCATION,
+    experience: EXPERIENCE_SUMMARY,
     bannerText: '⭐ Production experience with GCP Pub/Sub & Cloud Functions.',
-    resumeFileName: 'Harshit_Kandoi_Backend_Engineer_Resume.pdf',
-    tailoredSkills: ['FastAPI', 'GCP Cloud Functions', 'Pub/Sub', 'Firestore', 'Docker'],
+    tailoredSkills: ['Python', 'GCP Cloud Functions', 'Pub/Sub', 'Firestore', 'Docker'],
     avatarBg: 'bg-gradient-to-tr from-emerald-600 to-teal-500 ring-4 ring-emerald-400/30',
     avatarIcon: <Terminal className="w-9 h-9 text-white drop-shadow-md" />,
-    availability: 'Within 2 Weeks',
-    tagline: 'Clean APIs, event-driven cloud workflows, zero downtime.',
+    availability: AVAILABILITY,
+    tagline: 'Clean APIs and event-driven cloud workflows.',
     heroGradient: 'from-emerald-600 via-teal-600 to-cyan-600',
     verified: true,
     statusChip: '⚡ 91% Match • Cloud Systems',
     accentGlow: 'rgba(16, 185, 129, 0.25)',
     content: {
-      bestSuitedFor: 'Scalable cloud systems & high-throughput API infrastructure teams',
+      bestSuitedFor: 'Cloud systems & API infrastructure teams',
       idealRoles: ['Backend Engineer', 'Platform Engineer', 'API Engineer', 'Cloud Engineer'],
       currentlyExploring: ['Async Worker Queues', 'Event-Driven GCP Architectures', 'Pydantic Schema Validation'],
-      featuredProject: {
-        name: 'Local GCP Emulator',
-        desc: 'Dockerized local cloud dev environment simulating Firestore & Pub/Sub offline to speed up cloud dev workflows & cut testing costs.',
-        stars: 184,
-        lang: 'Python',
-        langColor: '#3572A5',
-        github: 'https://github.com/Harshit-Kandoi/Local-GCP-Emulator'
-      },
-      recommendedRead: {
-        title: 'Docker Demystified: An In-Depth Guide for Students & Working Professionals',
-        excerpt: 'Conquer container complexity covering Docker images, multi-stage builds, and Docker Compose for production deployments.',
-        readingTime: 9,
-        claps: 180,
-        link: 'https://medium.com/p/4685cd6414aa',
-        category: 'DevOps & Containers'
-      },
-      supportingProjects: [
-        {
-          name: 'Pydantic Schema Validator',
-          desc: 'Dataclass serialization & high-throughput API payload parsing benchmarks for clean Python API layers.',
-          stars: 92,
-          lang: 'Python',
-          langColor: '#3572A5',
-          github: 'https://github.com/Harshit-Kandoi/pydantic-learning'
-        },
-        {
-          name: 'Personal Budget Tracker CLI',
-          desc: 'Command line application with SQLite database persistence and clean transaction isolation.',
-          stars: 64,
-          lang: 'Python',
-          langColor: '#3572A5',
-          github: 'https://github.com/Harshit-Kandoi/Personal-budget-tracker'
-        }
-      ],
+      featuredProject: toProjectItem('Local GCP Emulator'),
+      recommendedRead: toBlogItem('4685cd6414aa'),
+      supportingProjects: pickProjects('Pydantic Schema Validation', 'Personal Budget Tracker'),
       stack: [
         { name: 'Python', glow: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-300 shadow-indigo-500/20' },
-        { name: 'FastAPI', glow: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300 shadow-emerald-500/20' },
+        { name: 'Java', glow: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300 shadow-emerald-500/20' },
         { name: 'GCP Pub/Sub', glow: 'bg-blue-500/15 border-blue-500/30 text-blue-300 shadow-blue-500/20' },
         { name: 'Docker', glow: 'bg-sky-500/15 border-sky-500/30 text-sky-300 shadow-sky-500/20' },
         { name: 'Firestore', glow: 'bg-amber-500/15 border-amber-500/30 text-amber-300 shadow-amber-500/20' }
       ],
       impactMetrics: [
-        { icon: '🚀', metric: '100% Offline', label: 'Local GCP Emulator', category: 'OpenSource' },
-        { icon: '📜', metric: 'Pub/Sub + Cloud Fn', label: 'Event-Driven Microservices', category: 'Experience' },
-        { icon: '🐳', metric: 'Containerized', label: 'Multi-stage Docker Builds', category: 'Technologies' },
-        { icon: '⚡', metric: 'Non-blocking I/O', label: 'Async API Services', category: 'Projects' }
+        { icon: '🚀', metric: 'Offline Dev', label: 'Local GCP Emulator', category: 'Projects' },
+        { icon: '📜', metric: 'Pub/Sub + Cloud Fn', label: 'Event-Driven Workflows', category: 'Experience' },
+        { icon: '🐳', metric: 'Docker', label: 'Containerized Deployments', category: 'Technologies' },
+        { icon: '⚙️', metric: 'GitHub Actions', label: 'Deployment Automation', category: 'Experience' }
       ],
       relatedApps: [
         { id: 'terminal', name: 'Terminal.exe', icon: <Terminal className="w-3.5 h-3.5 text-emerald-400" /> },
         { id: 'projects', name: 'Projects.exe', icon: <Briefcase className="w-3.5 h-3.5 text-purple-400" /> },
         { id: 'resume', name: 'Resume.pdf', icon: <FileText className="w-3.5 h-3.5 text-rose-400" /> }
       ],
-      aboutMe: 'Associate Software Engineer at ThoughtIn Solutions building internal cloud apps and event-driven backend workflows using React, Python, Java, Cloud Functions, Pub/Sub, and Firestore.',
-      whyFit: 'Production experience engineering event-driven microservices on GCP, writing unit tests, creating Docker builds, and delivering self-documenting REST APIs.'
+      aboutMe: `${PORTFOLIO_META.role} at ${PORTFOLIO_META.company} building full-stack business applications and event-driven cloud workflows using React, Python, Java, Cloud Functions, Pub/Sub, and Firestore.`,
+      whyFit: 'Production experience designing event-driven workflows on GCP (Cloud Functions, Pub/Sub, Firestore), plus deployment automation with Docker and GitHub Actions and API integration work.'
     }
   },
   {
     id: 'fullstack',
     title: 'Full-Stack Developer',
-    company: 'Interactive Web Systems',
+    company: 'Profile track · Web & Full Stack',
     match: 94,
-    location: 'Remote',
-    experience: '1.5+ Years',
+    location: LOCATION,
+    experience: EXPERIENCE_SUMMARY,
     bannerText: '🚀 Creator of this entire Portfolio Operating System.',
-    resumeFileName: 'Harshit_Kandoi_FullStack_Developer_Resume.pdf',
     tailoredSkills: ['React', 'TypeScript', 'Tailwind CSS', 'Zustand', 'Node.js', 'Electron'],
     avatarBg: 'bg-gradient-to-tr from-blue-600 to-purple-600 ring-4 ring-blue-400/30',
     avatarIcon: <Layers className="w-9 h-9 text-white drop-shadow-md" />,
-    availability: 'Within 2 Weeks',
+    availability: AVAILABILITY,
     tagline: 'From empty div to production. End-to-end web craftsmanship.',
     heroGradient: 'from-blue-600 via-violet-600 to-purple-600',
     verified: true,
     statusChip: '🛡️ 94% Match • OS Creator',
     accentGlow: 'rgba(139, 92, 246, 0.25)',
     content: {
-      bestSuitedFor: 'High-velocity product teams wanting end-to-end web craftsmanship',
+      bestSuitedFor: 'Product teams wanting end-to-end web craftsmanship',
       idealRoles: ['Full Stack Engineer', 'Frontend Engineer', 'Web OS Architect', 'Product Developer'],
       currentlyExploring: ['Vite Engine Speed', 'Zustand State Architecture', 'Custom CSS Micro-animations'],
-      featuredProject: {
-        name: 'Portfolio OS',
-        desc: 'Interactive desktop-inspired Web OS simulation featuring window management, built-in AI assistant, retro terminal, games, analytics, and performance optimization.',
-        stars: 310,
-        lang: 'TypeScript',
-        langColor: '#3178c6',
-        demo: 'https://harshitkandoi.in'
-      },
-      recommendedRead: {
-        title: 'From Pip to UV: A Modern Take on Python Project Management',
-        excerpt: 'Say goodbye to slow package resolution. Discover how UV, an ultra-fast Rust-based tool, is revolutionizing developer workflows.',
-        readingTime: 12,
-        claps: 150,
-        link: 'https://medium.com/p/2f4a7fdec860',
-        category: 'Developer Tooling'
-      },
-      supportingProjects: [
-        {
-          name: 'Pixel Buddy',
-          desc: 'Desktop productivity companion built with Electron & React to remind developers to maintain healthy computer habits.',
-          stars: 120,
-          lang: 'TypeScript',
-          langColor: '#3178c6',
-          github: 'https://github.com/Harshit-Kandoi/pixel-buddy'
-        },
-        {
-          name: 'Ecommerce Web App',
-          desc: 'Full-stack shopping portal with interactive cart state, product catalogs, and Express backend order processing.',
-          stars: 85,
-          lang: 'JavaScript',
-          langColor: '#f1e05a',
-          github: 'https://github.com/Harshit-Kandoi/ecommerce'
-        }
-      ],
+      featuredProject: toProjectItem('Portfolio OS', { demo: PORTFOLIO_META.siteUrl }),
+      recommendedRead: toBlogItem('2f4a7fdec860'),
+      supportingProjects: pickProjects('Pixel Buddy', 'Ecommerce Web App'),
       stack: [
         { name: 'React', glow: 'bg-cyan-500/15 border-cyan-500/30 text-cyan-300 shadow-cyan-500/20' },
         { name: 'TypeScript', glow: 'bg-blue-500/15 border-blue-500/30 text-blue-300 shadow-blue-500/20' },
@@ -336,180 +300,119 @@ const ROLES: Role[] = [
       ],
       impactMetrics: [
         { icon: '🚀', metric: 'Web OS', label: 'Creator of this OS App', category: 'Projects' },
-        { icon: '🎨', metric: 'Vanilla CSS', label: 'Custom Design Token System', category: 'Technologies' },
-        { icon: '⌨️', metric: 'Shortcuts', label: 'Full OS Keyboard Nav', category: 'Users' },
-        { icon: '📱', metric: '100% Responsive', label: 'Flawless Desktop + Mobile UI', category: 'Experience' }
+        { icon: '🎨', metric: 'Tailwind', label: 'Custom OS UI Styling', category: 'Technologies' },
+        { icon: '⌨️', metric: 'Shortcuts', label: 'Keyboard Navigation', category: 'Users' },
+        { icon: '📱', metric: 'Responsive', label: 'Desktop + Mobile UI', category: 'Experience' }
       ],
       relatedApps: [
         { id: 'projects', name: 'Projects.exe', icon: <Briefcase className="w-3.5 h-3.5 text-purple-400" /> },
-        { id: 'gaming', name: 'Gaming.exe', icon: <Sparkles className="w-3.5 h-3.5 text-amber-400" /> },
+        { id: 'gaming', name: 'Arcade.exe', icon: <Sparkles className="w-3.5 h-3.5 text-amber-400" /> },
         { id: 'contact', name: 'Contact.exe', icon: <Send className="w-3.5 h-3.5 text-emerald-400" /> }
       ],
-      aboutMe: 'Full-stack software developer experienced in crafting rich interactive user interfaces in React & TypeScript backed by robust Python, Node.js, and GCP cloud infrastructure.',
-      whyFit: 'Creator of this complete Portfolio OS environment. Strong UI/UX polish, state management proficiency with Zustand, and proven frontend + backend experience.'
+      aboutMe: 'Full-stack developer building interactive user interfaces in React & TypeScript, backed by Python, Java, Node.js, and GCP cloud services.',
+      whyFit: 'Creator of this Portfolio OS environment (React, TypeScript, Zustand, Tailwind). Day-to-day full-stack work across frontend and backend at ThoughtIn Solutions.'
     }
   },
   {
-    id: 'data-engineer',
-    title: 'Data & AI Platform Engineer',
-    company: 'Analytics & Pipeline Engine',
+    id: 'data-science',
+    title: 'Data Scientist / Analyst',
+    company: 'Profile track · Data Science & Analytics',
     match: 89,
-    location: 'Remote / Jaipur',
-    experience: '1+ Year',
-    bannerText: '💡 B.Tech CSE Data Science Specialization (CGPA 8.35).',
-    resumeFileName: 'Harshit_Kandoi_Data_Engineer_Resume.pdf',
-    tailoredSkills: ['SQL', 'Python', 'Pandas', 'Power BI', 'ETL Pipelines', 'BigQuery'],
+    location: LOCATION,
+    experience: EXPERIENCE_SUMMARY,
+    bannerText: btechCgpa
+      ? `💡 B.Tech CSE Data Science Specialization (CGPA ${btechCgpa}).`
+      : '💡 B.Tech CSE Data Science Specialization.',
+    tailoredSkills: ['SQL', 'Python', 'Pandas', 'Power BI', 'Scikit-learn', 'XGBoost'],
     avatarBg: 'bg-gradient-to-tr from-amber-600 to-orange-500 ring-4 ring-amber-400/30',
     avatarIcon: <Database className="w-9 h-9 text-white drop-shadow-md" />,
-    availability: 'Within 2 Weeks',
-    tagline: 'Clean data in. High-conviction decisions out.',
+    availability: AVAILABILITY,
+    tagline: 'Clean data in. Clear decisions out.',
     heroGradient: 'from-amber-600 via-orange-600 to-red-600',
     verified: true,
-    statusChip: '🧠 89% Match • BigQuery & SQL',
+    statusChip: '🧠 89% Match • SQL & ML',
     accentGlow: 'rgba(245, 158, 11, 0.25)',
     content: {
-      bestSuitedFor: 'Data platforms requiring clean analytics & automated ETL pipelines',
-      idealRoles: ['Data Engineer', 'Analytics Engineer', 'ETL Developer', 'BI Specialist'],
-      currentlyExploring: ['BigQuery Partitioning', 'Automated Web Scraping', 'dbt Data Modeling'],
-      featuredProject: {
-        name: 'Credit Card Financial Dashboard',
-        desc: 'Interactive BI analytics suite in Power BI analyzing customer credit card spending behaviors, demographic breakdown, and financial KPIs.',
-        stars: 135,
-        lang: 'Power BI',
-        langColor: '#f2c811',
-        github: 'https://github.com/Harshit-Kandoi/Credit-Card-Financial-Dashboard'
-      },
-      recommendedRead: {
-        title: 'Your Data is the New Currency: Are You Protecting It?',
-        excerpt: 'Examine the privacy risks of digital footprints, data broker monetization, and essential strategies for safeguarding organizational data.',
-        readingTime: 10,
-        claps: 140,
-        link: 'https://medium.com/p/016971ae0792',
-        category: 'Data Science & Privacy'
-      },
-      supportingProjects: [
-        {
-          name: 'Pizza Sales Analytics Engine',
-          desc: 'SQL query optimization and Power BI dashboard evaluating peak order volume, revenue distribution, and inventory velocity.',
-          stars: 95,
-          lang: 'SQL',
-          langColor: '#e38c00',
-          github: 'https://github.com/Harshit-Kandoi/pizza-sales'
-        },
-        {
-          name: 'Crop Recommendation ML Pipeline',
-          desc: 'Predictive agritech ETL pipeline analyzing soil metrics (N, P, K) with ~95% classification accuracy.',
-          stars: 110,
-          lang: 'Python',
-          langColor: '#3572A5',
-          github: 'https://github.com/Harshit-Kandoi/crops'
-        }
-      ],
+      bestSuitedFor: 'Teams needing clean analytics, dashboards & practical ML models',
+      idealRoles: ['Data Scientist', 'Data Analyst', 'ML Engineer', 'BI Specialist'],
+      currentlyExploring: ['Automated Web Scraping', 'Feature Engineering', 'dbt Data Modeling'],
+      featuredProject: toProjectItem('Credit Card Financial Dashboard'),
+      recommendedRead: toBlogItem('016971ae0792'),
+      supportingProjects: pickProjects('Pizza Sales Analytics Dashboard', 'Crop Recommendation Engine'),
       stack: [
         { name: 'SQL', glow: 'bg-amber-500/15 border-amber-500/30 text-amber-300 shadow-amber-500/20' },
         { name: 'Python', glow: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-300 shadow-indigo-500/20' },
         { name: 'Pandas', glow: 'bg-orange-500/15 border-orange-500/30 text-orange-300 shadow-orange-500/20' },
         { name: 'Power BI', glow: 'bg-yellow-500/15 border-yellow-500/30 text-yellow-300 shadow-yellow-500/20' },
-        { name: 'BigQuery', glow: 'bg-blue-500/15 border-blue-500/30 text-blue-300 shadow-blue-500/20' }
+        { name: 'Scikit-learn', glow: 'bg-blue-500/15 border-blue-500/30 text-blue-300 shadow-blue-500/20' }
       ],
       impactMetrics: [
-        { icon: '📊', metric: '~95% Acc.', label: 'Crop ML Model Precision', category: 'Experience' },
-        { icon: '🔍', metric: 'Zero Nulls', label: 'Strict Schema Validation', category: 'Technologies' },
+        { icon: '📊', metric: '~95% Acc.', label: 'Crop Classification Model', category: 'Experience' },
+        { icon: '🔍', metric: 'Pandas + SQL', label: 'Data Preprocessing & Analysis', category: 'Technologies' },
         { icon: '🎓', metric: 'B.Tech CSE', label: 'Data Science Specialization', category: 'Experience' },
-        { icon: '💡', metric: 'Power BI + SQL', label: 'Production BI Dashboards', category: 'Projects' }
+        { icon: '💡', metric: 'Power BI + SQL', label: 'BI Dashboard Projects', category: 'Projects' }
       ],
       relatedApps: [
         { id: 'skills', name: 'Skills.exe', icon: <Cpu className="w-3.5 h-3.5 text-amber-400" /> },
-        // { id: 'publications', name: 'Papers.exe', icon: <FileText className="w-3.5 h-3.5 text-amber-400" /> },
-        { id: 'blog', name: 'Blog.exe', icon: <BookOpen className="w-3.5 h-3.5 text-cyan-400" /> },
+        { id: 'blog', name: 'Writing.exe', icon: <BookOpen className="w-3.5 h-3.5 text-cyan-400" /> },
         { id: 'projects', name: 'Projects.exe', icon: <Briefcase className="w-3.5 h-3.5 text-purple-400" /> }
       ],
-      aboutMe: 'B.Tech CSE graduate in Data Science (CGPA 8.35/10) with hands-on experience building structured ETL pipelines, SQL aggregation scripts, and BI dashboards.',
-      whyFit: 'Strong SQL mastery, experience handling agricultural & financial datasets, data engineering internship at Upflairs, and analytical approach to schema design.'
+      aboutMe: `B.Tech CSE (Data Science) graduate${btechCgpa ? ` (CGPA ${btechCgpa}/10)` : ''} with hands-on experience in data preprocessing, feature engineering, ML model training, SQL analysis, and Power BI dashboards.`,
+      whyFit: `${upflairsRole} at Upflairs (crop classification models, ~95% accuracy), SQL and Power BI dashboard projects on financial and sales datasets.`
     }
   },
   {
     id: 'ai-product',
     title: 'AI Product Engineer',
-    company: 'Generative AI & UX Lab',
+    company: 'Profile track · AI Products',
     match: 96,
-    location: 'Remote / Jaipur',
-    experience: '1.5+ Years',
-    bannerText: '⚡ Founder of Financial Mirror & Generative AI builder.',
-    resumeFileName: 'Harshit_Kandoi_AI_Product_Engineer_Resume.pdf',
-    tailoredSkills: ['LangChain', 'OpenAI API', 'RAG Architecture', 'React', 'FastAPI', 'Vector Stores'],
+    location: LOCATION,
+    experience: EXPERIENCE_SUMMARY,
+    bannerText: '⚡ Building Financial Mirror (beta), an AI-powered product.',
+    tailoredSkills: ['Python', 'React', 'LangChain', 'RAG', 'OpenAI Whisper', 'Flask'],
     avatarBg: 'bg-gradient-to-tr from-pink-600 to-rose-500 ring-4 ring-pink-400/30',
     avatarIcon: <Sparkles className="w-9 h-9 text-white drop-shadow-md" />,
-    availability: 'Immediate',
-    tagline: 'Turning AI capabilities into intuitive, user-loved products.',
+    availability: AVAILABILITY,
+    tagline: 'Turning AI capabilities into intuitive products.',
     heroGradient: 'from-pink-600 via-rose-500 to-fuchsia-600',
     verified: true,
-    statusChip: '🎯 96% Match • AI + UX Creator',
+    statusChip: '🎯 96% Match • AI + UX',
     accentGlow: 'rgba(236, 72, 153, 0.25)',
     content: {
-      bestSuitedFor: 'AI-first startups bridging cutting-edge LLMs with human-centered UX',
+      bestSuitedFor: 'AI-first teams bridging LLMs with human-centered UX',
       idealRoles: ['AI Product Engineer', 'Generative AI Developer', 'LLM UX Specialist', 'Product Builder'],
       currentlyExploring: ['RAG Pipelines with Vector Memory', 'Agentic Function Calling', 'Prompt Engineering'],
-      featuredProject: {
-        name: 'Financial Mirror',
-        desc: 'AI-powered financial awareness platform helping users analyze spending habits, financial personality, and future planning using machine learning.',
-        stars: 240,
-        lang: 'Python',
-        langColor: '#3572A5',
-        demo: 'https://mirror.harshitkandoi.in'
-      },
-      recommendedRead: {
-        title: 'Building Smarter LLMs with LangChain and RAG: A Beginner’s Guide',
-        excerpt: 'Master Retrieval-Augmented Generation (RAG) and learn how LangChain connects external vector data to LLMs to build context-aware AI apps.',
-        readingTime: 15,
-        claps: 310,
-        link: 'https://pub.towardsai.net/building-smarter-llms-with-langchain-and-rag-a-beginners-guide-1fdfbac6c672',
-        category: 'LLM & RAG'
-      },
-      supportingProjects: [
-        {
-          name: 'Portfolio OS AI Assistant',
-          desc: 'Built-in natural language AI assistant supporting conversational commands, OS window navigation, and real-time contextual help.',
-          stars: 310,
-          lang: 'TypeScript',
-          langColor: '#3178c6',
-          demo: 'https://harshitkandoi.in'
-        },
-        {
-          name: 'Movie Recommender System',
-          desc: 'ML-based recommendation engine built with Streamlit suggesting movies based on SVD matrix factorization.',
-          stars: 89,
-          lang: 'Python',
-          langColor: '#3572A5',
-          github: 'https://github.com/Harshit-Kandoi/movie-recommender'
-        }
-      ],
+      featuredProject: toProjectItem('Financial Mirror'),
+      recommendedRead: toBlogItem('1fdfbac6c672'),
+      supportingProjects: pickProjects('Whisper Transcription Web Application', 'Movie Recommender System'),
       stack: [
-        { name: 'LangChain', glow: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300 shadow-emerald-500/20' },
-        { name: 'OpenAI API', glow: 'bg-pink-500/15 border-pink-500/30 text-pink-300 shadow-pink-500/20' },
         { name: 'Python', glow: 'bg-indigo-500/15 border-indigo-500/30 text-indigo-300 shadow-indigo-500/20' },
         { name: 'React', glow: 'bg-cyan-500/15 border-cyan-500/30 text-cyan-300 shadow-cyan-500/20' },
-        { name: 'FastAPI', glow: 'bg-teal-500/15 border-teal-500/30 text-teal-300 shadow-teal-500/20' }
+        { name: 'LangChain', glow: 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300 shadow-emerald-500/20' },
+        { name: 'OpenAI Whisper', glow: 'bg-pink-500/15 border-pink-500/30 text-pink-300 shadow-pink-500/20' },
+        { name: 'Flask', glow: 'bg-teal-500/15 border-teal-500/30 text-teal-300 shadow-teal-500/20' }
       ],
       impactMetrics: [
-        { icon: '✨', metric: 'AI Startup', label: 'Founder of Financial Mirror', category: 'Projects' },
-        { icon: '🤖', metric: 'RAG & Agents', label: 'LangChain Vector Retrieval', category: 'Technologies' },
-        { icon: '📚', metric: 'Top AI Author', label: 'Published on Towards AI', category: 'Blogs' },
-        { icon: '⚡', metric: '<400ms Latency', label: 'Context Retrieval Speed', category: 'AI Models' }
+        { icon: '✨', metric: 'Beta', label: 'Building Financial Mirror', category: 'Projects' },
+        { icon: '🤖', metric: 'RAG & LLMs', label: 'LangChain + RAG Guides', category: 'Technologies' },
+        { icon: '📚', metric: articleCount, label: 'Published on Medium', category: 'Blogs' },
+        { icon: '🎙️', metric: 'Whisper', label: 'Speech-to-Text Web App', category: 'AI Models' }
       ],
       relatedApps: [
         { id: 'ai', name: 'AI Assistant', icon: <Sparkles className="w-3.5 h-3.5 text-purple-400" /> },
-        { id: 'blog', name: 'Blog.exe', icon: <BookOpen className="w-3.5 h-3.5 text-cyan-400" /> },
+        { id: 'blog', name: 'Writing.exe', icon: <BookOpen className="w-3.5 h-3.5 text-cyan-400" /> },
         { id: 'contact', name: 'Contact.exe', icon: <Send className="w-3.5 h-3.5 text-emerald-400" /> }
       ],
-      aboutMe: 'I build intelligent products at the intersection of Generative AI, natural language processing, and intuitive user interface design. Creator of Financial Mirror and Portfolio OS AI Assistant.',
-      whyFit: 'Proven capability shipping AI products end-to-end. Author of viral RAG technical guides on Towards AI, with a strong focus on user experience.'
+      aboutMe: 'I build products at the intersection of AI, natural language processing, and intuitive interface design. Creator of Financial Mirror (beta) and the AI assistant built into this Portfolio OS.',
+      whyFit: 'Builds AI products end-to-end (Financial Mirror, Whisper transcription app), writes RAG / LLM technical guides on Medium / Towards AI, and works on AI proof-of-concepts at ThoughtIn Solutions.'
     }
   }
 ];
 
-/* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-export default function PortfolioSwipe(props?: { isMobileView?: boolean }) {
+// Mobile shell passes isMobileView; the layout is already responsive, so it is not read.
+type PortfolioSwipeProps = { isMobileView?: boolean };
+
+function PortfolioSwipe() {
   const theme = useOSStore((s) => s.theme);
   const unlockAchievement = useOSStore((s) => s.unlockAchievement);
   const addNotification   = useOSStore((s) => s.addNotification);
@@ -523,7 +426,6 @@ export default function PortfolioSwipe(props?: { isMobileView?: boolean }) {
   const [matchOverlay, setMatchOverlay] = useState<Role | null>(null);
   const [launchingRole, setLaunchingRole] = useState<Role | null>(null);
   const [launchProgress, setLaunchProgress] = useState<number>(0);
-  const [resumeDownloading, setResumeDownloading] = useState<string | null>(null);
 
   const [swiping, setSwiping]           = useState<'left' | 'right' | null>(null);
   const [swipeCount, setSwipeCount]     = useState(0);
@@ -568,19 +470,10 @@ export default function PortfolioSwipe(props?: { isMobileView?: boolean }) {
     }, 350);
   };
 
-  // Tailored resume download helper
-  const handleDownloadTailoredResume = (role: Role) => {
-    setResumeDownloading(role.resumeFileName);
-    setTimeout(() => {
-      setResumeDownloading(null);
-      openWindow('resume');
-      addNotification(
-        `📄 Tailored Resume Prepared: ${role.resumeFileName}`,
-        `Customized for ${role.title} tech stack.`,
-        'success',
-        'career'
-      );
-    }, 320);
+  // Resume download helper (single generic resume PDF)
+  const handleDownloadResume = (role: Role) => {
+    trackEvent('swipe_resume_download', { role_title: role.title });
+    window.open(resumeLink, '_blank', 'noopener');
   };
 
   const swipe = useCallback((direction: 'left' | 'right') => {
@@ -830,10 +723,12 @@ export default function PortfolioSwipe(props?: { isMobileView?: boolean }) {
                     <span className="text-[9.5px] bg-emerald-500/20 text-emerald-300 font-black px-2 py-0.5 rounded-full border border-emerald-500/30">
                       {content.recommendedRead.category}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-medium flex items-center space-x-1">
-                      <Clock className="w-3 h-3 text-slate-400" />
-                      <span>{content.recommendedRead.readingTime} min read</span>
-                    </span>
+                    {content.recommendedRead.readingTime != null && (
+                      <span className="text-[10px] text-slate-400 font-medium flex items-center space-x-1">
+                        <Clock className="w-3 h-3 text-slate-400" />
+                        <span>{content.recommendedRead.readingTime} min read</span>
+                      </span>
+                    )}
                   </div>
                   <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-emerald-300 transition break-words">
                     {content.recommendedRead.title}
@@ -918,35 +813,25 @@ export default function PortfolioSwipe(props?: { isMobileView?: boolean }) {
             </div>
           </Section>
 
-          {/* Context-Aware Resume Action */}
+          {/* Resume Action (one general resume; skills below are the ones relevant to this track) */}
           <div className="p-4 bg-gradient-to-r from-purple-950/60 to-indigo-950/60 border border-purple-500/30 rounded-2xl space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <FileText className="w-4 h-4 text-purple-400" />
-                <span className="text-xs font-bold text-white">Context-Aware Resume</span>
+                <span className="text-xs font-bold text-white">Resume</span>
               </div>
               <span className="text-[9px] bg-purple-500/20 text-purple-300 font-bold px-2 py-0.5 rounded-full border border-purple-500/30">
-                Tailored Spec
+                PDF
               </span>
             </div>
             <p className="text-[10.5px] text-slate-300 leading-snug">
-              Emphasizes <strong className="text-purple-300">{selected.tailoredSkills.join(', ')}</strong>.
+              Relevant skills for this track: <strong className="text-purple-300">{selected.tailoredSkills.join(', ')}</strong>.
             </p>
             <button
-              onClick={() => handleDownloadTailoredResume(selected)}
-              disabled={!!resumeDownloading}
+              onClick={() => handleDownloadResume(selected)}
               className="w-full mt-1 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center space-x-2 shadow-lg active:scale-95 disabled:opacity-50"
             >
-              {resumeDownloading === selected.resumeFileName ? (
-                <>
-                  <span className="w-3 h-3 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                  <span>Preparing {selected.resumeFileName}...</span>
-                </>
-              ) : (
-                <>
-                  <span>📄 Open {selected.resumeFileName}</span>
-                </>
-              )}
+              <span>📄 Download resume</span>
             </button>
           </div>
 
@@ -976,7 +861,7 @@ export default function PortfolioSwipe(props?: { isMobileView?: boolean }) {
                 <span>LinkedIn</span>
               </button>
               <button
-                onClick={() => window.open('https://github.com/Harshit-Kandoi', '_blank')}
+                onClick={() => window.open(PORTFOLIO_META.github, '_blank')}
                 className="flex items-center justify-center space-x-1.5 bg-white/10 hover:bg-white/15 text-white border border-white/10 text-xs font-bold py-2.5 px-3 rounded-xl active:scale-95 transition shadow"
               >
                 <Github className="w-3.5 h-3.5 text-purple-400" />
@@ -1130,7 +1015,7 @@ export default function PortfolioSwipe(props?: { isMobileView?: boolean }) {
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={0.65}
                 style={{ x, rotate, zIndex: 10 }}
-                onDragEnd={(event, info) => {
+                onDragEnd={(_event, info) => {
                   const threshold = 120;
                   if (info.offset.x > threshold) {
                     swipe('right');
@@ -1373,6 +1258,9 @@ export default function PortfolioSwipe(props?: { isMobileView?: boolean }) {
     </div>
   );
 }
+
+const PortfolioSwipeApp: React.FC<PortfolioSwipeProps> = PortfolioSwipe;
+export default PortfolioSwipeApp;
 
 // ─── Section Helper ──────────────────────────────────────────────────────────
 function Section({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {

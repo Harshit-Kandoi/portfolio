@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://harshitkandoi.in/sitemap.xml
+Sitemap: https://www.harshitkandoi.in/portfolio/sitemap.xml

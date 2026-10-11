@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useOSStore, VISITOR_ACHIEVEMENTS } from '../../store/useOSStore';
 import { Trophy, Star, Lock, CheckCircle, Zap, Award, ExternalLink } from 'lucide-react';
+import { experience } from '../../data/experience';
 
 interface DevCredential {
   id: string;
@@ -9,144 +10,93 @@ interface DevCredential {
   issued: string;
   expires?: string;
   credentialId?: string;
-  credentialUrl: string;
+  credentialUrl?: string;
   skills: string[];
   emoji: string;
   color: string;
   description: string;
-  year?: string;
 }
 
-// ─── Developer Credentials (Harshit's real achievements) ─────────────────────
-const DEV_CREDENTIALS: DevCredential[] = [
-  {
-    id: 'qa_automation',
-    title: 'Software QA & Test Automation Engineering',
-    org: 'Coursera',
-    year: '2026',
-    issued: 'Jun 2026',
-    expires: 'Jun 2036',
-    credentialId: '5NG9S17LYY48',
-    credentialUrl: 'https://coursera.org/share/0810f3ef5e95663b8a1d979afd5cf464',
-    skills: ['Selenium', 'Agile QA', 'Cypress', 'JMeter', 'xUnit', 'Postman'],
-    emoji: '🧪',
-    color: 'from-blue-600 to-indigo-600',
-    description: 'QA automation through hands-on experience with industry-leading testing tools and methodologies. This specialization covers Selenium web automation, agile QA processes, open-source testing frameworks (Cypress, JMeter, xUnit), advanced Cypress techniques, and API validation with Postman.',
-  },
-  {
-    id: 'gcp_ace',
-    title: 'Associate Cloud Engineer Certification',
-    org: 'Google',
-    year: '2026',
-    issued: 'Mar 2026',
-    expires: 'Mar 2029',
-    credentialId: '193739',
-    credentialUrl: 'https://www.credly.com/badges/dce123b5-e38c-4619-86d6-8ff49362c926/linked_in_profile',
-    skills: ['Google Cloud Platform (GCP)'],
-    emoji: '☁️',
-    color: 'from-blue-500 to-cyan-500',
-    description: 'Google Associate Cloud Engineer certification validating hands-on expertise with GCP infrastructure, Compute Engine, GKE, Cloud Storage, IAM, and cloud resource management.',
-  },
-  {
-    id: 'docker_foundations',
-    title: 'Docker Foundations Professional Certificate',
-    org: 'Docker',
-    year: '2025',
-    issued: 'Aug 2025',
-    credentialUrl: 'https://www.linkedin.com/learning/certificates/9642001c23ee467631715f91472bc09ffd79bd1ceca1419cac4f1024651bcf29',
-    skills: ['Docker Products', 'Containerization'],
-    emoji: '🐳',
-    color: 'from-cyan-600 to-blue-600',
-    description: 'Foundational expertise in Docker containerization, image creation, multi-container applications, Docker Compose, and container deployment workflows.',
-  },
+type CredentialExtras = Pick<DevCredential, 'emoji' | 'color'> & Partial<Pick<DevCredential, 'expires' | 'credentialId'>>;
+
+// Display-only extras keyed by the certification's id in data/experience.ts.
+const CREDENTIAL_EXTRAS: Record<number, CredentialExtras> = {
+  9:  { emoji: '🏗️', color: 'from-fuchsia-600 to-purple-600' },
+  10: { emoji: '🧪', color: 'from-blue-600 to-indigo-600', credentialId: '5NG9S17LYY48' },
+  11: { emoji: '☁️', color: 'from-blue-500 to-cyan-500', credentialId: '193739', expires: 'Mar 2029' },
+  12: { emoji: '🐳', color: 'from-cyan-600 to-blue-600' },
+  13: { emoji: '🔷', color: 'from-blue-600 to-sky-400' },
+  14: { emoji: '🐍', color: 'from-amber-500 to-orange-500', credentialId: 'UC-7ae3e699-3a95-404f-a9cd-e074b5f1553d' },
+  15: { emoji: '🧠', color: 'from-violet-600 to-purple-600', credentialId: 'UC-a4c0bbee-c659-4d51-ad51-5b1211e9cc4f' },
+};
+
+// ─── Developer Credentials ──────────────────────────────────────────────────
+// Derived from data/experience.ts so the two lists can't drift apart.
+const CERTIFICATIONS: DevCredential[] = experience
+  .filter((item) => item.type === 'Course')
+  .map((item) => {
+    const extras = CREDENTIAL_EXTRAS[item.id] ?? { emoji: '📜', color: 'from-purple-600 to-indigo-600' };
+    return {
+      id: `exp_${item.id}`,
+      title: item.title ?? item.role ?? '',
+      org: item.organization ?? item.company ?? '',
+      issued: item.date ?? item.period ?? '',
+      credentialUrl: item.link,
+      skills: item.skills ?? [],
+      description: Array.isArray(item.description) ? item.description.join(' ') : item.description,
+      ...extras,
+    };
+  });
+
+// LinkedIn Learning certificates that aren't listed in data/experience.ts.
+const ADDITIONAL_CREDENTIALS: DevCredential[] = [
   {
     id: 'ms_genai_prod',
     title: 'Build Your Generative AI Productivity Skills with Microsoft and LinkedIn',
     org: 'Microsoft & LinkedIn',
-    year: '2025',
     issued: 'Aug 2025',
     credentialUrl: 'https://www.linkedin.com/learning/certificates/a7b30896f7262856c94dcc9dbbce5844dad7ce8cb4e3ac1acf5116e293c248ed',
     skills: ['Productivity Improvement', 'Generative AI'],
     emoji: '✨',
     color: 'from-sky-500 to-indigo-500',
-    description: 'Leveraging Generative AI tools and strategies across workplace applications to boost efficiency, workflow automation, and productivity.',
+    description: 'Using generative AI tools in everyday work to speed up writing, research, and routine tasks.',
   },
   {
     id: 'github_pro',
     title: 'Career Essentials in GitHub Professional Certificate',
     org: 'GitHub',
-    year: '2025',
     issued: 'Aug 2025',
     credentialUrl: 'https://www.linkedin.com/learning/certificates/f643a002e0de4d73b940256e5b8c14a6e31ea678bc4c19dba1e794625ccee25f',
     skills: ['GitHub', 'Git', 'Version Control'],
     emoji: '🐙',
     color: 'from-slate-700 to-slate-900',
-    description: 'Professional GitHub proficiency covering version control, pull requests, issue tracking, project management, and collaborative open-source development.',
-  },
-  {
-    id: 'azure_ai_essentials',
-    title: 'Microsoft Azure AI Essentials: Workloads and Machine Learning on Azure',
-    org: 'LinkedIn Learning',
-    year: '2025',
-    issued: 'Aug 2025',
-    credentialId: '66444b1c98dada9eadb5dd9fd08cbb84c3a107633c55520fedca2b2ea5d14f2d',
-    credentialUrl: 'https://www.linkedin.com/learning/certificates/66444b1c98dada9eadb5dd9fd08cbb84c3a107633c55520fedca2b2ea5d14f2d',
-    skills: ['Microsoft Azure', 'Azure AI Foundry', 'Machine Learning'],
-    emoji: '🔷',
-    color: 'from-blue-600 to-sky-400',
-    description: 'Understanding AI workloads, computer vision, natural language processing, and deploying machine learning solutions with Azure AI Foundry.',
-  },
-  {
-    id: 'ms_genai_essentials',
-    title: 'Career Essentials in Generative AI by Microsoft and LinkedIn',
-    org: 'Microsoft & LinkedIn',
-    year: '2023',
-    issued: 'Sep 2023',
-    credentialUrl: 'https://www.linkedin.com/learning/certificates/b49c37aa015b852352b5baa8f01d3457ca2a7869e14843045ddc807ca0f65d84',
-    skills: ['Prompt Engineering', 'Microsoft Copilot', 'Generative AI'],
-    emoji: '🤖',
-    color: 'from-teal-500 to-emerald-600',
-    description: 'Core principles of Artificial Intelligence, generative models, prompt engineering, Microsoft Copilot integration, and ethical AI deployment.',
+    description: 'Version control with Git and GitHub: pull requests, issues, project boards, and collaborative workflows.',
   },
   {
     id: 'github_copilot',
     title: 'Career Essentials in GitHub Copilot Professional Certificate',
     org: 'GitHub',
-    year: '2025',
     issued: 'Aug 2025',
     credentialUrl: 'https://www.linkedin.com/learning/certificates/ec842b1f8a1a2b3c2c439c8d4adfa5471b607088840f171ca6d1642f3f894d9a',
     skills: ['GitHub Copilot', 'Git', 'AI Pair Programming'],
     emoji: '💡',
     color: 'from-purple-600 to-pink-600',
-    description: 'Utilizing GitHub Copilot for AI-assisted coding, automated code generation, refactoring, test writing, and boosting overall developer velocity.',
+    description: 'Using GitHub Copilot for AI-assisted coding: code generation, refactoring, and writing tests.',
   },
   {
-    id: 'ml_az',
-    title: 'Machine Learning A-Z: AI, Python & R',
-    org: 'Udemy',
-    year: '2024',
-    issued: 'Nov 2024',
-    credentialId: 'UC-a4c0bbee-c659-4d51-ad51-5b1211e9cc4f',
-    credentialUrl: 'https://www.udemy.com/certificate/UC-a4c0bbee-c659-4d51-ad51-5b1211e9cc4f/',
-    skills: ['Python (Programming Language)', 'Deep Learning', 'Machine Learning', 'R'],
-    emoji: '🧠',
-    color: 'from-violet-600 to-purple-600',
-    description: 'Comprehensive training in machine learning algorithms, regression, classification, clustering, deep learning, NLP, and neural networks using Python & R.',
-  },
-  {
-    id: 'python_bootcamp',
-    title: '100 Days of Code: The Complete Python Pro Bootcamp',
-    org: 'Udemy',
-    year: '2025',
-    issued: 'Feb 2025',
-    credentialId: 'UC-7ae3e699-3a95-404f-a9cd-e074b5f1553d',
-    credentialUrl: 'https://www.udemy.com/certificate/UC-7ae3e699-3a95-404f-a9cd-e074b5f1553d/',
-    skills: ['Databases', 'Flask', 'Python', 'Web Development', 'Automation'],
-    emoji: '🐍',
-    color: 'from-amber-500 to-orange-500',
-    description: 'Mastered Python by building 100 real-world applications in 100 days, spanning Flask web apps, SQL databases, web scraping, data analysis, and automation.',
+    id: 'ms_genai_essentials',
+    title: 'Career Essentials in Generative AI by Microsoft and LinkedIn',
+    org: 'Microsoft & LinkedIn',
+    issued: 'Sep 2023',
+    credentialUrl: 'https://www.linkedin.com/learning/certificates/b49c37aa015b852352b5baa8f01d3457ca2a7869e14843045ddc807ca0f65d84',
+    skills: ['Prompt Engineering', 'Microsoft Copilot', 'Generative AI'],
+    emoji: '🤖',
+    color: 'from-teal-500 to-emerald-600',
+    description: 'Core concepts of generative AI, prompt engineering, Microsoft Copilot, and responsible AI use.',
   },
 ];
+
+const DEV_CREDENTIALS: DevCredential[] = [...CERTIFICATIONS, ...ADDITIONAL_CREDENTIALS];
 
 // ─── XP Level Thresholds ─────────────────────────────────────────────────────
 const getLevelInfo = (xp: number) => {

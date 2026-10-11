@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { experience } from '../../data/experience';
 import { ExternalLink, MapPin } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';

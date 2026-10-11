@@ -17,10 +17,6 @@ const SYSTEM_INIT_TIME: number = (function () {
   }
 })();
 
-export function getSystemInitTime(): number {
-  return SYSTEM_INIT_TIME;
-}
-
 export function getSystemUptimeSeconds(): number {
   return Math.max(0, Math.floor((Date.now() - SYSTEM_INIT_TIME) / 1000));
 }

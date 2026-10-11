@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import { trackError } from '../../utils/analytics';
 import { AlertOctagon, RefreshCw } from 'lucide-react';
 

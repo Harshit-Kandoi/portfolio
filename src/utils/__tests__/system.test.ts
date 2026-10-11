@@ -1,18 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import {
-  getSystemInitTime,
   getSystemUptimeSeconds,
   formatUptimeHHMMSS,
   formatUptimeHuman,
 } from '../system';
 
 describe('System Utilities Tests', () => {
-  it('should return a valid system initialization timestamp', () => {
-    const initTime = getSystemInitTime();
-    expect(typeof initTime).toBe('number');
-    expect(initTime).toBeGreaterThan(0);
-  });
-
   it('should calculate system uptime in seconds', () => {
     const uptime = getSystemUptimeSeconds();
     expect(typeof uptime).toBe('number');

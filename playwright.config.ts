@@ -8,7 +8,8 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'line',
   use: {
-    baseURL: 'http://localhost:5173',
+    // The app is served under /portfolio/; tests navigate relative to this (page.goto('./')).
+    baseURL: 'http://localhost:5173/portfolio/',
     trace: 'on-first-retry',
   },
   projects: [
@@ -24,8 +25,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
+    // CI tests the production build (the workflow provides dist/); locally the dev server.
+    command: process.env.CI ? 'npm run preview -- --port 5173 --strictPort' : 'npm run dev',
+    url: 'http://localhost:5173/portfolio/',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },

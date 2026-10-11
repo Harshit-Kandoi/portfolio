@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useOSStore } from '../../store/useOSStore';
-import { SPOTIFY_CONFIG } from '../../data/config';
+import { SPOTIFY_CONFIG, PORTFOLIO_META } from '../../data/config';
 import { Music, Award, MapPin, Code2, Sparkles, Quote, Target, Terminal, GitBranch, Cpu, Clock, ExternalLink, RotateCw } from 'lucide-react';
 import { trackEvent } from '../../utils/analytics';
 import { useGitHubStats } from '../../services/github';
 import { formatUptimeHHMMSS } from '../../utils/system';
 import { toSpotifyEmbedUrl, toSpotifyExternalUrl } from '../../utils/spotify';
+import { asset } from '../../utils/paths';
 
 const QUOTES = [
   "Good backend systems disappear. Users notice them only when they're broken.",
@@ -195,7 +196,6 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
           <Cpu className="w-3 h-3 text-pink-400" />
           repos: <span className="text-pink-300">{ghStats?.public_repos ?? '···'}</span>
         </span>
-        <span className="ml-auto text-[9px] text-gray-600 hidden sm:block">PID: 1024 · mem: 37 MB</span>
       </div>
 
       {/* Bio and Profile */}
@@ -205,24 +205,24 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
         <div className={`${isMobile ? '' : 'col-span-1'} border p-6 rounded-2xl flex flex-col items-center text-center space-y-4 shadow-xl ${boxBg}`}>
           <div className="relative group">
             <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-purple-500/50 flex items-center justify-center shadow-lg shadow-purple-500/10">
-              <img src={ghStats?.avatar_url || '/profile.webp'} alt={ghStats?.name || 'Harshit Kandoi'} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+              <img src={ghStats?.avatar_url || asset('profile.webp')} alt={PORTFOLIO_META.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
             </div>
             <span
               className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-slate-950 animate-pulse cursor-default"
-              title="Available for interesting projects"
+              title={PORTFOLIO_META.availability}
             />
           </div>
 
           <div className="w-full">
-            <h2 className={`text-sm font-bold tracking-wide text-center ${isLight ? 'text-slate-900' : 'text-white'}`}>{ghStats?.name || 'Harshit Kandoi'}</h2>
-            <p className="text-[10px] text-purple-500 font-semibold mt-0.5 text-center">Full Stack Software Engineer</p>
-            <p className="text-[9px] text-emerald-500 font-bold mt-1 animate-pulse text-center">● Available for interesting projects</p>
+            <h2 className={`text-sm font-bold tracking-wide text-center ${isLight ? 'text-slate-900' : 'text-white'}`}>{PORTFOLIO_META.name}</h2>
+            <p className="text-[10px] text-purple-500 font-semibold mt-0.5 text-center">{PORTFOLIO_META.role} · {PORTFOLIO_META.company}</p>
+            <p className="text-[9px] text-emerald-500 font-bold mt-1 animate-pulse text-center">● {PORTFOLIO_META.availability}</p>
           </div>
 
           <div className={`w-full space-y-2 text-[10px] sm:text-xs pt-3 border-t border-white/10 text-left ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>
             <div className="flex items-center space-x-2">
               <MapPin className="w-3.5 h-3.5 text-purple-500 shrink-0" />
-              <span>{ghStats?.location || 'Jaipur, Rajasthan, India'}</span>
+              <span>{PORTFOLIO_META.location}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Code2 className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
@@ -308,9 +308,9 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
           <div className={`p-4 rounded-xl border ${boxBg} hover:border-purple-500/30 transition group`}>
             <p className={`font-bold text-[11px] mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>🔍 Offline GCP Emulator</p>
             <div className={`space-y-1 text-[10px] ${isLight ? 'text-slate-700 font-medium' : 'text-gray-400'}`}>
-              <div>✓ <span className="text-emerald-600 font-bold">Zero cloud cost</span> during development</div>
+              <div>✓ <span className="text-emerald-600 font-bold">Runs offline</span> during development</div>
               <div>✓ <span className="text-emerald-600 font-bold">Local Pub/Sub</span> + Firestore support</div>
-              <div>✓ <span className="text-emerald-600 font-bold">Reduced debug cycles</span> by ~10×</div>
+              <div>✓ <span className="text-emerald-600 font-bold">Dockerized</span> local setup</div>
             </div>
           </div>
 
@@ -318,7 +318,7 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
             <p className={`font-bold text-[11px] mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>⚡ YOLOv5 ASL Detector</p>
             <div className={`space-y-1 text-[10px] ${isLight ? 'text-slate-700 font-medium' : 'text-gray-400'}`}>
               <div>✓ <span className="text-emerald-600 font-bold">90%+ accuracy</span> in real-time inference</div>
-              <div>✓ <span className="text-emerald-600 font-bold">Custom dataset</span> curated from scratch</div>
+              <div>✓ <span className="text-emerald-600 font-bold">26 ASL letters</span> recognised</div>
               <div>✓ <span className="text-emerald-600 font-bold">OpenCV pipeline</span> with webcam input</div>
             </div>
           </div>

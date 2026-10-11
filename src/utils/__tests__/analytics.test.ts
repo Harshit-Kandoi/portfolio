@@ -82,11 +82,11 @@ describe('Centralized Analytics Service Tests', () => {
   });
 
   describe('DNT (Do Not Track) checks', () => {
-    it('should detect when DNT is disabled by default', () => {
+    it('should detect when DNT is disabled by default', async () => {
       expect(analytics.isDoNotTrackEnabled()).toBe(false);
     });
 
-    it('should detect when DNT is enabled via navigator.doNotTrack', () => {
+    it('should detect when DNT is enabled via navigator.doNotTrack', async () => {
       Object.defineProperty(navigator, 'doNotTrack', {
         value: '1',
         configurable: true,
@@ -94,7 +94,7 @@ describe('Centralized Analytics Service Tests', () => {
       expect(analytics.isDoNotTrackEnabled()).toBe(true);
     });
 
-    it('should detect when DNT is enabled via window.doNotTrack', () => {
+    it('should detect when DNT is enabled via window.doNotTrack', async () => {
       Object.defineProperty(window, 'doNotTrack', {
         value: 'yes',
         configurable: true,
@@ -104,16 +104,17 @@ describe('Centralized Analytics Service Tests', () => {
   });
 
   describe('Initialization and Script Load', () => {
-    it('should initialize PostHog and GA4 when keys are present and DNT is disabled', () => {
+    it('should initialize PostHog and GA4 when keys are present and DNT is disabled', async () => {
       analytics.initAnalytics();
       triggerScriptOnload();
+      await vi.dynamicImportSettled();
 
       expect(window.gtag).toBeDefined();
       expect(window.dataLayer).toBeDefined();
       expect(mockInit).toHaveBeenCalled();
     });
 
-    it('should NOT initialize GA4 or PostHog if DNT is active', () => {
+    it('should NOT initialize GA4 or PostHog if DNT is active', async () => {
       Object.defineProperty(navigator, 'doNotTrack', {
         value: '1',
         configurable: true,
@@ -121,13 +122,14 @@ describe('Centralized Analytics Service Tests', () => {
 
       analytics.initAnalytics();
       triggerScriptOnload();
+      await vi.dynamicImportSettled();
 
       expect(window.gtag).toBeUndefined();
     });
   });
 
   describe('Event Tracking & Queueing', () => {
-    it('should queue events before initialization and flush after ready', () => {
+    it('should queue events before initialization and flush after ready', async () => {
       // Track an event before calling init
       analytics.trackEvent('resume_download', { format: 'pdf' });
       expect(mockCapture).not.toHaveBeenCalled();
@@ -135,6 +137,7 @@ describe('Centralized Analytics Service Tests', () => {
       // Initialize analytics and trigger script load
       analytics.initAnalytics();
       triggerScriptOnload();
+      await vi.dynamicImportSettled();
 
       expect(mockCapture).toHaveBeenCalledWith(
         'resume_download',
@@ -146,9 +149,10 @@ describe('Centralized Analytics Service Tests', () => {
       );
     });
 
-    it('should track page_view immediately if initialized', () => {
+    it('should track page_view immediately if initialized', async () => {
       analytics.initAnalytics();
       triggerScriptOnload();
+      await vi.dynamicImportSettled();
       
       analytics.trackPageView('About App', '/apps/about');
 
@@ -161,9 +165,10 @@ describe('Centralized Analytics Service Tests', () => {
       );
     });
 
-    it('should update user properties', () => {
+    it('should update user properties', async () => {
       analytics.initAnalytics();
       triggerScriptOnload();
+      await vi.dynamicImportSettled();
       
       analytics.setUserProperties({ role: 'recruiter' });
 
@@ -181,6 +186,7 @@ describe('Centralized Analytics Service Tests', () => {
 
       analytics.initAnalytics();
       triggerScriptOnload();
+      await vi.dynamicImportSettled();
 
       analytics.trackSearch('projects', 'react');
       analytics.trackSearch('projects', 'react native');

@@ -1,4 +1,5 @@
 import { Project } from '../types';
+import { PORTFOLIO_META } from './config';
 
 export const projects: Project[] = [
   // 🏆 Products & Software
@@ -6,19 +7,21 @@ export const projects: Project[] = [
     id: 1,
     title: "Portfolio OS",
     description: "Interactive desktop-inspired portfolio OS with AI assistant, games, terminal, resume, projects, analytics, testing and performance optimization.",
-    image: "https://images.pexels.com/photos/1779487/pexels-photo-1779487.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    image: "projects/portfolio-os.webp",
     category: ["Products & Software"],
     technologies: ["React", "TypeScript", "Zustand", "Tailwind CSS", "Vite"],
     github: "https://github.com/Harshit-Kandoi/portfolio",
+    demo: PORTFOLIO_META.siteUrl,
     featured: true,
     duration: "Ongoing",
-    status: "⭐ Flagship (Beta)"
+    status: "⭐ Flagship (Beta)",
+    role: "Solo project"
   },
   {
     id: 2,
     title: "Financial Mirror",
     description: "AI-powered financial awareness platform helping users understand spending habits, financial personality and future planning.",
-    image: "https://images.pexels.com/photos/6801648/pexels-photo-6801648.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    image: "projects/financial-mirror.webp",
     category: ["Products & Software", "AI & Machine Learning"],
     technologies: ["Python", "AI", "React", "Node.js", "Financial ML"],
     // github: "https://github.com/Harshit-Kandoi/Financial-mirror",
@@ -31,7 +34,7 @@ export const projects: Project[] = [
     id: 25,
     title: "ClearCue-AI",
     description: "Active AI product repository currently in development. Scope and public details are intentionally light until the build direction is finalized.",
-    image: "https://images.pexels.com/photos/8386440/pexels-photo-8386440.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    image: "projects/clearcue-ai.webp",
     category: ["Products & Software", "AI & Machine Learning"],
     technologies: ["AI", "Product Engineering", "Automation"],
     demo: "https://www.harshitkandoi.in/clearcue-ai",
@@ -43,25 +46,27 @@ export const projects: Project[] = [
     id: 26,
     title: "Company Page",
     description: "Minimal company/studio page for positioning freelance services, product work, process, and contact flows with a calm console-inspired interface.",
-    image: "https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    image: "projects/company-page.webp",
     category: ["Products & Software"],
     technologies: ["Next.js", "React", "CSS", "Content Design"],
-    demo: "https://www.harshitkandoi.in",
+    demo: PORTFOLIO_META.companySiteUrl,
     featured: true,
     duration: "Ongoing",
-    status: "Active Build"
+    status: "Active Build",
+    role: "Solo project"
   },
   {
     id: 3,
     title: "Pixel Buddy",
     description: "Desktop productivity companion that reminds users to drink water, take breaks and maintain healthy computer habits.",
-    image: "https://images.pexels.com/photos/7974/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=600&fit=crop",
+    image: "projects/pixel-buddy.webp",
     category: ["Products & Software"],
     technologies: ["Electron", "React", "TypeScript", "Node.js"],
     github: "https://github.com/Harshit-Kandoi/pixel-buddy",
     featured: true,
     duration: "Ongoing",
-    status: "Active Build"
+    status: "Active Build",
+    role: "Solo project"
   },
   {
     id: 4,
@@ -73,7 +78,8 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/web-image-scrapper",
     featured: false,
     duration: "Feb 2025",
-    status: "✅ Utility"
+    status: "✅ Utility",
+    role: "Solo project"
   },
   {
     id: 5,
@@ -85,7 +91,8 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/movie-recommender",
     featured: false,
     duration: "Oct 2024 - Nov 2024",
-    status: "✅ Portfolio Project"
+    status: "✅ Portfolio Project",
+    role: "Solo project"
   },
   {
     id: 6,
@@ -97,7 +104,8 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/Personal-budget-tracker",
     featured: false,
     duration: "Oct 2024",
-    status: "Learning Project"
+    status: "Learning Project",
+    role: "Solo project"
   },
   {
     id: 7,
@@ -109,7 +117,8 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/ecommerce",
     featured: false,
     duration: "Nov 2024",
-    status: "Under Evaluation"
+    status: "Under Evaluation",
+    role: "Solo project"
   },
 
   // 🤖 Artificial Intelligence / Machine Learning
@@ -119,11 +128,12 @@ export const projects: Project[] = [
     description: "Computer Vision model that classifies plastic waste types (PET, HDPE, etc.) from images for automated recycling systems.",
     image: "https://images.pexels.com/photos/802221/pexels-photo-802221.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
     category: ["AI & Machine Learning"],
-    technologies: ["Python", "YOLOv8", "PyTorch", "OpenCV", "Computer Vision"],
+    technologies: ["Python", "YOLO", "PyTorch", "OpenCV", "Computer Vision"],
     github: "https://github.com/Harshit-Kandoi/Yolo_Plastic_Classification",
     featured: true,
     duration: "Apr 2025 - Jul 2025",
-    status: "Good Research Project"
+    status: "Research Project",
+    role: "AI Intern (Computer Vision)"
   },
   {
     id: 9,
@@ -135,7 +145,8 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/ASL-letter-detection",
     featured: true,
     duration: "Mar 2025 - Apr 2025",
-    status: "90%+ Accuracy"
+    status: "90%+ Accuracy",
+    role: "Solo project"
   },
   {
     id: 27,
@@ -146,7 +157,8 @@ export const projects: Project[] = [
     technologies: ["Python", "Flask", "OpenAI Whisper", "Speech-to-Text"],
     featured: false,
     duration: "Feb 2025 - Mar 2025",
-    status: "AI Utility"
+    status: "AI Utility",
+    role: "Solo project"
   },
   {
     id: 10,
@@ -158,7 +170,8 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/upflairs/tree/main/email",
     featured: false,
     duration: "Jul 2024",
-    status: "Classic ML Project"
+    status: "Classic ML Project",
+    role: "Data Science Intern"
   },
   {
     id: 11,
@@ -170,7 +183,8 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/crops",
     featured: true,
     duration: "Jun 2024 - Aug 2024",
-    status: "Good Beginner ML"
+    status: "ML Project",
+    role: "Data Science Intern"
   },
   {
     id: 12,
@@ -218,7 +232,8 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/upflairs",
     featured: false,
     duration: "Jul 2024",
-    status: "Learning (Archived)"
+    status: "Learning (Archived)",
+    role: "Data Science Intern"
   },
 
   // 🎮 Reinforcement Learning
@@ -232,7 +247,8 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/Snake-Reinforcement-Learning",
     featured: true,
     duration: "Jan 2025",
-    status: "Excellent Research Project"
+    status: "Research Project",
+    role: "Solo project"
   },
   {
     id: 17,
@@ -244,7 +260,8 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/doom_reinforcement_learning",
     featured: false,
     duration: "Feb 2025",
-    status: "Excellent Research Project"
+    status: "Research Project",
+    role: "Solo project"
   },
 
   // 📊 Data Science & Analytics
@@ -258,7 +275,8 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/Credit-Card-Financial-Dashboard",
     featured: false,
     duration: "Aug 2024",
-    status: "Strong Dashboard"
+    status: "Dashboard",
+    role: "Solo project"
   },
   {
     id: 19,
@@ -270,14 +288,15 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/pizza-sales",
     featured: false,
     duration: "Sep 2024",
-    status: "Good Analytics Project"
+    status: "Analytics Project",
+    role: "Solo project"
   },
 
   // ☁️ Cloud & Backend Learning
   {
     id: 20,
     title: "Local GCP Emulator",
-    description: "Dockerized local cloud development environment simulating Firestore and Pub/Sub offline to speed up cloud dev and cut CI costs.",
+    description: "Dockerized local cloud development environment that emulates Firestore and Pub/Sub for offline development and testing.",
     image: "https://images.pexels.com/photos/3861958/pexels-photo-3861958.jpeg?auto=compress&cs=tinysrgb&w=600&fit=crop",
     category: ["Cloud & Backend"],
     technologies: ["Python", "Docker", "GCP", "Firestore", "Pub/Sub"],
@@ -322,7 +341,8 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/DSA",
     featured: false,
     duration: "Ongoing",
-    status: "Practice"
+    status: "Practice",
+    role: "Solo project"
   },
   {
     id: 24,
@@ -334,7 +354,8 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/machine-learning-udemy",
     featured: false,
     duration: "2 Months",
-    status: "Course Exercises"
+    status: "Course Exercises",
+    role: "Solo project"
   },
   // {
   //   id: 25,

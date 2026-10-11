@@ -20,7 +20,7 @@ const SKILL_SHORT_NAMES: Record<string, string> = {
   'Workflow Automation': 'Automation',
   'AI-driven Data Processing': 'AI Processing',
   'Model Integration': 'Model Serving',
-  'Antigravity & Codex Combo': 'Antigravity / Codex',
+  'AI-assisted development (Claude Code, Codex)': 'AI-assisted Dev',
   'Jira & VS Code': 'Jira & VS Code',
   'Git & GitHub': 'Git & GitHub',
   'Jupyter Notebook': 'Jupyter',
@@ -117,7 +117,7 @@ const SKILL_DETAILS: Record<string, { summary: string; keyPoints: string[] }> = 
   },
   'Computer Vision (YOLO)': {
     summary: 'Real-time object detection models for plastic classification and sign language recognition.',
-    keyPoints: ['YOLOv5 & YOLOv8 Architectures', 'Bounding Box Annotation & Training', 'OpenCV Frame Manipulation', 'PyTorch Model Export']
+    keyPoints: ['YOLO Object Detection (YOLOv5)', 'Bounding Box Annotation & Training', 'OpenCV Frame Manipulation', 'PyTorch Model Export']
   },
   'Model Integration': {
     summary: 'Exporting, packaging, and serving ML/DL models within web applications and desktop tools.',
@@ -127,9 +127,9 @@ const SKILL_DETAILS: Record<string, { summary: string; keyPoints: string[] }> = 
     summary: 'Distributed version control, feature branching, pull requests, and open-source collaboration.',
     keyPoints: ['Git Rebase & Branch Workflows', 'PR Code Reviews & Merges', 'GitHub Issues & Milestones', 'Commit History Management']
   },
-  'Antigravity & Codex Combo': {
-    summary: 'AI-assisted pair programming and agentic coding workflows for fast production software delivery.',
-    keyPoints: ['Agentic Prompting & Refactoring', 'Architecture Planning & Verification', 'Rapid Full-stack Prototyping', 'Automated Test Generation']
+  'AI-assisted development (Claude Code, Codex)': {
+    summary: 'Using AI coding assistants for refactoring, prototyping, and test writing, with every change reviewed and verified by hand.',
+    keyPoints: ['Prompting for Refactors', 'Reviewing AI-generated Code', 'Prototyping', 'Test Generation']
   },
   'Jira & VS Code': {
     summary: 'Agile project management, sprint tracking, issue ticketing, and IDE extension workflows.',
@@ -156,6 +156,15 @@ const SKILL_DETAILS: Record<string, { summary: string; keyPoints: string[] }> = 
     keyPoints: ['Technical Writing & Docs', 'Architecture Diagrams & Specs', 'Clear Bug Reports', 'Active Listening & Alignment']
   }
 };
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** True when `term` appears in `text` as a whole word (so "java" doesn't match "javascript"). */
+function containsTerm(text: string, term: string): boolean {
+  if (!term) return false;
+  if (text === term) return true;
+  return new RegExp(`(^|[^a-z0-9])${escapeRegExp(term)}($|[^a-z0-9])`).test(text);
+}
 
 /**
  * Robust technology matcher connecting skills to relevant portfolio projects
@@ -193,10 +202,11 @@ function getRelatedProjects(skill: Skill | null): Project[] {
     'ci/cd': ['github actions', 'docker', 'git', 'github'],
     'automation': ['python', 'selenium', 'beautifulsoup4', 'scraping', 'ai'],
     'ai': ['ai', 'python', 'pytorch', 'scikit-learn', 'yolo', 'ml'],
-    'yolo': ['yolov5', 'yolov8', 'opencv', 'computer vision', 'pytorch'],
+    'yolo': ['yolo', 'yolov5', 'yolov8', 'opencv', 'computer vision', 'pytorch'],
     'model': ['pytorch', 'scikit-learn', 'yolo', 'streamlit', 'ml'],
     'git': ['git', 'github', 'react', 'typescript', 'python'],
     'codex': ['react', 'typescript', 'python', 'vite', 'zustand'],
+    'claude': ['react', 'typescript', 'python', 'vite', 'zustand'],
     'jira': ['react', 'python', 'git', 'electron'],
     'jupyter': ['python', 'pandas', 'scikit-learn', 'data analytics', 'sql'],
     'problem': ['python', 'c++', 'algorithms', 'dsa', 'react'],
@@ -211,18 +221,21 @@ function getRelatedProjects(skill: Skill | null): Project[] {
     }
   });
 
+  const kwList = Array.from(keywords);
   const matched = projects.filter((p) => {
     const techMatches = p.technologies.some((tech) => {
       const techLower = tech.toLowerCase();
       return (
-        techLower.includes(rawName) ||
-        rawName.includes(techLower) ||
-        Array.from(keywords).some((kw) => techLower.includes(kw) || kw.includes(techLower))
+        containsTerm(techLower, rawName) ||
+        containsTerm(rawName, techLower) ||
+        kwList.some((kw) => containsTerm(techLower, kw) || containsTerm(kw, techLower))
       );
     });
 
-    const textMatches = Array.from(keywords).some(
-      (kw) => kw.length > 2 && (p.title.toLowerCase().includes(kw) || p.description.toLowerCase().includes(kw))
+    const title = p.title.toLowerCase();
+    const description = p.description.toLowerCase();
+    const textMatches = kwList.some(
+      (kw) => kw.length > 2 && (containsTerm(title, kw) || containsTerm(description, kw))
     );
 
     return techMatches || textMatches;
@@ -253,7 +266,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  const categories = ['All', 'Languages', 'Backend', 'Frontend', 'Databases', 'Cloud', 'AI', 'Tools'];
+  const categories = ['All', 'Languages', 'Backend', 'Frontend', 'Databases', 'Cloud', 'AI', 'Tools', 'Soft Skills'];
   
   // Target skill displayed in sidebar:
   // Hovering temporarily previews node in sidebar; mouse leave returns to locked selectedSkill
@@ -282,7 +295,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
   const centerX = width / 2;
   const centerY = height / 2;
 
-  // 7 categories evenly spaced (51.4° apart), starting at -90° (top)
+  // Categories evenly spaced around the centre, starting at -90° (top)
   const categoriesList = categories.slice(1);
   const categoryAngles: Record<string, number> = {};
   categoriesList.forEach((cat, idx) => {
@@ -294,7 +307,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
    * Arranges sub-nodes strictly along their category's directional ray with alternating perpendicular offsets.
    * Guaranteed ZERO collision between different category branches!
    */
-  const getCoordinates = (category: string, index: number, total: number, isSubNode: boolean = false) => {
+  const getCoordinates = (category: string, index: number, isSubNode: boolean = false) => {
     const angleOffset = categoryAngles[category] ?? 0;
     const rad = (angleOffset * Math.PI) / 180;
     
@@ -316,13 +329,10 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
       
       return {
         x: centerX + R_skill * Math.cos(rad) - perp * Math.sin(rad),
-        y: centerY + R_skill * Sin(rad) + perp * Math.cos(rad),
+        y: centerY + R_skill * Math.sin(rad) + perp * Math.cos(rad),
       };
     }
   };
-
-  // Helper function for Math.sin uppercase typo fallback
-  function Sin(rad: number) { return Math.sin(rad); }
 
   // Select + Auto-Lock handler on click
   const handleSelectSkill = (sk: Skill, view: string) => {
@@ -440,7 +450,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
                 
                 {/* Draw Constellation connecting lines */}
                 {categories.slice(1).map((cat) => {
-                  const catPos = getCoordinates(cat, 0, 0, false);
+                  const catPos = getCoordinates(cat, 0, false);
                   const catSkills = skills.filter((s) => s.category === cat);
                   const isCatActive = selectedCategory === 'All' || selectedCategory === cat;
 
@@ -459,7 +469,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
                       
                       {/* Category Node to sub skill nodes */}
                       {catSkills.map((sk, idx) => {
-                        const skPos = getCoordinates(cat, idx, catSkills.length, true);
+                        const skPos = getCoordinates(cat, idx, true);
                         const isSelected = selectedSkill?.name === sk.name && isLocked;
                         const isHovered = hoveredSkill?.name === sk.name;
                         const isHighlighted = isSelected || isHovered;
@@ -501,7 +511,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
 
                 {/* Category Nodes (larger r=16) */}
                 {categories.slice(1).map((cat) => {
-                  const catPos = getCoordinates(cat, 0, 0, false);
+                  const catPos = getCoordinates(cat, 0, false);
                   const isCatActive = selectedCategory === 'All' || selectedCategory === cat;
                   return (
                     <g
@@ -537,7 +547,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
                   return (
                     <g key={cat} className="transition-opacity duration-300" style={{ opacity: isCatActive ? 1 : 0.12 }}>
                       {catSkills.map((sk, idx) => {
-                        const skPos = getCoordinates(cat, idx, catSkills.length, true);
+                        const skPos = getCoordinates(cat, idx, true);
                         const isSelected = selectedSkill?.name === sk.name && isLocked;
                         const isTarget = targetSkill?.name === sk.name;
                         const shortName = SKILL_SHORT_NAMES[sk.name] || sk.name;

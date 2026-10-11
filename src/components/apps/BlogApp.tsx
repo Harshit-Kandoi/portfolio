@@ -13,7 +13,7 @@ export default function BlogApp({ isMobileView }: { isMobileView?: boolean } = {
   const theme = useOSStore((state) => state.theme);
   const viewMode = useOSStore((state) => state.viewMode);
   const isSimulatingMobile = useOSStore((state) => state.isSimulatingMobile);
-  const blogWindow = useOSStore((state) => state.windows.find((w) => w.id === 'blog'));
+  const blogWindow = useOSStore((state) => state.windows.find((w) => w.id === 'writing'));
   const unlockAchievement = useOSStore((state) => state.unlockAchievement);
   const addNotification = useOSStore((state) => state.addNotification);
 
@@ -121,7 +121,7 @@ export default function BlogApp({ isMobileView }: { isMobileView?: boolean } = {
             <img src={selectedPost.image} alt={selectedPost.title} className="w-full h-full object-cover" />
             {selectedPost.featured && (
               <span className="absolute top-3 left-3 bg-amber-500/90 backdrop-blur-md text-black font-extrabold text-[9px] uppercase tracking-wider px-2.5 py-1 rounded-md shadow-md flex items-center gap-1">
-                🔥 Top Story
+                Featured
               </span>
             )}
           </div>
@@ -145,10 +145,12 @@ export default function BlogApp({ isMobileView }: { isMobileView?: boolean } = {
                 <Calendar className="w-3.5 h-3.5 text-purple-400" />
                 <span>{selectedPost.date}</span>
               </span>
-              <span className="flex items-center space-x-1">
-                <Clock className="w-3.5 h-3.5 text-purple-400" />
-                <span>{selectedPost.readingTime || 5} min read</span>
-              </span>
+              {selectedPost.readingTime ? (
+                <span className="flex items-center space-x-1">
+                  <Clock className="w-3.5 h-3.5 text-purple-400" />
+                  <span>{selectedPost.readingTime} min read</span>
+                </span>
+              ) : null}
             </div>
           </div>
 
@@ -167,8 +169,6 @@ export default function BlogApp({ isMobileView }: { isMobileView?: boolean } = {
           <div className={`border-t pt-5 ${isLight ? 'border-slate-200' : 'border-white/10'}`}>
             <p className={`text-sm leading-relaxed text-justify mb-8 ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
               {selectedPost.excerpt}
-              <br /><br />
-              This article covers deep technical concepts regarding AI/ML, compiler acceleration, optimization, dependency caching, or container management. Read the complete publication on Medium to view code snippets, benchmarks, and interactive community discussions.
             </p>
 
             <a
@@ -277,10 +277,12 @@ export default function BlogApp({ isMobileView }: { isMobileView?: boolean } = {
                           👏 {post.claps}
                         </span>
                       )}
-                      <span className="flex items-center space-x-1">
-                        <Clock className="w-3 h-3 text-purple-400" />
-                        <span>{post.readingTime || 5} min read</span>
-                      </span>
+                      {post.readingTime ? (
+                        <span className="flex items-center space-x-1">
+                          <Clock className="w-3 h-3 text-purple-400" />
+                          <span>{post.readingTime} min read</span>
+                        </span>
+                      ) : null}
                     </div>
                   </div>
                 </div>

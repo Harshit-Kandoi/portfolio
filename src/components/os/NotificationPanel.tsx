@@ -1,5 +1,6 @@
 import React from 'react';
 import { useOSStore, ToastNotification } from '../../store/useOSStore';
+import { PORTFOLIO_META } from '../../data/config';
 import { Bell, Trophy, CheckCircle, Info, AlertTriangle, AlertCircle, X, Trash2, ExternalLink } from 'lucide-react';
 
 const TYPE_ICON: Record<ToastNotification['type'], React.ElementType> = {
@@ -23,16 +24,16 @@ export default function NotificationPanel({ onClose }: Props) {
     : 'bg-[#0f0c20]/95 border-white/10 text-purple-100';
   const itemBg = isLight
     ? 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-    : 'bg-white/5 border-white/8 hover:bg-white/10';
+    : 'bg-white/5 border-white/10 hover:bg-white/10';
 
   const handleNotificationClick = (notif: ToastNotification) => {
     if (notif.action) {
       if (notif.action.startsWith('http://') || notif.action.startsWith('https://')) {
-        window.open(notif.action, '_blank');
+        window.open(notif.action, '_blank', 'noopener,noreferrer');
       } else if (notif.action === 'github') {
-        window.open('https://github.com/Harshit-Kandoi', '_blank');
+        window.open(PORTFOLIO_META.github, '_blank', 'noopener,noreferrer');
       } else if (notif.action === 'linkedin') {
-        window.open('https://linkedin.com/in/harshit-kandoi', '_blank');
+        window.open(PORTFOLIO_META.linkedin, '_blank', 'noopener,noreferrer');
       } else {
         openWindow(notif.action, true);
       }
@@ -44,11 +45,10 @@ export default function NotificationPanel({ onClose }: Props) {
   return (
     <div
       id="notification-drawer"
-      className={`fixed right-4 top-14 w-88 max-h-[82vh] flex flex-col rounded-2xl border shadow-2xl z-[10000] backdrop-blur-3xl overflow-hidden ${panelBg} animate-slide-up`}
-      style={{ width: '22rem' }}
+      className={`fixed right-4 top-14 w-[22rem] max-w-[calc(100vw-2rem)] max-h-[82vh] flex flex-col rounded-2xl border shadow-2xl z-[10000] backdrop-blur-3xl overflow-hidden ${panelBg} animate-slide-up`}
     >
       {/* Header */}
-      <div className={`flex items-center justify-between px-4 py-3 border-b ${isLight ? 'border-gray-200' : 'border-white/8'} shrink-0`}>
+      <div className={`flex items-center justify-between px-4 py-3 border-b ${isLight ? 'border-gray-200' : 'border-white/10'} shrink-0`}>
         <div className="flex items-center space-x-2">
           <Bell className="w-4 h-4 text-purple-400" />
           <h3 className="text-xs font-bold uppercase tracking-wider">Notifications</h3>
@@ -91,18 +91,31 @@ export default function NotificationPanel({ onClose }: Props) {
             return (
               <div
                 key={notif.id}
+                role="button"
+                tabIndex={0}
+                aria-label={`${notif.title}. ${notif.message}${notif.action ? ' Activate to open.' : ' Activate to dismiss.'}`}
                 onClick={() => handleNotificationClick(notif)}
-                className={`relative p-3 rounded-xl border flex flex-col space-y-1.5 group transition cursor-pointer ${itemBg} ${
+                onKeyDown={(e) => {
+                  if (e.target !== e.currentTarget) return;
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleNotificationClick(notif);
+                  } else if (e.key === 'Delete' || e.key === 'Backspace') {
+                    e.preventDefault();
+                    dismissNotification(notif.id);
+                  }
+                }}
+                className={`relative p-3 rounded-xl border flex flex-col space-y-1.5 group transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 ${itemBg} ${
                   notif.type === 'achievement' ? 'border-yellow-500/25 shadow-[0_0_10px_rgba(234,179,8,0.05)]' : ''
                 } ${notif.action ? 'hover:ring-1 hover:ring-purple-400/30' : ''}`}
               >
-                {/* Dismiss button */}
+                {/* Dismiss button: always visible on touch screens; on hover devices shown on hover or focus */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     dismissNotification(notif.id);
                   }}
-                  className="absolute top-2 right-2 p-0.5 rounded-md opacity-0 group-hover:opacity-100 text-gray-400 hover:text-white hover:bg-white/10 transition"
+                  className="absolute top-2 right-2 p-0.5 rounded-md opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 text-gray-400 hover:text-white hover:bg-white/10 transition"
                   aria-label="Dismiss notification"
                 >
                   <X className="w-3 h-3" />

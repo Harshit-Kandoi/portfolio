@@ -16,9 +16,16 @@ export const SPOTIFY_CONFIG = {
   ],
 };
 
+// Single source of truth for identity facts. Every app (classic + OS) reads from here.
 export const PORTFOLIO_META = {
   name: 'Harshit Kandoi',
-  role: 'Full Stack Software Engineer',
+  role: 'Associate Software Engineer',
+  company: 'ThoughtIn Solutions',
+  // One-line summary used in headers, lock screen, terminal `whoami`, etc.
+  headline: 'Associate Software Engineer at ThoughtIn Solutions · full stack (React, Python, Java, GCP)',
+  availability: 'Open to freelance projects',
+  siteUrl: 'https://www.harshitkandoi.in/portfolio',
+  companySiteUrl: 'https://www.harshitkandoi.in',
   location: 'Jaipur, Rajasthan, India',
   email: 'hello@harshitkandoi.in',
   phone: '+91 78500 98453',
@@ -26,7 +33,6 @@ export const PORTFOLIO_META = {
   linkedin: 'https://linkedin.com/in/harshit-kandoi',
   medium: 'https://medium.com/@kandoiharshitsdlp',
   kaggle: 'https://kaggle.com/harshitkandoi7850',
-  buymecoffee: 'https://buymeacoffee.com/Harshit_Kandoi',
 };
 
 export const SNAKE_CONFIG = {
@@ -58,5 +64,5 @@ export const SESSION_KEYS = {
   portalMode: 'portfolio-os-portal-mode',
 };
 
-export const APP_VERSION = import.meta.env.VITE_APP_VERSION || '2.4.0';
+export const APP_VERSION = import.meta.env.VITE_APP_VERSION || '3.0.0';
 export const ANALYTICS_VERSION = import.meta.env.VITE_ANALYTICS_VERSION || 'v1.0';

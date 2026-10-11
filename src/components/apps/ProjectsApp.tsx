@@ -5,12 +5,26 @@ import { Folder, Grid, List, Search, Github, ExternalLink, X, Star } from 'lucid
 import { useOSStore } from '../../store/useOSStore';
 import { trackEvent, trackSearch } from '../../utils/analytics';
 
+const FAVORITES_STORAGE_KEY = 'portfolio-os-project-favorites';
+
+function loadFavorites(): number[] {
+  const defaults = projects.filter((p) => p.featured).map((p) => p.id);
+  try {
+    const raw = window.localStorage.getItem(FAVORITES_STORAGE_KEY);
+    if (!raw) return defaults;
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((id): id is number => typeof id === 'number') : defaults;
+  } catch {
+    return defaults;
+  }
+}
+
 export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }) {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [favorites, setFavorites] = useState<number[]>(() => projects.filter((p) => p.featured).map((p) => p.id));
+  const [favorites, setFavorites] = useState<number[]>(loadFavorites);
   const theme = useOSStore((state) => state.theme);
   const unlockAchievement = useOSStore((state) => state.unlockAchievement);
   const globalViewMode = useOSStore((state) => state.viewMode);
@@ -19,7 +33,17 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
   // Fire project_browser achievement once on first open
   useEffect(() => { unlockAchievement('project_browser'); }, [unlockAchievement]);
 
-  // Track search query with debouncing
+  // Persist favourites across sessions
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+    } catch {
+      // Storage unavailable (private mode, quota) — favourites stay in memory only
+    }
+  }, [favorites]);
+
+  // Track search query. trackSearch debounces per scope (1.5s) and ignores empty
+  // queries, so only one event fires after typing pauses.
   useEffect(() => {
     trackSearch('projects', searchQuery);
   }, [searchQuery]);

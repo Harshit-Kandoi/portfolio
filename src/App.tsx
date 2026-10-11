@@ -1,14 +1,28 @@
 import { useEffect, lazy, Suspense, useState, useRef, useCallback } from 'react';
 import { useOSStore } from './store/useOSStore';
-import BootScreen from './components/os/BootScreen';
-import LockScreen from './components/os/LockScreen';
-import Desktop from './components/os/Desktop';
-import Wallpaper from './components/os/Wallpaper';
-import PoweredOffScreen from './components/os/PoweredOffScreen';
 import ClassicPortfolio from './components/classic/ClassicPortfolio';
 import OSTransitionOverlay from './components/classic/OSTransitionOverlay';
+import { PORTFOLIO_META } from './data/config';
 
-const AndroidOS = lazy(() => import('./components/os/AndroidOS'));
+// e.g. "harshitkandoi.in/portfolio"
+const SITE_LABEL = PORTFOLIO_META.siteUrl.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
+
+// The OS is opt-in, so its code is split out of the main bundle that classic visitors load.
+const loadOS = {
+  boot: () => import('./components/os/BootScreen'),
+  lock: () => import('./components/os/LockScreen'),
+  desktop: () => import('./components/os/Desktop'),
+  wallpaper: () => import('./components/os/Wallpaper'),
+  poweredOff: () => import('./components/os/PoweredOffScreen'),
+  android: () => import('./components/os/AndroidOS'),
+};
+const BootScreen = lazy(loadOS.boot);
+const LockScreen = lazy(loadOS.lock);
+const Desktop = lazy(loadOS.desktop);
+const Wallpaper = lazy(loadOS.wallpaper);
+const PoweredOffScreen = lazy(loadOS.poweredOff);
+const AndroidOS = lazy(loadOS.android);
+const prefetchOS = () => Object.values(loadOS).forEach((load) => load().catch(() => {}));
 
 function App() {
   const bootState = useOSStore((state) => state.bootState);
@@ -34,7 +48,16 @@ function App() {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   // ── Classic → OS transition handler ────────────────────────────────────────
+  // Warm the OS chunks once the classic page is idle, so "Interactive mode" opens instantly.
+  useEffect(() => {
+    if (portalMode !== 'classic') return;
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1));
+    const timer = window.setTimeout(() => idle(prefetchOS), 4000);
+    return () => window.clearTimeout(timer);
+  }, [portalMode]);
+
   const handleClassicTransition = useCallback((rect: DOMRect) => {
+    prefetchOS();
     setTransitionRect(rect);
     setIsTransitioning(true);
     // Skip boot + lock — the zoom transition IS the entry experience
@@ -105,9 +128,9 @@ function App() {
     return () => { if (frameRef.current) cancelAnimationFrame(frameRef.current); };
   }, [showFPS]);
 
-  // ── Ctrl+K opens Start Menu (OS mode only; classic keeps the browser shortcut) ──
+  // ── Ctrl+K opens Start Menu (OS desktop only; classic keeps the browser shortcut, paused while locked) ──
   useEffect(() => {
-    if (portalMode !== 'os') return;
+    if (portalMode !== 'os' || bootState !== 'desktop') return;
     const handleCtrlK = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
@@ -117,7 +140,7 @@ function App() {
     };
     window.addEventListener('keydown', handleCtrlK);
     return () => window.removeEventListener('keydown', handleCtrlK);
-  }, [portalMode]);
+  }, [portalMode, bootState]);
 
   // ── History API back-button trap ─────────────────────────────────────────────
   // Pushes a dummy history state so the Android/iOS back gesture stays inside the app.
@@ -250,15 +273,17 @@ function App() {
                 </div>
                 <div className="flex items-center space-x-2 text-[11px] text-gray-600">
                   <span className="w-1.5 h-1.5 rounded-full bg-purple-500/60 animate-pulse" />
-                  <span>harshitkandoi.in</span>
+                  <span>{SITE_LABEL}</span>
                 </div>
               </div>
             </div>
           )}
 
-          {bootState === 'booting' && <BootScreen />}
-          {bootState === 'locked' && <LockScreen />}
-          {bootState === 'powered_off' && <PoweredOffScreen />}
+          <Suspense fallback={<div className="fixed inset-0 bg-[#07070a]" />}>
+            {bootState === 'booting' && <BootScreen />}
+            {bootState === 'locked' && <LockScreen />}
+            {bootState === 'powered_off' && <PoweredOffScreen />}
+          </Suspense>
           
           {(bootState === 'desktop' || bootState === 'locked') && (
             <Suspense fallback={
