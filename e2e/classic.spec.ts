@@ -76,7 +76,7 @@ test.describe('Classic portfolio', () => {
       const status = page.getByRole('status');
       await expect(status).toContainText('Too many messages');
       await expect(status.getByRole('link')).toHaveAttribute('href', /^mailto:/);
-      await expect(page).toHaveURL(/\/portfolio\//); // still on the page
+      await expect(page).not.toHaveURL(/^mailto:/); // still on the page
     });
   });
 

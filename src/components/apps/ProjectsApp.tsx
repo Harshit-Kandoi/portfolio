@@ -5,6 +5,7 @@ import { Folder, Grid, List, Search, Github, ExternalLink, X, Star } from 'lucid
 import { useOSStore } from '../../store/useOSStore';
 import { trackEvent, trackSearch } from '../../utils/analytics';
 
+import { resolveAsset } from '../../utils/paths';
 const FAVORITES_STORAGE_KEY = 'portfolio-os-project-favorites';
 
 function loadFavorites(): number[] {
@@ -253,7 +254,7 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
                     }`}
                   >
                     <div className="w-full h-28 rounded-lg overflow-hidden relative">
-                      <img src={project.image} alt={project.title} className="w-full h-full object-cover transition transform hover:scale-105" loading="lazy" />
+                      <img src={resolveAsset(project.image)} alt={project.title} className="w-full h-full object-cover transition transform hover:scale-105" loading="lazy" />
                       {project.featured && (
                         <span className="absolute top-2 left-2 bg-linear-to-r from-amber-500 to-yellow-400 text-slate-900 font-bold text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow-sm">
                           Favorite
@@ -340,7 +341,7 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
               </div>
 
               <div className="w-full h-36 rounded-xl overflow-hidden shadow-inner">
-                <img src={selectedProject.image} alt={selectedProject.title} className="w-full h-full object-cover" />
+                <img src={resolveAsset(selectedProject.image)} alt={selectedProject.title} className="w-full h-full object-cover" />
               </div>
               
               <div className="space-y-1">
@@ -348,11 +349,7 @@ export default function ProjectsApp({ isMobileView }: { isMobileView?: boolean }
               </div>
 
               {/* Metadata Grid */}
-              <div className="grid grid-cols-3 gap-2 text-[10px]">
-                <div className={`p-2.5 rounded-lg border ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-white/5 border-white/5'}`}>
-                  <span className={`block text-[8px] uppercase tracking-wider ${isLight ? 'text-slate-600 font-bold' : 'text-gray-400'}`}>Role</span>
-                  <span className={`font-bold mt-0.5 block ${isLight ? 'text-slate-900' : 'text-white'}`}>{selectedProject.role || '—'}</span>
-                </div>
+              <div className="grid grid-cols-2 gap-2 text-[10px]">
                 <div className={`p-2.5 rounded-lg border ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-white/5 border-white/5'}`}>
                   <span className={`block text-[8px] uppercase tracking-wider ${isLight ? 'text-slate-600 font-bold' : 'text-gray-400'}`}>Duration</span>
                   <span className={`font-bold mt-0.5 block ${isLight ? 'text-slate-900' : 'text-white'}`}>{selectedProject.duration || 'N/A'}</span>

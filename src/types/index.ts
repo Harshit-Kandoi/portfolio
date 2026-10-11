@@ -10,7 +10,6 @@ export interface Project {
   featured: boolean;
   duration?: string;
   status?: string;
-  role?: string;
 }
 
 export interface Skill {

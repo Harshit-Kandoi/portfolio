@@ -23,4 +23,4 @@ export default async () => {
   });
 };
 
-export const config = { path: ['/portfolio/api/github-stats', '/api/github-stats'] };
+export const config = { path: '/api/github-stats' };

@@ -8,6 +8,7 @@ import {
   Database,
   ExternalLink,
   FileText,
+  Globe,
   Github,
   Linkedin,
   Mail,
@@ -25,7 +26,7 @@ import { skills } from '../../data/skills';
 import { resumeLink } from '../../data/navigation';
 import { PORTFOLIO_META } from '../../data/config';
 import { scrollToSection } from '../../utils/scrollToSection';
-import { asset, apiUrl } from '../../utils/paths';
+import { asset, apiUrl, resolveAsset } from '../../utils/paths';
 
 function useIntersectionObserver(ids: string[]): string {
   const [activeId, setActiveId] = useState(ids[0] || '');
@@ -260,7 +261,7 @@ function WorkSection() {
         {featuredProjects.map((project, index) => (
           <article key={project.id} className={index === 0 ? 'minimal-project-card featured' : 'minimal-project-card'}>
             <div className="minimal-project-media">
-              <img src={project.image} alt="" width={960} height={640} loading="lazy" decoding="async" />
+              <img src={resolveAsset(project.image)} alt="" width={960} height={640} loading="lazy" decoding="async" />
               <span>{project.status || project.duration || 'Project'}</span>
             </div>
             <div className="minimal-project-body">
@@ -480,6 +481,10 @@ function ContactSection() {
             <Phone className="w-4 h-4" />
             {PORTFOLIO_META.phone}
           </a>
+          <a href={PORTFOLIO_META.companySiteUrl} target="_blank" rel="noopener noreferrer" data-track="freelance_site">
+            <Globe className="w-4 h-4" />
+            {siteHost(PORTFOLIO_META.companySiteUrl)} · freelance work
+          </a>
           <span>
             <MapPin className="w-4 h-4" />
             Jaipur, Rajasthan, India
@@ -569,6 +574,9 @@ function LabSection({ onLaunch, isDark }: { onLaunch: (rect: DOMRect) => void; i
     </section>
   );
 }
+
+// "https://www.harshitkandoi.in" → "harshitkandoi.in"
+const siteHost = (url: string) => url.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
 
 // Also read by the inline script that index.html gets at build time (scripts/prerender.mjs).
 const CLASSIC_THEME_KEY = 'classic_theme';

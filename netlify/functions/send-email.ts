@@ -5,6 +5,7 @@
 const ALLOWED_ORIGINS = [
   'https://harshitkandoi.in',
   'https://www.harshitkandoi.in',
+  'https://portfolio.harshitkandoi.in',
   'http://localhost:5173',
   'http://localhost:4173',
   ...(process.env.ALLOWED_ORIGINS ?? '').split(',').map((o) => o.trim()).filter(Boolean),
@@ -115,10 +116,9 @@ export default async (req: Request, context?: { ip?: string }) => {
 };
 
 // Netlify edge rate limit (free plan: 2 code-based rules per site). Blocks with HTTP 429.
-// A `path` is required for rate limiting. Both paths work: /portfolio/api/... is what the
-// site calls (it lives under /portfolio/), /api/... keeps older clients working.
+// A `path` is required for rate limiting.
 export const config = {
-  path: ['/portfolio/api/send-email', '/api/send-email'],
+  path: '/api/send-email',
   rateLimit: {
     windowLimit: 5,
     windowSize: 60,

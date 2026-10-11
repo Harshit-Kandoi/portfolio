@@ -14,8 +14,7 @@ export const projects: Project[] = [
     demo: PORTFOLIO_META.siteUrl,
     featured: true,
     duration: "Ongoing",
-    status: "⭐ Flagship (Beta)",
-    role: "Solo project"
+    status: "Live"
   },
   {
     id: 2,
@@ -28,19 +27,19 @@ export const projects: Project[] = [
     demo: "https://mirror.harshitkandoi.in",
     featured: true,
     duration: "Ongoing",
-    status: "⭐ Flagship Startup (Beta)"
+    status: "Live"
   },
   {
     id: 25,
     title: "ClearCue-AI",
-    description: "Active AI product repository currently in development. Scope and public details are intentionally light until the build direction is finalized.",
+    description: "An AI product I am building, now in public beta. More details will follow as it matures.",
     image: "projects/clearcue-ai.webp",
     category: ["Products & Software", "AI & Machine Learning"],
     technologies: ["AI", "Product Engineering", "Automation"],
-    demo: "https://www.harshitkandoi.in/clearcue-ai",
+    demo: "https://clearcueai.harshitkandoi.in",
     featured: true,
     duration: "Ongoing",
-    status: "Active Build"
+    status: "Beta"
   },
   {
     id: 26,
@@ -52,8 +51,7 @@ export const projects: Project[] = [
     demo: PORTFOLIO_META.companySiteUrl,
     featured: true,
     duration: "Ongoing",
-    status: "Active Build",
-    role: "Solo project"
+    status: "Live"
   },
   {
     id: 3,
@@ -63,10 +61,10 @@ export const projects: Project[] = [
     category: ["Products & Software"],
     technologies: ["Electron", "React", "TypeScript", "Node.js"],
     github: "https://github.com/Harshit-Kandoi/pixel-buddy",
+    demo: "https://pixelbuddy.harshitkandoi.in",
     featured: true,
     duration: "Ongoing",
-    status: "Active Build",
-    role: "Solo project"
+    status: "Live"
   },
   {
     id: 4,
@@ -78,8 +76,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/web-image-scrapper",
     featured: false,
     duration: "Feb 2025",
-    status: "✅ Utility",
-    role: "Solo project"
+    status: "Complete"
   },
   {
     id: 5,
@@ -91,8 +88,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/movie-recommender",
     featured: false,
     duration: "Oct 2024 - Nov 2024",
-    status: "✅ Portfolio Project",
-    role: "Solo project"
+    status: "Complete"
   },
   {
     id: 6,
@@ -104,8 +100,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/Personal-budget-tracker",
     featured: false,
     duration: "Oct 2024",
-    status: "Learning Project",
-    role: "Solo project"
+    status: "Learning Project"
   },
   {
     id: 7,
@@ -117,8 +112,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/ecommerce",
     featured: false,
     duration: "Nov 2024",
-    status: "Under Evaluation",
-    role: "Solo project"
+    status: "Archived"
   },
 
   // 🤖 Artificial Intelligence / Machine Learning
@@ -132,8 +126,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/Yolo_Plastic_Classification",
     featured: true,
     duration: "Apr 2025 - Jul 2025",
-    status: "Research Project",
-    role: "AI Intern (Computer Vision)"
+    status: "Research Project"
   },
   {
     id: 9,
@@ -145,8 +138,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/ASL-letter-detection",
     featured: true,
     duration: "Mar 2025 - Apr 2025",
-    status: "90%+ Accuracy",
-    role: "Solo project"
+    status: "90%+ Accuracy"
   },
   {
     id: 27,
@@ -157,8 +149,7 @@ export const projects: Project[] = [
     technologies: ["Python", "Flask", "OpenAI Whisper", "Speech-to-Text"],
     featured: false,
     duration: "Feb 2025 - Mar 2025",
-    status: "AI Utility",
-    role: "Solo project"
+    status: "AI Utility"
   },
   {
     id: 10,
@@ -170,8 +161,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/upflairs/tree/main/email",
     featured: false,
     duration: "Jul 2024",
-    status: "Classic ML Project",
-    role: "Data Science Intern"
+    status: "Classic ML Project"
   },
   {
     id: 11,
@@ -183,8 +173,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/crops",
     featured: true,
     duration: "Jun 2024 - Aug 2024",
-    status: "ML Project",
-    role: "Data Science Intern"
+    status: "ML Project"
   },
   {
     id: 12,
@@ -232,8 +221,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/upflairs",
     featured: false,
     duration: "Jul 2024",
-    status: "Learning (Archived)",
-    role: "Data Science Intern"
+    status: "Learning (Archived)"
   },
 
   // 🎮 Reinforcement Learning
@@ -247,8 +235,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/Snake-Reinforcement-Learning",
     featured: true,
     duration: "Jan 2025",
-    status: "Research Project",
-    role: "Solo project"
+    status: "Research Project"
   },
   {
     id: 17,
@@ -260,8 +247,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/doom_reinforcement_learning",
     featured: false,
     duration: "Feb 2025",
-    status: "Research Project",
-    role: "Solo project"
+    status: "Research Project"
   },
 
   // 📊 Data Science & Analytics
@@ -275,8 +261,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/Credit-Card-Financial-Dashboard",
     featured: false,
     duration: "Aug 2024",
-    status: "Dashboard",
-    role: "Solo project"
+    status: "Dashboard"
   },
   {
     id: 19,
@@ -288,8 +273,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/pizza-sales",
     featured: false,
     duration: "Sep 2024",
-    status: "Analytics Project",
-    role: "Solo project"
+    status: "Analytics Project"
   },
 
   // ☁️ Cloud & Backend Learning
@@ -341,8 +325,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/DSA",
     featured: false,
     duration: "Ongoing",
-    status: "Practice",
-    role: "Solo project"
+    status: "Practice"
   },
   {
     id: 24,
@@ -354,8 +337,7 @@ export const projects: Project[] = [
     github: "https://github.com/Harshit-Kandoi/machine-learning-udemy",
     featured: false,
     duration: "2 Months",
-    status: "Course Exercises",
-    role: "Solo project"
+    status: "Course Exercises"
   },
   // {
   //   id: 25,

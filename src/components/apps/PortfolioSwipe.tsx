@@ -368,7 +368,7 @@ const ROLES: Role[] = [
     match: 96,
     location: LOCATION,
     experience: EXPERIENCE_SUMMARY,
-    bannerText: '⚡ Building Financial Mirror (beta), an AI-powered product.',
+    bannerText: '⚡ Built Financial Mirror, a live AI-powered product.',
     tailoredSkills: ['Python', 'React', 'LangChain', 'RAG', 'OpenAI Whisper', 'Flask'],
     avatarBg: 'bg-linear-to-tr from-pink-600 to-rose-500 ring-4 ring-pink-400/30',
     avatarIcon: <Sparkles className="w-9 h-9 text-white drop-shadow-md" />,
@@ -393,7 +393,7 @@ const ROLES: Role[] = [
         { name: 'Flask', glow: 'bg-teal-500/15 border-teal-500/30 text-teal-300 shadow-teal-500/20' }
       ],
       impactMetrics: [
-        { icon: '✨', metric: 'Beta', label: 'Building Financial Mirror', category: 'Projects' },
+        { icon: '✨', metric: 'Live', label: 'Financial Mirror', category: 'Projects' },
         { icon: '🤖', metric: 'RAG & LLMs', label: 'LangChain + RAG Guides', category: 'Technologies' },
         { icon: '📚', metric: articleCount, label: 'Published on Medium', category: 'Blogs' },
         { icon: '🎙️', metric: 'Whisper', label: 'Speech-to-Text Web App', category: 'AI Models' }
@@ -403,7 +403,7 @@ const ROLES: Role[] = [
         { id: 'blog', name: 'Writing.exe', icon: <BookOpen className="w-3.5 h-3.5 text-cyan-400" /> },
         { id: 'contact', name: 'Contact.exe', icon: <Send className="w-3.5 h-3.5 text-emerald-400" /> }
       ],
-      aboutMe: 'I build products at the intersection of AI, natural language processing, and intuitive interface design. Creator of Financial Mirror (beta) and the AI assistant built into this Portfolio OS.',
+      aboutMe: 'I build products at the intersection of AI, natural language processing, and intuitive interface design. Creator of Financial Mirror (live) and the assistant built into this Portfolio OS.',
       whyFit: 'Builds AI products end-to-end (Financial Mirror, Whisper transcription app), writes RAG / LLM technical guides on Medium / Towards AI, and works on AI proof-of-concepts at ThoughtIn Solutions.'
     }
   }

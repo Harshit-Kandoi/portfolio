@@ -2,7 +2,7 @@
 
 A scroll-first portfolio with an optional **interactive mode**: a desktop-style "Portfolio OS" (and an Android-style shell on phones) with windows, a terminal, an offline assistant and a small arcade.
 
-Live at **https://www.harshitkandoi.in/portfolio/**.
+Live at **https://portfolio.harshitkandoi.in/**.
 
 ---
 
@@ -24,14 +24,14 @@ Requires Node.js 22+.
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173/portfolio/
+npm run dev        # http://localhost:5173/
 ```
 
-`npm run dev` also runs the Netlify functions in `netlify/functions` at `/portfolio/api/*`, so the contact form and GitHub stats work locally (put `RESEND_API_KEY` in `.env`; see `.env.example`).
+`npm run dev` also runs the Netlify functions in `netlify/functions` at `/api/*`, so the contact form and GitHub stats work locally (put `RESEND_API_KEY` in `.env`; see `.env.example`).
 
 | Script | What it does |
 | --- | --- |
-| `npm run build` / `npm run preview` | Production build (incl. prerender, see below) / serve it at `localhost:4173/portfolio/` |
+| `npm run build` / `npm run preview` | Production build (incl. prerender, see below) / serve it at `localhost:4173` |
 | `npm run typecheck` · `npm run lint` | TypeScript and ESLint |
 | `npm test` | Unit tests (Vitest) |
 | `npm run test:e2e` | Browser tests (Playwright) |
@@ -51,18 +51,10 @@ npm run dev        # http://localhost:5173/portfolio/
 
 ## Deployment
 
-Netlify builds `dist/` and deploys `netlify/functions` (see `netlify.toml`). The app is built with `base: '/portfolio/'`:
-
-- On this Netlify site, `/` redirects to `/portfolio/` and `/portfolio/*` maps onto the files in `dist/`.
-- To serve it from the company domain, the company site proxies the path to this site, e.g. in the company site's `netlify.toml`:
-
-  ```toml
-  [[redirects]]
-    from = "/portfolio/*"
-    to = "https://harshit-kandoi.netlify.app/portfolio/:splat"
-    status = 200
-    force = true
-  ```
+Netlify builds `dist/` and deploys `netlify/functions` (see `netlify.toml`). The site is the
+Netlify project `harshit-kandoi.netlify.app` with the custom domain `portfolio.harshitkandoi.in`
+(add it under Domain management and point a CNAME record for `portfolio` at
+`harshit-kandoi.netlify.app`).
 
 ### Environment variables (Netlify → Site configuration → Environment variables)
 

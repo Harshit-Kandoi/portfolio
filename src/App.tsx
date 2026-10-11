@@ -4,7 +4,7 @@ import ClassicPortfolio from './components/classic/ClassicPortfolio';
 import OSTransitionOverlay from './components/classic/OSTransitionOverlay';
 import { PORTFOLIO_META } from './data/config';
 
-// e.g. "harshitkandoi.in/portfolio"
+// e.g. "portfolio.harshitkandoi.in"
 const SITE_LABEL = PORTFOLIO_META.siteUrl.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
 
 // The OS is opt-in, so its code is split out of the main bundle that classic visitors load.

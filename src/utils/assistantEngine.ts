@@ -417,8 +417,8 @@ function build(intent: IntentId, q: Query, d: AssistantData, tech: TechMatch | n
       ]);
     case 'hire':
       return reply(
-        `${m.name} works full-time as an ${m.role} at ${m.company}, and is ${m.availability.toLowerCase()}. Best way to reach him: ${m.email}.`,
-        [openAction('contact'), openAction('resume')],
+        `${m.name} works full-time as an ${m.role} at ${m.company}, and is ${m.availability.toLowerCase()}. Freelance services are on ${m.companySiteUrl.replace(/^https?:\/\/(www\.)?/, '')}; best way to reach him: ${m.email}.`,
+        [openAction('contact'), linkAction('Freelance site', m.companySiteUrl), openAction('resume')],
       );
     case 'resume':
       return reply('Resume.pdf has his resume, ready to view or download.', [openAction('resume')]);

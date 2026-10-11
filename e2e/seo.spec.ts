@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const SITE = 'https://www.harshitkandoi.in/portfolio/';
+const SITE = 'https://portfolio.harshitkandoi.in/';
 
 test.describe('SEO and Meta Tags Verification', () => {
   test.beforeEach(async ({ page }) => {

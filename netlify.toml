@@ -5,30 +5,16 @@
 [functions]
   directory = "netlify/functions"
 
-# The app is built with base "/portfolio/" so it can live at www.harshitkandoi.in/portfolio/
-# (the company site proxies /portfolio/* to this site). Files are published at the root of
-# dist/, so /portfolio/<file> is mapped back onto them.
-[[redirects]]
-  from = "/"
-  to = "/portfolio/"
-  status = 301
+# Served at https://portfolio.harshitkandoi.in/ (custom domain on this Netlify site).
+# There are no client-side routes; unknown paths get public/404.html.
 
-[[redirects]]
-  from = "/portfolio"
-  to = "/portfolio/"
-  status = 301
-
+# The site was briefly built for a /portfolio/ sub-path; keep any such links working.
 [[redirects]]
   from = "/portfolio/*"
   to = "/:splat"
-  status = 200
+  status = 301
 
 # Vite asset filenames are content-hashed, so they can be cached forever.
-[[headers]]
-  for = "/portfolio/assets/*"
-  [headers.values]
-    Cache-Control = "public, max-age=31536000, immutable"
-
 [[headers]]
   for = "/assets/*"
   [headers.values]

@@ -24,7 +24,7 @@ export const PORTFOLIO_META = {
   // One-line summary used in headers, lock screen, terminal `whoami`, etc.
   headline: 'Associate Software Engineer at ThoughtIn Solutions · full stack (React, Python, Java, GCP)',
   availability: 'Open to freelance projects',
-  siteUrl: 'https://www.harshitkandoi.in/portfolio',
+  siteUrl: 'https://portfolio.harshitkandoi.in',
   companySiteUrl: 'https://www.harshitkandoi.in',
   location: 'Jaipur, Rajasthan, India',
   email: 'hello@harshitkandoi.in',

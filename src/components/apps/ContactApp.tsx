@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Mail, Send, Linkedin, Github, CheckCircle, Phone, Copy, 
   ExternalLink, BookOpen, Database, ShieldAlert, Terminal, 
-  Cpu, Check, AlertCircle, Clock, Sparkles
+  Cpu, Check, AlertCircle, Clock, Sparkles, Globe
 } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 import { PORTFOLIO_META } from '../../data/config';
@@ -11,6 +11,8 @@ import { trackEvent } from '../../utils/analytics';
 import { apiUrl } from '../../utils/paths';
 
 const DESTINATION_EMAIL = PORTFOLIO_META.email;
+// "https://www.harshitkandoi.in" → "harshitkandoi.in"
+const FREELANCE_HOST = PORTFOLIO_META.companySiteUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
 const RATE_LIMIT_SECONDS = 30;
 const STORAGE_KEY_LAST_SENT = 'portfolio_os_contact_last_sent';
 const RATE_LIMITED_MESSAGE = 'Too many messages right now. Please try again in a few minutes, or email me directly.';
@@ -386,6 +388,36 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                   </button>
                   <a 
                     href={`tel:${PORTFOLIO_META.phone}`}
+                    className="py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-[9px] font-bold flex items-center justify-center space-x-1 text-center transition"
+                  >
+                    <ExternalLink className="w-2.5 h-2.5" />
+                    <span>Open</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Freelance website card */}
+              <div className={`space-y-1.5 p-2.5 rounded-xl border ${isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-white/5 border-white/5'}`}>
+                <div className="flex justify-between items-center">
+                  <span className={`text-[9px] font-bold uppercase flex items-center space-x-1 ${isLight ? 'text-slate-700' : 'text-gray-400'}`}>
+                    <Globe className="w-3 h-3 text-sky-500" />
+                    <span>Freelance website</span>
+                  </span>
+                </div>
+                <p className={`text-[10px] font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{FREELANCE_HOST}</p>
+                <div className={`grid grid-cols-2 gap-1.5 pt-1.5 border-t ${isLight ? 'border-slate-200' : 'border-white/5'}`}>
+                  <button
+                    onClick={() => handleCopy(PORTFOLIO_META.companySiteUrl, 'Website')}
+                    className="py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[9px] font-bold flex items-center justify-center space-x-1 transition"
+                  >
+                    <Copy className="w-2.5 h-2.5" />
+                    <span>Copy</span>
+                  </button>
+                  <a
+                    href={PORTFOLIO_META.companySiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('contact_freelance_site_click', { action: 'open' })}
                     className="py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-[9px] font-bold flex items-center justify-center space-x-1 text-center transition"
                   >
                     <ExternalLink className="w-2.5 h-2.5" />

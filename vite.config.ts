@@ -12,7 +12,13 @@ function netlifyFunctionsDevPlugin(): Plugin {
     name: 'netlify-functions-dev',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
-        const match = req.url?.match(/^(?:\/portfolio)?\/api\/([a-z0-9-]+)/i);
+        // The site used to be served under /portfolio/; send old tabs/bookmarks to the root.
+        if (req.url === '/portfolio' || req.url?.startsWith('/portfolio/')) {
+          res.statusCode = 301;
+          res.setHeader('Location', req.url.replace(/^\/portfolio\/?/, '/'));
+          return res.end();
+        }
+        const match = req.url?.match(/^\/api\/([a-z0-9-]+)/i);
         if (!match) return next();
 
         try {
@@ -56,8 +62,6 @@ export default defineConfig(({ mode }) => {
   Object.assign(process.env, loadEnv(mode, process.cwd(), ''));
 
   return {
-    // Served at https://www.harshitkandoi.in/portfolio/ (see netlify.toml).
-    base: '/portfolio/',
     plugins: [react(), netlifyFunctionsDevPlugin()],
     optimizeDeps: {
       exclude: ['lucide-react'],

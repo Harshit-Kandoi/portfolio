@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Package, Github, ExternalLink, Zap, CheckCircle2, Clock, Archive, Terminal as TerminalIcon } from 'lucide-react';
+import { Package, Github, ExternalLink, Zap, CheckCircle2, Clock, Archive, Globe, Terminal as TerminalIcon } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 import { Product, fetchProducts } from '../../services/supabase';
 import { PRODUCTS_SEED } from '../../data/products';
 
+// live = deployed and usable · complete = finished, not deployed · archived = learning / shelved
 const STATUS_CONFIG = {
-  live:     { label: 'Complete',     color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/30', icon: CheckCircle2 },
+  live:     { label: 'Live',     color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/30', icon: Globe },
   beta:     { label: 'Beta',     color: 'text-blue-400',    bg: 'bg-blue-500/10 border-blue-500/30',       icon: Zap },
+  complete: { label: 'Complete', color: 'text-teal-400',    bg: 'bg-teal-500/10 border-teal-500/30',       icon: CheckCircle2 },
   wip:      { label: 'WIP',      color: 'text-amber-400',   bg: 'bg-amber-500/10 border-amber-500/30',     icon: Clock },
   archived: { label: 'Archived', color: 'text-gray-500',    bg: 'bg-gray-500/10 border-gray-500/30',       icon: Archive },
 };
@@ -25,7 +27,19 @@ const ICON_EMOJI_MAP: Record<string, string> = {
   '11': '🧠',
 };
 
-const FILTER_LABELS = { all: 'all', live: 'shipped', wip: 'wip', archived: 'archived' } as const;
+type Status = Product['status'];
+const FILTERS = [
+  { id: 'all', label: 'all', heading: 'All Projects', statuses: null },
+  { id: 'live', label: 'live', heading: '🌐 Live & beta', statuses: ['live', 'beta'] },
+  { id: 'complete', label: 'complete', heading: '✅ Complete', statuses: ['complete'] },
+  { id: 'wip', label: 'wip', heading: '🔧 Work in progress', statuses: ['wip'] },
+  { id: 'archived', label: 'archived', heading: '📦 Archived & learning', statuses: ['archived'] },
+] as const satisfies readonly { id: string; label: string; heading: string; statuses: readonly Status[] | null }[];
+type FilterId = (typeof FILTERS)[number]['id'];
+const matches = (filterId: FilterId, status: Status) => {
+  const f = FILTERS.find((x) => x.id === filterId)!;
+  return f.statuses === null || (f.statuses as readonly Status[]).includes(status);
+};
 
 function demoHost(url?: string): string | null {
   if (!url) return null;
@@ -45,24 +59,15 @@ export default function ProductsApp({ isMobileView }: { isMobileView?: boolean }
   const isLight = theme === 'light';
 
   const [products, setProducts] = useState<Product[]>(PRODUCTS_SEED);
-  const [filter, setFilter] = useState<'all' | 'live' | 'wip' | 'archived'>('all');
+  const [filter, setFilter] = useState<FilterId>('all');
 
   useEffect(() => { fetchProducts(PRODUCTS_SEED).then(setProducts); }, []);
 
   const featured = products.filter((p) => p.is_featured);
-  const filtered = products.filter((p) => {
-    if (filter === 'all') return true;
-    if (filter === 'live') return p.status === 'live' || p.status === 'beta';
-    if (filter === 'wip') return p.status === 'wip';
-    return p.status === 'archived';
-  });
-
-  const getFilterCount = (s: 'all' | 'live' | 'wip' | 'archived') => {
-    if (s === 'all') return products.length;
-    if (s === 'live') return products.filter((p) => p.status === 'live' || p.status === 'beta').length;
-    if (s === 'wip') return products.filter((p) => p.status === 'wip').length;
-    return products.filter((p) => p.status === 'archived').length;
-  };
+  const filtered = products.filter((p) => matches(filter, p.status));
+  const getFilterCount = (id: FilterId) => products.filter((p) => matches(id, p.status)).length;
+  // Hide empty filters (e.g. nothing is in progress right now).
+  const visibleFilters = FILTERS.filter((f) => f.id === 'all' || getFilterCount(f.id) > 0);
 
   const containerBg = isLight ? 'bg-gray-50 text-gray-800' : 'bg-[#080912] text-white';
   const cardBg = isLight ? 'bg-white border-gray-200' : 'bg-[#0f1019] border-white/5';
@@ -81,7 +86,7 @@ export default function ProductsApp({ isMobileView }: { isMobileView?: boolean }
           </div>
         </div>
         <div className="flex gap-1.5 flex-wrap">
-          {(['all', 'live', 'wip', 'archived'] as const).map((s) => (
+          {visibleFilters.map(({ id: s, label }) => (
             <button
               key={s}
               onClick={() => setFilter(s)}
@@ -91,7 +96,7 @@ export default function ProductsApp({ isMobileView }: { isMobileView?: boolean }
                   : isLight ? 'bg-white border-gray-200 text-gray-600' : 'bg-white/5 border-white/5 text-gray-500 hover:text-white'
               }`}
             >
-              <span>{FILTER_LABELS[s]}</span>
+              <span>{label}</span>
               <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-mono ${
                 filter === s ? 'bg-violet-500/30 text-violet-300' : 'bg-white/10 text-gray-400'
               }`}>
@@ -166,10 +171,9 @@ export default function ProductsApp({ isMobileView }: { isMobileView?: boolean }
 
         {/* All Products Grid */}
         <div>
-          {filter !== 'all' && <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-3">
-            {filter === 'live' ? '✅ Shipped (complete & beta)' : filter === 'wip' ? '🔧 Work in Progress' : '📦 Archived'}
-          </p>}
-          {filter === 'all' && <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-3">All Projects</p>}
+          <p className="text-[10px] text-gray-500 uppercase tracking-widest font-semibold mb-3">
+            {FILTERS.find((f) => f.id === filter)!.heading}
+          </p>
           
           {filtered.length === 0 ? (
             <div className={`flex flex-col items-center justify-center py-12 px-4 text-center rounded-2xl border ${cardBg}`}>

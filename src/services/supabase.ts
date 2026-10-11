@@ -22,7 +22,7 @@ export interface Product {
   demo_url?: string;
   repo_url?: string;
   tags: string[];
-  status: 'live' | 'beta' | 'archived' | 'wip';
+  status: 'live' | 'beta' | 'complete' | 'wip' | 'archived';
   stars?: number;
   is_featured: boolean;
 }
