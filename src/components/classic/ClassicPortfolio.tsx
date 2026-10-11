@@ -24,6 +24,7 @@ import { experience } from '../../data/experience';
 import { skills } from '../../data/skills';
 import { resumeLink } from '../../data/navigation';
 import { PORTFOLIO_META } from '../../data/config';
+import { scrollToSection } from '../../utils/scrollToSection';
 import { asset, apiUrl } from '../../utils/paths';
 
 function useIntersectionObserver(ids: string[]): string {
@@ -425,6 +426,8 @@ function ProcessSection() {
 function ContactSection() {
   const [form, setForm] = useState({ name: '', email: '', message: '', website: '' });
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [errorText, setErrorText] = useState('');
+  const mailtoHref = `mailto:${PORTFOLIO_META.email}?subject=${encodeURIComponent(`Portfolio Contact from ${form.name}`)}&body=${encodeURIComponent(form.message)}`;
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -447,11 +450,15 @@ function ContactSection() {
         setStatus('sent');
       } else {
         setStatus('error');
-        window.location.href = `mailto:${PORTFOLIO_META.email}?subject=${encodeURIComponent(`Portfolio Contact from ${form.name}`)}&body=${encodeURIComponent(form.message)}`;
+        setErrorText(
+          res.status === 429
+            ? 'Too many messages from your network. Please try again in a few minutes, or email me directly.'
+            : 'The message could not be sent right now. You can email me directly instead.',
+        );
       }
     } catch {
       setStatus('error');
-      window.location.href = `mailto:${PORTFOLIO_META.email}?subject=${encodeURIComponent(`Portfolio Contact from ${form.name}`)}&body=${encodeURIComponent(form.message)}`;
+      setErrorText('You seem to be offline. You can email me directly instead.');
     }
   };
 
@@ -534,6 +541,14 @@ function ContactSection() {
           {(status === 'idle' || status === 'error') && <Send className="w-4 h-4" />}
           <span>{status === 'sending' ? 'Sending...' : status === 'sent' ? 'Sent' : 'Send message'}</span>
         </button>
+        <p className="minimal-form-status" role="status" aria-live="polite" data-state={status}>
+          {status === 'sent' && 'Thanks — your message is on its way.'}
+          {status === 'error' && (
+            <>
+              {errorText} <a href={mailtoHref}>{PORTFOLIO_META.email}</a>
+            </>
+          )}
+        </p>
       </form>
     </section>
   );
@@ -555,18 +570,30 @@ function LabSection({ onLaunch, isDark }: { onLaunch: (rect: DOMRect) => void; i
   );
 }
 
+// Also read by the inline script that index.html gets at build time (scripts/prerender.mjs).
+const CLASSIC_THEME_KEY = 'classic_theme';
+
+// Captured once at load: the effect below removes the hash from the URL, and StrictMode (dev)
+// runs effects twice, so reading location.hash inside the effect would miss it the second time.
+let initialHash = typeof window === 'undefined' ? '' : window.location.hash.slice(1);
+
 export default function ClassicPortfolio({ onTransition }: { onTransition: (rect: DOMRect) => void }) {
   const sectionIds = ['hero', 'work', 'services', 'experience', 'contact', 'lab'];
   const activeSection = useIntersectionObserver(sectionIds);
   const [transitionRect, setTransitionRect] = useState<DOMRect | null>(null);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    return (localStorage.getItem('classic_theme') as 'dark' | 'light') || 'light';
+    // Storage can be missing (prerender) or blocked (some private modes) — default to light.
+    try {
+      return localStorage.getItem(CLASSIC_THEME_KEY) === 'dark' ? 'dark' : 'light';
+    } catch {
+      return 'light';
+    }
   });
 
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
       const next = prev === 'dark' ? 'light' : 'dark';
-      localStorage.setItem('classic_theme', next);
+      try { localStorage.setItem(CLASSIC_THEME_KEY, next); } catch { /* not persisted */ }
       return next;
     });
   }, []);
@@ -574,7 +601,7 @@ export default function ClassicPortfolio({ onTransition }: { onTransition: (rect
   // Shared links like /#contact still land on the section, then the hash is dropped
   // so the URL stays in sync with the navbar (which never writes a hash).
   useEffect(() => {
-    const id = window.location.hash.slice(1);
+    const id = initialHash;
     if (!id) return;
     // 'instant' overrides the global smooth scroll-behavior so the jump isn't animated.
     const jump = () => document.getElementById(id)?.scrollIntoView({ behavior: 'instant', block: 'start' });
@@ -584,16 +611,18 @@ export default function ClassicPortfolio({ onTransition }: { onTransition: (rect
     const resizeObserver = new ResizeObserver(jump);
     resizeObserver.observe(document.body);
     const stop = () => resizeObserver.disconnect();
-    const timer = window.setTimeout(stop, 4000);
-    window.addEventListener('wheel', stop, { once: true, passive: true });
-    window.addEventListener('touchstart', stop, { once: true, passive: true });
-    window.addEventListener('keydown', stop, { once: true });
+    // Settled (or the visitor took over): don't jump again if this page remounts later.
+    const done = () => { stop(); initialHash = ''; };
+    const timer = window.setTimeout(done, 4000);
+    window.addEventListener('wheel', done, { once: true, passive: true });
+    window.addEventListener('touchstart', done, { once: true, passive: true });
+    window.addEventListener('keydown', done, { once: true });
     return () => {
       stop();
       window.clearTimeout(timer);
-      window.removeEventListener('wheel', stop);
-      window.removeEventListener('touchstart', stop);
-      window.removeEventListener('keydown', stop);
+      window.removeEventListener('wheel', done);
+      window.removeEventListener('touchstart', done);
+      window.removeEventListener('keydown', done);
     };
   }, []);
 
@@ -603,7 +632,7 @@ export default function ClassicPortfolio({ onTransition }: { onTransition: (rect
     const target = anchor && document.getElementById(anchor.getAttribute('href')!.slice(1));
     if (!target) return;
     event.preventDefault();
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    scrollToSection(target);
   }, []);
 
   const handleLaunch = useCallback((rect?: DOMRect) => {

@@ -28,10 +28,4 @@ test.describe('SEO and Meta Tags Verification', () => {
     expect(schema.mainEntity.jobTitle).toBe('Associate Software Engineer');
     expect(schema.mainEntity.sameAs).toContain('https://github.com/Harshit-Kandoi');
   });
-
-  test('ships a no-JavaScript fallback', async ({ page }) => {
-    const noscript = await page.locator('body noscript').innerHTML();
-    expect(noscript).toContain('<h1>Harshit Kandoi — Associate Software Engineer</h1>');
-    expect(noscript).toContain('<h2>Experience</h2>');
-  });
 });

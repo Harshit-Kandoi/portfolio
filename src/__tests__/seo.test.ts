@@ -37,9 +37,7 @@ describe('index.html SEO metadata', () => {
     expect(person.sameAs).toEqual(expect.arrayContaining([PORTFOLIO_META.github, PORTFOLIO_META.linkedin, PORTFOLIO_META.medium]));
   });
 
-  it('keeps the no-JS fallback in line with the current role', () => {
-    const noscript = html.match(/<body>[\s\S]*?<noscript>([\s\S]*?)<\/noscript>/)![1];
-    expect(noscript).toContain(PORTFOLIO_META.role);
-    expect(noscript).not.toMatch(/Open to work/i);
+  it('keeps an empty #root for the build-time prerender to fill', () => {
+    expect(html).toContain('<div id="root"></div>');
   });
 });

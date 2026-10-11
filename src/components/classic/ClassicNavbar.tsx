@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, Monitor, Sun, Moon } from 'lucide-react';
+import { scrollToSection } from '../../utils/scrollToSection';
 
 interface Props {
   activeSection: string;
@@ -28,8 +29,7 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
   }, []);
 
   const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    scrollToSection(id);
     setMobileOpen(false);
   };
 

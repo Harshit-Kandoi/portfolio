@@ -90,38 +90,8 @@
     </script>
   </head>
   <body>
-    <!-- Fallback content for crawlers and visitors without JavaScript -->
-    <noscript>
-      <main style="padding: 20px; font-family: sans-serif; max-width: 800px; margin: 0 auto; line-height: 1.6;">
-        <h1>Harshit Kandoi — Associate Software Engineer</h1>
-        <p>Full stack software engineer at ThoughtIn Solutions in Jaipur, India, working across React, JavaScript, Python, Java, databases and Google Cloud (Cloud Functions, Pub/Sub, Firestore). Google Associate Cloud Engineer.</p>
-
-        <h2>Experience</h2>
-        <ul>
-          <li><strong>Associate Software Engineer, ThoughtIn Solutions</strong> (Aug 2025 – present): full stack business applications, event-driven GCP workflows, AI proof-of-concepts and an internal analytics and reporting tool.</li>
-          <li><strong>Software Engineer Intern, ThoughtIn Solutions</strong> (May – Aug 2025): backend services and cloud workflows with Python, Cloud Functions, Pub/Sub, Firestore and App Engine.</li>
-          <li><strong>AI Intern (Computer Vision), Anantagni Industries</strong> (Apr – Jul 2025): YOLO-based plastic waste classification.</li>
-          <li><strong>Data Science Intern, Upflairs</strong> (Jun – Aug 2024): crop classification models and ML workflows.</li>
-        </ul>
-
-        <h2>Education</h2>
-        <ul>
-          <li>M.Tech. Artificial Intelligence &amp; Machine Learning, BITS Pilani (distance), Oct 2026 – present</li>
-          <li>B.Tech. CSE (Data Science), B.K. Birla Institute of Engineering and Technology, 2021 – 2025</li>
-        </ul>
-
-        <h2>Selected projects</h2>
-        <ul>
-          <li><strong>Portfolio OS</strong>: this site — a scrollable portfolio with an optional desktop-style interactive mode.</li>
-          <li><strong>Financial Mirror</strong>: AI-assisted personal finance awareness product (beta).</li>
-          <li><strong>Local GCP Emulator</strong>: local stand-ins for Google Cloud services for offline development.</li>
-          <li><strong>Reinforcement learning agents</strong>: Snake and Doom agents trained with deep Q-learning.</li>
-        </ul>
-
-        <p>Contact: <a href="mailto:hello@harshitkandoi.in">hello@harshitkandoi.in</a> · <a href="https://github.com/Harshit-Kandoi">GitHub</a> · <a href="https://linkedin.com/in/harshit-kandoi">LinkedIn</a></p>
-      </main>
-    </noscript>
-
+    <!-- The classic page is rendered into #root at build time (scripts/prerender.mjs), so crawlers
+         and visitors without JavaScript get the full content. -->
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

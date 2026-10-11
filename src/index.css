@@ -944,6 +944,28 @@ html.os-mode body {
   resize: vertical;
 }
 
+.minimal-form-status {
+  min-height: 1.25em;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--mp-muted);
+}
+
+.minimal-form-status[data-state="sent"] {
+  color: var(--mp-green);
+}
+
+.minimal-form-status[data-state="error"] {
+  color: var(--mp-accent-strong);
+}
+
+.minimal-form-status a {
+  color: inherit;
+  font-weight: 650;
+  text-decoration: underline;
+}
+
 .minimal-contact-form input:focus,
 .minimal-contact-form textarea:focus {
   border-color: var(--mp-accent);

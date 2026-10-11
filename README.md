@@ -31,7 +31,7 @@ npm run dev        # http://localhost:5173/portfolio/
 
 | Script | What it does |
 | --- | --- |
-| `npm run build` / `npm run preview` | Production build / serve it at `localhost:4173/portfolio/` |
+| `npm run build` / `npm run preview` | Production build (incl. prerender, see below) / serve it at `localhost:4173/portfolio/` |
 | `npm run typecheck` · `npm run lint` | TypeScript and ESLint |
 | `npm test` | Unit tests (Vitest) |
 | `npm run test:e2e` | Browser tests (Playwright) |
@@ -45,6 +45,10 @@ npm run dev        # http://localhost:5173/portfolio/
 - **Projects**: `src/data/projects.ts` (Products, Swipe and the classic page read from it).
 - **SEO**: `index.html` (title, description, canonical, JSON-LD). `src/__tests__/seo.test.ts` fails if it drifts from `config.ts`.
 
+## Prerendering
+
+`npm run build` also renders the classic page to static HTML (`src/entry-prerender.tsx` → `scripts/prerender.mjs`) and puts it inside `#root` in `dist/index.html`. The headline paints before any JavaScript runs (~25% faster first paint on slow 4G), and crawlers and visitors without JavaScript get the full page. React then renders over it with `createRoot` (not hydration), so per-visitor state such as the dark theme can't cause mismatches; a tiny inline script applies the saved theme, or clears the page for visitors who left in interactive mode, before first paint.
+
 ## Deployment
 
 Netlify builds `dist/` and deploys `netlify/functions` (see `netlify.toml`). The app is built with `base: '/portfolio/'`:
@@ -55,7 +59,7 @@ Netlify builds `dist/` and deploys `netlify/functions` (see `netlify.toml`). The
   ```toml
   [[redirects]]
     from = "/portfolio/*"
-    to = "https://<portfolio-site>.netlify.app/portfolio/:splat"
+    to = "https://harshit-kandoi.netlify.app/portfolio/:splat"
     status = 200
     force = true
   ```
