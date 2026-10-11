@@ -80,9 +80,9 @@ test.describe('Classic portfolio', () => {
     });
   });
 
-  test('Interactive mode opens the desktop OS', async ({ page }) => {
-    await page.locator('nav').getByRole('button', { name: 'Interactive' }).first().click();
-    await expect(page.locator('#start-menu-button')).toBeVisible({ timeout: 15000 });
+  test('HarshitVerse opens the playable portfolio lobby', async ({ page }) => {
+    await page.locator('nav').getByRole('button', { name: 'HarshitVerse' }).first().click();
+    await expect(page.getByRole('button', { name: 'Enter World' })).toBeVisible({ timeout: 30000 });
   });
 });
 

@@ -1,6 +1,6 @@
 # Harshit Kandoi — Portfolio (v3)
 
-A scroll-first portfolio with an optional **interactive mode**: a desktop-style "Portfolio OS" (and an Android-style shell on phones) with windows, a terminal, an offline assistant and a small arcade.
+A scroll-first portfolio with **HarshitVerse**, an optional playable 3D adventure for desktop and laptop browsers. Explore an original voxel island, meet the guide, and discover real projects, career details, articles, and contact links. Phones and tablets keep the responsive classic portfolio.
 
 Live at **https://portfolio.harshitkandoi.in/**.
 
@@ -9,14 +9,16 @@ Live at **https://portfolio.harshitkandoi.in/**.
 ## Features
 
 - **Classic portfolio** (default for every visitor): hero, selected work, services, experience, contact form.
-- **Interactive mode**: draggable/resizable windows, themes, sounds, achievements and XP.
-  - Apps: About, Projects, Experience, Skills, Certifications, Resume, Products, Contact, Swipe, Terminal, Assistant, **Writing** (blog + dev notes), **Arcade** (dev RPG + Snake), Settings.
-  - **Assistant** runs fully offline (no LLM/API calls): a small intent engine answers from `src/data`.
-- **Android shell** on phones and as a simulator on desktop.
+- **HarshitVerse**: a cinematic lobby, original instanced voxel scenery, a custom animated avatar, movement/camera controls, collision, and an interactive island.
+- **Seven destinations**: Central Hub, Project District, Cloud Citadel, Career Guild, AI Nexus, Knowledge Tavern, Signal Peak. Portfolio panels and fast travel are available immediately.
+- **Exploration**: a guide with predefined dialogue, world map/minimap, introductory quest, and browser-local progress. No account or API required.
+- **Accessibility**: direct portfolio/resume access, HTML content panels, keyboard focus management, WebGL fallback, graphics presets, reduced motion, and optional original ambient audio.
+
+Open the **HarshitVerse** button on the classic page, then **Enter World**. Controls: WASD/arrows to move, Shift to sprint, Space to jump, E to interact, M for map, Tab for journal, Esc to pause. Click the world to capture the mouse; scroll to adjust camera distance. See [architecture and verification](docs/harshitverse.md).
 
 ## Tech
 
-React 18 · TypeScript · Vite · Tailwind CSS · Zustand · Framer Motion · Lucide · Netlify Functions · Vitest · Playwright · Lighthouse CI
+React 18 · TypeScript · Vite · Three.js · Tailwind CSS · Zustand · Framer Motion · Lucide · Netlify Functions · Vitest · Playwright · Lighthouse CI
 
 ## Getting started
 
@@ -42,7 +44,7 @@ npm run dev        # http://localhost:5173/
 
 - **Identity** (name, role, links, site URL, version): `src/data/config.ts` → `PORTFOLIO_META`, `APP_VERSION`.
 - **Experience, education, certifications**: `src/data/experience.ts`.
-- **Projects**: `src/data/projects.ts` (Products, Swipe and the classic page read from it).
+- **Projects**: `src/data/projects.ts` (game terminals and the classic page read from it).
 - **SEO**: `index.html` (title, description, canonical, JSON-LD). `src/__tests__/seo.test.ts` fails if it drifts from `config.ts`.
 
 ## Prerendering

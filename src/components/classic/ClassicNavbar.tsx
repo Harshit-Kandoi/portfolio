@@ -110,10 +110,10 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
                 border: isDark ? '1px solid rgba(255,159,110,0.3)' : '1px solid rgba(185,71,22,0.28)',
                 color: isDark ? '#ffb089' : '#b94716',
               }}
-              title="Open interactive portfolio mode"
+              title="Enter HarshitVerse"
             >
               <Monitor className="w-3.5 h-3.5" />
-              <span>Interactive</span>
+              <span>HarshitVerse</span>
             </button>
 
             {/* Mobile hamburger */}
@@ -161,7 +161,7 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
               style={{ color: isDark ? '#ffb089' : '#b94716' }}
             >
               <Monitor className="w-5 h-5" />
-              <span>Open interactive mode</span>
+              <span>HarshitVerse · desktop adventure</span>
             </button>
           </div>
 

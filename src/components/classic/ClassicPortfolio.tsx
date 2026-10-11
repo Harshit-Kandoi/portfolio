@@ -19,7 +19,6 @@ import {
 } from 'lucide-react';
 import ClassicNavbar from './ClassicNavbar';
 import MonitorWidget from './MonitorWidget';
-import OSTransitionOverlay from './OSTransitionOverlay';
 import { projects } from '../../data/projects';
 import { experience } from '../../data/experience';
 import { skills } from '../../data/skills';
@@ -226,7 +225,7 @@ function Hero({ onLaunch }: { onLaunch: (rect?: DOMRect) => void }) {
           </a>
           <button type="button" onClick={(event) => onLaunch(event.currentTarget.getBoundingClientRect())}>
             <Monitor className="w-4 h-4" />
-            <span>Interactive mode</span>
+            <span>Enter HarshitVerse</span>
           </button>
         </div>
       </aside>
@@ -564,10 +563,10 @@ function LabSection({ onLaunch, isDark }: { onLaunch: (rect: DOMRect) => void; i
     <section id="lab" className="minimal-section minimal-lab-section">
       <div className="minimal-lab-copy">
         <p className="minimal-eyebrow">Optional interactive layer</p>
-        <h2>The portfolio OS still exists, just no longer blocks the main story.</h2>
+        <h2>A little world. A different way to explore.</h2>
         <p>
-          Open it when you want the playful version: windows, apps, terminal commands, games, and the older experimental
-          portfolio interface.
+          Step into HarshitVerse, a playable 3D adventure through my projects, engineering journey, and ideas.
+          Built for curious explorers on desktop and laptop browsers.
         </p>
       </div>
       <MonitorWidget onLaunch={onLaunch} isDark={isDark} />
@@ -588,7 +587,6 @@ let initialHash = typeof window === 'undefined' ? '' : window.location.hash.slic
 export default function ClassicPortfolio({ onTransition }: { onTransition: (rect: DOMRect) => void }) {
   const sectionIds = ['hero', 'work', 'services', 'experience', 'contact', 'lab'];
   const activeSection = useIntersectionObserver(sectionIds);
-  const [transitionRect, setTransitionRect] = useState<DOMRect | null>(null);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     // Storage can be missing (prerender) or blocked (some private modes) — default to light.
     try {
@@ -645,8 +643,7 @@ export default function ClassicPortfolio({ onTransition }: { onTransition: (rect
 
   const handleLaunch = useCallback((rect?: DOMRect) => {
     const fallback = rect || new DOMRect(window.innerWidth / 2 - 130, window.innerHeight / 2 - 80, 260, 160);
-    setTransitionRect(fallback);
-    setTimeout(() => onTransition(fallback), 50);
+    onTransition(fallback);
   }, [onTransition]);
 
   return (
@@ -673,7 +670,6 @@ export default function ClassicPortfolio({ onTransition }: { onTransition: (rect
         <LabSection onLaunch={(rect) => handleLaunch(rect)} isDark={theme === 'dark'} />
       </main>
 
-      {transitionRect && <OSTransitionOverlay initialRect={transitionRect} />}
       <footer className="minimal-footer">
         <span>HK portfolio · v3</span>
         <span>Built for clarity, proof, and a little personality.</span>

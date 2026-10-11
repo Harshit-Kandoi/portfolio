@@ -1,0 +1,123 @@
+import * as THREE from 'three';
+import { createEnvironment } from './Environment';
+import { makeAvatar } from './Avatar';
+import { canOccupy, nearestZone, interactionAt, type ZoneId } from './world';
+import { useGame } from './store';
+
+export interface WorldSnapshot { x: number; z: number; y: number; region: ZoneId; near: ZoneId | 'guide' | null; fps: number; locked: boolean }
+export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => void, fail: (message: string) => void) {
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: 'high-performance' });
+  renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.2;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.setClearColor('#a9b9bb');
+  const canvas = renderer.domElement; canvas.tabIndex = 0; canvas.setAttribute('aria-label', 'HarshitVerse 3D world. Use WASD to move, Shift to sprint, Space to jump, E to interact.'); host.appendChild(canvas);
+  const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2('#abb6bd', 0.0065);
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 1000); camera.position.set(13, 11.5, 32);
+  scene.add(new THREE.HemisphereLight('#d4eaf7', '#70583c', 1.5));
+  const sun = new THREE.DirectionalLight('#ffd2a0', 3.8); sun.position.set(-35, 65, -30); sun.castShadow = true;
+  sun.shadow.camera.left = sun.shadow.camera.bottom = -55; sun.shadow.camera.right = sun.shadow.camera.top = 55; sun.shadow.camera.near = 1; sun.shadow.camera.far = 160; sun.shadow.bias = -0.001; sun.shadow.normalBias = 0.05; sun.shadow.mapSize.set(2048, 2048); scene.add(sun);
+  const fill = new THREE.DirectionalLight('#8fdbff', 0.7); fill.position.set(20, 20, 40); scene.add(fill);
+  const world = createEnvironment(scene); const player = makeAvatar(); scene.add(player.root); player.root.position.set(0, 0, 13);
+  const playerGlow = new THREE.PointLight('#65eaff', 6, 15, 2); playerGlow.position.set(0, 4, -3); scene.add(playerGlow);
+  const keys = new Set<string>(); let yaw = 0, pitch = 0.36, distance = 8.5, vx = 0, vz = 0, vy = 0, time = 0;
+  let frame = 0, stopped = false, last = performance.now(), lastReport = 0, fps = 60, hadLock = false;
+  const look = new THREE.Vector3(), desired = new THREE.Vector3(), direction = new THREE.Vector3(), target = new THREE.Vector3(), ray = new THREE.Ray();
+  const hit = new THREE.Vector3();
+  const cameraBoxes = world.obstacles.map(b => new THREE.Box3(new THREE.Vector3(b.minX - 0.25, 0, b.minZ - 0.25), new THREE.Vector3(b.maxX + 0.25, b.height, b.maxZ + 0.25)));
+  function quality() {
+    const s = useGame.getState(); renderer.setPixelRatio(Math.min(devicePixelRatio || 1, s.quality === 'low' ? 1 : s.quality === 'high' ? 2 : 1.5)); renderer.shadowMap.enabled = s.quality !== 'low'; resize();
+  }
+  function resize() { const w = host.clientWidth, h = host.clientHeight; if (!w || !h) return; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+  const resizeObserver = new ResizeObserver(resize); resizeObserver.observe(host); quality();
+  const unsubscribe = useGame.subscribe((state, previous) => {
+    if (state.quality !== previous.quality) quality();
+    if (state.panel || !state.playing) { keys.clear(); vx = vz = 0; if (document.pointerLockElement === canvas) document.exitPointerLock(); }
+    if (state.travel.serial !== previous.travel.serial) {
+      player.root.position.set(state.travel.x, 0, state.travel.z); vx = vz = vy = 0; yaw = 0; camera.position.set(state.travel.x, 4.5, state.travel.z + 8); reportState();
+    }
+    if (state.playing && !previous.playing) { canvas.focus(); camera.position.set(player.root.position.x, 5, player.root.position.z + 9); }
+  });
+  function keydown(event: KeyboardEvent) {
+    const s = useGame.getState(); if (!s.playing) return;
+    if (event.key === 'Escape') { event.preventDefault(); s.open(s.panel ? null : 'settings'); return; }
+    if (s.panel || event.ctrlKey || event.metaKey || event.altKey) return;
+    if ((event.target as HTMLElement).closest('input,textarea,select,button,a')) return;
+    const key = event.code;
+    if (['Space', 'Tab', 'KeyM', 'KeyE', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(key)) event.preventDefault();
+    if (event.repeat && ['Space', 'Tab', 'KeyM', 'KeyE'].includes(key)) return;
+    if (key === 'KeyM') { s.open('map'); return; }
+    if (key === 'Tab') { s.open('missions'); return; }
+    if (key === 'KeyE') { const near = interactionAt(player.root.position.x, player.root.position.z); if (near) s.open(near); return; }
+    if (key === 'Space' && player.root.position.y <= 0.001) vy = 8.3;
+    keys.add(key);
+  }
+  function keyup(event: KeyboardEvent) { keys.delete(event.code); }
+  function release() { keys.clear(); vx = vz = 0; }
+  function blur() { release(); const s = useGame.getState(); if (s.playing && !s.panel) s.open('settings'); }
+  function lock() { if (useGame.getState().playing && !useGame.getState().panel) { canvas.focus(); const result = canvas.requestPointerLock?.(); if (result && typeof result.catch === 'function') result.catch(() => {}); } }
+  function lockChange() { const locked = document.pointerLockElement === canvas; if (hadLock && !locked && useGame.getState().playing && !useGame.getState().panel) useGame.getState().open('settings'); hadLock = locked; reportState(); }
+  function mousemove(event: MouseEvent) { if (document.pointerLockElement !== canvas || useGame.getState().panel) return; yaw -= event.movementX * 0.0026; pitch = THREE.MathUtils.clamp(pitch + event.movementY * 0.002, 0.12, 0.85); }
+  function wheel(event: WheelEvent) { if (!useGame.getState().playing || useGame.getState().panel) return; event.preventDefault(); distance = THREE.MathUtils.clamp(distance + event.deltaY * 0.006, 5, 13); }
+  function reportState() {
+    const p = player.root.position; const region = nearestZone(p.x, p.z).id;
+    if (useGame.getState().playing && Math.hypot(p.x - nearestZone(p.x, p.z).spawn[0], p.z - nearestZone(p.x, p.z).spawn[1]) < 6) useGame.getState().visit(region);
+    report({ x: p.x, z: p.z, y: p.y, region, near: interactionAt(p.x, p.z), fps: Math.round(fps), locked: document.pointerLockElement === canvas });
+    canvas.dataset.playerX = p.x.toFixed(2); canvas.dataset.playerZ = p.z.toFixed(2); canvas.dataset.playerY = p.y.toFixed(2); canvas.dataset.fps = fps.toFixed(0); canvas.dataset.drawCalls = String(renderer.info.render.calls);
+    canvas.dataset.cameraX = camera.position.x.toFixed(2); canvas.dataset.cameraY = camera.position.y.toFixed(2); canvas.dataset.cameraZ = camera.position.z.toFixed(2); canvas.dataset.cameraYaw = yaw.toFixed(2);
+  }
+  window.addEventListener('keydown', keydown); window.addEventListener('keyup', keyup); window.addEventListener('blur', blur);
+  document.addEventListener('pointerlockchange', lockChange); document.addEventListener('mousemove', mousemove);
+  canvas.addEventListener('click', lock); canvas.addEventListener('wheel', wheel, { passive: false }); canvas.addEventListener('webglcontextlost', contextLost);
+  function contextLost(event: Event) { event.preventDefault(); fail('The graphics connection was interrupted. Your portfolio and resume are still available below.'); }
+  function tick(now: number) {
+    if (stopped) return;
+    const elapsed = (now - last) / 1000;
+    const dt = Math.min(elapsed, 0.25); last = now; time += dt; fps = THREE.MathUtils.lerp(fps, 1 / Math.max(elapsed, 0.001), 0.1);
+    const state = useGame.getState();
+    if (state.playing) {
+      let dx = 0, dz = 0;
+      if (!state.panel) { dx = Number(keys.has('KeyD') || keys.has('ArrowRight')) - Number(keys.has('KeyA') || keys.has('ArrowLeft')); dz = Number(keys.has('KeyS') || keys.has('ArrowDown')) - Number(keys.has('KeyW') || keys.has('ArrowUp')); }
+      const speed = keys.has('ShiftLeft') || keys.has('ShiftRight') ? 8.2 : 4.6; const length = Math.hypot(dx, dz) || 1;
+      const wx = (Math.cos(yaw) * dx + Math.sin(yaw) * dz) / length * speed, wz = (-Math.sin(yaw) * dx + Math.cos(yaw) * dz) / length * speed;
+      vx = THREE.MathUtils.damp(vx, wx, 12, dt); vz = THREE.MathUtils.damp(vz, wz, 12, dt);
+      const p = player.root.position;
+      if (!state.panel) {
+        // Substeps preserve collision and jump behavior when rendering is slow.
+        const steps = Math.max(1, Math.ceil(dt / (1 / 60))), step = dt / steps;
+        for (let i = 0; i < steps; i++) {
+          if (canOccupy(p.x + vx * step, p.z, world.obstacles)) p.x += vx * step; else vx = 0;
+          if (canOccupy(p.x, p.z + vz * step, world.obstacles)) p.z += vz * step; else vz = 0;
+          vy -= 22 * step; p.y = Math.max(0, p.y + vy * step); if (p.y === 0 && vy < 0) vy = 0;
+        }
+        if (Math.hypot(vx, vz) > 0.15) { const angle = Math.atan2(-vx, -vz); player.root.rotation.y += (THREE.MathUtils.euclideanModulo(angle - player.root.rotation.y + Math.PI, Math.PI * 2) - Math.PI) * (1 - Math.exp(-12 * dt)); }
+      }
+      player.animate(time, Math.hypot(vx, vz), p.y > 0.01);
+      target.set(p.x, p.y + 1.8, p.z);
+      desired.set(p.x + Math.sin(yaw) * Math.cos(pitch) * distance, p.y + 1.8 + Math.sin(pitch) * distance, p.z + Math.cos(yaw) * Math.cos(pitch) * distance);
+      direction.subVectors(desired, target); let safeDistance = direction.length(); direction.normalize(); ray.set(target, direction);
+      for (const box of cameraBoxes) if (ray.intersectBox(box, hit)) { const d = target.distanceTo(hit); if (d > 0.1 && d < safeDistance) safeDistance = Math.max(0.65, d - 0.35); }
+      desired.copy(target).addScaledVector(direction, safeDistance); desired.y = Math.max(0.65, desired.y);
+      // Snap inward immediately to keep the camera outside walls; ease outward and while following.
+      if (camera.position.distanceTo(target) > safeDistance + 0.8) camera.position.copy(desired); else camera.position.lerp(desired, 1 - Math.exp(-8 * dt));
+      look.lerp(target, 1 - Math.exp(-12 * dt)); camera.lookAt(look);
+    } else {
+      player.root.position.set(0, 0, 13); player.root.rotation.y = Math.PI; player.animate(time, 0, false);
+      const orbit = state.reducedMotion ? 0 : Math.sin(time * 0.055) * 5;
+      desired.set(13 + orbit * 0.4, 11.5, 32); camera.position.lerp(desired, 1 - Math.exp(-1.6 * dt)); camera.lookAt(0, 4, -8);
+    }
+    world.update(time, state.reducedMotion);
+    try { renderer.render(scene, camera); } catch { fail('This browser could not render the world. You can still explore every portfolio section directly.'); return; }
+    if (now - lastReport > 120) { lastReport = now; reportState(); }
+    frame = requestAnimationFrame(tick);
+  }
+  frame = requestAnimationFrame(tick);
+  return () => {
+    stopped = true; cancelAnimationFrame(frame); unsubscribe(); resizeObserver.disconnect();
+    window.removeEventListener('keydown', keydown); window.removeEventListener('keyup', keyup); window.removeEventListener('blur', blur);
+    document.removeEventListener('pointerlockchange', lockChange); document.removeEventListener('mousemove', mousemove);
+    canvas.removeEventListener('click', lock); canvas.removeEventListener('wheel', wheel); canvas.removeEventListener('webglcontextlost', contextLost);
+    if (document.pointerLockElement === canvas) document.exitPointerLock();
+    const geometries = new Set<THREE.BufferGeometry>(), materials = new Set<THREE.Material>(), textures = new Set<THREE.Texture>();
+    scene.traverse(o => { if (o instanceof THREE.InstancedMesh) o.dispose(); const mesh = o as THREE.Mesh; if (mesh.geometry) geometries.add(mesh.geometry); if (mesh.material) for (const material of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) { materials.add(material); for (const value of Object.values(material)) if (value instanceof THREE.Texture) textures.add(value); } });
+    geometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose()); textures.forEach(t => t.dispose()); sun.shadow.map?.dispose(); renderer.dispose(); renderer.forceContextLoss(); canvas.remove();
+  };
+}
