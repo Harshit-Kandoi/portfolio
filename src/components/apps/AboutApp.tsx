@@ -83,7 +83,7 @@ function SpotifyPlayerCard({ boxBg }: { boxBg: string }) {
           <Music className="w-3.5 h-3.5 text-pink-400 animate-pulse" />
           <span>Now Playing (Spotify)</span>
           {isFallback && (
-            <span className="text-[8px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.2 rounded font-mono">
+            <span className="text-[8px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.2 rounded-sm font-mono">
               Fallback Active
             </span>
           )}
@@ -169,11 +169,11 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
 
   const isLight = theme === 'light';
   const boxBg = isLight
-    ? 'bg-white border-gray-200/80 shadow-sm'
+    ? 'bg-white border-gray-200/80 shadow-xs'
     : 'bg-white/5 border-white/10 backdrop-blur-md';
 
   return (
-    <div className={`flex flex-col flex-grow h-full overflow-y-auto p-5 space-y-6 ${isLight ? 'bg-gray-50 text-gray-800' : 'bg-slate-950 text-purple-100'} custom-scrollbar`}>
+    <div className={`flex flex-col grow h-full overflow-y-auto p-5 space-y-6 ${isLight ? 'bg-gray-50 text-gray-800' : 'bg-slate-950 text-purple-100'} custom-scrollbar`}>
 
       {/* Live system stats bar */}
       <div className={`flex flex-wrap items-center gap-x-4 gap-y-1.5 px-4 py-2.5 rounded-xl border text-[10px] font-mono ${isLight ? 'bg-gray-100 border-gray-200 text-gray-600' : 'bg-slate-900 border-white/5 text-gray-400'}`}>

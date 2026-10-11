@@ -62,8 +62,8 @@ export default function BootScreen() {
   }, [setBootState, bootMessages, speed]);
 
   return (
-    <div className="fixed inset-0 bg-[#07070a] text-green-400 font-mono text-sm flex flex-col justify-between p-8 select-none z-[9999]">
-      <div className="max-w-4xl mx-auto w-full flex-grow flex flex-col justify-start space-y-2 mt-12 overflow-y-auto">
+    <div className="fixed inset-0 bg-[#07070a] text-green-400 font-mono text-sm flex flex-col justify-between p-8 select-none z-9999">
+      <div className="max-w-4xl mx-auto w-full grow flex flex-col justify-start space-y-2 mt-12 overflow-y-auto">
         {/* Terminal Header */}
         <div className="text-gray-500 mb-4 border-b border-gray-800 pb-2">
           === {isMobile ? 'PORTFOLIO OS MOBILE' : 'PORTFOLIO OS'} v{APP_VERSION} ===
@@ -90,7 +90,7 @@ export default function BootScreen() {
         </div>
         <div className="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-800">
           <div
-            className="h-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all duration-200"
+            className="h-full bg-linear-to-r from-green-500 to-emerald-400 transition-all duration-200"
             style={{ width: `${progress}%` }}
           />
         </div>

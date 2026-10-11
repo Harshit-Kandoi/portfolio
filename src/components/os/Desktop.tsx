@@ -418,7 +418,7 @@ export default function Desktop() {
     >
       
       {/* Top Taskbar */}
-      <div className={`h-12 w-full flex items-center justify-between border-b z-[9995] ${barBg} ${
+      <div className={`h-12 w-full flex items-center justify-between border-b z-9995 ${barBg} ${
         viewMode === 'tablet' ? 'px-6' : 'px-4'
       }`}>
         <div className="flex items-center space-x-4">
@@ -432,16 +432,16 @@ export default function Desktop() {
                 : theme === 'retro'
                   ? 'bg-green-500 text-black hover:bg-green-600 font-bold'
                   : theme === 'light'
-                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-sm font-bold'
+                    ? 'bg-linear-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-xs font-bold'
                     : 'bg-white/10 hover:bg-white/20 border border-white/15'
             }`}
             aria-label={startMenuOpen ? "Close start menu" : "Open start menu"}
           >
             <div className="flex flex-wrap w-4 h-4 justify-between content-between gap-0.5">
-              <div className="w-1.5 h-1.5 bg-current rounded-sm" />
-              <div className="w-1.5 h-1.5 bg-current rounded-sm" />
-              <div className="w-1.5 h-1.5 bg-current rounded-sm" />
-              <div className="w-1.5 h-1.5 bg-current rounded-sm" />
+              <div className="w-1.5 h-1.5 bg-current rounded-xs" />
+              <div className="w-1.5 h-1.5 bg-current rounded-xs" />
+              <div className="w-1.5 h-1.5 bg-current rounded-xs" />
+              <div className="w-1.5 h-1.5 bg-current rounded-xs" />
             </div>
             <span className="text-xs font-bold tracking-wide">Menu</span>
           </button>
@@ -454,7 +454,7 @@ export default function Desktop() {
               placeholder="Search apps..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`pl-9 pr-4 py-1.5 rounded-lg text-xs w-48 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition ${
+              className={`pl-9 pr-4 py-1.5 rounded-lg text-xs w-48 focus:outline-hidden focus:ring-1 focus:ring-purple-500/50 transition ${
                 theme === 'light' 
                   ? 'bg-white text-gray-900 border border-gray-300 placeholder-gray-500 shadow-inner' 
                   : 'bg-white/5 border border-white/15 placeholder-gray-400 text-white'
@@ -472,7 +472,7 @@ export default function Desktop() {
             onClick={() => setShowDashboard(!showDashboard)}
             className={`hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-xs border transition-all ${
               showDashboard
-                ? theme === 'light' ? 'bg-purple-600 border-purple-600 text-white shadow-sm font-bold' : 'bg-purple-600/30 border-purple-500/50 text-purple-300'
+                ? theme === 'light' ? 'bg-purple-600 border-purple-600 text-white shadow-xs font-bold' : 'bg-purple-600/30 border-purple-500/50 text-purple-300'
                 : theme === 'light' ? 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-800 font-semibold' : 'bg-white/5 border-white/10 hover:bg-white/10 text-gray-300'
             }`}
             aria-label={showDashboard ? 'Close dashboard' : 'Open dashboard'}
@@ -487,8 +487,8 @@ export default function Desktop() {
             onClick={() => setPortalMode('classic')}
             className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all hover:scale-105 active:scale-95 ${
               theme === 'light'
-                ? 'bg-purple-100 text-purple-950 border border-purple-300 hover:bg-purple-200 shadow-sm'
-                : 'bg-white/10 text-purple-300 border border-purple-500/40 hover:bg-white/15 hover:border-purple-400/60 shadow-sm'
+                ? 'bg-purple-100 text-purple-950 border border-purple-300 hover:bg-purple-200 shadow-xs'
+                : 'bg-white/10 text-purple-300 border border-purple-500/40 hover:bg-white/15 hover:border-purple-400/60 shadow-xs'
             }`}
             title="Switch to Normal Portfolio View"
             aria-label="Switch to Classic Portfolio View"
@@ -509,7 +509,7 @@ export default function Desktop() {
                 aria-label={label}
               >
                 <Icon className="w-4 h-4" />
-                <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>{label}</span>
+                <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded-sm opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-10005 ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>{label}</span>
               </a>
             ))}
           </div>
@@ -521,7 +521,7 @@ export default function Desktop() {
                 onClick={() => setIsSimulatingMobile(!isSimulatingMobile)} 
                 className={`p-1 rounded-md transition hover:scale-105 active:scale-95 ${
                   isSimulatingMobile
-                    ? 'bg-purple-600 border border-purple-600 text-white shadow-sm'
+                    ? 'bg-purple-600 border border-purple-600 text-white shadow-xs'
                     : theme === 'light'
                       ? 'text-gray-700 hover:text-gray-900 hover:bg-gray-200/80'
                       : 'text-gray-400 hover:text-white hover:bg-white/10'
@@ -574,7 +574,7 @@ export default function Desktop() {
                   aria-label="Volume controls"
                   onClick={(e) => e.stopPropagation()}
                   onPointerDown={(e) => e.stopPropagation()}
-                  className={`absolute right-0 top-7 p-3 rounded-lg shadow-xl w-36 flex flex-col z-[10000] ${
+                  className={`absolute right-0 top-7 p-3 rounded-lg shadow-xl w-36 flex flex-col z-10000 ${
                     theme === 'light' ? 'bg-white border border-gray-200 text-gray-900 shadow-2xl' : 'bg-slate-900 border border-gray-800 text-white'
                   }`}
                 >
@@ -596,7 +596,7 @@ export default function Desktop() {
                       type="checkbox"
                       checked={soundEnabled}
                       onChange={(e) => setSoundEnabled(e.target.checked)}
-                      className="rounded"
+                      className="rounded-sm"
                     />
                     <span>Sound Effects</span>
                   </label>
@@ -629,14 +629,14 @@ export default function Desktop() {
       </div>
       {/* Start Menu Popup */}
       {startMenuOpen && (
-        <div id="start-menu" className={`fixed border shadow-2xl z-[10000] ${cardBg} backdrop-blur-3xl flex flex-col space-y-4 animate-slide-up transition-all duration-300 ${
+        <div id="start-menu" className={`fixed border shadow-2xl z-10000 ${cardBg} backdrop-blur-3xl flex flex-col space-y-4 animate-slide-up transition-all duration-300 ${
           viewMode === 'tablet'
             ? 'left-6 top-14 w-[85vw] max-w-md p-8 rounded-3xl'
             : 'left-4 top-14 w-80 p-6 rounded-2xl'
         }`}>
           <div className="flex items-center justify-between pb-3 border-b border-white/10 dark:border-gray-800">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-tr from-purple-500 to-indigo-500 border border-white/20 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-linear-to-tr from-purple-500 to-indigo-500 border border-white/20 flex items-center justify-center shrink-0">
                 <img src={asset('profile.webp')} alt="HK" className="w-full h-full object-cover" />
               </div>
               <div>
@@ -667,7 +667,7 @@ export default function Desktop() {
                 }`}
                 aria-label={`Open ${app.title.replace('.exe', '')} from start menu`}
               >
-                <div className={`rounded-lg bg-gradient-to-br ${app.color} text-white ${
+                <div className={`rounded-lg bg-linear-to-br ${app.color} text-white ${
                   viewMode === 'tablet' ? 'p-2' : 'p-1.5'
                 }`}>
                   <app.icon className={`${viewMode === 'tablet' ? 'w-4 h-4' : 'w-3.5 h-3.5'}`} />
@@ -701,7 +701,7 @@ export default function Desktop() {
       )}
 
       {/* Active Workspaces - Icons on Desktop / Tablet */}
-      <div className={`flex-grow p-6 z-10 select-none overflow-y-auto mt-4 ${
+      <div className={`grow p-6 z-10 select-none overflow-y-auto mt-4 ${
         viewMode === 'tablet' 
           ? 'grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-6 justify-items-start justify-start content-start max-h-[calc(100vh-160px)]' 
           : 'grid grid-flow-col auto-cols-max grid-rows-[repeat(auto-fill,96px)] gap-4 max-h-[calc(100vh-112px)]'
@@ -725,12 +725,12 @@ export default function Desktop() {
             aria-label={`Open ${app.title.replace('.exe', '')} from desktop`}
             title={app.title}
           >
-            <div className={`rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-lg shadow-black/20 group-hover:scale-105 transition-transform w-12 h-12`}>
+            <div className={`rounded-2xl bg-linear-to-br ${app.color} text-white flex items-center justify-center shadow-lg shadow-black/20 group-hover:scale-105 transition-transform w-12 h-12`}>
               <app.icon className="w-6 h-6" />
             </div>
             <span className={`text-[10px] tracking-wide mt-1.5 truncate block max-w-full px-1.5 py-0.5 rounded-md ${
               theme === 'light' 
-                ? 'text-slate-900 bg-white/90 shadow-sm border border-slate-200/90 font-bold backdrop-blur-sm' 
+                ? 'text-slate-900 bg-white/90 shadow-xs border border-slate-200/90 font-bold backdrop-blur-xs' 
                 : 'text-gray-100 font-medium text-shadow'
             }`}>
               {app.title}
@@ -767,7 +767,7 @@ export default function Desktop() {
       ))}
 
       {/* Bottom Dock */}
-      <div className={`absolute left-1/2 transform -translate-x-1/2 z-[9990] flex items-end bg-black/35 backdrop-blur-2xl border border-white/15 rounded-3xl shadow-2xl transition-all duration-300 ${
+      <div data-testid="dock" className={`absolute left-1/2 transform -translate-x-1/2 z-9990 flex items-end bg-black/35 backdrop-blur-2xl border border-white/15 rounded-3xl shadow-2xl transition-all duration-300 ${
         viewMode === 'tablet' 
           ? 'bottom-6 px-8 py-3 space-x-6' 
           : 'bottom-4 px-4 py-2.5 space-x-3.5'
@@ -790,11 +790,11 @@ export default function Desktop() {
               aria-label={`${isRunning ? (isCurrentActive ? "Minimize" : "Restore") : "Open"} ${app.title} from dock`}
             >
               {/* Custom tooltip with 200ms delay on entry and smooth disappear */}
-              <span className="absolute bottom-14 px-2 py-1 bg-slate-900/90 border border-gray-800 text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 translate-y-0 group-hover:-translate-y-1.5 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap text-white shadow-xl z-[10001] delay-0 group-hover:delay-200">
+              <span className="absolute bottom-14 px-2 py-1 bg-slate-900/90 border border-gray-800 text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 translate-y-0 group-hover:-translate-y-1.5 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap text-white shadow-xl z-10001 delay-0 group-hover:delay-200">
                 {app.title}
               </span>
 
-              <div className={`dock-icon-inner rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md transform hover:scale-[1.2] hover:-translate-y-2 transition duration-200 active:scale-[0.95] ${
+              <div className={`dock-icon-inner rounded-2xl bg-linear-to-br ${app.color} text-white flex items-center justify-center shadow-md transform hover:scale-[1.2] hover:-translate-y-2 transition duration-200 active:scale-[0.95] ${
                 viewMode === 'tablet' ? 'w-12 h-12' : 'w-11 h-11'
               } ${bouncingApp === app.id ? 'animate-bounce-dock' : ''}`}>
                 <app.icon className={`${viewMode === 'tablet' ? 'w-6 h-6' : 'w-5 h-5'}`} />
@@ -815,7 +815,7 @@ export default function Desktop() {
 
       {/* Shutdown Overlay */}
       {isShuttingDown && (
-        <div className="fixed inset-0 z-[99999] bg-black flex flex-col items-center justify-center font-mono">
+        <div className="fixed inset-0 z-99999 bg-black flex flex-col items-center justify-center font-mono">
           <div className="space-y-2 text-left max-w-md w-full px-8">
             {SHUTDOWN_LINES.slice(0, shutdownStep + 1).map((line, i) => (
               <p

@@ -370,12 +370,12 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
   };
 
   return (
-    <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} flex-grow h-full overflow-hidden ${appBg} custom-scrollbar`}>
+    <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} grow h-full overflow-hidden ${appBg} custom-scrollbar`}>
       {/* Constellation Workspace */}
-      <div className="flex-grow flex flex-col min-w-0 p-4 select-none relative">
+      <div className="grow flex flex-col min-w-0 p-4 select-none relative">
         {/* Navigation Categories bar */}
         <div className="flex justify-between items-center pb-3 border-b border-white/5 space-x-4">
-          <div className="flex space-x-1.5 overflow-x-auto custom-scrollbar flex-grow">
+          <div className="flex space-x-1.5 overflow-x-auto custom-scrollbar grow">
             {categories.map((cat) => {
               const isSel = selectedCategory === cat;
               return (
@@ -435,7 +435,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
 
         {/* Constellation Chart (Flexible full-area SVG Canvas) */}
         {viewType === 'constellation' ? (
-          <div className="flex-grow relative overflow-hidden mt-2 w-full h-full min-h-[350px]">
+          <div className="grow relative overflow-hidden mt-2 w-full h-full min-h-[350px]">
             <svg 
               viewBox={`0 0 ${width} ${height}`} 
               preserveAspectRatio="xMidYMid meet"
@@ -618,7 +618,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
           </div>
         ) : (
           /* ── Grid View ─────────────────────────────────────────────────── */
-          <div className="flex-grow overflow-y-auto mt-3 custom-scrollbar">
+          <div className="grow overflow-y-auto mt-3 custom-scrollbar">
             {categories.slice(1).map((cat) => {
               const catSkills = skills.filter((s) =>
                 (selectedCategory === 'All' || selectedCategory === cat) && s.category === cat
@@ -642,7 +642,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
                           onClick={() => handleSelectSkill(skill, 'grid')}
                           className={`text-left p-2.5 rounded-xl border transition text-xs ${
                             isSelected
-                              ? 'border-purple-500 bg-purple-600/20 text-white shadow-sm ring-1 ring-purple-500/40'
+                              ? 'border-purple-500 bg-purple-600/20 text-white shadow-xs ring-1 ring-purple-500/40'
                               : isLight ? 'border-gray-200 bg-white hover:border-purple-300' : 'border-white/8 bg-white/3 hover:border-purple-500/40 text-gray-300'
                           }`}
                           aria-label={`Select skill ${skill.name}`}
@@ -650,14 +650,14 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
                           <div className="flex items-center justify-between mb-1.5">
                             <span className="font-bold text-[11px] truncate">{skill.name}</span>
                             {projCount > 0 && (
-                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold shrink-0">
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-sm bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold shrink-0">
                                 {projCount} {projCount === 1 ? 'Project' : 'Projects'}
                               </span>
                             )}
                           </div>
                           <div className="h-1 rounded-full bg-white/5 overflow-hidden">
                             <div
-                              className="h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-400"
+                              className="h-full rounded-full bg-linear-to-r from-purple-500 to-indigo-400"
                               style={{ width: `${skill.proficiency}%` }}
                             />
                           </div>
@@ -675,7 +675,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
 
       {/* Details sidebar pane - Strict Non-Overlapping Flex Layout */}
       {targetSkill && (
-        <div className={`${isMobile ? 'w-full' : 'w-80'} flex-shrink-0 p-4 flex flex-col h-full overflow-hidden select-none ${sidebarBg}`}>
+        <div className={`${isMobile ? 'w-full' : 'w-80'} shrink-0 p-4 flex flex-col h-full overflow-hidden select-none ${sidebarBg}`}>
           {/* Top Section: Header & Automatic Lock Toggle Button */}
           <div className="shrink-0 flex items-center justify-between pb-3 border-b border-white/5">
             <div className="flex items-center space-x-2.5 min-w-0 pr-2">
@@ -698,7 +698,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
               ) : isLocked && selectedSkill?.name === targetSkill.name ? (
                 <button
                   onClick={() => setIsLocked(false)}
-                  className="text-purple-300 hover:text-white flex items-center space-x-1 px-2.5 py-1 rounded-full bg-purple-600/30 border border-purple-500/40 text-[9px] font-bold transition shadow-sm"
+                  className="text-purple-300 hover:text-white flex items-center space-x-1 px-2.5 py-1 rounded-full bg-purple-600/30 border border-purple-500/40 text-[9px] font-bold transition shadow-xs"
                   title="Click to unlock hover preview mode"
                 >
                   <Lock className="w-3 h-3 text-purple-400" />
@@ -728,7 +728,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
             </div>
             <div className="w-full bg-white/5 border border-white/10 h-2 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-300"
+                className="h-full bg-linear-to-r from-purple-500 to-indigo-500 transition-all duration-300"
                 style={{ width: `${targetSkill.proficiency}%` }}
               />
             </div>
@@ -783,7 +783,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
                       href={p.github || p.demo}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-purple-500 hover:text-purple-600 font-bold text-[9px] uppercase flex items-center space-x-0.5 shrink-0 px-2 py-1 bg-purple-500/10 rounded border border-purple-500/20"
+                      className="text-purple-500 hover:text-purple-600 font-bold text-[9px] uppercase flex items-center space-x-0.5 shrink-0 px-2 py-1 bg-purple-500/10 rounded-sm border border-purple-500/20"
                     >
                       <span>View</span>
                       <Target className="w-2.5 h-2.5" />

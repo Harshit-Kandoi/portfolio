@@ -262,13 +262,13 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
 
       {/* Dynamic Brightness Dimming Overlay */}
       <div 
-        className="absolute inset-0 z-[1000] pointer-events-none bg-black transition-opacity duration-200" 
+        className="absolute inset-0 z-1000 pointer-events-none bg-black transition-opacity duration-200" 
         style={{ opacity: 1 - mobileBrightness }} 
       />
 
       {/* Retro CRT Grid Overlay (for retro theme) */}
       {theme === 'retro' && (
-        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-[length:100%_4px] opacity-20 z-40" />
+        <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%)] bg-size-[100%_4px] opacity-20 z-40" />
       )}
 
       {/* ================= STATUS BAR ================= */}
@@ -318,7 +318,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
         onPointerUp={(e) => handlePointerUp(e, 'settings')}
         className={`absolute inset-0 ${
           theme === 'light' ? 'bg-[#f4f7f6] text-gray-800' : 'bg-slate-950 text-white'
-        } z-[600] flex flex-col justify-between px-6 pt-10 pb-4 transition-transform duration-300 ease-out ${
+        } z-600 flex flex-col justify-between px-6 pt-10 pb-4 transition-transform duration-300 ease-out ${
           showMobileSettings ? 'translate-y-0 pointer-events-auto opacity-100' : '-translate-y-full pointer-events-none opacity-0 invisible'
         }`}
       >
@@ -445,7 +445,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
             {/* Switch to Normal View Hero Tile — positioned below System Volume box & above Notifications */}
             <button
               onClick={() => { setPortalMode('classic'); setShowMobileSettings(false); }}
-              className="w-full p-3.5 rounded-2xl flex items-center justify-between border bg-gradient-to-r from-purple-900/40 via-indigo-900/40 to-slate-900/40 border-purple-500/30 text-white shadow-lg active:scale-[0.98] transition"
+              className="w-full p-3.5 rounded-2xl flex items-center justify-between border bg-linear-to-r from-purple-900/40 via-indigo-900/40 to-slate-900/40 border-purple-500/30 text-white shadow-lg active:scale-[0.98] transition"
             >
               <div className="flex items-center space-x-3">
                 <div className="p-2 rounded-xl bg-purple-500/20 text-purple-300">
@@ -456,7 +456,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                   <div className="text-[10px] text-purple-200/70">Switch back to classic web view</div>
                 </div>
               </div>
-              <span className="text-xs font-semibold px-3.5 py-1 rounded-full bg-purple-600 text-white shadow-sm">Switch →</span>
+              <span className="text-xs font-semibold px-3.5 py-1 rounded-full bg-purple-600 text-white shadow-xs">Switch →</span>
             </button>
 
             {/* Active System Notifications */}
@@ -505,7 +505,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                         onClick={handleNotifClick}
                         onKeyDown={onActivateKey(handleNotifClick)}
                         aria-label={n.action ? `${n.title} — open` : `${n.title} — dismiss`}
-                        className={`p-3 ${theme === 'light' ? 'bg-white border-gray-200 shadow-sm text-gray-800 hover:bg-gray-50' : 'bg-white/5 border-white/10 text-white hover:bg-white/10'} border rounded-2xl flex items-start justify-between relative group transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 ${n.action ? 'hover:ring-1 hover:ring-purple-500/30' : ''}`}
+                        className={`p-3 ${theme === 'light' ? 'bg-white border-gray-200 shadow-xs text-gray-800 hover:bg-gray-50' : 'bg-white/5 border-white/10 text-white hover:bg-white/10'} border rounded-2xl flex items-start justify-between relative group transition cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-purple-500 ${n.action ? 'hover:ring-1 hover:ring-purple-500/30' : ''}`}
                       >
                         <div className="space-y-0.5 min-w-0 pr-6">
                           <div className="flex items-center space-x-1">
@@ -548,7 +548,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
       <div 
         onPointerDown={handlePointerDown}
         onPointerUp={(e) => handlePointerUp(e, 'home')}
-        className={`flex-grow flex flex-col justify-between px-6 pt-4 pb-2 z-10 select-none ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}
+        className={`grow flex flex-col justify-between px-6 pt-4 pb-2 z-10 select-none ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}
       >
         
         {/* HOMESCREEN WIDGETS AND APP GRID */}
@@ -574,7 +574,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                   placeholder="Search application grid..."
                   value={localSearch}
                   onChange={(e) => setLocalSearch(e.target.value)}
-                  className={`w-full ${theme === 'light' ? 'bg-white/75 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-gray-400'} pl-11 pr-4 py-2.5 rounded-full text-xs focus:outline-none focus:bg-white/10 border transition`}
+                  className={`w-full ${theme === 'light' ? 'bg-white/75 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-gray-400'} pl-11 pr-4 py-2.5 rounded-full text-xs focus:outline-hidden focus:bg-white/10 border transition`}
                 />
               </div>
 
@@ -584,10 +584,10 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                   <button
                     key={app.id}
                     onClick={() => handleLaunchApp(app.id)}
-                    className="flex flex-col items-center space-y-1 focus:outline-none transition group hover:scale-[1.05]"
+                    className="flex flex-col items-center space-y-1 focus:outline-hidden transition group hover:scale-[1.05]"
                     aria-label={`Open ${app.title}`}
                   >
-                    <div className={`w-12 h-12 rounded-[16px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md shadow-black/15 group-active:scale-95 transition-transform`}>
+                    <div className={`w-12 h-12 rounded-[16px] bg-linear-to-br ${app.color} text-white flex items-center justify-center shadow-md shadow-black/15 group-active:scale-95 transition-transform`}>
                       <app.icon className="w-6 h-6" />
                     </div>
                     <span className={`text-[9px] font-semibold tracking-wide ${theme === 'light' ? 'text-gray-700' : 'text-gray-200'} truncate w-14 text-center mt-1`}>
@@ -620,7 +620,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     title={app.title}
                     aria-label={`Open ${app.title}`}
                   >
-                    <div className={`w-12 h-12 rounded-[16px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-sm`}>
+                    <div className={`w-12 h-12 rounded-[16px] bg-linear-to-br ${app.color} text-white flex items-center justify-center shadow-xs`}>
                       <app.icon className="w-6 h-6" />
                     </div>
                   </button>
@@ -632,7 +632,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
 
         {/* ================= RECENTS TASK CAROUSEL SWITCHER ================= */}
         {showRecents && (
-          <div className="flex-grow flex flex-col justify-between pt-6 pb-2 animate-fade-in h-full overflow-hidden relative">
+          <div className="grow flex flex-col justify-between pt-6 pb-2 animate-fade-in h-full overflow-hidden relative">
             <div className="w-full flex flex-col items-center justify-center text-center px-4">
               <span className={`text-xs font-bold ${theme === 'light' ? 'text-gray-700' : 'text-gray-400'} uppercase tracking-widest block text-center`}>Active Background Apps</span>
               <p className={`text-[10px] ${theme === 'light' ? 'text-gray-500' : 'text-gray-400'} mt-1 text-center w-full`}>
@@ -643,14 +643,14 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
             </div>
 
             {mobileRecents.length === 0 ? (
-              <div className="flex flex-col items-center justify-center space-y-2 flex-grow my-auto">
+              <div className="flex flex-col items-center justify-center space-y-2 grow my-auto">
                 <div className={`w-16 h-16 rounded-full ${theme === 'light' ? 'bg-gray-100 border-gray-200 text-gray-400' : 'bg-white/5 border-white/10 text-gray-500'} border flex items-center justify-center shadow-inner mb-1`}>
                   ■
                 </div>
                 <span className={`text-sm ${theme === 'light' ? 'text-gray-800' : 'text-white'} font-bold`}>No recent apps running</span>
               </div>
             ) : (
-              <div className="flex-grow flex flex-col items-center justify-center my-auto w-full">
+              <div className="grow flex flex-col items-center justify-center my-auto w-full">
                 <div className="relative w-full flex items-center justify-center group">
                 
                 {/* Left Arrow Button */}
@@ -684,12 +684,12 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                     return (
                       <div 
                         key={appId}
-                        className={`w-48 h-72 flex-shrink-0 ${theme === 'light' ? 'bg-white border-gray-200 text-gray-800 shadow-md' : 'bg-slate-900 border-white/15 text-white'} border rounded-3xl p-3 flex flex-col justify-between shadow-2xl relative transition hover:border-purple-500/50`}
+                        className={`w-48 h-72 shrink-0 ${theme === 'light' ? 'bg-white border-gray-200 text-gray-800 shadow-md' : 'bg-slate-900 border-white/15 text-white'} border rounded-3xl p-3 flex flex-col justify-between shadow-2xl relative transition hover:border-purple-500/50`}
                       >
                         {/* Card Header */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
-                            <div className={`p-1.5 rounded-lg bg-gradient-to-br ${appMeta.color} text-white`}>
+                            <div className={`p-1.5 rounded-lg bg-linear-to-br ${appMeta.color} text-white`}>
                               <appMeta.icon className="w-3.5 h-3.5" />
                             </div>
                             <span className={`text-[10px] font-bold truncate w-24 ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}>{appMeta.title}</span>
@@ -708,7 +708,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                           type="button"
                           onClick={() => handleLaunchApp(appId)}
                           aria-label={`Resume ${appMeta.title}`}
-                          className={`flex-grow mt-3 rounded-xl ${theme === 'light' ? 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-800' : 'bg-slate-950/50 border-white/5 text-purple-100 hover:bg-slate-950/70'} border flex items-center justify-center cursor-pointer transition overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500`}
+                          className={`grow mt-3 rounded-xl ${theme === 'light' ? 'bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-800' : 'bg-slate-950/50 border-white/5 text-purple-100 hover:bg-slate-950/70'} border flex items-center justify-center cursor-pointer transition overflow-hidden focus:outline-hidden focus-visible:ring-2 focus-visible:ring-purple-500`}
                         >
                           <div className="text-center p-3 space-y-1">
                             <appMeta.icon className="w-8 h-8 mx-auto opacity-40 text-purple-400" />
@@ -778,11 +778,11 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
             onTouchStart={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
             onTouchEnd={(e) => e.stopPropagation()}
-            className={`absolute inset-x-0 top-9 bottom-[54px] ${theme === 'light' ? 'bg-white text-gray-800' : 'bg-slate-950 text-white'} z-[40] flex flex-col overflow-hidden animate-slide-up`}
+            className={`absolute inset-x-0 top-9 bottom-[54px] ${theme === 'light' ? 'bg-white text-gray-800' : 'bg-slate-950 text-white'} z-40 flex flex-col overflow-hidden animate-slide-up`}
           >
             
             {/* App Action Bar (Header) */}
-            <div className={`h-11 w-full ${theme === 'light' ? 'bg-gray-100 border-b border-gray-200 text-gray-800' : 'bg-slate-900 border-b border-white/10 text-white'} px-4 flex items-center justify-between shrink-0 select-none z-[45]`}>
+            <div className={`h-11 w-full ${theme === 'light' ? 'bg-gray-100 border-b border-gray-200 text-gray-800' : 'bg-slate-900 border-b border-white/10 text-white'} px-4 flex items-center justify-between shrink-0 select-none z-45`}>
               <div className="flex items-center space-x-2">
                 <button 
                   onClick={handleBackKey}
@@ -802,7 +802,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
             </div>
 
             {/* Render app contents scrollable */}
-            <div className="flex-grow w-full h-full overflow-hidden relative flex flex-col">
+            <div className="grow w-full h-full overflow-hidden relative flex flex-col">
               {renderAppContent(activeMobileApp)}
             </div>
           </div>
@@ -814,11 +814,11 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
           onPointerUp={(e) => handlePointerUp(e, 'drawer')}
           className={`absolute inset-0 ${
             theme === 'light' ? 'bg-[#f4f7f6] border-r border-gray-200 text-gray-800' : 'bg-slate-950 text-white'
-          } z-[550] flex flex-col justify-between px-6 pt-10 pb-16 transition-transform duration-300 ease-out ${
+          } z-550 flex flex-col justify-between px-6 pt-10 pb-16 transition-transform duration-300 ease-out ${
             showMobileDrawer ? 'translate-y-0 pointer-events-auto opacity-100' : 'translate-y-full pointer-events-none opacity-0 invisible'
           }`}
         >
-          <div className="space-y-5 flex-grow flex flex-col overflow-hidden">
+          <div className="space-y-5 grow flex flex-col overflow-hidden">
             
             {/* Drawer search header */}
             <div className={`flex items-center justify-between pb-2 border-b ${theme === 'light' ? 'border-gray-200' : 'border-white/10'}`}>
@@ -839,20 +839,20 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
                 placeholder="Search drawer..."
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
-                className={`w-full ${theme === 'light' ? 'bg-white/75 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-gray-400'} pl-11 pr-4 py-2.5 rounded-full text-xs focus:outline-none focus:bg-white/10 border transition`}
+                className={`w-full ${theme === 'light' ? 'bg-white/75 border-gray-300 text-gray-800 placeholder-gray-500' : 'bg-white/5 border-white/10 text-white placeholder-gray-400'} pl-11 pr-4 py-2.5 rounded-full text-xs focus:outline-hidden focus:bg-white/10 border transition`}
               />
             </div>
 
             {/* Launcher scrolling grid */}
-            <div className="flex-grow overflow-y-auto pr-1">
+            <div className="grow overflow-y-auto pr-1">
               <div className="grid grid-cols-4 gap-y-5 gap-x-2 pt-2">
                 {filteredApps.map((app) => (
                   <button
                     key={app.id}
                     onClick={() => handleLaunchApp(app.id)}
-                    className="flex flex-col items-center space-y-1.5 focus:outline-none transition group"
+                    className="flex flex-col items-center space-y-1.5 focus:outline-hidden transition group"
                   >
-                    <div className={`w-12 h-12 rounded-[16px] bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md group-active:scale-90 transition-transform`}>
+                    <div className={`w-12 h-12 rounded-[16px] bg-linear-to-br ${app.color} text-white flex items-center justify-center shadow-md group-active:scale-90 transition-transform`}>
                       <app.icon className="w-6 h-6" />
                     </div>
                     <span className={`text-[9px] font-semibold tracking-wide ${theme === 'light' ? 'text-gray-700' : 'text-gray-300'} truncate w-14 text-center mt-1`}>
@@ -879,7 +879,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
         theme === 'light' 
           ? 'border-gray-200/80 bg-white/85 text-gray-700 shadow-md' 
           : 'border-white/15 bg-[#0c0d14]/90 text-gray-300 shadow-xl'
-      } backdrop-blur-2xl shrink-0 z-[600]`}>
+      } backdrop-blur-2xl shrink-0 z-600`}>
         {/* BACK: Triangle */}
         <button 
           onClick={handleBackKey}
@@ -904,7 +904,7 @@ export default function AndroidOS({ isFullscreen }: AndroidOSProps) {
           className={`p-2 ${theme === 'light' ? 'text-gray-600 hover:text-gray-900' : 'text-gray-400 hover:text-white'} active:scale-90 transition-transform flex items-center justify-center w-9 h-9`}
           title="Recents" aria-label="Recent apps"
         >
-          <div className="w-3.5 h-3.5 border-2 border-current rounded-sm" />
+          <div className="w-3.5 h-3.5 border-2 border-current rounded-xs" />
         </button>
       </div>
 

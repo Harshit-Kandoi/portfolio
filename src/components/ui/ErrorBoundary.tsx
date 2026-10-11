@@ -40,10 +40,10 @@ export default class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="flex flex-col flex-grow items-center justify-center p-6 h-full w-full bg-blue-950 text-white font-mono select-none text-xs sm:text-sm animate-fade-in relative overflow-hidden">
+        <div className="flex flex-col grow items-center justify-center p-6 h-full w-full bg-blue-950 text-white font-mono select-none text-xs sm:text-sm animate-fade-in relative overflow-hidden">
           {/* CRT Scanline effect */}
           <div 
-            className="absolute inset-0 pointer-events-none opacity-5 z-[9999]"
+            className="absolute inset-0 pointer-events-none opacity-5 z-9999"
             style={{ background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.15) 2px, rgba(255,255,255,0.15) 4px)' }} 
           />
           

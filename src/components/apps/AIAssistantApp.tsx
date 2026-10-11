@@ -64,7 +64,7 @@ const AssistantBubbleWrapper = ({ msg, openWindow, isNew }: { msg: ChatMessage; 
 
   if (!isAssistant) {
     return (
-      <div className={`p-3 rounded-2xl text-xs leading-relaxed text-justify border shadow-sm ${
+      <div className={`p-3 rounded-2xl text-xs leading-relaxed text-justify border shadow-xs ${
         isLight ? 'bg-purple-100 text-purple-950 font-medium border-purple-200' : 'bg-purple-950/40 text-purple-200 border-purple-800/30'
       }`}>
         {msg.text}
@@ -75,7 +75,7 @@ const AssistantBubbleWrapper = ({ msg, openWindow, isNew }: { msg: ChatMessage; 
   const shortcuts = toButtons(msg.text, openWindow);
 
   return (
-    <div className={`p-3 rounded-2xl text-xs flex flex-col space-y-2.5 shadow-sm border ${
+    <div className={`p-3 rounded-2xl text-xs flex flex-col space-y-2.5 shadow-xs border ${
       isLight ? 'bg-slate-100 text-slate-800 border-slate-200 font-medium' : 'bg-white/5 text-gray-300 border-white/5'
     }`}>
       {isNew ? (
@@ -95,7 +95,7 @@ const AssistantBubbleWrapper = ({ msg, openWindow, isNew }: { msg: ChatMessage; 
                 trackEvent('ai_suggestion_click', { suggestion: btn.label });
                 btn.action();
               }}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-[9px] px-2.5 py-1.5 rounded-lg border border-purple-500/30 transition active:scale-95 shadow"
+              className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-[9px] px-2.5 py-1.5 rounded-lg border border-purple-500/30 transition active:scale-95 shadow-sm"
             >
               {btn.label}
             </button>
@@ -203,11 +203,11 @@ const AIAssistantApp: React.FC<{ isMobileView?: boolean }> = () => {
   const footerBg = isLight ? 'bg-gray-100' : 'bg-slate-900/60 border-t border-white/5';
 
   return (
-    <div className={`flex flex-col flex-grow h-full overflow-hidden ${chatBg} custom-scrollbar`}>
+    <div className={`flex flex-col grow h-full overflow-hidden ${chatBg} custom-scrollbar`}>
       {/* Scrollable messages area */}
       <div 
         ref={chatContainerRef}
-        className="flex-grow flex-shrink min-h-0 overflow-y-auto p-4 space-y-4 overscroll-contain custom-scrollbar"
+        className="grow shrink min-h-0 overflow-y-auto p-4 space-y-4 overscroll-contain custom-scrollbar"
         style={{ overscrollBehavior: 'contain', touchAction: 'pan-y' }}
       >
         {chatMessages.map((msg, idx) => {
@@ -273,7 +273,7 @@ const AIAssistantApp: React.FC<{ isMobileView?: boolean }> = () => {
           placeholder="Ask me anything..."
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          className={`flex-grow px-3.5 py-2 rounded-xl text-base sm:text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 bg-white/5 border border-white/10 placeholder-gray-400 ${
+          className={`grow px-3.5 py-2 rounded-xl text-base sm:text-xs focus:outline-hidden focus:ring-1 focus:ring-purple-500/50 bg-white/5 border border-white/10 placeholder-gray-400 ${
             isLight ? 'bg-black/5 border-black/10 text-gray-800' : ''
           }`}
         />

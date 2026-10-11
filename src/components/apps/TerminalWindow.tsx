@@ -565,7 +565,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
   return (
     <div
       onClick={focusInput}
-      className={`flex-grow flex flex-col font-mono text-xs md:text-sm p-3.5 w-full h-full min-h-0 cursor-text overflow-y-auto overscroll-contain transition-all duration-300 ${
+      className={`grow flex flex-col font-mono text-xs md:text-sm p-3.5 w-full h-full min-h-0 cursor-text overflow-y-auto overscroll-contain transition-all duration-300 ${
         devMode
           ? 'bg-black text-green-300 shadow-[inset_0_0_30px_rgba(0,255,0,0.08)]'
           : isLight
@@ -578,7 +578,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
       {isMatrixActive ? (
         <div className="relative w-full h-[350px] overflow-hidden">
           <canvas ref={matrixCanvasRef} className="absolute inset-0 w-full h-full" />
-          <div className="absolute top-2 left-2 z-10 bg-black/60 text-green-500 border border-green-500 px-3 py-1 rounded text-xs select-none">
+          <div className="absolute top-2 left-2 z-10 bg-black/60 text-green-500 border border-green-500 px-3 py-1 rounded-sm text-xs select-none">
             Digital Rain Active. Type <span className="font-bold underline text-white">q</span> or click exit to quit.
           </div>
           <input
@@ -592,7 +592,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
           />
         </div>
       ) : (
-        <div className="space-y-3.5 flex-grow">
+        <div className="space-y-3.5 grow">
           {history.map((item, idx) => (
             <div key={idx} className="space-y-1">
               <div className="flex items-center space-x-2">
@@ -615,7 +615,7 @@ export default function TerminalWindow({ isMobileView }: { isMobileView?: boolea
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
               onKeyDown={handleKeyDown}
-              className={`flex-grow bg-transparent focus:outline-none font-mono border-none p-0 text-base sm:text-xs md:text-sm ${
+              className={`grow bg-transparent focus:outline-hidden font-mono border-none p-0 text-base sm:text-xs md:text-sm ${
                 isLight ? 'text-slate-900 font-bold caret-purple-600' : 'text-green-400 caret-green-400'
               }`}
               autoFocus={!isMobile}

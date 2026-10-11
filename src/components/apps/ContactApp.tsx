@@ -315,7 +315,7 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
   };
 
   return (
-    <div className={`flex flex-col flex-grow h-full overflow-y-auto p-5 md:p-6 space-y-6 ${boxBg} custom-scrollbar`}>
+    <div className={`flex flex-col grow h-full overflow-y-auto p-5 md:p-6 space-y-6 ${boxBg} custom-scrollbar`}>
       {/* Header - Centered line requested */}
       <div className="text-center space-y-1 select-none flex flex-col items-center justify-center mx-auto max-w-md">
         <h2 className="text-sm font-bold tracking-wider uppercase text-purple-400 flex items-center space-x-1.5">
@@ -579,8 +579,8 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 border transition ${
-                      isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
+                    className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-hidden focus:ring-1 focus:ring-purple-500/50 border transition ${
+                      isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-2xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
                     }`}
                     placeholder="name@domain.com"
                   />
@@ -592,8 +592,8 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                     required
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 border transition ${
-                      isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
+                    className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-hidden focus:ring-1 focus:ring-purple-500/50 border transition ${
+                      isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-2xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
                     }`}
                     placeholder="Project Inquiry / Job Opportunity"
                   />
@@ -607,8 +607,8 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                   rows={4}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 border transition ${
-                    isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
+                  className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-hidden focus:ring-1 focus:ring-purple-500/50 border transition ${
+                    isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-2xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
                   }`}
                   placeholder="Hey Harshit, I checked out your Portfolio OS..."
                 />

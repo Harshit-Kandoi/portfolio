@@ -112,7 +112,7 @@ export default function LockScreen() {
 
     return (
       <div
-        className="fixed inset-0 select-none z-[9990] flex flex-col justify-between p-6 text-white bg-[#03001e] bg-cover bg-center"
+        className="fixed inset-0 select-none z-9990 flex flex-col justify-between p-6 text-white bg-[#03001e] bg-cover bg-center"
         style={{
           backgroundImage: `radial-gradient(circle at center, rgba(13, 10, 49, 0.5) 0%, rgba(3, 0, 30, 0.95) 100%), url(${asset('wallpaper.webp')})`,
         }}
@@ -243,7 +243,7 @@ export default function LockScreen() {
 
   return (
     <div
-      className="fixed inset-0 select-none z-[9990] flex flex-col justify-between p-8 text-white bg-[#03001e] bg-cover bg-center"
+      className="fixed inset-0 select-none z-9990 flex flex-col justify-between p-8 text-white bg-[#03001e] bg-cover bg-center"
       style={{
         backgroundImage: `radial-gradient(circle at center, rgba(13, 10, 49, 0.4) 0%, rgba(3, 0, 30, 0.95) 100%), url(${asset('wallpaper.webp')})`,
       }}
@@ -268,7 +268,7 @@ export default function LockScreen() {
             {formattedTime.split(' ')[1] || ''}
           </span>
         </div>
-        <div className="text-lg sm:text-xl font-medium tracking-wide text-gray-300 filter drop-shadow-sm">
+        <div className="text-lg sm:text-xl font-medium tracking-wide text-gray-300 filter drop-shadow-xs">
           {formattedDate}
         </div>
       </div>
@@ -276,7 +276,7 @@ export default function LockScreen() {
       {/* Bottom Login Card */}
       <div className="flex flex-col items-center justify-center mb-8 max-w-md mx-auto w-full">
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-6 rounded-3xl w-full flex flex-col items-center text-center shadow-2xl animate-slide-up">
-          <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-tr from-purple-500 to-indigo-500 border border-white/30 flex items-center justify-center mb-4">
+          <div className="w-16 h-16 rounded-full overflow-hidden bg-linear-to-tr from-purple-500 to-indigo-500 border border-white/30 flex items-center justify-center mb-4">
             <img src={asset('profile.webp')} alt={PORTFOLIO_META.name} width="64" height="64" className="w-full h-full object-cover" />
           </div>
           <h2 className="w-full text-center text-lg font-semibold tracking-wide">{PORTFOLIO_META.name}</h2>

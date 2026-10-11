@@ -37,7 +37,7 @@ export default function PoweredOffScreen() {
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-[#07070a] flex flex-col items-center justify-center select-none z-[9999]">
+    <div className="fixed inset-0 bg-[#07070a] flex flex-col items-center justify-center select-none z-9999">
       <div className="text-center space-y-10 max-w-md px-8">
         {/* Power icon */}
         <div className="flex justify-center">

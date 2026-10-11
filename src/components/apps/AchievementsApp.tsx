@@ -132,12 +132,12 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
   const earnedXP      = VISITOR_ACHIEVEMENTS.filter((a) => unlockedIds.includes(a.id)).reduce((sum, a) => sum + a.xp, 0);
 
   return (
-    <div className={`flex flex-col flex-grow h-full overflow-hidden ${bg}`}>
+    <div className={`flex flex-col grow h-full overflow-hidden ${bg}`}>
       {/* XP Header */}
-      <div className={`bg-gradient-to-r from-purple-900/60 via-indigo-900/40 to-purple-900/60 ${isMobile ? 'px-3.5 py-3' : 'px-5 py-4'} border-b border-white/5 shrink-0`}>
+      <div className={`bg-linear-to-r from-purple-900/60 via-indigo-900/40 to-purple-900/60 ${isMobile ? 'px-3.5 py-3' : 'px-5 py-4'} border-b border-white/5 shrink-0`}>
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center space-x-3">
-            <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center shadow-lg`}>
+            <div className={`${isMobile ? 'w-8 h-8' : 'w-10 h-10'} rounded-xl bg-linear-to-br from-purple-500 to-indigo-500 flex items-center justify-center shadow-lg`}>
               <Award className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-white`} />
             </div>
             <div>
@@ -159,7 +159,7 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
           </div>
           <div className="h-2 rounded-full bg-white/5 border border-white/10 overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-purple-500 to-amber-400 transition-all duration-700"
+              className="h-full rounded-full bg-linear-to-r from-purple-500 to-amber-400 transition-all duration-700"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -186,7 +186,7 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
 
       {/* ── Visitor Achievements Tab ─────────────────────────────────────── */}
       {tab === 'visitor' && (
-        <div className={`flex-grow overflow-y-auto ${isMobile ? 'p-3 space-y-2.5' : 'p-4 space-y-3'} custom-scrollbar`}>
+        <div className={`grow overflow-y-auto ${isMobile ? 'p-3 space-y-2.5' : 'p-4 space-y-3'} custom-scrollbar`}>
           {/* Stats Row */}
           <div className="grid grid-cols-3 gap-2.5 mb-2">
             {[
@@ -208,7 +208,7 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
               <div
                 key={ach.id}
                 className={`flex items-start space-x-3 ${isMobile ? 'p-2.5' : 'p-3'} rounded-xl border transition ${cardBg} ${
-                  unlocked ? 'border-purple-500/25 shadow-sm' : 'opacity-55'
+                  unlocked ? 'border-purple-500/25 shadow-xs' : 'opacity-55'
                 }`}
               >
                 {/* Icon */}
@@ -219,7 +219,7 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
                 </div>
 
                 {/* Content */}
-                <div className="flex-grow min-w-0">
+                <div className="grow min-w-0">
                   <div className="flex items-start justify-between space-x-2">
                     <p className={`text-xs font-bold leading-tight ${unlocked ? (isLight ? 'text-slate-900' : 'text-white') : 'opacity-50'}`}>
                       {unlocked ? ach.title : '???'}
@@ -251,13 +251,13 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
 
       {/* ── Dev Credentials Tab ─────────────────────────────────────────── */}
       {tab === 'dev' && (
-        <div className={`flex-grow overflow-y-auto ${isMobile ? 'p-3 space-y-3' : 'p-4 space-y-4'} custom-scrollbar`}>
+        <div className={`grow overflow-y-auto ${isMobile ? 'p-3 space-y-3' : 'p-4 space-y-4'} custom-scrollbar`}>
           <p className={`text-[10px] text-center pb-1 ${isLight ? 'text-slate-700 font-bold' : 'text-gray-400'}`}>
             Harshit's certifications, awards &amp; professional milestones.
           </p>
           {DEV_CREDENTIALS.map((cert) => (
             <div key={cert.id} className={`rounded-2xl border overflow-hidden transition-all duration-300 hover:border-purple-500/40 ${cardBg}`}>
-              <div className={`bg-gradient-to-r ${cert.color} px-4 py-3 flex items-center justify-between`}>
+              <div className={`bg-linear-to-r ${cert.color} px-4 py-3 flex items-center justify-between`}>
                 <div className="flex items-center space-x-3">
                   <span className="text-2xl shrink-0">{cert.emoji}</span>
                   <div>
@@ -272,7 +272,7 @@ export default function AchievementsApp({ isMobileView }: { isMobileView?: boole
                     href={cert.credentialUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="shrink-0 ml-2 flex items-center space-x-1 bg-white/20 hover:bg-white/35 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold backdrop-blur-sm transition shadow-sm"
+                    className="shrink-0 ml-2 flex items-center space-x-1 bg-white/20 hover:bg-white/35 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold backdrop-blur-xs transition shadow-xs"
                     title="Show Credential"
                   >
                     <span>Show Credential</span>

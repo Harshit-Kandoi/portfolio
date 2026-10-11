@@ -253,7 +253,7 @@ function App() {
 
           {/* ── Mobile Landscape Lock Overlay ──────────────────────────────────── */}
           {isLandscapeMobile && (
-            <div className="fixed inset-0 z-[99999] bg-[#07070a] flex flex-col items-center justify-center text-white select-none">
+            <div className="fixed inset-0 z-99999 bg-[#07070a] flex flex-col items-center justify-center text-white select-none">
               <div className="flex flex-col items-center space-y-5 px-8 text-center animate-fade-in">
                 <div className="relative">
                   <div className="w-20 h-20 rounded-3xl border-4 border-purple-500/60 flex items-center justify-center bg-purple-500/10 shadow-[0_0_40px_rgba(168,85,247,0.3)]">
@@ -264,7 +264,7 @@ function App() {
                   <div className="absolute -inset-2 rounded-[32px] border border-purple-500/20 animate-pulse" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-1">
+                  <h2 className="text-lg font-bold bg-linear-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-1">
                     Please Rotate Your Device
                   </h2>
                   <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
@@ -300,12 +300,12 @@ function App() {
                   
                   {/* Android Smartphone Simulator Frame Overlay on Desktop + Tablet landscape */}
                   {(viewMode === 'desktop' || viewMode === 'tablet') && isSimulatingMobile && (
-                    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in">
+                    <div className="fixed inset-0 z-500 flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in">
                       
                       {/* Floating Action Button to close simulator */}
                       <button 
                         onClick={() => setIsSimulatingMobile(false)}
-                        className="absolute top-6 right-6 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-full text-xs shadow-xl flex items-center space-x-1.5 transition duration-200 hover:scale-[1.05] active:scale-[0.95] z-[600]"
+                        className="absolute top-6 right-6 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-full text-xs shadow-xl flex items-center space-x-1.5 transition duration-200 hover:scale-[1.05] active:scale-[0.95] z-600"
                         aria-label="Exit Mobile OS Simulator"
                       >
                         <span>✕ Exit Mobile OS Simulator</span>
@@ -315,7 +315,7 @@ function App() {
                       <div className="relative w-[375px] h-[780px] bg-[#0c0d12] rounded-[52px] p-3 shadow-2xl border-[6px] border-[#1d1f27] ring-8 ring-black/75 overflow-hidden transition-all duration-300 transform scale-90 sm:scale-100">
                         
                         {/* Top Speaker Grille & Punch Hole Camera (Dynamic Island style) */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-44 h-7 bg-black rounded-b-[20px] z-[999] flex items-center justify-between px-6">
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-44 h-7 bg-black rounded-b-[20px] z-999 flex items-center justify-between px-6">
                           <div className="w-1.5 h-1.5 bg-[#151515] rounded-full" />
                           <div className="w-3.5 h-3.5 bg-[#08080a] rounded-full border-2 border-[#1c1c24] flex items-center justify-center">
                             <div className="w-1.5 h-1.5 bg-blue-950/40 rounded-full" />
@@ -324,9 +324,9 @@ function App() {
                         </div>
 
                         {/* Left and Right Side Buttons */}
-                        <div className="absolute -left-[6px] top-32 w-[6px] h-12 bg-[#1d1f27] rounded-l-md" />
-                        <div className="absolute -left-[6px] top-48 w-[6px] h-12 bg-[#1d1f27] rounded-l-md" />
-                        <div className="absolute -right-[6px] top-40 w-[6px] h-20 bg-[#1d1f27] rounded-r-md" />
+                        <div className="absolute left-[-6px] top-32 w-[6px] h-12 bg-[#1d1f27] rounded-l-md" />
+                        <div className="absolute left-[-6px] top-48 w-[6px] h-12 bg-[#1d1f27] rounded-l-md" />
+                        <div className="absolute right-[-6px] top-40 w-[6px] h-20 bg-[#1d1f27] rounded-r-md" />
 
                         {/* Simulated Screen Inner Container */}
                         <div className="w-full h-full rounded-[42px] overflow-hidden relative bg-black border border-white/5">
@@ -348,7 +348,7 @@ function App() {
 
           {/* Retro CRT Scanlines & Flicker Overlay */}
           {isRetro && bootState === 'desktop' && (
-            <div className="pointer-events-none fixed inset-0 z-[9999] scanlines-overlay opacity-30" />
+            <div className="pointer-events-none fixed inset-0 z-9999 scanlines-overlay opacity-30" />
           )}
         </>
       )}

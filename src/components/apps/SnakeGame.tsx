@@ -278,7 +278,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
   const boardSize = GRID * cellPx;
 
   return (
-    <div ref={containerRef} className={`flex flex-col flex-grow h-full items-center justify-center p-2 sm:p-4 space-y-2 sm:space-y-4 select-none ${bg}`}
+    <div ref={containerRef} className={`flex flex-col grow h-full items-center justify-center p-2 sm:p-4 space-y-2 sm:space-y-4 select-none ${bg}`}
       onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
 
       {/* Header */}
@@ -307,7 +307,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
 
         {/* Food */}
         <div
-          className="absolute rounded-sm bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.8)] transition-all duration-100"
+          className="absolute rounded-xs bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.8)] transition-all duration-100"
           style={{ left: food.x * cellPx + 2, top: food.y * cellPx + 2, width: cellPx - 4, height: cellPx - 4 }}
         />
 
@@ -315,7 +315,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
         {snake.map((seg, i) => (
           <div
             key={`${seg.x}-${seg.y}-${i}`}
-            className="absolute rounded-sm transition-all duration-50"
+            className="absolute rounded-xs transition-all duration-50"
             style={{
               left: seg.x * cellPx + 1,
               top: seg.y * cellPx + 1,
@@ -329,7 +329,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
 
         {/* Game Over / Paused Overlay */}
         {(dead || (!running && score === 0)) && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm space-y-3">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 backdrop-blur-xs space-y-3">
             {dead ? (
               <>
                 <p className="text-red-400 text-lg font-black font-mono tracking-widest animate-pulse">GAME OVER</p>
@@ -352,7 +352,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
 
         {/* Pause overlay */}
         {running === false && !dead && score > 0 && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-xs">
             <p className="text-amber-400 text-sm font-black font-mono tracking-widest">PAUSED</p>
           </div>
         )}
@@ -365,7 +365,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
           disabled={dead}
           className={`flex items-center space-x-1.5 font-bold text-xs px-3.5 py-1.5 rounded-lg transition disabled:opacity-40 ${
             isLight 
-              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-900 shadow-xs' 
+              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-900 shadow-2xs' 
               : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
           }`}
         >
@@ -376,7 +376,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
           onClick={reset}
           className={`flex items-center space-x-1.5 font-bold text-xs px-3.5 py-1.5 rounded-lg transition ${
             isLight 
-              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-900 shadow-xs' 
+              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-900 shadow-2xs' 
               : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
           }`}
         >
@@ -386,7 +386,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
           onClick={() => setMuted((m) => !m)}
           className={`p-1.5 rounded-lg transition ${
             isLight 
-              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-800 shadow-xs' 
+              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-800 shadow-2xs' 
               : 'bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white'
           }`}
           title={muted ? 'Unmute' : 'Mute'}

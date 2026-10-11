@@ -38,7 +38,7 @@ export default function TabbedApp({ appId, tabs }: { appId: string; tabs: AppTab
               onClick={() => setAppTab(appId, id)}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 selected
-                  ? isLight ? 'bg-white text-slate-900 shadow-sm' : 'bg-white/10 text-white'
+                  ? isLight ? 'bg-white text-slate-900 shadow-xs' : 'bg-white/10 text-white'
                   : isLight ? 'text-slate-500 hover:text-slate-800' : 'text-gray-400 hover:text-gray-200'
               }`}
             >

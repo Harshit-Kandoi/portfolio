@@ -150,7 +150,7 @@ export default function Window({ id, title, children }: WindowProps) {
   };
 
   // ── Theme class ──────────────────────────────────────────────────────────
-  let windowThemeClass = 'bg-[#1e1b4b]/80 border-[#3730a3]/40 text-purple-100';
+  let windowThemeClass = 'bg-primary-950/80 border-primary-800/40 text-purple-100';
   if (theme === 'light')     windowThemeClass = 'bg-white/90 border-gray-200 text-gray-800 shadow-md';
   else if (theme === 'dark') windowThemeClass = 'bg-gray-900/90 border-gray-800 text-gray-100 shadow-2xl';
   else if (theme === 'cyberpunk') windowThemeClass = 'bg-black border-2 border-yellow-400 text-yellow-300 shadow-[0_0_15px_rgba(234,179,8,0.2)]';
@@ -271,7 +271,7 @@ export default function Window({ id, title, children }: WindowProps) {
       </div>
 
       {/* Window Contents */}
-      <div className="flex-grow overflow-y-auto min-h-0 flex flex-col">
+      <div className="grow overflow-y-auto min-h-0 flex flex-col">
         {children}
       </div>
 

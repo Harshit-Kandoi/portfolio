@@ -184,7 +184,7 @@ const ROLES: Role[] = [
     experience: EXPERIENCE_SUMMARY,
     bannerText: `🔥 ${anantagniRole} background + hands-on PyTorch projects.`,
     tailoredSkills: ['PyTorch', 'YOLOv8', 'OpenCV', 'Scikit-learn', 'Computer Vision'],
-    avatarBg: 'bg-gradient-to-tr from-purple-600 to-indigo-500 ring-4 ring-purple-400/30',
+    avatarBg: 'bg-linear-to-tr from-purple-600 to-indigo-500 ring-4 ring-purple-400/30',
     avatarIcon: <Cpu className="w-9 h-9 text-white drop-shadow-md" />,
     availability: AVAILABILITY,
     tagline: 'End-to-end ML pipelines and Computer Vision models.',
@@ -230,7 +230,7 @@ const ROLES: Role[] = [
     experience: EXPERIENCE_SUMMARY,
     bannerText: '⭐ Production experience with GCP Pub/Sub & Cloud Functions.',
     tailoredSkills: ['Python', 'GCP Cloud Functions', 'Pub/Sub', 'Firestore', 'Docker'],
-    avatarBg: 'bg-gradient-to-tr from-emerald-600 to-teal-500 ring-4 ring-emerald-400/30',
+    avatarBg: 'bg-linear-to-tr from-emerald-600 to-teal-500 ring-4 ring-emerald-400/30',
     avatarIcon: <Terminal className="w-9 h-9 text-white drop-shadow-md" />,
     availability: AVAILABILITY,
     tagline: 'Clean APIs and event-driven cloud workflows.',
@@ -276,7 +276,7 @@ const ROLES: Role[] = [
     experience: EXPERIENCE_SUMMARY,
     bannerText: '🚀 Creator of this entire Portfolio Operating System.',
     tailoredSkills: ['React', 'TypeScript', 'Tailwind CSS', 'Zustand', 'Node.js', 'Electron'],
-    avatarBg: 'bg-gradient-to-tr from-blue-600 to-purple-600 ring-4 ring-blue-400/30',
+    avatarBg: 'bg-linear-to-tr from-blue-600 to-purple-600 ring-4 ring-blue-400/30',
     avatarIcon: <Layers className="w-9 h-9 text-white drop-shadow-md" />,
     availability: AVAILABILITY,
     tagline: 'From empty div to production. End-to-end web craftsmanship.',
@@ -324,7 +324,7 @@ const ROLES: Role[] = [
       ? `💡 B.Tech CSE Data Science Specialization (CGPA ${btechCgpa}).`
       : '💡 B.Tech CSE Data Science Specialization.',
     tailoredSkills: ['SQL', 'Python', 'Pandas', 'Power BI', 'Scikit-learn', 'XGBoost'],
-    avatarBg: 'bg-gradient-to-tr from-amber-600 to-orange-500 ring-4 ring-amber-400/30',
+    avatarBg: 'bg-linear-to-tr from-amber-600 to-orange-500 ring-4 ring-amber-400/30',
     avatarIcon: <Database className="w-9 h-9 text-white drop-shadow-md" />,
     availability: AVAILABILITY,
     tagline: 'Clean data in. Clear decisions out.',
@@ -370,7 +370,7 @@ const ROLES: Role[] = [
     experience: EXPERIENCE_SUMMARY,
     bannerText: '⚡ Building Financial Mirror (beta), an AI-powered product.',
     tailoredSkills: ['Python', 'React', 'LangChain', 'RAG', 'OpenAI Whisper', 'Flask'],
-    avatarBg: 'bg-gradient-to-tr from-pink-600 to-rose-500 ring-4 ring-pink-400/30',
+    avatarBg: 'bg-linear-to-tr from-pink-600 to-rose-500 ring-4 ring-pink-400/30',
     avatarIcon: <Sparkles className="w-9 h-9 text-white drop-shadow-md" />,
     availability: AVAILABILITY,
     tagline: 'Turning AI capabilities into intuitive products.',
@@ -448,7 +448,7 @@ function PortfolioSwipe() {
   const isLight = theme === 'light';
   const bg = isLight
     ? 'bg-slate-50 text-slate-900'
-    : 'bg-gradient-to-b from-slate-950 via-[#0d0a1a] to-slate-950 text-white';
+    : 'bg-linear-to-b from-slate-950 via-[#0d0a1a] to-slate-950 text-white';
 
   const handleViewProfileDirect = (role: Role) => {
     setSelected(role);
@@ -543,9 +543,9 @@ function PortfolioSwipe() {
   if (selected) {
     const { content } = selected;
     return (
-      <div className={`flex flex-col flex-grow h-full overflow-y-auto custom-scrollbar ${bg}`}>
+      <div className={`flex flex-col grow h-full overflow-y-auto custom-scrollbar ${bg}`}>
         {/* Profile Hero Header - Cohesive Tight Unit (8-12px Title/Subtitle spacing) */}
-        <div className={`relative bg-gradient-to-br ${selected.heroGradient} p-5 sm:p-7 flex flex-col items-center shrink-0 border-b border-white/10 shadow-2xl space-y-2.5`}>
+        <div className={`relative bg-linear-to-br ${selected.heroGradient} p-5 sm:p-7 flex flex-col items-center shrink-0 border-b border-white/10 shadow-2xl space-y-2.5`}>
           <button
             onClick={() => setSelected(null)}
             className="absolute top-4 left-4 p-2 rounded-full bg-black/25 hover:bg-black/40 text-white transition active:scale-95 flex items-center space-x-1 border border-white/10 z-20"
@@ -562,7 +562,7 @@ function PortfolioSwipe() {
 
           {/* Title & Subtitle Block - Tight 8-12px vertical rhythm */}
           <div className="text-center min-w-0 px-2 space-y-1 w-full flex flex-col items-center justify-center">
-            <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight break-words text-center w-full">{selected.title}</h2>
+            <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight tracking-tight wrap-break-word text-center w-full">{selected.title}</h2>
             <p className="text-purple-200 text-xs sm:text-sm font-semibold tracking-wide text-center w-full">{selected.company}</p>
           </div>
 
@@ -663,7 +663,7 @@ function PortfolioSwipe() {
           {content.featuredProject && (
             <>
               <Section title="Featured Project" icon={<Award className="w-4 h-4 text-amber-400" />}>
-                <div className="p-4 bg-gradient-to-br from-purple-950/80 via-slate-900 to-indigo-950/80 border border-purple-500/30 rounded-2xl shadow-xl space-y-3">
+                <div className="p-4 bg-linear-to-br from-purple-950/80 via-slate-900 to-indigo-950/80 border border-purple-500/30 rounded-2xl shadow-xl space-y-3">
                   <div className="flex items-start justify-between min-w-0">
                     <div className="min-w-0 flex-1 pr-2">
                       <div className="flex items-center space-x-2">
@@ -696,7 +696,7 @@ function PortfolioSwipe() {
                       </a>
                     ) : null}
                   </div>
-                  <p className="text-xs text-slate-300 leading-relaxed break-words">{content.featuredProject.desc}</p>
+                  <p className="text-xs text-slate-300 leading-relaxed wrap-break-word">{content.featuredProject.desc}</p>
                   <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 pt-2 border-t border-white/10">
                     <span className="flex items-center space-x-1.5">
                       <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: content.featuredProject.langColor }} />
@@ -730,10 +730,10 @@ function PortfolioSwipe() {
                       </span>
                     )}
                   </div>
-                  <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-emerald-300 transition break-words">
+                  <h3 className="text-xs sm:text-sm font-bold text-white group-hover:text-emerald-300 transition wrap-break-word">
                     {content.recommendedRead.title}
                   </h3>
-                  <p className="text-[11px] text-slate-300 line-clamp-2 leading-relaxed break-words">
+                  <p className="text-[11px] text-slate-300 line-clamp-2 leading-relaxed wrap-break-word">
                     {content.recommendedRead.excerpt}
                   </p>
                   <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 pt-2 border-t border-white/5">
@@ -768,7 +768,7 @@ function PortfolioSwipe() {
                     </div>
                     <ExternalLink className="w-3 h-3 text-slate-500 group-hover:text-purple-400 transition shrink-0" />
                   </div>
-                  <p className="text-[10.5px] text-slate-300 line-clamp-2 leading-snug break-words">{p.desc}</p>
+                  <p className="text-[10.5px] text-slate-300 line-clamp-2 leading-snug wrap-break-word">{p.desc}</p>
                   <div className="flex items-center justify-between text-[9.5px] font-bold text-slate-400 pt-1.5 border-t border-white/5">
                     <span className="flex items-center space-x-1 min-w-0">
                       <span className="w-2 h-2 rounded-full inline-block shrink-0" style={{ backgroundColor: p.langColor }} />
@@ -786,7 +786,7 @@ function PortfolioSwipe() {
           <Section title="Impact Metrics" icon={<Zap className="w-4 h-4 text-pink-400" />}>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {content.impactMetrics.map((fact, idx) => (
-                <div key={idx} className="p-3 bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center text-center space-y-1 hover:bg-white/10 transition shadow-sm min-w-0">
+                <div key={idx} className="p-3 bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center text-center space-y-1 hover:bg-white/10 transition shadow-xs min-w-0">
                   <div className="text-xl">{fact.icon}</div>
                   <div className="text-xs font-black text-white truncate max-w-full">{fact.metric}</div>
                   <div className="text-[9px] text-slate-400 font-medium leading-tight line-clamp-2">{fact.label}</div>
@@ -804,7 +804,7 @@ function PortfolioSwipe() {
                 <button
                   key={app.id}
                   onClick={() => openWindow(app.id)}
-                  className="flex items-center justify-center space-x-1.5 bg-white/5 hover:bg-purple-600/20 border border-white/10 hover:border-purple-500/40 p-2.5 rounded-xl transition text-xs font-bold text-slate-200 hover:text-white active:scale-95 shadow-sm"
+                  className="flex items-center justify-center space-x-1.5 bg-white/5 hover:bg-purple-600/20 border border-white/10 hover:border-purple-500/40 p-2.5 rounded-xl transition text-xs font-bold text-slate-200 hover:text-white active:scale-95 shadow-xs"
                 >
                   {app.icon}
                   <span className="truncate">{app.name}</span>
@@ -814,7 +814,7 @@ function PortfolioSwipe() {
           </Section>
 
           {/* Resume Action (one general resume; skills below are the ones relevant to this track) */}
-          <div className="p-4 bg-gradient-to-r from-purple-950/60 to-indigo-950/60 border border-purple-500/30 rounded-2xl space-y-2">
+          <div className="p-4 bg-linear-to-r from-purple-950/60 to-indigo-950/60 border border-purple-500/30 rounded-2xl space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <FileText className="w-4 h-4 text-purple-400" />
@@ -841,28 +841,28 @@ function PortfolioSwipe() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <button
                 onClick={() => openWindow('contact')}
-                className="flex items-center justify-center space-x-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold py-2.5 px-3 rounded-xl hover:opacity-90 active:scale-95 transition shadow-lg"
+                className="flex items-center justify-center space-x-1.5 bg-linear-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold py-2.5 px-3 rounded-xl hover:opacity-90 active:scale-95 transition shadow-lg"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>Contact</span>
               </button>
               <button
                 onClick={() => openWindow('resume')}
-                className="flex items-center justify-center space-x-1.5 bg-white/10 hover:bg-white/15 text-white border border-white/10 text-xs font-bold py-2.5 px-3 rounded-xl active:scale-95 transition shadow"
+                className="flex items-center justify-center space-x-1.5 bg-white/10 hover:bg-white/15 text-white border border-white/10 text-xs font-bold py-2.5 px-3 rounded-xl active:scale-95 transition shadow-sm"
               >
                 <FileText className="w-3.5 h-3.5 text-rose-400" />
                 <span>Resume</span>
               </button>
               <button
                 onClick={() => window.open(PORTFOLIO_META.linkedin, '_blank')}
-                className="flex items-center justify-center space-x-1.5 bg-white/10 hover:bg-white/15 text-white border border-white/10 text-xs font-bold py-2.5 px-3 rounded-xl active:scale-95 transition shadow"
+                className="flex items-center justify-center space-x-1.5 bg-white/10 hover:bg-white/15 text-white border border-white/10 text-xs font-bold py-2.5 px-3 rounded-xl active:scale-95 transition shadow-sm"
               >
                 <Linkedin className="w-3.5 h-3.5 text-blue-400" />
                 <span>LinkedIn</span>
               </button>
               <button
                 onClick={() => window.open(PORTFOLIO_META.github, '_blank')}
-                className="flex items-center justify-center space-x-1.5 bg-white/10 hover:bg-white/15 text-white border border-white/10 text-xs font-bold py-2.5 px-3 rounded-xl active:scale-95 transition shadow"
+                className="flex items-center justify-center space-x-1.5 bg-white/10 hover:bg-white/15 text-white border border-white/10 text-xs font-bold py-2.5 px-3 rounded-xl active:scale-95 transition shadow-sm"
               >
                 <Github className="w-3.5 h-3.5 text-purple-400" />
                 <span>GitHub</span>
@@ -876,16 +876,16 @@ function PortfolioSwipe() {
 
   // ─── Main Swipe View Deck ──────────────────────────────────────────────────
   return (
-    <div className={`flex flex-col flex-grow h-full relative overflow-hidden select-none ${isLight ? 'bg-gray-50 text-slate-900' : 'bg-slate-950 text-white'}`}>
+    <div className={`flex flex-col grow h-full relative overflow-hidden select-none ${isLight ? 'bg-gray-50 text-slate-900' : 'bg-slate-950 text-white'}`}>
       {/* Background Particles & Grid */}
-      <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(#888_1px,transparent_1px)] [background-size:16px_16px]" />
+      <div className="absolute inset-0 opacity-[0.04] pointer-events-none bg-[radial-gradient(#888_1px,transparent_1px)] bg-size-[16px_16px]" />
 
       {/* Top Header Bar */}
       <div className={`flex items-center justify-between px-5 py-3 border-b shrink-0 z-20 backdrop-blur-md ${
-        isLight ? 'bg-white/90 border-slate-200 text-slate-900 shadow-xs' : 'bg-slate-950/60 border-white/10 text-white'
+        isLight ? 'bg-white/90 border-slate-200 text-slate-900 shadow-2xs' : 'bg-slate-950/60 border-white/10 text-white'
       }`}>
         <div className="flex items-center space-x-3 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-500 to-purple-600 flex items-center justify-center shadow-lg shadow-rose-500/20 shrink-0 animate-pulse">
+          <div className="w-8 h-8 rounded-xl bg-linear-to-tr from-rose-500 to-purple-600 flex items-center justify-center shadow-lg shadow-rose-500/20 shrink-0 animate-pulse">
             <Heart className="w-4 h-4 text-white fill-white" />
           </div>
           <div className="min-w-0">
@@ -913,7 +913,7 @@ function PortfolioSwipe() {
             })}
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 px-3 py-1 rounded-full text-[10.5px] font-bold text-slate-300 shadow-sm flex items-center space-x-1">
+          <div className="bg-slate-900 border border-slate-800 px-3 py-1 rounded-full text-[10.5px] font-bold text-slate-300 shadow-xs flex items-center space-x-1">
             {liked.length > 0 && <span className="text-rose-400 font-black pr-1">{liked.length} ❤️</span>}
             <span className="text-white font-black">{stack.length}</span>
             <span className="text-slate-500">/ {totalRoles} Remaining</span>
@@ -931,7 +931,7 @@ function PortfolioSwipe() {
       )}
 
       {/* Main Card Viewport */}
-      <div className="flex-grow flex flex-col items-center justify-center p-4 sm:p-6 relative z-10 overflow-hidden">
+      <div className="grow flex flex-col items-center justify-center p-4 sm:p-6 relative z-10 overflow-hidden">
         {stack.length === 0 ? (
           /* Stack Complete Empty State */
           <motion.div
@@ -951,7 +951,7 @@ function PortfolioSwipe() {
               {liked.length > 0 && (
                 <button
                   onClick={() => openWindow('contact')}
-                  className="w-full bg-gradient-to-r from-rose-500 to-purple-600 text-white text-xs font-bold py-2.5 rounded-xl hover:opacity-90 transition active:scale-95 shadow-lg"
+                  className="w-full bg-linear-to-r from-rose-500 to-purple-600 text-white text-xs font-bold py-2.5 rounded-xl hover:opacity-90 transition active:scale-95 shadow-lg"
                 >
                   💌 Send a Message
                 </button>
@@ -982,7 +982,7 @@ function PortfolioSwipe() {
               {/* Card #3 */}
               {stack[2] && (
                 <div
-                  className={`absolute inset-0 rounded-3xl overflow-hidden shadow-xl bg-gradient-to-br ${stack[2].heroGradient} border border-white/10 opacity-35 pointer-events-none`}
+                  className={`absolute inset-0 rounded-3xl overflow-hidden shadow-xl bg-linear-to-br ${stack[2].heroGradient} border border-white/10 opacity-35 pointer-events-none`}
                   style={{
                     transform: 'translateY(24px) scale(0.88) rotate(-3deg)',
                     zIndex: 1,
@@ -993,7 +993,7 @@ function PortfolioSwipe() {
               {/* Card #2 */}
               {stack[1] && (
                 <motion.div
-                  className={`absolute inset-0 rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br ${stack[1].heroGradient} border border-white/15 pointer-events-none`}
+                  className={`absolute inset-0 rounded-3xl overflow-hidden shadow-2xl bg-linear-to-br ${stack[1].heroGradient} border border-white/15 pointer-events-none`}
                   style={{
                     scale: peekScale,
                     y: peekY,
@@ -1028,13 +1028,13 @@ function PortfolioSwipe() {
                 onClick={() => handleViewProfileDirect(currentRole)}
                 className={`absolute inset-0 rounded-3xl overflow-hidden shadow-2xl border border-white/20 cursor-grab active:cursor-grabbing bg-slate-900 transition-shadow duration-200 ${
                   swiping === 'right' ? 'translate-x-[450px] rotate-25 opacity-0 transition-all duration-300' :
-                  swiping === 'left'  ? '-translate-x-[450px] -rotate-25 opacity-0 transition-all duration-300' : ''
+                  swiping === 'left'  ? 'translate-x-[-450px] -rotate-25 opacity-0 transition-all duration-300' : ''
                 }`}
               >
                 {/* LIKE Stamp */}
                 <motion.div
                   style={{ opacity: likeOpacity }}
-                  className="absolute top-6 left-6 border-4 border-emerald-400 text-emerald-400 font-black text-2xl px-3 py-1 rounded-xl rotate-[-15deg] z-30 pointer-events-none tracking-wider shadow-lg bg-emerald-950/70 backdrop-blur-sm"
+                  className="absolute top-6 left-6 border-4 border-emerald-400 text-emerald-400 font-black text-2xl px-3 py-1 rounded-xl rotate-[-15deg] z-30 pointer-events-none tracking-wider shadow-lg bg-emerald-950/70 backdrop-blur-xs"
                 >
                   MATCH ❤️
                 </motion.div>
@@ -1042,13 +1042,13 @@ function PortfolioSwipe() {
                 {/* PASS Stamp */}
                 <motion.div
                   style={{ opacity: passOpacity }}
-                  className="absolute top-6 right-6 border-4 border-rose-500 text-rose-500 font-black text-2xl px-3 py-1 rounded-xl rotate-[15deg] z-30 pointer-events-none tracking-wider shadow-lg bg-rose-950/70 backdrop-blur-sm"
+                  className="absolute top-6 right-6 border-4 border-rose-500 text-rose-500 font-black text-2xl px-3 py-1 rounded-xl rotate-15 z-30 pointer-events-none tracking-wider shadow-lg bg-rose-950/70 backdrop-blur-xs"
                 >
                   PASS ❌
                 </motion.div>
 
                 {/* Card Hero Header */}
-                <div className={`h-48 bg-gradient-to-br ${currentRole.heroGradient} p-4 flex flex-col justify-between relative shadow-inner`}>
+                <div className={`h-48 bg-linear-to-br ${currentRole.heroGradient} p-4 flex flex-col justify-between relative shadow-inner`}>
                   <div className="flex items-start justify-between z-10">
                     <span className="bg-black/40 backdrop-blur-md border border-white/20 text-white rounded-full px-2.5 py-0.5 text-[9.5px] font-black tracking-wide shadow-md">
                       {currentRole.statusChip}
@@ -1068,11 +1068,11 @@ function PortfolioSwipe() {
                   </div>
 
                   <div className="z-10 flex items-center justify-between text-white/90 text-[10px] font-bold">
-                    <span className="bg-black/30 backdrop-blur-sm px-2 py-0.5 rounded-md">⏱ {currentRole.availability}</span>
-                    <span className="bg-black/30 backdrop-blur-sm px-2 py-0.5 rounded-md">📍 {currentRole.location}</span>
+                    <span className="bg-black/30 backdrop-blur-xs px-2 py-0.5 rounded-md">⏱ {currentRole.availability}</span>
+                    <span className="bg-black/30 backdrop-blur-xs px-2 py-0.5 rounded-md">📍 {currentRole.location}</span>
                   </div>
 
-                  <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-[#0d0a1a] to-transparent pointer-events-none" />
+                  <div className="absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-[#0d0a1a] to-transparent pointer-events-none" />
                 </div>
 
                 {/* Card Body */}
@@ -1168,7 +1168,7 @@ function PortfolioSwipe() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-              className="bg-gradient-to-b from-slate-900 via-[#130f28] to-purple-950 border border-purple-500/40 p-7 sm:p-8 rounded-3xl max-w-sm w-full shadow-2xl relative overflow-hidden flex flex-col items-center space-y-5"
+              className="bg-linear-to-b from-slate-900 via-[#130f28] to-purple-950 border border-purple-500/40 p-7 sm:p-8 rounded-3xl max-w-sm w-full shadow-2xl relative overflow-hidden flex flex-col items-center space-y-5"
             >
               <div className="absolute top-3 right-4 text-amber-400 animate-ping">✨</div>
               <div className="absolute bottom-4 left-4 text-rose-400 animate-pulse">🎉</div>
@@ -1178,7 +1178,7 @@ function PortfolioSwipe() {
               </div>
 
               <div className="space-y-1">
-                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 via-purple-200 to-cyan-300 tracking-tight">
+                <h2 className="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-linear-to-r from-rose-400 via-purple-200 to-cyan-300 tracking-tight">
                   {matchOverlay.match}% MATCH SCORE
                 </h2>
                 <p className="text-xs text-purple-300 font-bold">Candidate Shortlisted</p>
@@ -1202,7 +1202,7 @@ function PortfolioSwipe() {
               <div className="flex flex-col w-full space-y-2.5 pt-2">
                 <button
                   onClick={() => launchCandidateProfile(matchOverlay)}
-                  className="w-full bg-gradient-to-r from-rose-500 to-purple-600 hover:opacity-95 text-white text-xs font-black py-3 rounded-xl transition active:scale-95 shadow-xl flex items-center justify-center space-x-2"
+                  className="w-full bg-linear-to-r from-rose-500 to-purple-600 hover:opacity-95 text-white text-xs font-black py-3 rounded-xl transition active:scale-95 shadow-xl flex items-center justify-center space-x-2"
                 >
                   <span>🚀 Launch Candidate.exe</span>
                 </button>
@@ -1242,7 +1242,7 @@ function PortfolioSwipe() {
                 <p className="text-purple-400 font-bold">&gt; Loading {launchingRole.title}</p>
                 <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden mt-2">
                   <div
-                    className="bg-gradient-to-r from-purple-500 to-rose-500 h-full transition-all duration-150"
+                    className="bg-linear-to-r from-purple-500 to-rose-500 h-full transition-all duration-150"
                     style={{ width: `${launchProgress}%` }}
                   />
                 </div>

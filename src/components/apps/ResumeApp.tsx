@@ -31,7 +31,7 @@ export default function ResumeApp({ isMobileView }: { isMobileView?: boolean } =
 
   if (isMobile) {
     return (
-      <div className={`flex flex-col flex-grow h-full overflow-y-auto p-6 items-center justify-center space-y-6 ${isLight ? 'bg-white text-gray-800' : 'bg-slate-950 text-purple-100'}`}>
+      <div className={`flex flex-col grow h-full overflow-y-auto p-6 items-center justify-center space-y-6 ${isLight ? 'bg-white text-gray-800' : 'bg-slate-950 text-purple-100'}`}>
         <div className={`w-full max-w-sm border p-6 rounded-2xl flex flex-col items-center text-center space-y-4 shadow-xl ${
           isLight ? 'bg-gray-50 border-gray-200' : 'bg-white/5 border-white/10'
         }`}>
@@ -77,7 +77,7 @@ export default function ResumeApp({ isMobileView }: { isMobileView?: boolean } =
   }
 
   return (
-    <div className={`flex flex-col flex-grow h-full overflow-hidden ${isLight ? 'bg-gray-100' : 'bg-slate-950'}`}>
+    <div className={`flex flex-col grow h-full overflow-hidden ${isLight ? 'bg-gray-100' : 'bg-slate-950'}`}>
       
       {/* PDF Viewer Top Controls Bar */}
       <div className={`p-3 flex items-center justify-between space-x-2 shrink-0 ${controlBg}`}>
@@ -91,7 +91,7 @@ export default function ResumeApp({ isMobileView }: { isMobileView?: boolean } =
             href={resumeLink}
             download="Harshit_Kandoi_Resume.pdf"
             onClick={() => trackEvent('resume_download')}
-            className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-white flex items-center space-x-1.5 text-xs font-semibold transition"
+            className="p-1.5 rounded-sm hover:bg-white/10 text-gray-400 hover:text-white flex items-center space-x-1.5 text-xs font-semibold transition"
             title="Download PDF"
           >
             <Download className="w-4 h-4" />
@@ -100,7 +100,7 @@ export default function ResumeApp({ isMobileView }: { isMobileView?: boolean } =
           
           <button 
             onClick={handlePrint} 
-            className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-white flex items-center space-x-1.5 text-xs font-semibold transition" 
+            className="p-1.5 rounded-sm hover:bg-white/10 text-gray-400 hover:text-white flex items-center space-x-1.5 text-xs font-semibold transition" 
             title="Print Resume"
           >
             <Printer className="w-4 h-4" />
@@ -110,7 +110,7 @@ export default function ResumeApp({ isMobileView }: { isMobileView?: boolean } =
       </div>
 
       {/* PDF iframe Viewer Container */}
-      <div className="flex-grow p-4 flex justify-center items-stretch bg-gray-900">
+      <div className="grow p-4 flex justify-center items-stretch bg-gray-900">
         <iframe
           ref={iframeRef}
           src={resumeLink}

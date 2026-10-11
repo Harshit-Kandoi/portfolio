@@ -31,7 +31,7 @@ function StatCard({
         ? 'bg-white border-gray-200 hover:border-gray-300 hover:shadow-gray-200/60'
         : 'bg-[#0f1019]/90 border-white/5 hover:border-white/10 hover:shadow-purple-900/10'
     }`}>
-      <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${gradient} flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform`}>
+      <div className={`w-9 h-9 rounded-xl bg-linear-to-br ${gradient} flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform`}>
         {icon}
       </div>
       <div>
@@ -91,7 +91,7 @@ export default function DashboardWidgets({ onClose }: DashboardWidgetsProps) {
     <div
       ref={panelRef}
       id="dashboard-widgets"
-      className={`fixed top-14 right-4 z-[9980] w-[340px] max-h-[calc(100vh-80px)] overflow-y-auto rounded-3xl shadow-2xl border animate-slide-up custom-scrollbar ${
+      className={`fixed top-14 right-4 z-9980 w-[340px] max-h-[calc(100vh-80px)] overflow-y-auto rounded-3xl shadow-2xl border animate-slide-up custom-scrollbar ${
         isLight
           ? 'bg-white/90 backdrop-blur-2xl border-gray-200/60 text-gray-900 shadow-gray-400/30'
           : 'bg-[#0a0b10]/95 backdrop-blur-2xl border-white/10 text-white shadow-black/60'
@@ -166,7 +166,7 @@ export default function DashboardWidgets({ onClose }: DashboardWidgetsProps) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
               <p className={`text-xs font-bold truncate ${isLight ? 'text-gray-900' : 'text-white'}`}>{PORTFOLIO_META.name}</p>
-              <div className="w-3.5 h-3.5 rounded bg-[#0a66c2] flex items-center justify-center text-white shrink-0">
+              <div className="w-3.5 h-3.5 rounded-sm bg-[#0a66c2] flex items-center justify-center text-white shrink-0">
                 <Linkedin className="w-2.5 h-2.5 fill-current" />
               </div>
             </div>

@@ -72,7 +72,7 @@ export default function ProductsApp({ isMobileView }: { isMobileView?: boolean }
       {/* Header */}
       <div className={`shrink-0 px-5 pt-5 pb-4 border-b ${isLight ? 'border-gray-200 bg-gray-100' : 'border-white/5 bg-[#0a0b10]'}`}>
         <div className="flex items-center gap-2.5 mb-4">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-md">
+          <div className="w-8 h-8 rounded-xl bg-linear-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-md">
             <Package className="w-4 h-4 text-white" />
           </div>
           <div>
@@ -115,7 +115,7 @@ export default function ProductsApp({ isMobileView }: { isMobileView?: boolean }
                   <div key={p.id} className={`rounded-2xl border p-5 ${cardBg} hover:border-violet-500/30 transition-all hover:shadow-lg hover:shadow-violet-900/10`}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-600 to-purple-700 flex items-center justify-center text-2xl shadow-md shrink-0">
+                        <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-violet-600 to-purple-700 flex items-center justify-center text-2xl shadow-md shrink-0">
                           {ICON_EMOJI_MAP[p.id] ?? '📦'}
                         </div>
                         <div>
@@ -145,7 +145,7 @@ export default function ProductsApp({ isMobileView }: { isMobileView?: boolean }
                       {p.repo_url && (
                         <a href={p.repo_url} target="_blank" rel="noopener noreferrer"
                           className={`flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-xl transition border ${
-                            isLight ? 'bg-slate-200 hover:bg-slate-300 border-slate-300 text-slate-900 shadow-xs' : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300 hover:text-white'
+                            isLight ? 'bg-slate-200 hover:bg-slate-300 border-slate-300 text-slate-900 shadow-2xs' : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300 hover:text-white'
                           }`}>
                           <Github className="w-3.5 h-3.5" /> Source
                         </a>

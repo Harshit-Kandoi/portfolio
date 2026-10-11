@@ -45,7 +45,7 @@ export default function NotificationPanel({ onClose }: Props) {
   return (
     <div
       id="notification-drawer"
-      className={`fixed right-4 top-14 w-[22rem] max-w-[calc(100vw-2rem)] max-h-[82vh] flex flex-col rounded-2xl border shadow-2xl z-[10000] backdrop-blur-3xl overflow-hidden ${panelBg} animate-slide-up`}
+      className={`fixed right-4 top-14 w-88 max-w-[calc(100vw-2rem)] max-h-[82vh] flex flex-col rounded-2xl border shadow-2xl z-10000 backdrop-blur-3xl overflow-hidden ${panelBg} animate-slide-up`}
     >
       {/* Header */}
       <div className={`flex items-center justify-between px-4 py-3 border-b ${isLight ? 'border-gray-200' : 'border-white/10'} shrink-0`}>
@@ -77,7 +77,7 @@ export default function NotificationPanel({ onClose }: Props) {
       </div>
 
       {/* Notification List */}
-      <div className="flex-grow overflow-y-auto p-3 space-y-2 custom-scrollbar">
+      <div className="grow overflow-y-auto p-3 space-y-2 custom-scrollbar">
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-10 space-y-3 text-center">
             <div className="w-10 h-10 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
@@ -105,7 +105,7 @@ export default function NotificationPanel({ onClose }: Props) {
                     dismissNotification(notif.id);
                   }
                 }}
-                className={`relative p-3 rounded-xl border flex flex-col space-y-1.5 group transition cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 ${itemBg} ${
+                className={`relative p-3 rounded-xl border flex flex-col space-y-1.5 group transition cursor-pointer focus:outline-hidden focus-visible:ring-2 focus-visible:ring-purple-400 ${itemBg} ${
                   notif.type === 'achievement' ? 'border-yellow-500/25 shadow-[0_0_10px_rgba(234,179,8,0.05)]' : ''
                 } ${notif.action ? 'hover:ring-1 hover:ring-purple-400/30' : ''}`}
               >
@@ -115,7 +115,7 @@ export default function NotificationPanel({ onClose }: Props) {
                     e.stopPropagation();
                     dismissNotification(notif.id);
                   }}
-                  className="absolute top-2 right-2 p-0.5 rounded-md opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-400 text-gray-400 hover:text-white hover:bg-white/10 transition"
+                  className="absolute top-2 right-2 p-0.5 rounded-md opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-within:opacity-100 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-purple-400 text-gray-400 hover:text-white hover:bg-white/10 transition"
                   aria-label="Dismiss notification"
                 >
                   <X className="w-3 h-3" />

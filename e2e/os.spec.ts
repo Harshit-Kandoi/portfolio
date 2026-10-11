@@ -63,7 +63,7 @@ test.describe('Desktop Workspace OS Core Functionality', () => {
     await expect(windowHeader).toBeHidden();
 
     // Restore from dock button. We locate the button inside the bottom dock container.
-    const dockAboutBtn = page.locator('div.z-\\[9990\\] button', { hasText: 'About.exe' });
+    const dockAboutBtn = page.getByTestId('dock').locator('button', { hasText: 'About.exe' });
     await expect(dockAboutBtn).toBeVisible();
     await dockAboutBtn.click();
     await expect(windowHeader).toBeVisible();

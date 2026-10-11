@@ -75,7 +75,7 @@ function MiniNebula() {
         style={{ background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.08)' }}
       >
         {['from-blue-500 to-cyan-400','from-purple-500 to-indigo-500','from-emerald-500 to-teal-500','from-rose-500 to-red-500','from-teal-400 to-emerald-500'].map((color, i) => (
-          <div key={i} className={`w-3 h-3 rounded-md bg-gradient-to-br ${color}`} />
+          <div key={i} className={`w-3 h-3 rounded-md bg-linear-to-br ${color}`} />
         ))}
       </div>
 
@@ -98,7 +98,7 @@ function MiniNebula() {
         </div>
         <div className="p-2 space-y-1">
           {[70, 85, 60].map((w, i) => (
-            <div key={i} className="rounded" style={{ height: 4, width: `${w}%`, background: 'rgba(168,85,247,0.25)' }} />
+            <div key={i} className="rounded-sm" style={{ height: 4, width: `${w}%`, background: 'rgba(168,85,247,0.25)' }} />
           ))}
         </div>
       </div>
@@ -174,7 +174,7 @@ export default function MonitorWidget({ onLaunch, isDark = true }: Props) {
           >
             {/* Screen off overlay */}
             <div
-              className="absolute inset-0 z-10 transition-all duration-300 rounded"
+              className="absolute inset-0 z-10 transition-all duration-300 rounded-sm"
               style={{
                 background: powered ? 'transparent' : 'rgba(3,2,10,0.96)',
                 opacity: powered ? 0 : 1,
@@ -185,7 +185,7 @@ export default function MonitorWidget({ onLaunch, isDark = true }: Props) {
             {/* Screen glow on power-on */}
             {powered && (
               <div
-                className="absolute inset-0 z-20 rounded pointer-events-none monitor-power-on"
+                className="absolute inset-0 z-20 rounded-sm pointer-events-none monitor-power-on"
                 style={{ background: 'radial-gradient(ellipse at center, rgba(168,85,247,0.15) 0%, transparent 70%)' }}
               />
             )}
@@ -195,7 +195,7 @@ export default function MonitorWidget({ onLaunch, isDark = true }: Props) {
 
             {/* Screen scanline texture */}
             <div
-              className="absolute inset-0 pointer-events-none z-30 rounded"
+              className="absolute inset-0 pointer-events-none z-30 rounded-sm"
               style={{
                 backgroundImage: 'repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 1px, transparent 1px, transparent 2px)',
                 backgroundSize: '100% 2px',
