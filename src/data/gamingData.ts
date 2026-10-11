@@ -18,7 +18,7 @@ export interface InventoryItem {
 export const inventoryItems: InventoryItem[] = [
   {
     id: 'gcp_ace',
-    name: 'Google Cloud ACE Certificate',
+    name: 'Google Associate Cloud Engineer (ACE)',
     category: 'Credentials',
     description: 'Verifies professional knowledge of deploying applications, monitoring operations, and managing enterprise cloud configurations on GCP.',
     rarity: 'Legendary',
@@ -27,9 +27,9 @@ export const inventoryItems: InventoryItem[] = [
   },
   {
     id: 'docker_foundations',
-    name: 'Docker Professional Cert',
+    name: 'Docker Foundations Professional Certificate',
     category: 'Containers',
-    description: 'Docker Foundations Professional credentials covering container image building, local daemon execution, and multi-service compose orchestration.',
+    description: 'Containerization, image building, multi-stage Dockerfiles and local container orchestration with Docker Compose.',
     rarity: 'Epic',
     statBoost: '+15 Container Shielding',
   },
@@ -37,7 +37,7 @@ export const inventoryItems: InventoryItem[] = [
     id: 'yolo_models',
     name: 'YOLOv5 Visor Module',
     category: 'Computer Vision',
-    description: 'Custom trained object recognition weights for ASL hand gesture translations. Delivers 90%+ target inference metrics.',
+    description: 'Custom-trained YOLOv5 object detection weights for recognising ASL hand signs from a webcam feed.',
     rarity: 'Epic',
     statBoost: '+20 AI Target Lock',
   },

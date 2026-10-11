@@ -1,14 +1,28 @@
 import { useEffect, lazy, Suspense, useState, useRef, useCallback } from 'react';
 import { useOSStore } from './store/useOSStore';
-import BootScreen from './components/os/BootScreen';
-import LockScreen from './components/os/LockScreen';
-import Desktop from './components/os/Desktop';
-import Wallpaper from './components/os/Wallpaper';
-import PoweredOffScreen from './components/os/PoweredOffScreen';
 import ClassicPortfolio from './components/classic/ClassicPortfolio';
 import OSTransitionOverlay from './components/classic/OSTransitionOverlay';
+import { PORTFOLIO_META } from './data/config';
 
-const AndroidOS = lazy(() => import('./components/os/AndroidOS'));
+// e.g. "portfolio.harshitkandoi.in"
+const SITE_LABEL = PORTFOLIO_META.siteUrl.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
+
+// The OS is opt-in, so its code is split out of the main bundle that classic visitors load.
+const loadOS = {
+  boot: () => import('./components/os/BootScreen'),
+  lock: () => import('./components/os/LockScreen'),
+  desktop: () => import('./components/os/Desktop'),
+  wallpaper: () => import('./components/os/Wallpaper'),
+  poweredOff: () => import('./components/os/PoweredOffScreen'),
+  android: () => import('./components/os/AndroidOS'),
+};
+const BootScreen = lazy(loadOS.boot);
+const LockScreen = lazy(loadOS.lock);
+const Desktop = lazy(loadOS.desktop);
+const Wallpaper = lazy(loadOS.wallpaper);
+const PoweredOffScreen = lazy(loadOS.poweredOff);
+const AndroidOS = lazy(loadOS.android);
+const prefetchOS = () => Object.values(loadOS).forEach((load) => load().catch(() => {}));
 
 function App() {
   const bootState = useOSStore((state) => state.bootState);
@@ -34,7 +48,16 @@ function App() {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   // ── Classic → OS transition handler ────────────────────────────────────────
+  // Warm the OS chunks once the classic page is idle, so "Interactive mode" opens instantly.
+  useEffect(() => {
+    if (portalMode !== 'classic') return;
+    const idle = window.requestIdleCallback ?? ((cb: () => void) => window.setTimeout(cb, 1));
+    const timer = window.setTimeout(() => idle(prefetchOS), 4000);
+    return () => window.clearTimeout(timer);
+  }, [portalMode]);
+
   const handleClassicTransition = useCallback((rect: DOMRect) => {
+    prefetchOS();
     setTransitionRect(rect);
     setIsTransitioning(true);
     // Skip boot + lock — the zoom transition IS the entry experience
@@ -105,8 +128,9 @@ function App() {
     return () => { if (frameRef.current) cancelAnimationFrame(frameRef.current); };
   }, [showFPS]);
 
-  // ── Ctrl+K opens Start Menu ────────────────────────────────────────────────
+  // ── Ctrl+K opens Start Menu (OS desktop only; classic keeps the browser shortcut, paused while locked) ──
   useEffect(() => {
+    if (portalMode !== 'os' || bootState !== 'desktop') return;
     const handleCtrlK = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
@@ -116,12 +140,13 @@ function App() {
     };
     window.addEventListener('keydown', handleCtrlK);
     return () => window.removeEventListener('keydown', handleCtrlK);
-  }, []);
+  }, [portalMode, bootState]);
 
   // ── History API back-button trap ─────────────────────────────────────────────
   // Pushes a dummy history state so the Android/iOS back gesture stays inside the app.
+  // OS mode only: the classic site must let visitors leave with Back.
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || portalMode !== 'os') return;
     // Push initial dummy state
     window.history.pushState({ portfolioOS: true }, '', window.location.href);
 
@@ -141,7 +166,7 @@ function App() {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [portalMode]);
 
   // Set viewMode dynamically based on screen size or override
   useEffect(() => {
@@ -228,7 +253,7 @@ function App() {
 
           {/* ── Mobile Landscape Lock Overlay ──────────────────────────────────── */}
           {isLandscapeMobile && (
-            <div className="fixed inset-0 z-[99999] bg-[#07070a] flex flex-col items-center justify-center text-white select-none">
+            <div className="fixed inset-0 z-99999 bg-[#07070a] flex flex-col items-center justify-center text-white select-none">
               <div className="flex flex-col items-center space-y-5 px-8 text-center animate-fade-in">
                 <div className="relative">
                   <div className="w-20 h-20 rounded-3xl border-4 border-purple-500/60 flex items-center justify-center bg-purple-500/10 shadow-[0_0_40px_rgba(168,85,247,0.3)]">
@@ -239,7 +264,7 @@ function App() {
                   <div className="absolute -inset-2 rounded-[32px] border border-purple-500/20 animate-pulse" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-1">
+                  <h2 className="text-lg font-bold bg-linear-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-1">
                     Please Rotate Your Device
                   </h2>
                   <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
@@ -248,15 +273,17 @@ function App() {
                 </div>
                 <div className="flex items-center space-x-2 text-[11px] text-gray-600">
                   <span className="w-1.5 h-1.5 rounded-full bg-purple-500/60 animate-pulse" />
-                  <span>harshitkandoi.in</span>
+                  <span>{SITE_LABEL}</span>
                 </div>
               </div>
             </div>
           )}
 
-          {bootState === 'booting' && <BootScreen />}
-          {bootState === 'locked' && <LockScreen />}
-          {bootState === 'powered_off' && <PoweredOffScreen />}
+          <Suspense fallback={<div className="fixed inset-0 bg-[#07070a]" />}>
+            {bootState === 'booting' && <BootScreen />}
+            {bootState === 'locked' && <LockScreen />}
+            {bootState === 'powered_off' && <PoweredOffScreen />}
+          </Suspense>
           
           {(bootState === 'desktop' || bootState === 'locked') && (
             <Suspense fallback={
@@ -273,12 +300,12 @@ function App() {
                   
                   {/* Android Smartphone Simulator Frame Overlay on Desktop + Tablet landscape */}
                   {(viewMode === 'desktop' || viewMode === 'tablet') && isSimulatingMobile && (
-                    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in">
+                    <div className="fixed inset-0 z-500 flex items-center justify-center bg-black/60 backdrop-blur-md animate-fade-in">
                       
                       {/* Floating Action Button to close simulator */}
                       <button 
                         onClick={() => setIsSimulatingMobile(false)}
-                        className="absolute top-6 right-6 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-full text-xs shadow-xl flex items-center space-x-1.5 transition duration-200 hover:scale-[1.05] active:scale-[0.95] z-[600]"
+                        className="absolute top-6 right-6 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-5 rounded-full text-xs shadow-xl flex items-center space-x-1.5 transition duration-200 hover:scale-[1.05] active:scale-[0.95] z-600"
                         aria-label="Exit Mobile OS Simulator"
                       >
                         <span>✕ Exit Mobile OS Simulator</span>
@@ -288,7 +315,7 @@ function App() {
                       <div className="relative w-[375px] h-[780px] bg-[#0c0d12] rounded-[52px] p-3 shadow-2xl border-[6px] border-[#1d1f27] ring-8 ring-black/75 overflow-hidden transition-all duration-300 transform scale-90 sm:scale-100">
                         
                         {/* Top Speaker Grille & Punch Hole Camera (Dynamic Island style) */}
-                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-44 h-7 bg-black rounded-b-[20px] z-[999] flex items-center justify-between px-6">
+                        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-44 h-7 bg-black rounded-b-[20px] z-999 flex items-center justify-between px-6">
                           <div className="w-1.5 h-1.5 bg-[#151515] rounded-full" />
                           <div className="w-3.5 h-3.5 bg-[#08080a] rounded-full border-2 border-[#1c1c24] flex items-center justify-center">
                             <div className="w-1.5 h-1.5 bg-blue-950/40 rounded-full" />
@@ -297,9 +324,9 @@ function App() {
                         </div>
 
                         {/* Left and Right Side Buttons */}
-                        <div className="absolute -left-[6px] top-32 w-[6px] h-12 bg-[#1d1f27] rounded-l-md" />
-                        <div className="absolute -left-[6px] top-48 w-[6px] h-12 bg-[#1d1f27] rounded-l-md" />
-                        <div className="absolute -right-[6px] top-40 w-[6px] h-20 bg-[#1d1f27] rounded-r-md" />
+                        <div className="absolute left-[-6px] top-32 w-[6px] h-12 bg-[#1d1f27] rounded-l-md" />
+                        <div className="absolute left-[-6px] top-48 w-[6px] h-12 bg-[#1d1f27] rounded-l-md" />
+                        <div className="absolute right-[-6px] top-40 w-[6px] h-20 bg-[#1d1f27] rounded-r-md" />
 
                         {/* Simulated Screen Inner Container */}
                         <div className="w-full h-full rounded-[42px] overflow-hidden relative bg-black border border-white/5">
@@ -321,7 +348,7 @@ function App() {
 
           {/* Retro CRT Scanlines & Flicker Overlay */}
           {isRetro && bootState === 'desktop' && (
-            <div className="pointer-events-none fixed inset-0 z-[9999] scanlines-overlay opacity-30" />
+            <div className="pointer-events-none fixed inset-0 z-9999 scanlines-overlay opacity-30" />
           )}
         </>
       )}

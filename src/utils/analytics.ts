@@ -1,4 +1,4 @@
-import posthog from 'posthog-js';
+import type { PostHog } from 'posthog-js';
 import { onLCP, onFCP, onCLS, onINP, onTTFB, Metric } from 'web-vitals';
 import { APP_VERSION, ANALYTICS_VERSION } from '../data/config';
 
@@ -23,6 +23,22 @@ let isPostHogInitialized = false;
 let isWebVitalsEnabled = false;
 
 const eventQueue: QueuedEvent[] = [];
+// posthog-js (~50 KB gz) is loaded on demand in initAnalytics, keeping it out of the main bundle.
+let posthog: PostHog | null = null;
+const MAX_QUEUE = 200;
+
+// A provider only counts if its key is configured; otherwise events would wait for it forever.
+const GA_ID = import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined;
+const PH_KEY = import.meta.env.VITE_POSTHOG_KEY as string | undefined;
+const isConfigured = (provider: 'ga4' | 'posthog') => (provider === 'ga4' ? !!GA_ID : !!PH_KEY);
+const isProviderReady = (provider: 'ga4' | 'posthog') =>
+  !isConfigured(provider) || (provider === 'ga4' ? isGA4Initialized : isPostHogInitialized);
+const allProvidersReady = () => isProviderReady('ga4') && isProviderReady('posthog');
+
+const enqueue = (item: QueuedEvent) => {
+  if (eventQueue.length >= MAX_QUEUE) eventQueue.shift();
+  eventQueue.push(item);
+};
 
 // Generate Session ID once per tab session using cryptographically secure UUID
 const sessionId = (() => {
@@ -143,7 +159,8 @@ const flushQueue = () => {
 
 // Dispatch standard event
 const dispatchEventImmediately = (name: string, properties: Record<string, unknown>, options: TrackOptions): boolean => {
-  const providers = options.providers || ['ga4', 'posthog'];
+  const providers = (options.providers || ['ga4', 'posthog']).filter(isConfigured);
+  if (providers.length === 0) return true; // nothing configured (local dev): drop silently
   const sentProviders: string[] = [];
 
   // Bind session context to every payload
@@ -169,7 +186,7 @@ const dispatchEventImmediately = (name: string, properties: Record<string, unkno
 
   // 2. Send to PostHog if ready and requested
   if (providers.includes('posthog')) {
-    if (isPostHogInitialized) {
+    if (isPostHogInitialized && posthog) {
       posthog.capture(name, payload);
       sentProviders.push('PostHog');
     } else {
@@ -213,7 +230,7 @@ const dispatchPageViewImmediately = (pageTitle: string, path: string, properties
   }
 
   // 2. Send to PostHog
-  if (isPostHogInitialized) {
+  if (isPostHogInitialized && posthog) {
     posthog.capture('$pageview', {
       $current_url: window.location.origin + path,
       $pathname: path,
@@ -246,7 +263,7 @@ const dispatchUserPropertiesImmediately = (properties: Record<string, unknown>):
   }
 
   // 2. Send to PostHog
-  if (isPostHogInitialized) {
+  if (isPostHogInitialized && posthog) {
     posthog.setPersonProperties(properties);
     posthogSent = true;
   }
@@ -287,7 +304,7 @@ export const initAnalytics = () => {
   }
 
   // 1. GA4 Dynamic Loading
-  const gaId = import.meta.env.VITE_GA_MEASUREMENT_ID;
+  const gaId = GA_ID;
   if (gaId) {
     try {
       const script = document.createElement('script');
@@ -321,24 +338,28 @@ export const initAnalytics = () => {
   }
 
   // 2. PostHog Loading
-  const phKey = import.meta.env.VITE_POSTHOG_KEY;
+  const phKey = PH_KEY;
   const phHost = import.meta.env.VITE_POSTHOG_HOST || 'https://us.i.posthog.com';
   if (phKey) {
-    try {
-      posthog.init(phKey, {
+    import('posthog-js').then(({ default: ph }) => {
+      posthog = ph;
+      ph.init(phKey, {
         api_host: phHost,
         ip: false, // anonymize IP
         persistence: 'localStorage',
         respect_dnt: true,
+        // Click heatmaps + scroll depth, viewable later in PostHog → Toolbar → Heatmap.
+        enable_heatmaps: true,
+        capture_pageleave: true,
         loaded: () => {
           isPostHogInitialized = true;
           flushQueue();
           printHealthReport();
         },
       });
-    } catch (e) {
+    }).catch((e) => {
       console.error('📊 [Analytics] PostHog setup error:', e);
-    }
+    });
   }
 
   // 3. Web Vitals setup
@@ -347,7 +368,10 @@ export const initAnalytics = () => {
   // 4. Global Error Catching
   setupGlobalErrorCatching();
 
-  // 5. Connection changes listener
+  // 5. Named click events for later analysis
+  setupClickTracking();
+
+  // 6. Connection changes listener
   window.addEventListener('online', flushQueue);
 
   // Set initial session attributes
@@ -390,11 +414,11 @@ export const trackEvent = (name: string, properties: Record<string, unknown> = {
   const isPHReq = !options.providers || options.providers.includes('posthog');
   const isGAReq = !options.providers || options.providers.includes('ga4');
   
-  const phReady = !isPHReq || isPostHogInitialized;
-  const gaReady = !isGAReq || isGA4Initialized;
+  const phReady = !isPHReq || isProviderReady('posthog');
+  const gaReady = !isGAReq || isProviderReady('ga4');
 
   if (!isOnline() || !phReady || !gaReady) {
-    eventQueue.push({
+    enqueue({
       type: 'event',
       name,
       properties: eventProperties,
@@ -410,8 +434,8 @@ export const trackEvent = (name: string, properties: Record<string, unknown> = {
 export const trackPageView = (pageTitle: string, path: string, properties: Record<string, unknown> = {}) => {
   if (isDoNotTrackEnabled()) return;
 
-  if (!isOnline() || !isGA4Initialized || !isPostHogInitialized) {
-    eventQueue.push({
+  if (!isOnline() || !allProvidersReady()) {
+    enqueue({
       type: 'page_view',
       pageTitle,
       path,
@@ -427,8 +451,8 @@ export const trackPageView = (pageTitle: string, path: string, properties: Recor
 export const setUserProperties = (properties: Record<string, unknown>) => {
   if (isDoNotTrackEnabled()) return;
 
-  if (!isOnline() || !isGA4Initialized || !isPostHogInitialized) {
-    eventQueue.push({
+  if (!isOnline() || !allProvidersReady()) {
+    enqueue({
       type: 'user_properties',
       properties,
     });
@@ -489,6 +513,49 @@ const setupWebVitals = () => {
   } catch (e) {
     console.error('📊 [Analytics] Failed to initialize web vitals:', e);
   }
+};
+
+// ─── Click tracking ──────────────────────────────────────────────────────────
+// One delegated listener records every link/button click inside an element marked
+// `data-track-scope` (the classic portfolio root) as a `ui_click` event. Elements can
+// set `data-track="name"` for a stable label; otherwise aria-label/text is used.
+export const describeClick = (target: Element | null) => {
+  const el = target?.closest<HTMLElement>('a, button, [role="button"], [data-track]');
+  if (!el) return null;
+  const scope = el.closest<HTMLElement>('[data-track-scope]');
+  if (!scope || el.closest('[data-track-ignore]')) return null;
+
+  const rawLabel =
+    el.dataset.track ||
+    el.getAttribute('aria-label') ||
+    el.textContent ||
+    el.getAttribute('title') ||
+    '';
+  const href = el instanceof HTMLAnchorElement ? el.getAttribute('href') || '' : '';
+  let outbound = false;
+  if (href && /^https?:/i.test(href)) {
+    try { outbound = new URL(href).host !== window.location.host; } catch { outbound = false; }
+  }
+  return {
+    click_label: rawLabel.replace(/\s+/g, ' ').trim().slice(0, 80) || el.tagName.toLowerCase(),
+    click_section:
+      el.closest<HTMLElement>('section[id]')?.id ||
+      (el.closest('nav') ? 'nav' : el.closest('footer') ? 'footer' : 'page'),
+    click_scope: scope.dataset.trackScope || 'page',
+    click_element: el.tagName.toLowerCase(),
+    // Never send mailto/tel addresses — just the kind of link.
+    link_type: href.startsWith('mailto:') ? 'email' : href.startsWith('tel:') ? 'phone' : href.startsWith('#') ? 'anchor' : href ? 'url' : 'none',
+    link_url: href && /^https?:|^\//i.test(href) ? href.slice(0, 200) : undefined,
+    outbound,
+  };
+};
+
+const setupClickTracking = () => {
+  if (typeof document === 'undefined') return;
+  document.addEventListener('click', (event) => {
+    const info = describeClick(event.target as Element | null);
+    if (info) trackEvent('ui_click', info);
+  }, { capture: true, passive: true });
 };
 
 // Setup Global Error Event Listeners

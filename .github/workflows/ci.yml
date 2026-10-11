@@ -3,81 +3,141 @@ name: CI · Lighthouse · Deploy
 on:
   push:
     branches: [main]
+    paths-ignore: ['**/*.md', '.env.example']
   pull_request:
     branches: [main]
+    paths-ignore: ['**/*.md', '.env.example']
 
-# Grant least-privilege: read repo + write PR comments + write commit statuses
+# A newer push to the same branch/PR cancels the run that's still going.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
   pull-requests: write
   statuses: write
 
+env:
+  NODE_VERSION: '22'
+
 jobs:
-  pipeline:
-    name: Build · Test · Audit · Deploy
+  # ── Fast checks: types, lint, unit tests, production build ─────────────────
+  checks:
+    name: Typecheck · Lint · Unit · Build
     runs-on: ubuntu-latest
-
     steps:
-      # ── 1. Setup ────────────────────────────────────────────────────────
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run test
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 3
 
-      - name: Install dependencies
-        run: npm ci
-
-      # ── 2. Quality Gates ─────────────────────────────────────────────────
-      - name: ESLint
-        run: npm run lint
-
-      - name: Vitest unit tests
-        run: npm run test
-
-      - name: Install Playwright Chromium
+  # ── Browser tests against the production build ─────────────────────────────
+  e2e:
+    name: Playwright E2E
+    runs-on: ubuntu-latest
+    needs: checks
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - if: steps.pw-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
+      - if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+      - run: npm run test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results
+          retention-days: 7
 
-      - name: Playwright E2E tests
-        run: npm run test:e2e
-
-      # ── 3. Build ─────────────────────────────────────────────────────────
-      - name: Vite production build
-        run: npm run build
-
-      # ── 4. Lighthouse CI ─────────────────────────────────────────────────
-      # LHCI_GITHUB_APP_TOKEN enables:
-      #   • Commit status checks on every push/PR
-      #   • A Lighthouse score comment posted directly on the PR thread
-      # Get the token at: https://github.com/apps/lighthouse-ci → Install → Copy token
-      # Then add it as a repo secret: Settings → Secrets → Actions → LHCI_GITHUB_APP_TOKEN
-      - name: Lighthouse CI audit
-        run: npm run lighthouse
+  # ── Lighthouse: mobile (what Google ranks on) and desktop, median of 3 runs ─
+  lighthouse:
+    name: Lighthouse (${{ matrix.preset }})
+    runs-on: ubuntu-latest
+    needs: checks
+    strategy:
+      fail-fast: false
+      matrix:
+        preset: [mobile, desktop]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Lighthouse CI
+        run: npm run lighthouse:${{ matrix.preset }}
         env:
+          # Optional: posts a status check + PR comment. https://github.com/apps/lighthouse-ci
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-${{ matrix.preset }}
+          path: .lighthouseci
+          retention-days: 14
 
-      # ── 5. Deploy ─────────────────────────────────────────────────────────
-      # Requires two repo secrets:
-      #   NETLIFY_AUTH_TOKEN  → Netlify › User Settings › Applications › New access token
-      #   NETLIFY_SITE_ID     → Netlify › Site Settings › General › Site ID
-
-      - name: Deploy preview to Netlify (PR only)
+  # ── Deploy (only after every check passed) ─────────────────────────────────
+  # Secrets: NETLIFY_AUTH_TOKEN (User settings › Applications) and NETLIFY_SITE_ID.
+  # If Netlify also auto-builds from Git, turn one of them off to avoid double deploys.
+  deploy:
+    name: Deploy to Netlify
+    runs-on: ubuntu-latest
+    needs: [checks, e2e, lighthouse]
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - name: Deploy preview (PR)
         if: github.event_name == 'pull_request'
-        run: |
-          npx netlify-cli deploy --dir=dist --alias="pr-$PR_NUMBER" --message="PR #$PR_NUMBER — $PR_TITLE"
+        run: npx netlify-cli deploy --dir=dist --alias="pr-$PR_NUMBER" --message="PR #$PR_NUMBER"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-          PR_TITLE: ${{ github.event.pull_request.title }}
-
-      - name: Deploy production to Netlify (main only)
+      - name: Deploy production (main)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          npx netlify-cli deploy --dir=dist --prod --message="Deploy @ ${{ github.sha }}"
+        run: npx netlify-cli deploy --dir=dist --prod --message="Deploy @ ${{ github.sha }}"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

@@ -21,31 +21,39 @@ const INITIAL_SNAKE: Cell[] = [
   { x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 },
 ];
 
+const readHighScore = () => {
+  try { return parseInt(localStorage.getItem(SNAKE_CONFIG.localStorageKey) || '0', 10) || 0; } catch { return 0; }
+};
+
 export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
   const unlockAchievement = useOSStore((s) => s.unlockAchievement);
   const addNotification   = useOSStore((s) => s.addNotification);
   const soundEnabled      = useOSStore((s) => s.soundEnabled);
   const activeWindowId    = useOSStore((s) => s.activeWindowId);
+  const arcadeMinimized   = useOSStore((s) => s.windows.find((w) => w.id === 'arcade')?.isMinimized ?? false);
   const viewMode          = useOSStore((s) => s.viewMode);
   const isSimulatingMobile = useOSStore((s) => s.isSimulatingMobile);
   const isMobile          = isMobileView || viewMode === 'mobile' || isSimulatingMobile;
 
   const [snake, setSnake]     = useState<Cell[]>(INITIAL_SNAKE);
   const [food, setFood]       = useState<Cell>(() => randFood(INITIAL_SNAKE));
-  const foodRef               = useRef<Cell>(INITIAL_SNAKE[0]); // placeholder, will sync in useEffect or immediately
-  
-  // Keep foodRef in sync with initial food state on mount
-  useEffect(() => {
-    foodRef.current = food;
-  }, [food]);
   const [score, setScore]     = useState(0);
-  const [highScore, setHighScore] = useState(() => {
-    try { return parseInt(localStorage.getItem(SNAKE_CONFIG.localStorageKey) || '0', 10); } catch { return 0; }
-  });
+  const [highScore, setHighScore] = useState(readHighScore);
   const [running, setRunning] = useState(false);
   const [dead, setDead]       = useState(false);
   const [muted, setMuted]     = useState(!soundEnabled);
+  const [pageHidden, setPageHidden] = useState(() => typeof document !== 'undefined' && document.hidden);
+
+  // Game state mirrored in refs so the tick runs side effects exactly once,
+  // outside React state updaters (StrictMode may call updaters twice).
+  const snakeRef = useRef<Cell[]>(INITIAL_SNAKE);
+  const foodRef = useRef<Cell>(food);
+  const scoreRef = useRef(0);
+  const bestRef = useRef(highScore);
+  const bestAtStartRef = useRef(highScore);
+  const mutedRef = useRef(muted);
+  const audioCtxRef = useRef<AudioContext | null>(null);
 
   const nextDirRef = useRef<Dir>('RIGHT');
   const lastTickedDirRef = useRef<Dir>('RIGHT');
@@ -54,17 +62,25 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => { mutedRef.current = muted; }, [muted]);
+
+  // Pause when the browser tab is hidden or (on desktop) the Arcade window isn't focused / is minimized.
+  useEffect(() => {
+    const onVisibility = () => setPageHidden(document.hidden);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, []);
+  const suspended = pageHidden || (!isMobile && (activeWindowId !== 'arcade' || arcadeMinimized));
+  useEffect(() => {
+    if (suspended) setRunning(false);
+  }, [suspended]);
+
   const changeDirection = useCallback((newDir: Dir) => {
     const opposites: Record<Dir, Dir> = { UP: 'DOWN', DOWN: 'UP', LEFT: 'RIGHT', RIGHT: 'LEFT' };
     if (newDir !== opposites[lastTickedDirRef.current]) {
       nextDirRef.current = newDir;
     }
-    setRunning((r) => {
-      if (!r && !dead) {
-        return true;
-      }
-      return r;
-    });
+    if (!dead) setRunning(true);
   }, [dead]);
 
   // Prevent browser window/drawer scroll while playing on mobile
@@ -82,11 +98,14 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
     };
   }, [running]);
 
-  // Sound helpers
+  // Sound: one lazily-created AudioContext, closed on unmount.
   const beep = useCallback((freq: number, dur: number) => {
-    if (muted) return;
+    if (mutedRef.current) return;
     try {
-      const ctx = new AudioContext();
+      const AudioCtor = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtor) return;
+      const ctx = audioCtxRef.current ?? (audioCtxRef.current = new AudioCtor());
+      if (ctx.state === 'suspended') void ctx.resume();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.connect(gain); gain.connect(ctx.destination);
@@ -96,7 +115,13 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
       osc.start();
       osc.stop(ctx.currentTime + dur / 1000);
     } catch { /* noop */ }
-  }, [muted]);
+  }, []);
+
+  useEffect(() => () => {
+    if (loopRef.current) clearTimeout(loopRef.current);
+    audioCtxRef.current?.close().catch(() => { /* already closed */ });
+    audioCtxRef.current = null;
+  }, []);
 
   const handleControl = (newDir: Dir, e?: React.PointerEvent) => {
     if (e) {
@@ -107,13 +132,16 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
 
   const reset = useCallback(() => {
     trackEvent('snake_game_start');
+    snakeRef.current = INITIAL_SNAKE;
     setSnake(INITIAL_SNAKE);
     const newFood = randFood(INITIAL_SNAKE);
     foodRef.current = newFood;
     setFood(newFood);
     nextDirRef.current = 'RIGHT';
     lastTickedDirRef.current = 'RIGHT';
+    scoreRef.current = 0;
     setScore(0);
+    bestAtStartRef.current = bestRef.current;
     tickMs.current = SNAKE_CONFIG.initialSpeed;
     setDead(false);
     setRunning(true);
@@ -121,7 +149,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
 
   // Keyboard controls
   useEffect(() => {
-    if (activeWindowId !== 'snake') return;
+    if (activeWindowId !== 'arcade') return;
 
     const map: Record<string, Dir> = {
       ArrowUp: 'UP', ArrowDown: 'DOWN', ArrowLeft: 'LEFT', ArrowRight: 'RIGHT',
@@ -168,57 +196,73 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
     touchStart.current = null;
   };
 
+  // Death: all side effects run once, here (compared against the best score captured at game start).
+  const endGame = useCallback(() => {
+    setDead(true);
+    setRunning(false);
+    beep(220, 300);
+    const finalScore = scoreRef.current;
+    trackEvent('snake_game_over', { score: finalScore });
+    const isNewBest = finalScore > bestAtStartRef.current;
+    if (isNewBest) trackEvent('snake_high_score', { score: finalScore });
+
+    if (finalScore >= 50) {
+      unlockAchievement('snake_champion');
+      addNotification('🐍 Snake Champion!', `You scored ${finalScore} points on Snake!${isNewBest ? ' New high score!' : ''}`, 'achievement', 'gaming');
+    } else if (isNewBest) {
+      addNotification('🐍 New High Score!', `Score: ${finalScore}`, 'achievement', 'gaming');
+    } else {
+      addNotification('🐍 Snake Game Over', `Score: ${finalScore} | High Score: ${bestRef.current}`, 'info', 'gaming');
+    }
+  }, [beep, unlockAchievement, addNotification]);
+
   // Game loop
   useEffect(() => {
-    if (!running || dead) return;
+    if (!running || dead || suspended) return;
+
+    const DELTAS: Record<Dir, Cell> = { UP: { x: 0, y: -1 }, DOWN: { x: 0, y: 1 }, LEFT: { x: -1, y: 0 }, RIGHT: { x: 1, y: 0 } };
 
     const tick = () => {
       const currentDir = nextDirRef.current;
       lastTickedDirRef.current = currentDir;
 
-      setSnake((prev) => {
-        const head = prev[0];
-        const DELTAS: Record<Dir, Cell> = { UP: { x: 0, y: -1 }, DOWN: { x: 0, y: 1 }, LEFT: { x: -1, y: 0 }, RIGHT: { x: 1, y: 0 } };
-        const d = DELTAS[currentDir];
-        const newHead = { x: head.x + d.x, y: head.y + d.y };
+      const prev = snakeRef.current;
+      const d = DELTAS[currentDir];
+      const newHead = { x: prev[0].x + d.x, y: prev[0].y + d.y };
 
-        // Wall collision
-        if (newHead.x < 0 || newHead.x >= GRID || newHead.y < 0 || newHead.y >= GRID) {
-          setDead(true); setRunning(false);
-          beep(220, 300);
-          return prev;
-        }
-        // Self collision
-        if (prev.some((s) => s.x === newHead.x && s.y === newHead.y)) {
-          setDead(true); setRunning(false);
-          beep(220, 300);
-          return prev;
-        }
-        // Food
-        const ateFood = newHead.x === foodRef.current.x && newHead.y === foodRef.current.y;
-        const next = ateFood ? [newHead, ...prev] : [newHead, ...prev.slice(0, -1)];
+      const hitWall = newHead.x < 0 || newHead.x >= GRID || newHead.y < 0 || newHead.y >= GRID;
+      const hitSelf = prev.some((s) => s.x === newHead.x && s.y === newHead.y);
+      if (hitWall || hitSelf) {
+        loopRef.current = null;
+        endGame();
+        return;
+      }
 
-        if (ateFood) {
-          beep(880, 80);
-          const newFood = randFood(next);
-          foodRef.current = newFood;
-          setFood(newFood);
-          setScore((s) => {
-            const ns = s + 10;
-            if (ns > highScore) {
-              setHighScore(ns);
-              try { localStorage.setItem(SNAKE_CONFIG.localStorageKey, String(ns)); } catch { /* noop */ }
-            }
-            return ns;
-          });
-          
-          const nfp = next.length - 3;
-          if (nfp > 0 && nfp % SNAKE_CONFIG.speedThreshold === 0) {
-            tickMs.current = Math.max(60, tickMs.current - SNAKE_CONFIG.speedIncrement);
-          }
+      const ateFood = newHead.x === foodRef.current.x && newHead.y === foodRef.current.y;
+      const next = ateFood ? [newHead, ...prev] : [newHead, ...prev.slice(0, -1)];
+      snakeRef.current = next;
+      setSnake(next);
+
+      if (ateFood) {
+        beep(880, 80);
+        const newFood = randFood(next);
+        foodRef.current = newFood;
+        setFood(newFood);
+
+        const ns = scoreRef.current + 10;
+        scoreRef.current = ns;
+        setScore(ns);
+        if (ns > bestRef.current) {
+          bestRef.current = ns;
+          setHighScore(ns);
+          try { localStorage.setItem(SNAKE_CONFIG.localStorageKey, String(ns)); } catch { /* noop */ }
         }
-        return next;
-      });
+
+        const nfp = next.length - 3;
+        if (nfp > 0 && nfp % SNAKE_CONFIG.speedThreshold === 0) {
+          tickMs.current = Math.max(60, tickMs.current - SNAKE_CONFIG.speedIncrement);
+        }
+      }
 
       loopRef.current = setTimeout(tick, tickMs.current);
     };
@@ -226,28 +270,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
     loopRef.current = setTimeout(tick, tickMs.current);
 
     return () => { if (loopRef.current) clearTimeout(loopRef.current); };
-  }, [running, dead, highScore, beep]);
-
-  // Achievements and analytics on death
-  useEffect(() => {
-    if (dead) {
-      trackEvent('snake_game_over', { score });
-      const prevHighScore = (() => {
-        try { return parseInt(localStorage.getItem(SNAKE_CONFIG.localStorageKey) || '0', 10); } catch { return 0; }
-      })();
-      if (score > prevHighScore) {
-        trackEvent('snake_high_score', { score });
-      }
-
-      if (score >= 50) {
-        unlockAchievement('snake_champion');
-        addNotification('🐍 Snake Champion!', `You scored ${score} points on Snake!`, 'achievement', 'gaming');
-      } else {
-        addNotification('🐍 Snake Game Over', `Score: ${score} | High Score: ${highScore}`, 'info', 'gaming');
-      }
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dead]);
+  }, [running, dead, suspended, beep, endGame]);
 
   const isLight = theme === 'light';
   const bg = isLight ? 'bg-gray-50 text-gray-800' : 'bg-slate-950 text-white';
@@ -255,7 +278,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
   const boardSize = GRID * cellPx;
 
   return (
-    <div ref={containerRef} className={`flex flex-col flex-grow h-full items-center justify-center p-2 sm:p-4 space-y-2 sm:space-y-4 select-none ${bg}`}
+    <div ref={containerRef} className={`flex flex-col grow h-full items-center justify-center p-2 sm:p-4 space-y-2 sm:space-y-4 select-none ${bg}`}
       onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
 
       {/* Header */}
@@ -284,7 +307,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
 
         {/* Food */}
         <div
-          className="absolute rounded-sm bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.8)] transition-all duration-100"
+          className="absolute rounded-xs bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.8)] transition-all duration-100"
           style={{ left: food.x * cellPx + 2, top: food.y * cellPx + 2, width: cellPx - 4, height: cellPx - 4 }}
         />
 
@@ -292,7 +315,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
         {snake.map((seg, i) => (
           <div
             key={`${seg.x}-${seg.y}-${i}`}
-            className="absolute rounded-sm transition-all duration-50"
+            className="absolute rounded-xs transition-all duration-50"
             style={{
               left: seg.x * cellPx + 1,
               top: seg.y * cellPx + 1,
@@ -306,7 +329,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
 
         {/* Game Over / Paused Overlay */}
         {(dead || (!running && score === 0)) && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm space-y-3">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 backdrop-blur-xs space-y-3">
             {dead ? (
               <>
                 <p className="text-red-400 text-lg font-black font-mono tracking-widest animate-pulse">GAME OVER</p>
@@ -329,7 +352,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
 
         {/* Pause overlay */}
         {running === false && !dead && score > 0 && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 backdrop-blur-xs">
             <p className="text-amber-400 text-sm font-black font-mono tracking-widest">PAUSED</p>
           </div>
         )}
@@ -342,7 +365,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
           disabled={dead}
           className={`flex items-center space-x-1.5 font-bold text-xs px-3.5 py-1.5 rounded-lg transition disabled:opacity-40 ${
             isLight 
-              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-900 shadow-xs' 
+              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-900 shadow-2xs' 
               : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
           }`}
         >
@@ -353,7 +376,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
           onClick={reset}
           className={`flex items-center space-x-1.5 font-bold text-xs px-3.5 py-1.5 rounded-lg transition ${
             isLight 
-              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-900 shadow-xs' 
+              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-900 shadow-2xs' 
               : 'bg-white/5 hover:bg-white/10 border border-white/10 text-white'
           }`}
         >
@@ -363,7 +386,7 @@ export default function SnakeGame({ isMobileView }: { isMobileView?: boolean } =
           onClick={() => setMuted((m) => !m)}
           className={`p-1.5 rounded-lg transition ${
             isLight 
-              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-800 shadow-xs' 
+              ? 'bg-slate-200 hover:bg-slate-300 border border-slate-300 text-slate-800 shadow-2xs' 
               : 'bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white'
           }`}
           title={muted ? 'Unmute' : 'Mute'}

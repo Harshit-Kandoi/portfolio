@@ -1,40 +1,43 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useOSStore } from '../../store/useOSStore';
 import { playBootSound } from '../../utils/sounds';
 import { LayoutTemplate, Power } from 'lucide-react';
 
+function restartOS() {
+  const { resetShutdown, setBootState } = useOSStore.getState();
+  resetShutdown();
+  playBootSound();
+  setBootState('booting');
+}
+
 export default function PoweredOffScreen() {
-  const setBootState = useOSStore((state) => state.setBootState);
   const resetShutdown = useOSStore((state) => state.resetShutdown);
   const setPortalMode = useOSStore((state) => state.setPortalMode);
 
-  const handleRestart = () => {
-    resetShutdown();
-    playBootSound();
-    setBootState('booting');
-  };
+  const handleRestart = restartOS;
 
   const handleGoClassic = () => {
     resetShutdown();
     setPortalMode('classic');
   };
 
+  // Enter/Space restarts only when no control has focus; focused buttons (Tab) handle
+  // their own keys, and modifier/navigation keys are ignored.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Any key except Enter restarts, Enter goes to classic
-      if (e.key === 'Enter') {
-        handleGoClassic();
-      } else {
-        handleRestart();
-      }
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      const active = document.activeElement;
+      if (active && active !== document.body && active !== document.documentElement) return;
+      e.preventDefault();
+      restartOS();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-[#07070a] flex flex-col items-center justify-center select-none z-[9999]">
+    <div className="fixed inset-0 bg-[#07070a] flex flex-col items-center justify-center select-none z-9999">
       <div className="text-center space-y-10 max-w-md px-8">
         {/* Power icon */}
         <div className="flex justify-center">
@@ -78,7 +81,7 @@ export default function PoweredOffScreen() {
         </div>
 
         <p className="text-xs text-gray-700">
-          Press any key to restart · Enter for Normal Portfolio
+          Press Enter to restart · Tab to choose an option
         </p>
       </div>
     </div>

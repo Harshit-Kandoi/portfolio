@@ -5,7 +5,7 @@ import {
   Settings as GearIcon, User, Briefcase, Award, FileText, Send, 
   Search, Wifi, Volume2, Bell, LogOut, Moon, Sun, 
   Gamepad2, Github, Linkedin, Smartphone, Mail, Phone, Database,
-  Coffee, Heart, BookMarked, StickyNote, /* Image as ImageIcon, */ Package,
+  Heart, Package,
   LayoutTemplate
 } from 'lucide-react';
 
@@ -14,16 +14,10 @@ import NotificationPanel from './NotificationPanel';
 import DashboardWidgets from './DashboardWidgets';
 import { playWindowSound, playNotificationSound } from '../../utils/sounds';
 import { SYSTEM_NOTIFICATION_POOL } from '../../data/notifications';
+import { PORTFOLIO_META } from '../../data/config';
+import { asset } from '../../utils/paths';
 
 
-// Custom Snake Icon SVG
-const SnakeIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-    <path d="M8.5 10c-1.5-1.5-2.5-2.5-2.5-4a4 4 0 1 1 8 0v4a4 4 0 0 0 8 0V6" />
-    <path d="M12 12c1.5 1.5 2.5 2.5 2.5 4a4 4 0 1 1-8 0v-4a4 4 0 0 0-8 0v2" />
-    <circle cx="10" cy="4" r="1" fill="currentColor" />
-  </svg>
-);
 
 // Lazy load app modules to reduce initial JS bundle size and improve SEO / LCP metrics
 const AboutApp       = lazy(() => import('../apps/AboutApp'));
@@ -33,31 +27,58 @@ const SkillsApp      = lazy(() => import('../apps/SkillsApp'));
 const ResumeApp      = lazy(() => import('../apps/ResumeApp'));
 const TerminalWindow = lazy(() => import('../apps/TerminalWindow'));
 const AIAssistantApp = lazy(() => import('../apps/AIAssistantApp'));
-const BlogApp        = lazy(() => import('../apps/BlogApp'));
 const AchievementsApp= lazy(() => import('../apps/AchievementsApp'));
-const GamingApp      = lazy(() => import('../apps/GamingApp'));
 const ContactApp     = lazy(() => import('../apps/ContactApp'));
 const SettingsApp    = lazy(() => import('../apps/SettingsApp'));
-const SnakeGame      = lazy(() => import('../apps/SnakeGame'));
 const PortfolioSwipe = lazy(() => import('../apps/PortfolioSwipe'));
-const BuyMeCoffeeApp = lazy(() => import('../apps/BuyMeCoffeeApp'));
-// Phase 3 New Apps
-const LibraryApp     = lazy(() => import('../apps/LibraryApp'));
-const NotesApp       = lazy(() => import('../apps/NotesApp'));
-// const GalleryApp     = lazy(() => import('../apps/GalleryApp'));
 const ProductsApp    = lazy(() => import('../apps/ProductsApp'));
-// const PublicationsApp= lazy(() => import('../apps/PublicationsApp'));
-// const MarketplaceApp = lazy(() => import('../apps/MarketplaceApp'));
+const ArcadeApp      = lazy(() => import('../apps/ArcadeApp'));
+const WritingApp     = lazy(() => import('../apps/WritingApp'));
 
+
+// Random "did you know" tips: rare and capped so the desktop stays calm.
+const RANDOM_TIP_MIN_GAP_MS = 3 * 60 * 1000;
+const RANDOM_TIP_CHECK_MS = 30 * 1000;
+const RANDOM_TIP_MAX_PER_SESSION = 3;
+const KONAMI_XP = 999;
+// A touch counts as a tap (opens the icon) only if the finger barely moved.
+const TAP_MOVE_THRESHOLD_PX = 10;
+const TAP_MAX_DURATION_MS = 500;
+
+const isTypingTarget = (target: EventTarget | null) => {
+  const el = target as HTMLElement | null;
+  return !!el && (el.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName));
+};
+
+const trayLinks = [
+  { label: 'GitHub',   href: PORTFOLIO_META.github,   icon: Github,   external: true,  color: ['text-purple-700 hover:text-purple-900', 'text-purple-300'] },
+  { label: 'LinkedIn', href: PORTFOLIO_META.linkedin, icon: Linkedin, external: true,  color: ['text-blue-700 hover:text-blue-900', 'text-blue-400'] },
+  { label: 'Email',    href: `mailto:${PORTFOLIO_META.email}`, icon: Mail, external: false, color: ['text-rose-600 hover:text-rose-800', 'text-rose-400'] },
+  { label: 'Phone',    href: `tel:${PORTFOLIO_META.phone.replace(/[^\d+]/g, '')}`, icon: Phone, external: false, color: ['text-emerald-700 hover:text-emerald-900', 'text-emerald-400'] },
+  { label: 'Medium',   href: PORTFOLIO_META.medium,   icon: BookOpen, external: true,  color: ['text-cyan-700 hover:text-cyan-900', 'text-cyan-400'] },
+  { label: 'Kaggle',   href: PORTFOLIO_META.kaggle,   icon: Database, external: true,  color: ['text-amber-700 hover:text-amber-900', 'text-amber-400'] },
+] as const;
+
+const SHUTDOWN_LINES = [
+  'Shutting down Portfolio OS...',
+  'Saving your XP and settings...',
+  'Closing open windows...',
+  'Thanks for exploring.',
+  'Hope to work with you soon.',
+  'System halted.',
+];
 
 export default function Desktop() {
-  const { 
+  const {
     windows, theme, setTheme, openWindow, startMenuOpen, setStartMenuOpen,
-    notifications, addNotification, closeAllWindows, setBootState,
-    viewMode, isSimulatingMobile, setIsSimulatingMobile, xp,
-    hasVisited, isShuttingDown, initiateShutdown, setPortalMode,
+    notifications, addNotification, closeAllWindows, setBootState, bootState,
+    viewMode, isSimulatingMobile, setIsSimulatingMobile, xp, addXP,
+    wasReturningVisitor, isShuttingDown, initiateShutdown, setPortalMode,
+    volume, setVolume, soundEnabled, setSoundEnabled, batterySaver,
+    activeWindowId, clampWindowsToViewport,
   } = useOSStore();
   const welcomeNotifSent = useRef(false);
+  const konamiClaimed = useRef(false);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showVolumePopup, setShowVolumePopup] = useState(false);
@@ -68,45 +89,70 @@ export default function Desktop() {
   const [bouncingApp, setBouncingApp] = useState<string | null>(null);
   const [shutdownStep, setShutdownStep] = useState(0);
 
-  const SHUTDOWN_LINES = [
-    'Shutting down Portfolio OS...',
-    'Saving visitor progress...',
-    'Closing active sessions...',
-    'Thanks for exploring.',
-    'Hope to work with you soon.',
-    'System halted.',
-  ];
+  const volumeControlRef = useRef<HTMLDivElement>(null);
+  const volumeButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Update clocks and system monitors
+  // Desktop stays mounted behind the lock screen; pause shortcuts and timers while locked.
+  const isLocked = bootState !== 'desktop';
+
+  // Update clock
   useEffect(() => {
     const clockTimer = setInterval(() => setSysTime(new Date()), 1000);
-    const cpuTimer = setInterval(() => {
-      setCpuUsage((prev) => {
-        const delta = Math.floor(Math.random() * 7) - 3;
-        return Math.max(10, Math.min(90, prev + delta));
-      });
-      setRamUsage((prev) => {
-        const delta = Math.floor(Math.random() * 3) - 1;
-        return Math.max(30, Math.min(85, prev + delta));
-      });
-    }, 4000);
-
-    return () => {
-      clearInterval(clockTimer);
-      clearInterval(cpuTimer);
-    };
+    return () => clearInterval(clockTimer);
   }, []);
+
+  // Keep windows inside the viewport when the browser is resized
+  useEffect(() => {
+    let raf: number | null = null;
+    const clamp = () => {
+      if (raf !== null) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        raf = null;
+        clampWindowsToViewport(window.innerWidth, window.innerHeight);
+      });
+    };
+    clamp();
+    window.addEventListener('resize', clamp);
+    return () => {
+      window.removeEventListener('resize', clamp);
+      if (raf !== null) cancelAnimationFrame(raf);
+    };
+  }, [clampWindowsToViewport]);
+
+  // Close the volume popover on any pointer down outside it (slider drags that end outside don't count)
+  useEffect(() => {
+    if (!showVolumePopup) return;
+    const handlePointerDown = (e: PointerEvent) => {
+      if (!volumeControlRef.current?.contains(e.target as Node)) setShowVolumePopup(false);
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [showVolumePopup]);
 
   // Keyboard Navigation / Shortcuts
   useEffect(() => {
+    if (isLocked) return;
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Escape closes focused window
+      const isTyping = isTypingTarget(e.target);
       if (e.key === 'Escape') {
+        // Transient overlays close first, even when focus is inside them (e.g. the volume slider)
+        const anyOverlayOpen = startMenuOpen || showNotificationDrawer || showDashboard || showVolumePopup;
+        if (anyOverlayOpen) {
+          e.preventDefault();
+          if (showVolumePopup) volumeButtonRef.current?.focus();
+          setStartMenuOpen(false);
+          setShowNotificationDrawer(false);
+          setShowDashboard(false);
+          setShowVolumePopup(false);
+          return;
+        }
+        // Then the focused window (but not while typing in Terminal/AI inputs)
         const activeId = useOSStore.getState().activeWindowId;
-        if (activeId) {
+        if (activeId && !isTyping) {
           e.preventDefault();
           useOSStore.getState().closeWindow(activeId);
         }
+        return;
       }
       // Alt + T opens Terminal
       if (e.altKey && e.key.toLowerCase() === 't') {
@@ -132,10 +178,11 @@ export default function Desktop() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [isLocked, startMenuOpen, showNotificationDrawer, showDashboard, showVolumePopup, setStartMenuOpen]);
 
-  // Global Konami Code easter egg
+  // Global Konami Code easter egg (XP granted once per session)
   useEffect(() => {
+    if (isLocked) return;
     const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
     let progress: string[] = [];
     const handleKonami = (e: KeyboardEvent) => {
@@ -143,7 +190,13 @@ export default function Desktop() {
         progress = [...progress, e.key];
         if (progress.length === KONAMI.length) {
           progress = [];
-          addNotification('🔓 Developer Mode Unlocked', 'Welcome, engineer. You found the Konami Code. XP +999.', 'success', 'system');
+          if (konamiClaimed.current) {
+            addNotification('🎮 Konami Code', 'Already claimed this session. Nice muscle memory though.', 'info', 'funny');
+          } else {
+            konamiClaimed.current = true;
+            addXP(KONAMI_XP);
+            addNotification('🔓 Konami Code', `Welcome, engineer. +${KONAMI_XP} XP.`, 'success', 'funny');
+          }
           playNotificationSound();
         }
       } else {
@@ -152,26 +205,24 @@ export default function Desktop() {
     };
     window.addEventListener('keydown', handleKonami);
     return () => window.removeEventListener('keydown', handleKonami);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLocked, addNotification, addXP]);
 
-  // Welcome-back notification for returning visitors
+  // Welcome / welcome-back notification, sent once after the desktop is first unlocked
   useEffect(() => {
-    if (welcomeNotifSent.current) return;
-    welcomeNotifSent.current = true;
-    if (hasVisited) {
-      setTimeout(() => {
-        addNotification('👋 Welcome Back!', 'Continuing your previous session...', 'info', 'system');
-        playNotificationSound();
-      }, 1500);
-    } else {
-      setTimeout(() => {
-        addNotification('🚀 Welcome to Portfolio OS!', "You're exploring Harshit Kandoi's interactive developer portfolio.", 'info', 'system');
-        playNotificationSound();
-      }, 2000);
-    }
+    if (isLocked || welcomeNotifSent.current) return;
+    const timer = setTimeout(() => {
+      // Marked inside the timer so a StrictMode effect re-run (which clears the timer) still sends it.
+      welcomeNotifSent.current = true;
+      if (wasReturningVisitor) {
+        addNotification('👋 Welcome Back!', 'Your theme and XP are where you left them.', 'info', 'system');
+      } else {
+        addNotification('🚀 Welcome to Portfolio OS!', `You're exploring ${PORTFOLIO_META.name}'s interactive portfolio.`, 'info', 'system');
+      }
+      playNotificationSound();
+    }, wasReturningVisitor ? 1500 : 2000);
+    return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLocked]);
 
   // Shutdown sequence animator
   useEffect(() => {
@@ -193,11 +244,17 @@ export default function Desktop() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isShuttingDown]);
 
-  // Ref for non-repeating notification queue
+  // Non-repeating queue + session limits for random tips
   const notificationQueueRef = useRef<number[]>([]);
+  const randomTipCountRef = useRef(0);
+  const lastRandomTipRef = useRef(0);
 
-  // Dispatch non-repeating toast notifications from SYSTEM_NOTIFICATION_POOL every 45s
+  // Occasional tip from SYSTEM_NOTIFICATION_POOL: at most one every 3 minutes, max 3 per session,
+  // never while locked, in battery saver, or while the tab is hidden. Sound follows soundEnabled.
   useEffect(() => {
+    if (isLocked || batterySaver) return;
+    if (!lastRandomTipRef.current) lastRandomTipRef.current = Date.now();
+
     const getNextNotificationIndex = () => {
       if (notificationQueueRef.current.length === 0) {
         const indices = Array.from({ length: SYSTEM_NOTIFICATION_POOL.length }, (_, i) => i);
@@ -212,19 +269,50 @@ export default function Desktop() {
     };
 
     const interval = setInterval(() => {
-      const idx = getNextNotificationIndex();
-      const selected = SYSTEM_NOTIFICATION_POOL[idx];
-      if (selected) {
-        addNotification(selected.title, selected.message, selected.type, selected.category, selected.action);
-        playNotificationSound();
+      if (randomTipCountRef.current >= RANDOM_TIP_MAX_PER_SESSION) {
+        clearInterval(interval);
+        return;
       }
-    }, 45000);
+      if (document.hidden || Date.now() - lastRandomTipRef.current < RANDOM_TIP_MIN_GAP_MS) return;
+      const selected = SYSTEM_NOTIFICATION_POOL[getNextNotificationIndex()];
+      if (!selected) return;
+      lastRandomTipRef.current = Date.now();
+      randomTipCountRef.current += 1;
+      addNotification(selected.title, selected.message, selected.type, selected.category, selected.action);
+      playNotificationSound();
+    }, RANDOM_TIP_CHECK_MS);
     return () => clearInterval(interval);
-  }, [addNotification]);
+  }, [isLocked, batterySaver, addNotification]);
+
+  // Touch tap tracking for desktop icons (scrolls cancel the pointer, so they never open an app)
+  const tapStartRef = useRef<{ id: string; x: number; y: number; t: number } | null>(null);
+  const lastTapOpenRef = useRef(0);
 
   const handleIconDoubleClick = (id: string) => {
     playWindowSound('open');
     openWindow(id);
+  };
+
+  const handleIconPointerDown = (id: string, e: React.PointerEvent) => {
+    tapStartRef.current = e.pointerType === 'touch'
+      ? { id, x: e.clientX, y: e.clientY, t: Date.now() }
+      : null;
+  };
+
+  const handleIconPointerUp = (id: string, e: React.PointerEvent) => {
+    const start = tapStartRef.current;
+    tapStartRef.current = null;
+    if (!start || start.id !== id || e.pointerType !== 'touch') return;
+    const moved = Math.hypot(e.clientX - start.x, e.clientY - start.y);
+    if (moved > TAP_MOVE_THRESHOLD_PX || Date.now() - start.t > TAP_MAX_DURATION_MS) return;
+    lastTapOpenRef.current = Date.now();
+    handleIconDoubleClick(id);
+  };
+
+  const handleIconDblClick = (id: string) => {
+    // A quick double tap also fires dblclick; the first tap already opened the app.
+    if (Date.now() - lastTapOpenRef.current < 800) return;
+    handleIconDoubleClick(id);
   };
 
   const handleThemeToggle = () => {
@@ -262,21 +350,13 @@ export default function Desktop() {
     { id: 'resume',       title: 'Resume.pdf',       icon: FileText,      color: 'from-rose-500 to-red-500'     },
     { id: 'terminal',     title: 'Terminal.exe',     icon: TermIcon,      color: 'from-slate-700 to-slate-900'  },
     { id: 'ai',           title: 'Chatbot.exe',     icon: MessageSquare, color: 'from-pink-500 to-rose-400'    },
-    { id: 'blog',         title: 'Blog.exe',         icon: BookOpen,      color: 'from-sky-500 to-blue-600'     },
+    { id: 'writing',      title: 'Writing.exe',      icon: BookOpen,      color: 'from-sky-500 to-blue-600'     },
     { id: 'achievements', title: 'Certifications.exe', icon: Award, color: 'from-yellow-400 to-amber-500' },
-    { id: 'gaming',       title: 'Gaming.exe',       icon: Gamepad2,      color: 'from-red-500 to-pink-500'     },
+    { id: 'arcade',       title: 'Arcade.exe',       icon: Gamepad2,      color: 'from-red-500 to-pink-500'     },
     { id: 'contact',      title: 'Contact.exe',      icon: Send,          color: 'from-teal-400 to-emerald-500' },
     { id: 'settings',     title: 'Settings.exe',     icon: GearIcon,      color: 'from-slate-400 to-slate-600'  },
-    { id: 'snake',        title: 'Snake.exe',        icon: SnakeIcon,     color: 'from-green-500 to-emerald-700' },
     { id: 'swipe',        title: 'Swipe.exe',        icon: Heart,         color: 'from-rose-500 to-red-600'     },
-    { id: 'coffee',       title: 'Coffee.exe',       icon: Coffee,        color: 'from-amber-600 to-yellow-700' },
-    // Phase 3 New Apps
-    { id: 'library',      title: 'Library.exe',      icon: BookMarked,    color: 'from-amber-500 to-orange-400' },
-    { id: 'notes',        title: 'Notes.exe',        icon: StickyNote,    color: 'from-violet-500 to-purple-600'},
-    // { id: 'gallery',      title: 'Gallery.exe',      icon: ImageIcon,     color: 'from-pink-500 to-rose-500'    },
     { id: 'products',     title: 'Products.exe',     icon: Package,       color: 'from-violet-600 to-indigo-600'},
-    // { id: 'publications', title: 'Papers.exe',        icon: BookMarked,    color: 'from-green-500 to-emerald-600'},
-    // { id: 'marketplace',  title: 'Store.exe',        icon: ShoppingBag,   color: 'from-rose-500 to-pink-600'    },
   ];
 
 
@@ -323,14 +403,12 @@ export default function Desktop() {
     const target = e.target as HTMLElement;
     const isStartMenuClick = target.closest('#start-menu-button') || target.closest('#start-menu');
     const isNotificationClick = target.closest('#notification-button') || target.closest('#notification-drawer');
-    const isVolumeClick = target.closest('#volume-button') || target.closest('#volume-popup');
     const isDashboardClick = target.closest('#dashboard-button') || target.closest('#dashboard-widgets');
-    
+
     if (!isStartMenuClick && startMenuOpen) setStartMenuOpen(false);
     if (!isNotificationClick && showNotificationDrawer) setShowNotificationDrawer(false);
-    if (!isVolumeClick && showVolumePopup) setShowVolumePopup(false);
     if (!isDashboardClick && showDashboard) setShowDashboard(false);
-
+    // The volume popover handles its own outside-pointerdown closing (see effect above).
   };
 
   return (
@@ -340,7 +418,7 @@ export default function Desktop() {
     >
       
       {/* Top Taskbar */}
-      <div className={`h-12 w-full flex items-center justify-between border-b z-[9995] ${barBg} ${
+      <div className={`h-12 w-full flex items-center justify-between border-b z-9995 ${barBg} ${
         viewMode === 'tablet' ? 'px-6' : 'px-4'
       }`}>
         <div className="flex items-center space-x-4">
@@ -354,16 +432,16 @@ export default function Desktop() {
                 : theme === 'retro'
                   ? 'bg-green-500 text-black hover:bg-green-600 font-bold'
                   : theme === 'light'
-                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-sm font-bold'
+                    ? 'bg-linear-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-xs font-bold'
                     : 'bg-white/10 hover:bg-white/20 border border-white/15'
             }`}
             aria-label={startMenuOpen ? "Close start menu" : "Open start menu"}
           >
             <div className="flex flex-wrap w-4 h-4 justify-between content-between gap-0.5">
-              <div className="w-1.5 h-1.5 bg-current rounded-sm" />
-              <div className="w-1.5 h-1.5 bg-current rounded-sm" />
-              <div className="w-1.5 h-1.5 bg-current rounded-sm" />
-              <div className="w-1.5 h-1.5 bg-current rounded-sm" />
+              <div className="w-1.5 h-1.5 bg-current rounded-xs" />
+              <div className="w-1.5 h-1.5 bg-current rounded-xs" />
+              <div className="w-1.5 h-1.5 bg-current rounded-xs" />
+              <div className="w-1.5 h-1.5 bg-current rounded-xs" />
             </div>
             <span className="text-xs font-bold tracking-wide">Menu</span>
           </button>
@@ -376,7 +454,7 @@ export default function Desktop() {
               placeholder="Search apps..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className={`pl-9 pr-4 py-1.5 rounded-lg text-xs w-48 focus:outline-none focus:ring-1 focus:ring-purple-500/50 transition ${
+              className={`pl-9 pr-4 py-1.5 rounded-lg text-xs w-48 focus:outline-hidden focus:ring-1 focus:ring-purple-500/50 transition ${
                 theme === 'light' 
                   ? 'bg-white text-gray-900 border border-gray-300 placeholder-gray-500 shadow-inner' 
                   : 'bg-white/5 border border-white/15 placeholder-gray-400 text-white'
@@ -394,7 +472,7 @@ export default function Desktop() {
             onClick={() => setShowDashboard(!showDashboard)}
             className={`hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-md text-[10px] sm:text-xs border transition-all ${
               showDashboard
-                ? theme === 'light' ? 'bg-purple-600 border-purple-600 text-white shadow-sm font-bold' : 'bg-purple-600/30 border-purple-500/50 text-purple-300'
+                ? theme === 'light' ? 'bg-purple-600 border-purple-600 text-white shadow-xs font-bold' : 'bg-purple-600/30 border-purple-500/50 text-purple-300'
                 : theme === 'light' ? 'bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-800 font-semibold' : 'bg-white/5 border-white/10 hover:bg-white/10 text-gray-300'
             }`}
             aria-label={showDashboard ? 'Close dashboard' : 'Open dashboard'}
@@ -409,8 +487,8 @@ export default function Desktop() {
             onClick={() => setPortalMode('classic')}
             className={`flex items-center space-x-1.5 px-3 py-1 rounded-lg text-xs font-semibold transition-all hover:scale-105 active:scale-95 ${
               theme === 'light'
-                ? 'bg-purple-100 text-purple-950 border border-purple-300 hover:bg-purple-200 shadow-sm'
-                : 'bg-white/10 text-purple-300 border border-purple-500/40 hover:bg-white/15 hover:border-purple-400/60 shadow-sm'
+                ? 'bg-purple-100 text-purple-950 border border-purple-300 hover:bg-purple-200 shadow-xs'
+                : 'bg-white/10 text-purple-300 border border-purple-500/40 hover:bg-white/15 hover:border-purple-400/60 shadow-xs'
             }`}
             title="Switch to Normal Portfolio View"
             aria-label="Switch to Classic Portfolio View"
@@ -421,36 +499,19 @@ export default function Desktop() {
           
           {/* Socials Shortcuts Tray */}
           <div className={`hidden lg:flex items-center space-x-3 border-l pl-4 ${theme === 'light' ? 'border-gray-300' : 'border-white/10'}`}>
-            {/* GitHub */}
-            <a href="https://github.com/Harshit-Kandoi" target="_blank" rel="noopener noreferrer" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-purple-700 hover:text-purple-900' : 'text-purple-300'}`} title="GitHub">
-              <Github className="w-4 h-4" />
-              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>GitHub</span>
-            </a>
-            {/* LinkedIn */}
-            <a href="https://linkedin.com/in/harshit-kandoi" target="_blank" rel="noopener noreferrer" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-blue-700 hover:text-blue-900' : 'text-blue-400'}`} title="LinkedIn">
-              <Linkedin className="w-4 h-4" />
-              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>LinkedIn</span>
-            </a>
-            {/* Gmail */}
-            <a href="mailto:kandoiharshitsdlp@gmail.com" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-rose-600 hover:text-rose-800' : 'text-rose-400'}`} title="Gmail">
-              <Mail className="w-4 h-4" />
-              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>Gmail</span>
-            </a>
-            {/* Phone */}
-            <a href="tel:+917850098453" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-emerald-700 hover:text-emerald-900' : 'text-emerald-400'}`} title="Phone">
-              <Phone className="w-4 h-4" />
-              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>Phone</span>
-            </a>
-            {/* Medium */}
-            <a href="https://medium.com/@kandoiharshitsdlp" target="_blank" rel="noopener noreferrer" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-cyan-700 hover:text-cyan-900' : 'text-cyan-400'}`} title="Medium">
-              <BookOpen className="w-4 h-4" />
-              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>Medium</span>
-            </a>
-            {/* Kaggle */}
-            <a href="https://kaggle.com/harshitkandoi" target="_blank" rel="noopener noreferrer" className={`hover:scale-115 active:scale-95 transition-all relative group ${theme === 'light' ? 'text-amber-700 hover:text-amber-900' : 'text-amber-400'}`} title="Kaggle">
-              <Database className="w-4 h-4" />
-              <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-[10005] ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>Kaggle</span>
-            </a>
+            {trayLinks.map(({ label, href, icon: Icon, external, color }) => (
+              <a
+                key={label}
+                href={href}
+                {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                className={`hover:scale-110 active:scale-95 transition-all relative group ${theme === 'light' ? color[0] : color[1]}`}
+                title={label}
+                aria-label={label}
+              >
+                <Icon className="w-4 h-4" />
+                <span className={`absolute bottom-[-32px] left-1/2 -translate-x-1/2 px-2 py-1 text-[9px] font-bold rounded-sm opacity-0 group-hover:opacity-100 transition duration-200 pointer-events-none whitespace-nowrap z-10005 ${theme === 'light' ? 'bg-white border border-gray-300 text-gray-900 shadow-md' : 'bg-slate-900 border border-gray-800 text-white'}`}>{label}</span>
+              </a>
+            ))}
           </div>
 
           {/* WiFi & Sound */}
@@ -494,35 +555,55 @@ export default function Desktop() {
             </button>
             <Wifi className={`w-4 h-4 ${theme === 'light' ? 'text-emerald-600' : 'text-emerald-400'}`} />
             
-            <button id="volume-button" onClick={() => setShowVolumePopup(!showVolumePopup)} className="hover:opacity-80 transition relative" aria-label={showVolumePopup ? "Close volume controls" : "Open volume controls"}>
-              <Volume2 className={`w-4 h-4 ${theme === 'light' ? 'text-sky-600' : 'text-sky-400'}`} />
+            <div ref={volumeControlRef} className="relative flex items-center">
+              <button
+                ref={volumeButtonRef}
+                id="volume-button"
+                onClick={() => setShowVolumePopup((open) => !open)}
+                className="hover:opacity-80 transition"
+                aria-label={showVolumePopup ? 'Close volume controls' : 'Open volume controls'}
+                aria-expanded={showVolumePopup}
+                aria-controls="volume-popup"
+              >
+                <Volume2 className={`w-4 h-4 ${theme === 'light' ? 'text-sky-600' : 'text-sky-400'}`} />
+              </button>
               {showVolumePopup && (
-                <div id="volume-popup" className={`absolute right-0 top-6 p-3 rounded-lg shadow-xl w-32 flex flex-col z-[10000] ${
-                  theme === 'light' ? 'bg-white border border-gray-200 text-gray-900 shadow-2xl' : 'bg-slate-900 border border-gray-800 text-white'
-                }`}>
-                  <span className={`text-[10px] mb-1 font-semibold ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>Volume Control</span>
+                <div
+                  id="volume-popup"
+                  role="dialog"
+                  aria-label="Volume controls"
+                  onClick={(e) => e.stopPropagation()}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  className={`absolute right-0 top-7 p-3 rounded-lg shadow-xl w-36 flex flex-col z-10000 ${
+                    theme === 'light' ? 'bg-white border border-gray-200 text-gray-900 shadow-2xl' : 'bg-slate-900 border border-gray-800 text-white'
+                  }`}
+                >
+                  <label htmlFor="volume-slider" className={`text-[10px] mb-1 font-semibold ${theme === 'light' ? 'text-gray-600' : 'text-gray-400'}`}>
+                    Volume {Math.round(volume * 100)}%
+                  </label>
                   <input
+                    id="volume-slider"
                     type="range"
                     min="0"
                     max="1"
-                    step="0.1"
-                    value={useOSStore.getState().volume}
-                    onChange={(e) => useOSStore.getState().setVolume(parseFloat(e.target.value))}
+                    step="0.05"
+                    value={volume}
+                    onChange={(e) => setVolume(parseFloat(e.target.value))}
                     className="w-full accent-purple-500 cursor-pointer"
                   />
                   <label className="flex items-center space-x-1 mt-2 text-[10px]">
                     <input
                       type="checkbox"
-                      checked={useOSStore.getState().soundEnabled}
-                      onChange={(e) => useOSStore.getState().setSoundEnabled(e.target.checked)}
-                      className="rounded"
+                      checked={soundEnabled}
+                      onChange={(e) => setSoundEnabled(e.target.checked)}
+                      className="rounded-sm"
                     />
                     <span>Sound Effects</span>
                   </label>
                 </div>
               )}
-            </button>
-            
+            </div>
+
             {/* Notification Count Trigger */}
             <button 
               id="notification-button"
@@ -548,18 +629,18 @@ export default function Desktop() {
       </div>
       {/* Start Menu Popup */}
       {startMenuOpen && (
-        <div id="start-menu" className={`fixed border shadow-2xl z-[10000] ${cardBg} backdrop-blur-3xl flex flex-col space-y-4 animate-slide-up transition-all duration-300 ${
+        <div id="start-menu" className={`fixed border shadow-2xl z-10000 ${cardBg} backdrop-blur-3xl flex flex-col space-y-4 animate-slide-up transition-all duration-300 ${
           viewMode === 'tablet'
             ? 'left-6 top-14 w-[85vw] max-w-md p-8 rounded-3xl'
             : 'left-4 top-14 w-80 p-6 rounded-2xl'
         }`}>
           <div className="flex items-center justify-between pb-3 border-b border-white/10 dark:border-gray-800">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-tr from-purple-500 to-indigo-500 border border-white/20 flex items-center justify-center shrink-0">
-                <img src="/profile.webp" alt="HK" className="w-full h-full object-cover" />
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-linear-to-tr from-purple-500 to-indigo-500 border border-white/20 flex items-center justify-center shrink-0">
+                <img src={asset('profile.webp')} alt="HK" className="w-full h-full object-cover" />
               </div>
               <div>
-                <h3 className="text-xs font-bold">Harshit Kandoi</h3>
+                <h3 className="text-xs font-bold">{PORTFOLIO_META.name}</h3>
                 <p className="text-[10px] text-gray-400">Level {Math.floor(xp / 100) + 1} Code Warrior</p>
               </div>
             </div>
@@ -586,7 +667,7 @@ export default function Desktop() {
                 }`}
                 aria-label={`Open ${app.title.replace('.exe', '')} from start menu`}
               >
-                <div className={`rounded-lg bg-gradient-to-br ${app.color} text-white ${
+                <div className={`rounded-lg bg-linear-to-br ${app.color} text-white ${
                   viewMode === 'tablet' ? 'p-2' : 'p-1.5'
                 }`}>
                   <app.icon className={`${viewMode === 'tablet' ? 'w-4 h-4' : 'w-3.5 h-3.5'}`} />
@@ -620,7 +701,7 @@ export default function Desktop() {
       )}
 
       {/* Active Workspaces - Icons on Desktop / Tablet */}
-      <div className={`flex-grow p-6 z-10 select-none overflow-y-auto mt-4 ${
+      <div className={`grow p-6 z-10 select-none overflow-y-auto mt-4 ${
         viewMode === 'tablet' 
           ? 'grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-6 justify-items-start justify-start content-start max-h-[calc(100vh-160px)]' 
           : 'grid grid-flow-col auto-cols-max grid-rows-[repeat(auto-fill,96px)] gap-4 max-h-[calc(100vh-112px)]'
@@ -628,8 +709,10 @@ export default function Desktop() {
         {filteredApps.map((app) => (
           <button
             key={app.id}
-            onDoubleClick={() => handleIconDoubleClick(app.id)}
-            onTouchEnd={() => handleIconDoubleClick(app.id)} // Mobile-friendly trigger
+            onDoubleClick={() => handleIconDblClick(app.id)}
+            onPointerDown={(e) => handleIconPointerDown(app.id, e)}
+            onPointerUp={(e) => handleIconPointerUp(app.id, e)}
+            onPointerCancel={() => { tapStartRef.current = null; }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -642,7 +725,7 @@ export default function Desktop() {
             aria-label={`Open ${app.title.replace('.exe', '')} from desktop`}
             title={app.title}
           >
-            <div className={`rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-lg shadow-black/20 group-hover:scale-105 transition-transform w-12 h-12`}>
+            <div className={`rounded-2xl bg-linear-to-br ${app.color} text-white flex items-center justify-center shadow-lg shadow-black/20 group-hover:scale-105 transition-transform w-12 h-12`}>
               <app.icon className="w-6 h-6" />
             </div>
             <span className={`text-[10px] tracking-wide mt-1.5 truncate block max-w-full px-1.5 py-0.5 rounded-md ${
@@ -672,40 +755,32 @@ export default function Desktop() {
             {win.id === 'resume'       && <ResumeApp />}
             {win.id === 'terminal'     && <TerminalWindow />}
             {win.id === 'ai'           && <AIAssistantApp />}
-            {win.id === 'blog'         && <BlogApp />}
             {win.id === 'achievements' && <AchievementsApp />}
-            {win.id === 'gaming'       && <GamingApp />}
             {win.id === 'contact'      && <ContactApp />}
             {win.id === 'settings'     && <SettingsApp />}
-            {win.id === 'snake'        && <SnakeGame />}
             {win.id === 'swipe'        && <PortfolioSwipe />}
-            {win.id === 'coffee'       && <BuyMeCoffeeApp />}
-            {/* Phase 3 New Apps */}
-            {win.id === 'library'      && <LibraryApp />}
-            {win.id === 'notes'        && <NotesApp />}
-            {/* {win.id === 'gallery'      && <GalleryApp />} */}
             {win.id === 'products'     && <ProductsApp />}
-            {/* {win.id === 'publications' && <PublicationsApp />} */}
-            {/* {win.id === 'marketplace'  && <MarketplaceApp />} */}
+            {win.id === 'arcade'       && <ArcadeApp />}
+            {win.id === 'writing'      && <WritingApp />}
           </Suspense>
         </Window>
       ))}
 
       {/* Bottom Dock */}
-      <div className={`absolute left-1/2 transform -translate-x-1/2 z-[9990] flex items-end bg-black/35 backdrop-blur-2xl border border-white/15 rounded-3xl shadow-2xl transition-all duration-300 ${
+      <div data-testid="dock" className={`absolute left-1/2 transform -translate-x-1/2 z-9990 flex items-end bg-black/35 backdrop-blur-2xl border border-white/15 rounded-3xl shadow-2xl transition-all duration-300 ${
         viewMode === 'tablet' 
           ? 'bottom-6 px-8 py-3 space-x-6' 
           : 'bottom-4 px-4 py-2.5 space-x-3.5'
       }`}>
         {appIcons.filter((app) => {
           if (viewMode === 'tablet') {
-            return ['about', 'projects', 'experience', 'skills', 'resume', 'ai', 'contact', 'settings', 'swipe', 'coffee'].includes(app.id);
+            return ['about', 'projects', 'experience', 'skills', 'resume', 'ai', 'contact', 'settings', 'swipe', 'arcade'].includes(app.id);
           }
           return true;
         }).map((app) => {
           const win = windows.find((w) => w.id === app.id);
           const isRunning = win?.isOpen;
-          const isCurrentActive = useOSStore.getState().activeWindowId === app.id;
+          const isCurrentActive = activeWindowId === app.id;
 
           return (
             <button
@@ -715,19 +790,19 @@ export default function Desktop() {
               aria-label={`${isRunning ? (isCurrentActive ? "Minimize" : "Restore") : "Open"} ${app.title} from dock`}
             >
               {/* Custom tooltip with 200ms delay on entry and smooth disappear */}
-              <span className="absolute bottom-14 px-2 py-1 bg-slate-900/90 border border-gray-800 text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 translate-y-0 group-hover:-translate-y-1.5 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap text-white shadow-xl z-[10001] delay-0 group-hover:delay-200">
+              <span className="absolute bottom-14 px-2 py-1 bg-slate-900/90 border border-gray-800 text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 translate-y-0 group-hover:-translate-y-1.5 transition-all duration-200 ease-out pointer-events-none whitespace-nowrap text-white shadow-xl z-10001 delay-0 group-hover:delay-200">
                 {app.title}
               </span>
 
-              <div className={`dock-icon-inner rounded-2xl bg-gradient-to-br ${app.color} text-white flex items-center justify-center shadow-md transform hover:scale-[1.2] hover:-translate-y-2 transition duration-200 active:scale-[0.95] ${
+              <div className={`dock-icon-inner rounded-2xl bg-linear-to-br ${app.color} text-white flex items-center justify-center shadow-md transform hover:scale-[1.2] hover:-translate-y-2 transition duration-200 active:scale-[0.95] ${
                 viewMode === 'tablet' ? 'w-12 h-12' : 'w-11 h-11'
               } ${bouncingApp === app.id ? 'animate-bounce-dock' : ''}`}>
-                <app.icon className={`${viewMode === 'tablet' ? 'w-6 h-6' : 'w-5.5 h-5.5'}`} />
+                <app.icon className={`${viewMode === 'tablet' ? 'w-6 h-6' : 'w-5 h-5'}`} />
               </div>
               
               {/* Dot Indicators */}
               {isRunning && (
-                <span className={`absolute -bottom-1.5 transition-all duration-250 ${
+                <span className={`absolute -bottom-1.5 transition-all duration-200 ${
                   isCurrentActive 
                     ? 'w-3.5 h-1 bg-purple-400 shadow-[0_0_8px_#c084fc] rounded-full' 
                     : 'w-1.5 h-1.5 bg-gray-500 rounded-full'
@@ -740,7 +815,7 @@ export default function Desktop() {
 
       {/* Shutdown Overlay */}
       {isShuttingDown && (
-        <div className="fixed inset-0 z-[99999] bg-black flex flex-col items-center justify-center font-mono">
+        <div className="fixed inset-0 z-99999 bg-black flex flex-col items-center justify-center font-mono">
           <div className="space-y-2 text-left max-w-md w-full px-8">
             {SHUTDOWN_LINES.slice(0, shutdownStep + 1).map((line, i) => (
               <p

@@ -67,14 +67,18 @@ export default function Window({ id, title, children }: WindowProps) {
     });
   }, [id, windowInstance, updateWindowSize]);
 
-  const handleResizePointerUp = useCallback((e: React.PointerEvent) => {
+  // Ends a resize on pointerup, pointercancel (e.g. the browser takes over a touch)
+  // or when pointer capture is lost, so the handle never gets stuck in "resizing".
+  const handleResizePointerEnd = useCallback((e: React.PointerEvent) => {
     if (resizeRafId.current !== null) {
       cancelAnimationFrame(resizeRafId.current);
       resizeRafId.current = null;
     }
+    const wasResizing = resizeStart.current !== null;
     resizeStart.current = null;
-    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    persistWindowState();
+    const el = e.currentTarget as HTMLElement;
+    if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
+    if (wasResizing) persistWindowState();
   }, [persistWindowState]);
 
   // Focus window container when opened or focused for keyboard navigators
@@ -146,7 +150,7 @@ export default function Window({ id, title, children }: WindowProps) {
   };
 
   // ── Theme class ──────────────────────────────────────────────────────────
-  let windowThemeClass = 'bg-[#1e1b4b]/80 border-[#3730a3]/40 text-purple-100';
+  let windowThemeClass = 'bg-primary-950/80 border-primary-800/40 text-purple-100';
   if (theme === 'light')     windowThemeClass = 'bg-white/90 border-gray-200 text-gray-800 shadow-md';
   else if (theme === 'dark') windowThemeClass = 'bg-gray-900/90 border-gray-800 text-gray-100 shadow-2xl';
   else if (theme === 'cyberpunk') windowThemeClass = 'bg-black border-2 border-yellow-400 text-yellow-300 shadow-[0_0_15px_rgba(234,179,8,0.2)]';
@@ -240,7 +244,7 @@ export default function Window({ id, title, children }: WindowProps) {
       <div
         onPointerDown={startDrag}
         onDoubleClick={handleMaximizeToggle}
-        className={`px-4 py-2.5 flex items-center justify-between cursor-move select-none border-b ${
+        className={`px-4 py-2.5 flex items-center justify-between cursor-move select-none touch-none border-b ${
           theme === 'retro' ? 'border-green-500/50' : (theme === 'light' ? 'border-slate-200 bg-slate-100/80' : 'border-white/10')
         } ${isActive ? (theme === 'light' ? 'bg-slate-100 text-slate-900 font-bold' : 'bg-white/5 text-white') : ''}`}
       >
@@ -267,7 +271,7 @@ export default function Window({ id, title, children }: WindowProps) {
       </div>
 
       {/* Window Contents */}
-      <div className="flex-grow overflow-y-auto min-h-0 flex flex-col">
+      <div className="grow overflow-y-auto min-h-0 flex flex-col">
         {children}
       </div>
 
@@ -276,8 +280,10 @@ export default function Window({ id, title, children }: WindowProps) {
         <div
           onPointerDown={handleResizePointerDown}
           onPointerMove={handleResizePointerMove}
-          onPointerUp={handleResizePointerUp}
-          className="absolute bottom-0 right-0 w-5 h-5 cursor-se-resize z-50 group"
+          onPointerUp={handleResizePointerEnd}
+          onPointerCancel={handleResizePointerEnd}
+          onLostPointerCapture={handleResizePointerEnd}
+          className="absolute bottom-0 right-0 w-5 h-5 cursor-se-resize z-50 group touch-none"
           title="Drag to resize"
         >
           {/* Visual resize grip dots */}

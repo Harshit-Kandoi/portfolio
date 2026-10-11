@@ -5,12 +5,24 @@
 [functions]
   directory = "netlify/functions"
 
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
+# Served at https://portfolio.harshitkandoi.in/ (custom domain on this Netlify site).
+# There are no client-side routes; unknown paths get public/404.html.
 
+# The site was briefly built for a /portfolio/ sub-path; keep any such links working.
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+  from = "/portfolio/*"
+  to = "/:splat"
+  status = 301
+
+# Vite asset filenames are content-hashed, so they can be cached forever.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"

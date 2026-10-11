@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, Monitor, Sun, Moon } from 'lucide-react';
+import { scrollToSection } from '../../utils/scrollToSection';
 
 interface Props {
   activeSection: string;
@@ -9,10 +10,9 @@ interface Props {
 }
 
 const NAV_LINKS = [
-  { id: 'about',      label: 'About'      },
-  { id: 'projects',   label: 'Projects'   },
+  { id: 'work',       label: 'Work'       },
+  { id: 'services',   label: 'Services'   },
   { id: 'experience', label: 'Experience' },
-  { id: 'skills',     label: 'Skills'     },
   { id: 'contact',    label: 'Contact'    },
 ];
 
@@ -29,39 +29,35 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
   }, []);
 
   const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    scrollToSection(id);
     setMobileOpen(false);
   };
 
   return (
     <>
       <nav
-        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+        className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 minimal-nav"
         style={{
           background: scrolled
-            ? (isDark ? 'rgba(5, 6, 15, 0.92)' : 'rgba(255, 255, 255, 0.92)')
+            ? (isDark ? 'rgba(20, 19, 17, 0.88)' : 'rgba(247, 244, 237, 0.9)')
             : 'transparent',
           backdropFilter: scrolled ? 'blur(20px) saturate(180%)' : 'none',
           borderBottom: scrolled
-            ? (isDark ? '1px solid rgba(255,255,255,0.07)' : '1px solid rgba(0,0,0,0.08)')
+            ? (isDark ? '1px solid rgba(239,228,207,0.1)' : '1px solid rgba(36,31,25,0.1)')
             : '1px solid transparent',
-          boxShadow: scrolled ? (isDark ? '0 4px 24px rgba(0,0,0,0.4)' : '0 4px 20px rgba(0,0,0,0.06)') : 'none',
+          boxShadow: scrolled ? '0 16px 50px rgba(18, 16, 12, 0.08)' : 'none',
         }}
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+        <div className="max-w-[1160px] mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
           {/* Logo */}
           <button
             onClick={() => scrollTo('hero')}
             className="flex items-center space-x-2 group"
           >
-            <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center shadow-md"
-              style={{ background: 'linear-gradient(135deg, #a855f7, #6366f1)' }}
-            >
-              <span className="text-white text-xs font-black">HK</span>
+            <div className="minimal-nav-mark">
+              <span>HK</span>
             </div>
-            <span className={`font-bold text-sm hidden sm:block tracking-wide ${isDark ? 'text-white' : 'text-slate-900'}`}>
+            <span className={`font-bold text-sm hidden sm:block tracking-wide ${isDark ? 'text-[#f4ebdd]' : 'text-[#241f19]'}`}>
               Harshit Kandoi
             </span>
           </button>
@@ -75,10 +71,10 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
                 className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
                 style={{
                   color: activeSection === link.id
-                    ? (isDark ? '#c084fc' : '#7e22ce')
-                    : (isDark ? 'rgba(255,255,255,0.65)' : '#475569'),
+                    ? (isDark ? '#ff9f6e' : '#b94716')
+                    : (isDark ? 'rgba(244,235,221,0.66)' : '#695f53'),
                   background: activeSection === link.id
-                    ? (isDark ? 'rgba(168,85,247,0.12)' : 'rgba(168,85,247,0.08)')
+                    ? (isDark ? 'rgba(255,111,54,0.12)' : 'rgba(255,111,54,0.1)')
                     : 'transparent',
                 }}
               >
@@ -95,13 +91,13 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
               className="p-2 rounded-xl text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-center"
               style={{
                 background: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(15,23,42,0.05)',
-                border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
-                color: isDark ? '#fcd34d' : '#0f172a',
+                border: isDark ? '1px solid rgba(239,228,207,0.13)' : '1px solid rgba(36,31,25,0.12)',
+                color: isDark ? '#f3c17a' : '#241f19',
               }}
               title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
               aria-label="Toggle theme"
             >
-              {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-purple-700" />}
+              {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-[#b94716]" />}
             </button>
 
             <button
@@ -109,21 +105,23 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
               className="hidden sm:flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 hover:scale-105 active:scale-95"
               style={{
                 background: isDark
-                  ? 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(99,102,241,0.15))'
-                  : 'linear-gradient(135deg, rgba(168,85,247,0.1), rgba(99,102,241,0.1))',
-                border: isDark ? '1px solid rgba(168,85,247,0.3)' : '1px solid rgba(168,85,247,0.4)',
-                color: isDark ? '#c084fc' : '#7e22ce',
+                  ? 'rgba(255,111,54,0.12)'
+                  : 'rgba(255,111,54,0.1)',
+                border: isDark ? '1px solid rgba(255,159,110,0.3)' : '1px solid rgba(185,71,22,0.28)',
+                color: isDark ? '#ffb089' : '#b94716',
               }}
-              title="Switch to Portfolio OS"
+              title="Open interactive portfolio mode"
             >
               <Monitor className="w-3.5 h-3.5" />
-              <span>OS Mode</span>
+              <span>Interactive</span>
             </button>
 
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className={`md:hidden p-2 rounded-lg transition ${isDark ? 'text-white/60 hover:text-white' : 'text-slate-600 hover:text-slate-900'}`}
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileOpen}
+              className={`md:hidden p-2 rounded-lg transition ${isDark ? 'text-[#f4ebdd]/60 hover:text-[#f4ebdd]' : 'text-[#695f53] hover:text-[#241f19]'}`}
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -136,7 +134,7 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
         <div
           className="fixed inset-0 z-40 md:hidden flex flex-col justify-between pb-8"
           style={{
-            background: isDark ? 'rgba(5,6,15,0.97)' : 'rgba(255,255,255,0.97)',
+            background: isDark ? 'rgba(20,19,17,0.97)' : 'rgba(247,244,237,0.97)',
             backdropFilter: 'blur(20px)',
             paddingTop: 72,
           }}
@@ -149,9 +147,9 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
                 className="py-3 text-left text-lg font-medium border-b transition-colors"
                 style={{
                   color: activeSection === link.id
-                    ? (isDark ? '#c084fc' : '#7e22ce')
-                    : (isDark ? 'rgba(255,255,255,0.7)' : '#334155'),
-                  borderColor: isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)',
+                    ? (isDark ? '#ffb089' : '#b94716')
+                    : (isDark ? 'rgba(244,235,221,0.7)' : '#3c352d'),
+                  borderColor: isDark ? 'rgba(239,228,207,0.1)' : 'rgba(36,31,25,0.08)',
                 }}
               >
                 {link.label}
@@ -160,27 +158,27 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
             <button
               onClick={(e) => { setMobileOpen(false); onEnterOS(e.currentTarget.getBoundingClientRect()); }}
               className="mt-4 flex items-center space-x-2 py-3 text-left text-lg font-semibold"
-              style={{ color: isDark ? '#c084fc' : '#7e22ce' }}
+              style={{ color: isDark ? '#ffb089' : '#b94716' }}
             >
               <Monitor className="w-5 h-5" />
-              <span>Enter OS Mode</span>
+              <span>Open interactive mode</span>
             </button>
           </div>
 
           <div className="px-6 flex items-center justify-between border-t pt-4"
-            style={{ borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }}>
-            <span className="text-sm font-medium" style={{ color: isDark ? 'rgba(255,255,255,0.6)' : '#475569' }}>
+            style={{ borderColor: isDark ? 'rgba(239,228,207,0.1)' : 'rgba(36,31,25,0.1)' }}>
+            <span className="text-sm font-medium" style={{ color: isDark ? 'rgba(244,235,221,0.6)' : '#695f53' }}>
               Theme: {isDark ? 'Dark Mode' : 'Light Mode'}
             </span>
             <button
               onClick={onToggleTheme}
               className="px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2"
               style={{
-                background: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)',
-                color: isDark ? '#fcd34d' : '#0f172a',
+                background: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(36,31,25,0.06)',
+                color: isDark ? '#f3c17a' : '#241f19',
               }}
             >
-              {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-purple-700" />}
+              {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-[#b94716]" />}
               <span>{isDark ? 'Light' : 'Dark'}</span>
             </button>
           </div>
@@ -189,4 +187,3 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
     </>
   );
 }
-

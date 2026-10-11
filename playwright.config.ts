@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'line',
   use: {
-    baseURL: 'http://localhost:5173',
+    baseURL: 'http://localhost:5173/',
     trace: 'on-first-retry',
   },
   projects: [
@@ -24,8 +24,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
+    // CI tests the production build (the workflow provides dist/); locally the dev server.
+    command: process.env.CI ? 'npm run preview -- --port 5173 --strictPort' : 'npm run dev',
+    url: 'http://localhost:5173/',
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },

@@ -92,9 +92,8 @@ export const VISITOR_ACHIEVEMENTS: VisitorAchievement[] = [
   { id: 'hacker',            title: 'Hack the Planet',     description: 'Triggered Retro CRT theme.',                    xp: 100, emoji: '🕶️' },
   { id: 'social_butterfly',  title: 'Social Butterfly',    description: 'Copied contact details.',                       xp: 100, emoji: '📋' },
   { id: 'combat_veteran',    title: 'Bug Slayer',          description: 'Performed 3+ combat rounds in Gaming Profile.', xp: 150, emoji: '⚔️' },
-  { id: 'coffee_lover',      title: 'Coffee Supporter',    description: 'Opened the Buy Me Coffee app.',                 xp: 100, emoji: '☕' },
   { id: 'tinder_swiper',     title: 'Perfect Match',       description: 'Swiped all hiring roles in Portfolio Swipe.',   xp: 150, emoji: '❤️' },
-  { id: 'easter_egg',        title: 'AI Destroyer',        description: 'Triggered the AI self-destruction sequence.',   xp: 200, emoji: '💥' },
+  { id: 'easter_egg',        title: 'Easter Egg Hunter',   description: 'Found a hidden reply in the AI assistant.',     xp: 200, emoji: '🥚' },
   { id: 'snake_champion',    title: 'Snake Champion',      description: 'Scored 50+ points on Snake.',                   xp: 150, emoji: '🐍' },
   { id: 'resume_viewer',     title: 'Resume Reader',       description: 'Opened and viewed Resume.pdf.',                 xp: 75,  emoji: '📄' },
   { id: 'project_browser',   title: 'Project Curious',     description: 'Browsed through Projects.exe.',                 xp: 75,  emoji: '📂' },
@@ -136,14 +135,21 @@ const getInitialPortalMode = (): 'classic' | 'os' => {
   if (cached === 'classic' || cached === 'os') {
     return cached;
   }
-  // Default for first-time visitors: Mobile OS for phones (<768px), Static Portfolio for Desktop/Tablet (>=768px)
-  if (typeof window !== 'undefined' && window.innerWidth < 768) {
-    return 'os';
-  }
+  // Default for first-time visitors: the scroll-first portfolio on every viewport.
+  // The OS remains available as an explicit interactive mode.
   return 'classic';
 };
 
 const persistedPortalMode = getInitialPortalMode();
+
+// Apps that were merged into tabbed apps. Old ids (used by Terminal, AI, notifications)
+// still work: they open the parent app on the matching tab.
+const MERGED_APP_ALIASES: Record<string, [app: string, tab: string]> = {
+  gaming: ['arcade', 'rpg'],
+  snake:  ['arcade', 'snake'],
+  blog:   ['writing', 'blog'],
+  notes:  ['writing', 'notes'],
+};
 
 // ─── Window defaults ─────────────────────────────────────────────────────────
 const INITIAL_WINDOWS: WindowInstance[] = [
@@ -154,21 +160,13 @@ const INITIAL_WINDOWS: WindowInstance[] = [
   { id: 'resume',       title: 'Resume.pdf',          isOpen: false, isMinimized: false, isMaximized: false, x: 100, y: 50,  width: 820,  height: 620, zIndex: 1 },
   { id: 'terminal',     title: 'Terminal.exe',        isOpen: false, isMinimized: false, isMaximized: false, x: 220, y: 160, width: 720,  height: 470, zIndex: 1 },
   { id: 'ai',           title: 'AI Assistant',        isOpen: false, isMinimized: false, isMaximized: false, x: 500, y: 80,  width: 440,  height: 600, zIndex: 1 },
-  { id: 'blog',         title: 'Blog.exe',            isOpen: false, isMinimized: false, isMaximized: false, x: 140, y: 100, width: 840,  height: 600, zIndex: 1 },
   { id: 'achievements', title: 'Certifications.exe',  isOpen: false, isMinimized: false, isMaximized: false, x: 250, y: 130, width: 720,  height: 520, zIndex: 1 },
-  { id: 'gaming',       title: 'Gaming.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 160, y: 80,  width: 700,  height: 560, zIndex: 1 },
   { id: 'contact',      title: 'Contact.exe',         isOpen: false, isMinimized: false, isMaximized: false, x: 280, y: 140, width: 680,  height: 540, zIndex: 1 },
   { id: 'settings',     title: 'Settings.exe',        isOpen: false, isMinimized: false, isMaximized: false, x: 300, y: 150, width: 620,  height: 480, zIndex: 1 },
-  { id: 'snake',        title: 'Snake.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 340, y: 100, width: 540,  height: 580, zIndex: 1 },
   { id: 'swipe',        title: 'Swipe.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 200, y: 80,  width: 480,  height: 680, zIndex: 1 },
-  { id: 'coffee',       title: 'Coffee.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 360, y: 120, width: 480,  height: 540, zIndex: 1 },
-  // Phase 3 new apps
-  { id: 'library',      title: 'Library.exe',         isOpen: false, isMinimized: false, isMaximized: false, x: 130, y: 80,  width: 860,  height: 600, zIndex: 1 },
-  { id: 'notes',        title: 'Notes.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 160, y: 90,  width: 900,  height: 620, zIndex: 1 },
-  // { id: 'gallery',      title: 'Gallery.exe',         isOpen: false, isMinimized: false, isMaximized: false, x: 140, y: 70,  width: 860,  height: 600, zIndex: 1 },
+  { id: 'arcade',       title: 'Arcade.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 160, y: 80,  width: 720,  height: 600, zIndex: 1 },
+  { id: 'writing',      title: 'Writing.exe',         isOpen: false, isMinimized: false, isMaximized: false, x: 140, y: 90,  width: 900,  height: 620, zIndex: 1 },
   { id: 'products',     title: 'Products.exe',        isOpen: false, isMinimized: false, isMaximized: false, x: 170, y: 100, width: 820,  height: 580, zIndex: 1 },
-  // { id: 'publications', title: 'Papers.exe',          isOpen: false, isMinimized: false, isMaximized: false, x: 150, y: 85,  width: 780,  height: 580, zIndex: 1 },
-  // { id: 'marketplace',  title: 'Store.exe',           isOpen: false, isMinimized: false, isMaximized: false, x: 190, y: 110, width: 800,  height: 580, zIndex: 1 },
 ];
 
 
@@ -197,10 +195,13 @@ interface OSState {
   bootState: 'booting' | 'locked' | 'desktop' | 'powered_off';
   isShuttingDown: boolean;
   hasVisited: boolean;
+  /** hasVisited as it was when the page loaded (true = returning visitor). Never changes during a session. */
+  wasReturningVisitor: boolean;
   startMenuOpen: boolean;
   activeWindowId: string | null;
   windows: WindowInstance[];
-  maxZIndex: number;
+  /** Distinct app ids opened this session (desktop + mobile). Drives the Explorer achievement. */
+  sessionOpenedApps: string[];
 
   // Customization Settings
   uiScale: UIScale;
@@ -210,8 +211,6 @@ interface OSState {
   accentColor: AccentColor;
   sessionRestore: boolean;
   // Mobile / System Battery State
-  batteryLevel: number;
-  batteryCharging: boolean;
   batterySaver: boolean;
 
   // Developer Options (session-only, not persisted)
@@ -244,8 +243,6 @@ interface OSState {
   setPerformanceMode: (mode: PerformanceMode) => void;
   setAccentColor: (color: AccentColor) => void;
   setSessionRestore: (enabled: boolean) => void;
-  setBatteryLevel: (level: number) => void;
-  setBatteryCharging: (charging: boolean) => void;
   setBatterySaver: (saver: boolean) => void;
   setShowFPS: (show: boolean) => void;
   setDebugMode: (debug: boolean) => void;
@@ -253,6 +250,8 @@ interface OSState {
   resetDesktop: () => void;
 
   // Window Actions
+  appTabs: Record<string, string>;
+  setAppTab: (app: string, tab: string) => void;
   openWindow: (id: string, suppressNotification?: boolean) => void;
   closeWindow: (id: string) => void;
   minimizeWindow: (id: string) => void;
@@ -263,6 +262,8 @@ interface OSState {
   updateWindowSize: (id: string, width: number, height: number) => void;
   closeAllWindows: () => void;
   persistWindowState: () => void;
+  clampWindowsToViewport: (viewportWidth: number, viewportHeight: number) => void;
+  recordAppOpened: (id: string) => void;
 
   // Notification Actions
   addNotification: (title: string, message: string, type: ToastNotification['type'], category?: ToastNotification['category'], action?: ToastNotification['action']) => void;
@@ -281,7 +282,6 @@ interface OSState {
 
   // Android OS / Tablet State
   viewMode: 'desktop' | 'mobile' | 'tablet';
-  physicalDeviceType: 'desktop' | 'tablet' | 'mobile';
   isSimulatingMobile: boolean;
   activeMobileApp: string | null;
   mobileRecents: string[];
@@ -309,7 +309,7 @@ interface OSState {
 }
 
 // Helper to normalize zIndices of open windows to prevent infinite drift
-const normalizeZIndices = (windows: WindowInstance[], activeId: string): { windows: WindowInstance[]; maxZIndex: number } => {
+const normalizeZIndices = (windows: WindowInstance[], activeId: string): WindowInstance[] => {
   const openWindows = windows
     .filter((w) => w.isOpen && w.id !== activeId)
     .sort((a, b) => a.zIndex - b.zIndex);
@@ -326,34 +326,24 @@ const normalizeZIndices = (windows: WindowInstance[], activeId: string): { windo
     return { ...w, y: clampedY };
   });
 
-  return {
-    windows: normalized,
-    maxZIndex: 10 + openWindows.length,
-  };
+  return normalized;
 };
 
-const getInitialPhysicalDeviceType = (): 'desktop' | 'tablet' | 'mobile' => {
-  if (typeof window === 'undefined') return 'desktop';
-  
-  const userAgent = navigator.userAgent || '';
-  const isMobileUA = /Android|webOS|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-  const isTabletUA = /iPad|PlayBook|Silk/i.test(userAgent) || (isMobileUA && /tablet/i.test(userAgent));
-  
-  if (isTabletUA) return 'tablet';
-  if (isMobileUA) return 'mobile';
-  
-  if (typeof window.screen !== 'undefined') {
-    const w = window.screen.width;
-    const h = window.screen.height;
-    const maxDim = Math.max(w, h);
-    if (maxDim < 1024) {
-      return 'mobile';
-    } else if (maxDim < 1366) {
-      return 'tablet';
-    }
-  }
-  
-  return 'desktop';
+// Viewport geometry shared with Window.tsx drag constraints.
+const TASKBAR_H = 48;
+const MIN_WIN_W = 360;
+const MIN_WIN_H = 280;
+const EXPLORER_APP_COUNT = 5;
+
+const clampWindowToViewport = (win: WindowInstance, vw: number, vh: number): WindowInstance => {
+  const maxW = Math.max(Math.min(MIN_WIN_W, vw), Math.floor(vw * 0.95));
+  const maxH = Math.max(Math.min(MIN_WIN_H, vh - TASKBAR_H), vh - TASKBAR_H * 2);
+  const width = Math.min(win.width, maxW);
+  const height = Math.min(win.height, maxH);
+  const x = Math.max(-width + 100, Math.min(vw - 100, win.x));
+  const y = Math.max(TASKBAR_H, Math.min(Math.max(TASKBAR_H, vh - 80), win.y));
+  if (width === win.width && height === win.height && x === win.x && y === win.y) return win;
+  return { ...win, x, y, width, height };
 };
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -366,10 +356,11 @@ export const useOSStore = create<OSState>((set, get) => ({
   bootState: 'booting',
   isShuttingDown: false,
   hasVisited: persistedHasVisited,
+  wasReturningVisitor: persistedHasVisited,
   startMenuOpen: false,
   activeWindowId: null,
   windows: mergedWindows,
-  maxZIndex: 10,
+  sessionOpenedApps: [],
 
   // Customization Settings
   uiScale: persistedUiScale,
@@ -380,8 +371,6 @@ export const useOSStore = create<OSState>((set, get) => ({
   sessionRestore: persistedSessionRestore,
 
   // Mobile / System Battery State
-  batteryLevel: 87,
-  batteryCharging: true,
   batterySaver: persistedPerfMode === 'battery',
 
   // Developer Options (session-only)
@@ -391,7 +380,6 @@ export const useOSStore = create<OSState>((set, get) => ({
 
   // Mobile / Tablet States
   viewMode: 'desktop',
-  physicalDeviceType: getInitialPhysicalDeviceType(),
   isSimulatingMobile: false,
   activeMobileApp: null,
   mobileRecents: [],
@@ -456,8 +444,6 @@ export const useOSStore = create<OSState>((set, get) => ({
     safeSet(SESSION_KEYS.sessionRestore, sessionRestore);
     set({ sessionRestore });
   },
-  setBatteryLevel: (batteryLevel) => set({ batteryLevel }),
-  setBatteryCharging: (batteryCharging) => set({ batteryCharging }),
   setBatterySaver: (batterySaver) => {
     const nextPerf = batterySaver ? 'battery' : 'balanced';
     safeSet(SESSION_KEYS.performanceMode, nextPerf);
@@ -468,10 +454,9 @@ export const useOSStore = create<OSState>((set, get) => ({
   setShowWindowBounds: (showWindowBounds) => set({ showWindowBounds }),
   resetDesktop: () => {
     // Close all windows and reset positions
-    const { INITIAL_WINDOWS_RESET } = { INITIAL_WINDOWS_RESET: INITIAL_WINDOWS };
     set(() => ({
       activeWindowId: null,
-      windows: INITIAL_WINDOWS_RESET.map(w => ({ ...w, isOpen: false, isMinimized: false, isMaximized: false })),
+      windows: INITIAL_WINDOWS.map(w => ({ ...w, isOpen: false, isMinimized: false, isMaximized: false })),
       theme: 'cyberpunk',
       wallpaper: 'grid',
       uiScale: 100,
@@ -518,13 +503,21 @@ export const useOSStore = create<OSState>((set, get) => ({
     set({ isShuttingDown: false });
   },
 
+  appTabs: { arcade: 'rpg', writing: 'blog' },
+  setAppTab: (app, tab) => set((state) => ({ appTabs: { ...state.appTabs, [app]: tab } })),
+
   openWindow: (id, suppressNotification = false) => {
+    const alias = MERGED_APP_ALIASES[id];
+    if (alias) {
+      get().setAppTab(alias[0], alias[1]);
+      id = alias[0];
+    }
     const { windows, viewMode, isSimulatingMobile } = get();
     if (viewMode === 'mobile' || isSimulatingMobile) {
       get().openMobileApp(id);
       return;
     }
-    const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(windows, id);
+    const normalizedWindows = normalizeZIndices(windows, id);
     const prevWin = windows.find((w) => w.id === id);
     const wasAlreadyOpen = prevWin?.isOpen ?? false;
     if (prevWin && !prevWin.isOpen) {
@@ -533,7 +526,6 @@ export const useOSStore = create<OSState>((set, get) => ({
     set({
       startMenuOpen: false,
       activeWindowId: id,
-      maxZIndex: nextMax,
       windows: normalizedWindows,
     });
     recordFocusStart(id);
@@ -541,14 +533,12 @@ export const useOSStore = create<OSState>((set, get) => ({
     const labels: Record<string, [string, string, ToastNotification['category'], ToastNotification['action']]> = {
       resume:       ['📄 Resume Viewed', 'Visitor opened Resume.pdf', 'career', 'resume'],
       projects:     ['📂 Projects Opened', 'Browsing through project files...', 'portfolio', 'projects'],
-      blog:         ['📖 Blog Reader Active', 'Reading tech articles...', 'portfolio', 'blog'],
       contact:      ['💌 Contact Opened', 'Potential connection incoming!', 'career', 'contact'],
-      coffee:       ['☕ Coffee Time!', 'Opening the coffee shop...', 'funny', 'coffee'],
       swipe:        ['❤️ Hiring Swipe Launched', 'Time to find the perfect match!', 'career', 'swipe'],
-      snake:        ['🐍 Snake Activated', 'Retro gaming mode on.', 'gaming', 'snake'],
+      arcade:       ['🎮 Arcade Opened', 'RPG stats, bug battles and Snake.', 'gaming', 'arcade'],
+      writing:      ['📖 Writing Opened', 'Blog posts and dev notes...', 'portfolio', 'writing'],
       products:     ['📦 Products Catalog', 'Exploring tools & cloud products...', 'portfolio', 'products'],
       achievements: ['🏆 Awards Opened', 'Viewing certifications & credentials...', 'career', 'achievements'],
-      gaming:       ['⚔️ Gaming Profile', 'Checking RPG stats & bug battle arena...', 'gaming', 'gaming'],
       skills:       ['⚡ Skills Tree', 'Inspecting technical competencies...', 'portfolio', 'skills'],
       experience:   ['💼 Experience Profile', 'Viewing cloud engineering career history...', 'career', 'experience'],
       terminal:     ['💻 Terminal Environment', 'Command-line interface ready.', 'system', 'terminal'],
@@ -559,14 +549,10 @@ export const useOSStore = create<OSState>((set, get) => ({
       const [title, message, category, action] = labels[id];
       setTimeout(() => get().addNotification(title, message, 'info', category, action), 800);
     }
-    // Check explorer achievement
-    const openedCount = windows.filter((w) => w.isOpen && w.id !== id).length + 1;
-    if (openedCount >= 5) get().unlockAchievement('explorer');
-    // Resume achievement
+    get().recordAppOpened(id);
     if (id === 'resume') get().unlockAchievement('resume_viewer');
     if (id === 'projects') get().unlockAchievement('project_browser');
-    if (id === 'blog') get().unlockAchievement('blog_reader');
-    if (id === 'coffee') get().unlockAchievement('coffee_lover');
+    if (id === 'writing') get().unlockAchievement('blog_reader');
   },
 
   closeWindow: (id) => {
@@ -581,8 +567,7 @@ export const useOSStore = create<OSState>((set, get) => ({
     const nextFocusId = openAndNotMinimized.length > 0 ? openAndNotMinimized[0].id : null;
     
     if (nextFocusId) {
-      const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(newWindows, nextFocusId);
-      set({ windows: normalizedWindows, activeWindowId: nextFocusId, maxZIndex: nextMax });
+      set({ windows: normalizeZIndices(newWindows, nextFocusId), activeWindowId: nextFocusId });
       recordFocusStart(nextFocusId);
     } else {
       set({ windows: newWindows, activeWindowId: null });
@@ -602,8 +587,7 @@ export const useOSStore = create<OSState>((set, get) => ({
     const nextFocusId = openAndNotMinimized.length > 0 ? openAndNotMinimized[0].id : null;
     
     if (nextFocusId) {
-      const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(newWindows, nextFocusId);
-      set({ windows: normalizedWindows, activeWindowId: nextFocusId, maxZIndex: nextMax });
+      set({ windows: normalizeZIndices(newWindows, nextFocusId), activeWindowId: nextFocusId });
       recordFocusStart(nextFocusId);
     } else {
       set({ windows: newWindows, activeWindowId: null });
@@ -634,14 +618,13 @@ export const useOSStore = create<OSState>((set, get) => ({
 
   focusWindow: (id) => {
     const { windows, activeWindowId } = get();
-    const { windows: normalizedWindows, maxZIndex: nextMax } = normalizeZIndices(windows, id);
+    const normalizedWindows = normalizeZIndices(windows, id);
     if (activeWindowId === id) {
       set({ windows: normalizedWindows });
       return;
     }
     set({
       activeWindowId: id,
-      maxZIndex: nextMax,
       windows: normalizedWindows,
     });
     recordFocusStart(id);
@@ -680,6 +663,21 @@ export const useOSStore = create<OSState>((set, get) => ({
     safeSet(SESSION_KEYS.windows, toSave);
   },
 
+  clampWindowsToViewport: (vw, vh) => {
+    if (!(vw > 0) || !(vh > 0)) return;
+    const { windows } = get();
+    const clamped = windows.map((w) => clampWindowToViewport(w, vw, vh));
+    if (clamped.some((w, i) => w !== windows[i])) set({ windows: clamped });
+  },
+
+  recordAppOpened: (id) => {
+    const { sessionOpenedApps } = get();
+    if (sessionOpenedApps.includes(id)) return;
+    const next = [...sessionOpenedApps, id];
+    set({ sessionOpenedApps: next });
+    if (next.length >= EXPLORER_APP_COUNT) get().unlockAchievement('explorer');
+  },
+
   // ─── Toast System ───────────────────────────────────────────────────────
   addNotification: (title, message, type, category = 'system', action) => {
     // Prevent repeating duplicate notifications if title already exists in active drawer
@@ -694,9 +692,6 @@ export const useOSStore = create<OSState>((set, get) => ({
     set((state) => ({
       notifications: [newNotif, ...state.notifications].slice(0, 25),
     }));
-    if (type === 'achievement') {
-      get().addXP(50);
-    }
   },
 
   dismissNotification: (id) => {
@@ -768,6 +763,11 @@ export const useOSStore = create<OSState>((set, get) => ({
   setIsSimulatingMobile: (isSimulatingMobile) => set({ isSimulatingMobile }),
 
   openMobileApp: (appId) => {
+    const alias = MERGED_APP_ALIASES[appId];
+    if (alias) {
+      get().setAppTab(alias[0], alias[1]);
+      appId = alias[0];
+    }
     const { mobileRecents, activeMobileApp } = get();
     if (activeMobileApp !== appId) {
       trackEvent('app_open', { app_id: appId });
@@ -779,11 +779,11 @@ export const useOSStore = create<OSState>((set, get) => ({
       showMobileDrawer: false,
     });
     recordFocusStart(appId);
-    // Trigger same notifications/achievements as desktop
+    // Trigger same achievements as desktop
+    get().recordAppOpened(appId);
     if (appId === 'resume') get().unlockAchievement('resume_viewer');
     if (appId === 'projects') get().unlockAchievement('project_browser');
-    if (appId === 'blog') get().unlockAchievement('blog_reader');
-    if (appId === 'coffee') get().unlockAchievement('coffee_lover');
+    if (appId === 'writing') get().unlockAchievement('blog_reader');
   },
 
   closeMobileApp: (appId) => {

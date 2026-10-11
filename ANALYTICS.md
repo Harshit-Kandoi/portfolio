@@ -85,8 +85,7 @@ All custom events follow the `category_action` snake_case naming scheme to ensur
 | **Swipe** | `swipe_role_pass` | `role_title` | Swiped left on role. |
 | **Swipe** | `swipe_match_create` | `role_title`, `match_percentage` | Match created (swiped right). |
 | **Swipe** | `swipe_profile_open` | `role_title` | Detailed role bio pane loaded. |
-| **Coffee** | `coffee_select` | `tier_id`, `price` | Coffee tier or custom amount selected. |
-| **Coffee** | `coffee_support_click` | `price` | Mock payment checkout initiated. |
+| **Classic page** | `ui_click` | `click_label`, `click_section`, `click_element`, `link_type`, `link_url`, `outbound` | Any link/button click inside `[data-track-scope]` (the classic page). Label comes from `data-track`, then `aria-label`, then text. Email/phone addresses are never sent, only `link_type: email/phone`. Add `data-track-ignore` to exclude an element. |
 
 ---
 
@@ -184,6 +183,12 @@ To test analytics locally without mixing testing records into actual production 
   `Desktop (/)` ➔ `/apps/projects` ➔ `/apps/resume` ➔ `resume_download` (conversion)
 - **Acquisition Source Report**: Plot UTM sources (`utm_source` / `utm_medium`) to evaluate traffic coming from LinkedIn, GitHub README links, or direct shares.
 - **Engagement Duration Report**: Analyze average timing spent in various app modules by plotting `app_duration` event value averages grouped by `app_id`.
+
+### Clicks on the classic page
+- **Top CTAs**: GA4 → Explore → Free form, event `ui_click`, rows `click_label`, columns `click_section`. Register `click_label`, `click_section` and `link_type` as custom dimensions first (Admin → Custom definitions), otherwise GA4 won't show them.
+- **Outbound interest**: filter `ui_click` where `outbound = true` and break down by `link_url` (GitHub, LinkedIn, live projects).
+- **Heatmaps**: PostHog → Toolbar → Heatmap on the live page (enabled via `enable_heatmaps`).
+- Raw events are kept for the retention period of each tool (GA4 default: 2 months — raise it to 14 months in Admin → Data retention; PostHog: depends on your plan — check Settings → Billing). Export to BigQuery (GA4) or a batch export (PostHog) if you want them longer.
 
 ### PostHog
 - **Session Recordings**: Review recordings filtered by `app_duration` or `contact_submit` to see how recruiters interact with your apps.

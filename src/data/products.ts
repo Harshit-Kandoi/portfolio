@@ -1,4 +1,5 @@
 import { Product } from '../services/supabase';
+import { PORTFOLIO_META } from './config';
 
 export const PRODUCTS_SEED: Product[] = [
   {
@@ -7,11 +8,10 @@ export const PRODUCTS_SEED: Product[] = [
     tagline: 'Interactive desktop-inspired developer portfolio with AI assistant, terminal & games.',
     description: 'An immersive desktop & mobile OS portfolio built with React, TypeScript, Zustand, and Tailwind CSS. Features window management, AI assistant, terminal emulator, interactive games, and performance optimization.',
     logo_url: '',
-    demo_url: 'https://harshitkandoi.in',
-    // repo_url: 'https://github.com/Harshit-Kandoi/portfolio',
+    demo_url: PORTFOLIO_META.siteUrl,
+    repo_url: 'https://github.com/Harshit-Kandoi/portfolio',
     tags: ['React', 'TypeScript', 'Zustand', 'Tailwind CSS', 'Vite'],
-    status: 'beta',
-    stars: 0,
+    status: 'live',
     is_featured: true,
   },
   {
@@ -23,8 +23,29 @@ export const PRODUCTS_SEED: Product[] = [
     demo_url: 'https://mirror.harshitkandoi.in',
     // repo_url: 'https://github.com/Harshit-Kandoi',
     tags: ['Python', 'AI', 'React', 'Financial ML', 'Tailwind'],
+    status: 'live',
+    is_featured: true,
+  },
+  {
+    id: '12',
+    name: 'ClearCue-AI',
+    tagline: 'AI product in public beta.',
+    description: 'An AI product I am building, now in public beta. More details will follow as it matures.',
+    logo_url: '',
+    demo_url: 'https://clearcueai.harshitkandoi.in',
+    tags: ['AI', 'Product Engineering', 'Automation'],
     status: 'beta',
-    stars: 0,
+    is_featured: true,
+  },
+  {
+    id: '13',
+    name: 'Company Page',
+    tagline: 'Minimal studio/company page for freelance positioning.',
+    description: 'A calm company-style page for presenting services, process, product work, and contact flows with a simple console-inspired interaction model.',
+    logo_url: '',
+    demo_url: PORTFOLIO_META.companySiteUrl,
+    tags: ['Next.js', 'React', 'CSS', 'Content Design'],
+    status: 'live',
     is_featured: true,
   },
   {
@@ -33,24 +54,22 @@ export const PRODUCTS_SEED: Product[] = [
     tagline: 'Desktop productivity companion for healthy computer habits.',
     description: 'A desktop companion that reminds users to drink water, take stretch breaks, track Pomodoro timers, and maintain healthy screen habits.',
     logo_url: '',
-    demo_url: undefined,
+    demo_url: 'https://pixelbuddy.harshitkandoi.in',
     repo_url: 'https://github.com/Harshit-Kandoi/pixel-buddy',
     tags: ['Electron', 'React', 'TypeScript', 'Node.js', 'Desktop App'],
-    status: 'wip',
-    stars: 0,
+    status: 'live',
     is_featured: true,
   },
   {
     id: '4',
     name: 'Web Image Scraper',
-    tagline: 'Automated web image extractor & dataset scraper.',
+    tagline: 'Small utility for pulling images from websites.',
     description: 'Utility tool that extracts images from target websites for bulk downloading, image filtering, and preparing computer vision dataset archives.',
     logo_url: '',
     demo_url: undefined,
     repo_url: 'https://github.com/Harshit-Kandoi/web-image-scrapper',
     tags: ['Python', 'BeautifulSoup4', 'Selenium', 'Pandas'],
-    status: 'wip',
-    stars: 0,
+    status: 'complete',
     is_featured: false,
   },
   {
@@ -62,8 +81,7 @@ export const PRODUCTS_SEED: Product[] = [
     demo_url: undefined,
     repo_url: 'https://github.com/Harshit-Kandoi/movie-recommender',
     tags: ['Python', 'Scikit-learn', 'Streamlit', 'NLP', 'SVD'],
-    status: 'wip',
-    stars: 0,
+    status: 'complete',
     is_featured: false,
   },
   {
@@ -75,8 +93,7 @@ export const PRODUCTS_SEED: Product[] = [
     demo_url: undefined,
     repo_url: 'https://github.com/Harshit-Kandoi/Personal-budget-tracker',
     tags: ['Python', 'CLI', 'SQLite', 'Finance'],
-    status: 'wip',
-    stars: 0,
+    status: 'archived',
     is_featured: false,
   },
   {
@@ -88,8 +105,7 @@ export const PRODUCTS_SEED: Product[] = [
     demo_url: undefined,
     repo_url: 'https://github.com/Harshit-Kandoi/ecommerce',
     tags: ['React', 'Node.js', 'Express', 'MongoDB'],
-    status: 'wip',
-    stars: 0,
+    status: 'archived',
     is_featured: false,
   },
   {
@@ -102,7 +118,6 @@ export const PRODUCTS_SEED: Product[] = [
     repo_url: 'https://github.com/Harshit-Kandoi/titanic',
     tags: ['Python', 'Scikit-learn', 'Pandas', 'Seaborn', 'ML'],
     status: 'archived',
-    stars: 0,
     is_featured: false,
   },
   {
@@ -115,7 +130,6 @@ export const PRODUCTS_SEED: Product[] = [
     repo_url: 'https://github.com/Harshit-Kandoi/house-sale-prediction/tree/main/house%20sale%20prediction',
     tags: ['Python', 'Scikit-learn', 'LightGBM', 'Pandas'],
     status: 'archived',
-    stars: 0,
     is_featured: false,
   },
   {
@@ -128,7 +142,6 @@ export const PRODUCTS_SEED: Product[] = [
     repo_url: 'https://github.com/Harshit-Kandoi/GCP-learning',
     tags: ['GCP', 'Docker', 'Python', 'Cloud Run'],
     status: 'archived',
-    stars: 0,
     is_featured: false,
   },
   {
@@ -141,8 +154,6 @@ export const PRODUCTS_SEED: Product[] = [
     repo_url: 'https://github.com/Harshit-Kandoi/upflairs',
     tags: ['Python', 'PyTorch', 'CNN', 'RNN', 'Deep Learning'],
     status: 'archived',
-    stars: 0,
     is_featured: false,
   },
 ];
-

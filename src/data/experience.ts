@@ -9,12 +9,12 @@ export const experience: ExperienceItem[] = [
     location: "Gurugram, India (Remote)",
     period: "Aug 2025 - Present",
     description: [
-      "Developed internal business applications using React, JavaScript, Java, Python, and GCP to support production workflows and operational processes.",
-      "Engineered event-driven workflows using Cloud Functions, Pub/Sub, Firestore, and Gmail APIs to automate email processing and business operations.",
-      "Integrated APIs, deployment workflows, and cloud services while supporting testing, debugging, monitoring, and production releases.",
-      "Collaborated with cross-functional teams using Agile practices and Jira to deliver reliable software solutions across frontend, backend, and cloud environments."
+      "Developed and supported full-stack business applications using React, JavaScript, Java, Python, and GCP across feature development, integrations, testing, and production support.",
+      "Designed and implemented event-driven cloud workflows using Google Cloud Functions, Pub/Sub, and Firestore to automate business processes and data flows.",
+      "Contributed to AI-focused proof-of-concepts and technical initiatives, translating business requirements into working prototypes and evaluating solutions for customer needs.",
+      "Built an internal analytics and reporting tool to monitor customer engagement, retention, and supplier/retailer interactions, helping teams track business metrics and generate reports via email."
     ],
-    skills: ["React", "Python", "Java", "GCP", "Cloud Functions", "Firestore", "Pub/Sub"],
+    skills: ["React", "Python", "Java", "GCP", "Cloud Functions", "Firestore", "Pub/Sub", "AI POCs"],
     type: "work"
   },
 
@@ -40,9 +40,10 @@ export const experience: ExperienceItem[] = [
     period: "Apr 2025 - Jul 2025",
     description: [
       "Implemented a YOLO-based computer vision solution for plastic waste classification, achieving ~75% detection accuracy on custom datasets.",
-      "Managed dataset preparation, image preprocessing, model evaluation, and deployment workflows for sustainability-focused applications."
+      "Created image processing and dataset workflows for model training, evaluation, and deployment.",
+      "Curated and prepared 3,000+ plastic images across multiple material categories using automated web scraping, labeling, augmentation, and dataset organization."
     ],
-    skills: ["Python", "YOLOv5", "OpenCV", "PyTorch", "Computer Vision"],
+    skills: ["Python", "YOLO", "OpenCV", "PyTorch", "Computer Vision", "BeautifulSoup", "Selenium"],
     type: "work"
   },
 
@@ -64,6 +65,18 @@ export const experience: ExperienceItem[] = [
   // Education
   {
     id: 5,
+    role: "M.Tech. Artificial Intelligence & Machine Learning",
+    company: "Birla Institute of Technology & Science (BITS, Pilani)",
+    location: "Distance Program",
+    period: "Oct 2026 - Present",
+    description: [
+      "Distance program focused on Artificial Intelligence and Machine Learning.",
+      "Extending professional software engineering work with advanced AI/ML study."
+    ],
+    type: "education"
+  },
+  {
+    id: 6,
     role: "Bachelor of Technology in CSE (Data Science)",
     company: "B.K. Birla Institute of Engineering and Technology",
     location: "Pilani, India",
@@ -76,7 +89,7 @@ export const experience: ExperienceItem[] = [
     type: "education"
   },
   {
-    id: 6,
+    id: 7,
     role: "Senior Secondary (PCMB)",
     company: "Sarasvati Vidhya Peeth Sr. Sec. School",
     location: "Sikar, India",
@@ -88,7 +101,7 @@ export const experience: ExperienceItem[] = [
     type: "education"
   },
   {
-    id: 7,
+    id: 8,
     role: "Secondary Education",
     company: "Lords International School",
     location: "Rajgarh, Rajasthan",
@@ -102,7 +115,16 @@ export const experience: ExperienceItem[] = [
 
   // Certifications / Courses
   {
-    id: 8,
+    id: 9,
+    title: "System Design Masterclass",
+    organization: "Udemy | From FAANG Insiders",
+    date: "Sep 2026",
+    type: "Course",
+    description: "System design concepts and architecture patterns for scalable, reliable software systems.",
+    skills: ["System Design", "Scalability", "Architecture", "Distributed Systems"]
+  },
+  {
+    id: 10,
     title: "Software QA & Test Automation Engineering",
     organization: "Coursera",
     date: "Jun 2026",
@@ -112,7 +134,7 @@ export const experience: ExperienceItem[] = [
     skills: ["Selenium", "Cypress", "Agile QA", "JMeter", "Postman"]
   },
   {
-    id: 9,
+    id: 11,
     title: "Google Associate Cloud Engineer (ACE)",
     organization: "Google Cloud",
     date: "Mar 2026",
@@ -122,7 +144,7 @@ export const experience: ExperienceItem[] = [
     skills: ["GCP", "Cloud Infrastructure", "Kubernetes", "IAM"]
   },
   {
-    id: 10,
+    id: 12,
     title: "Docker Foundations Professional Certificate",
     organization: "Docker",
     date: "Aug 2025",
@@ -132,7 +154,7 @@ export const experience: ExperienceItem[] = [
     skills: ["Docker", "Containerization", "Docker Compose"]
   },
   {
-    id: 11,
+    id: 13,
     title: "Microsoft Azure AI Essentials: Workloads & ML",
     organization: "LinkedIn Learning",
     date: "Aug 2025",
@@ -142,7 +164,7 @@ export const experience: ExperienceItem[] = [
     skills: ["Microsoft Azure", "Azure AI Foundry", "Machine Learning"]
   },
   {
-    id: 12,
+    id: 14,
     title: "Python Bootcamp (100 Days of Code)",
     organization: "Udemy | Dr. Angela Yu",
     date: "Feb 2025",
@@ -152,7 +174,7 @@ export const experience: ExperienceItem[] = [
     skills: ["Python", "Flask", "Databases", "Automation"]
   },
   {
-    id: 13,
+    id: 15,
     title: "Machine Learning A-Z",
     organization: "Udemy | SuperDataScience",
     date: "Nov 2024",

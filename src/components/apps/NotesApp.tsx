@@ -152,9 +152,13 @@ function RenderContent({ content, isMaximized, isLight = false }: { content: str
   return <div className="space-y-1">{elements}</div>;
 }
 
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+
+// Notes can come from Supabase, so escape first and only then add our own markup.
 function formatInline(str: string): string {
-  return str
-    .replace(/`([^`]+)`/g, '<code class="bg-black/30 text-emerald-300 px-1 py-0.5 rounded font-mono text-[10px]">$1</code>')
+  return escapeHtml(str)
+    .replace(/`([^`]+)`/g, '<code class="bg-black/30 text-emerald-300 px-1 py-0.5 rounded-sm font-mono text-[10px]">$1</code>')
     .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-semibold text-white">$1</strong>')
     .replace(/\*([^*]+)\*/g, '<em class="italic text-purple-200/90">$1</em>');
 }
@@ -162,7 +166,7 @@ function formatInline(str: string): string {
 export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme = useOSStore((s) => s.theme);
   const windows = useOSStore((s) => s.windows);
-  const notesWin = windows.find((w) => w.id === 'notes');
+  const notesWin = windows.find((w) => w.id === 'writing');
   const isMaximized = notesWin?.isMaximized ?? false;
 
   const isLight = theme === 'light';
@@ -243,7 +247,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
 
   const containerBg = isLight ? 'bg-gray-50 text-gray-800' : 'bg-[#090a0f] text-white';
   const sidebarBg = isLight ? 'bg-white border-gray-200' : 'bg-[#0d0e14] border-white/5';
-  const noteCardBg = isLight ? 'hover:bg-gray-100' : 'hover:bg-white/[0.04]';
+  const noteCardBg = isLight ? 'hover:bg-gray-100' : 'hover:bg-white/4';
 
   // Get related notes for selected note
   const relatedNotes = selected?.related_note_ids
@@ -277,7 +281,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
         <div className="p-3.5 border-b border-white/5 space-y-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 via-indigo-500 to-amber-500 flex items-center justify-center shadow-sm">
+              <div className="w-7 h-7 rounded-lg bg-linear-to-br from-purple-500 via-indigo-500 to-amber-500 flex items-center justify-center shadow-xs">
                 <Brain className="w-3.5 h-3.5 text-white" />
               </div>
               <div>
@@ -285,7 +289,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
                 <p className="text-[9px] text-gray-500">Timeline of Thinking & Lessons</p>
               </div>
             </div>
-            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-purple-500/10 border border-purple-500/20 text-purple-300">
+            <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-sm bg-purple-500/10 border border-purple-500/20 text-purple-300">
               {notes.length} entries
             </span>
           </div>
@@ -297,7 +301,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
               placeholder="Search thoughts & lessons..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className={`w-full pl-7 pr-3 py-1.5 text-[11px] rounded-lg border focus:outline-none focus:ring-1 focus:ring-purple-500/30 ${
+              className={`w-full pl-7 pr-3 py-1.5 text-[11px] rounded-lg border focus:outline-hidden focus:ring-1 focus:ring-purple-500/30 ${
                 isLight
                   ? 'bg-gray-100 border-gray-200 text-gray-800 placeholder-gray-400'
                   : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
@@ -542,7 +546,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
                 className={`rounded-xl border p-3.5 relative overflow-hidden ${
                   isLight
                     ? 'bg-purple-50 border-purple-200 text-purple-900'
-                    : 'bg-gradient-to-r from-purple-950/40 via-indigo-950/30 to-slate-900/40 border-purple-500/20 text-purple-100'
+                    : 'bg-linear-to-r from-purple-950/40 via-indigo-950/30 to-slate-900/40 border-purple-500/20 text-purple-100'
                 }`}
               >
                 <div className="flex items-center gap-1.5 mb-1.5 text-[10px] font-bold uppercase tracking-wider text-purple-300">
@@ -555,7 +559,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
             )}
 
             {selected.thought && (
-              <div className={`rounded-xl border p-4 space-y-2 ${isLight ? 'bg-slate-100/90 border-slate-200 text-slate-900' : 'bg-white/[0.02] border-white/5'}`}>
+              <div className={`rounded-xl border p-4 space-y-2 ${isLight ? 'bg-slate-100/90 border-slate-200 text-slate-900' : 'bg-white/2 border-white/5'}`}>
                 <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-purple-700' : 'text-purple-300'}`}>
                   <Brain className="w-3.5 h-3.5 text-purple-500" /> Unfiltered Thought
                 </div>
@@ -568,7 +572,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
             {/* 2. TYPE: MEMORY */}
             {selected.what_i_remember && (
               <div className={`rounded-xl border p-4 space-y-2 ${
-                isLight ? 'bg-amber-50 border-amber-200 text-amber-950 font-medium' : 'bg-gradient-to-r from-amber-950/30 via-orange-950/20 to-slate-900/40 border-amber-500/20'
+                isLight ? 'bg-amber-50 border-amber-200 text-amber-950 font-medium' : 'bg-linear-to-r from-amber-950/30 via-orange-950/20 to-slate-900/40 border-amber-500/20'
               }`}>
                 <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-amber-700' : 'text-amber-300'}`}>
                   <BookOpen className="w-3.5 h-3.5 text-amber-500" /> What I Remember
@@ -580,7 +584,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
             )}
 
             {selected.why_it_stuck && (
-              <div className={`rounded-xl border p-3.5 space-y-1.5 ${isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-white/[0.02] border-white/5'}`}>
+              <div className={`rounded-xl border p-3.5 space-y-1.5 ${isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-white/2 border-white/5'}`}>
                 <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-orange-700' : 'text-orange-400'}`}>
                   <Sparkles className="w-3.5 h-3.5 text-orange-500" /> Why It Stuck
                 </div>
@@ -593,7 +597,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
             {/* 3. TYPE: PRINCIPLE */}
             {selected.the_rule && (
               <div className={`rounded-xl border p-4 space-y-2 ${
-                isLight ? 'bg-emerald-50 border-emerald-200 text-emerald-950 font-semibold' : 'bg-gradient-to-r from-emerald-950/40 via-teal-950/30 to-slate-900/40 border-emerald-500/25'
+                isLight ? 'bg-emerald-50 border-emerald-200 text-emerald-950 font-semibold' : 'bg-linear-to-r from-emerald-950/40 via-teal-950/30 to-slate-900/40 border-emerald-500/25'
               }`}>
                 <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-emerald-700' : 'text-emerald-300'}`}>
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> The Operating Rule
@@ -605,7 +609,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
             )}
 
             {selected.where_i_learned_it && (
-              <div className={`rounded-xl border p-3.5 space-y-1.5 ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-white/[0.02] border-white/5'}`}>
+              <div className={`rounded-xl border p-3.5 space-y-1.5 ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-white/2 border-white/5'}`}>
                 <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-700' : 'text-gray-400'}`}>
                   <FileText className="w-3.5 h-3.5 text-purple-500" /> Where I Learned It
                 </div>
@@ -628,7 +632,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
 
             {/* 4. TYPE: QUESTION */}
             {selected.question && (
-              <div className={`rounded-xl border p-4 space-y-2 ${isLight ? 'bg-sky-50 border-sky-200 text-sky-950' : 'bg-gradient-to-r from-sky-950/40 via-indigo-950/30 to-slate-900/40 border-sky-500/25'}`}>
+              <div className={`rounded-xl border p-4 space-y-2 ${isLight ? 'bg-sky-50 border-sky-200 text-sky-950' : 'bg-linear-to-r from-sky-950/40 via-indigo-950/30 to-slate-900/40 border-sky-500/25'}`}>
                 <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-sky-600">
                   <HelpCircle className="w-3.5 h-3.5 text-sky-500" /> Core Question
                 </div>
@@ -639,7 +643,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
             )}
 
             {selected.why_i_care && (
-              <div className={`rounded-xl border p-3.5 space-y-1.5 ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-white/[0.02] border-white/5'}`}>
+              <div className={`rounded-xl border p-3.5 space-y-1.5 ${isLight ? 'bg-slate-100 border-slate-200' : 'bg-white/2 border-white/5'}`}>
                 <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-slate-700' : 'text-gray-400'}`}>
                   <Brain className="w-3.5 h-3.5 text-sky-500" /> Why I Care
                 </div>
@@ -650,7 +654,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
             )}
 
             {selected.possible_answers && selected.possible_answers.length > 0 && (
-              <div className={`rounded-xl border p-3.5 space-y-2 ${isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-white/[0.02] border-white/5'}`}>
+              <div className={`rounded-xl border p-3.5 space-y-2 ${isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-white/2 border-white/5'}`}>
                 <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-sky-700' : 'text-sky-400'}`}>
                   <CheckCircle2 className="w-3.5 h-3.5 text-sky-500" /> Possible Answers / Working Hypotheses
                 </div>
@@ -672,7 +676,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
 
             {/* 5. TYPE: JOURNAL */}
             {selected.what_happened && (
-              <div className={`rounded-xl border p-4 space-y-2 ${isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-white/[0.02] border-white/5'}`}>
+              <div className={`rounded-xl border p-4 space-y-2 ${isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-white/2 border-white/5'}`}>
                 <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-purple-700' : 'text-purple-300'}`}>
                   <FileText className="w-3.5 h-3.5 text-purple-500" /> Unfiltered Entry
                 </div>
@@ -703,7 +707,7 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
             {/* "Still Thinking..." Closing Block */}
             {selected.still_thinking && (
               <div className={`rounded-xl border p-4 space-y-1.5 relative overflow-hidden my-4 ${
-                isLight ? 'bg-amber-50 border-amber-200 text-amber-950' : 'bg-gradient-to-r from-amber-500/10 via-purple-500/10 to-indigo-500/10 border-amber-500/30 text-amber-100/90'
+                isLight ? 'bg-amber-50 border-amber-200 text-amber-950' : 'bg-linear-to-r from-amber-500/10 via-purple-500/10 to-indigo-500/10 border-amber-500/30 text-amber-100/90'
               }`}>
                 <div className={`flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-amber-800' : 'text-amber-300'}`}>
                   <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" /> Still Thinking...
@@ -738,8 +742,8 @@ export default function NotesApp({ isMobileView }: { isMobileView?: boolean } = 
                         onClick={() => handleSelectNote(relNote)}
                         className={`text-left p-2.5 rounded-lg border transition group flex flex-col justify-between ${
                           isLight
-                            ? 'bg-white border-slate-200 hover:bg-slate-100 hover:border-purple-400 shadow-xs text-slate-900'
-                            : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.06] hover:border-purple-500/30'
+                            ? 'bg-white border-slate-200 hover:bg-slate-100 hover:border-purple-400 shadow-2xs text-slate-900'
+                            : 'border-white/5 bg-white/2 hover:bg-white/6 hover:border-purple-500/30'
                         }`}
                       >
                         <div>

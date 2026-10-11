@@ -125,18 +125,18 @@ describe('useOSStore Zustand Store Tests', () => {
     });
 
     it('should recover any invalid window position on focus and restore', () => {
-      useOSStore.getState().openWindow('gaming');
+      useOSStore.getState().openWindow('arcade');
       // Simulate an invalid position bypassing direct setters
       useOSStore.setState((state) => ({
-        windows: state.windows.map((w) => (w.id === 'gaming' ? { ...w, y: 5 } : w)),
+        windows: state.windows.map((w) => (w.id === 'arcade' ? { ...w, y: 5 } : w)),
       }));
       
-      let win = useOSStore.getState().windows.find((w) => w.id === 'gaming');
+      let win = useOSStore.getState().windows.find((w) => w.id === 'arcade');
       expect(win?.y).toBe(5);
 
       // Calling focusWindow should recover the position back to >= 48px
-      useOSStore.getState().focusWindow('gaming');
-      win = useOSStore.getState().windows.find((w) => w.id === 'gaming');
+      useOSStore.getState().focusWindow('arcade');
+      win = useOSStore.getState().windows.find((w) => w.id === 'arcade');
       expect(win?.y).toBe(48);
     });
   });

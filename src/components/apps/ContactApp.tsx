@@ -2,16 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { 
   Mail, Send, Linkedin, Github, CheckCircle, Phone, Copy, 
   ExternalLink, BookOpen, Database, ShieldAlert, Terminal, 
-  Cpu, Check, AlertCircle, Clock, Sparkles
+  Cpu, Check, AlertCircle, Clock, Sparkles, Globe
 } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
 import { PORTFOLIO_META } from '../../data/config';
 import { playNotificationSound } from '../../utils/sounds';
 import { trackEvent } from '../../utils/analytics';
+import { apiUrl } from '../../utils/paths';
 
-const DESTINATION_EMAIL = 'kandoiharshitsdlp@gmail.com';
+const DESTINATION_EMAIL = PORTFOLIO_META.email;
+// "https://www.harshitkandoi.in" → "harshitkandoi.in"
+const FREELANCE_HOST = PORTFOLIO_META.companySiteUrl.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '');
 const RATE_LIMIT_SECONDS = 30;
 const STORAGE_KEY_LAST_SENT = 'portfolio_os_contact_last_sent';
+const RATE_LIMITED_MESSAGE = 'Too many messages right now. Please try again in a few minutes, or email me directly.';
+
+type SendResult = 'sent' | 'rate_limited' | 'failed';
+
+const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
 export default function ContactApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const theme              = useOSStore((state) => state.theme);
@@ -35,7 +43,7 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
 
   // Transmission Sequence State
   const [sending, setSending] = useState(false);
-  const [sendingStep, setSendingStep] = useState<number>(0); // 0: Idle, 1: Dispatching, 2: Encrypting, 3: Connecting, 4: Transmitted, 5: Delivery Successful
+  const [sendingStep, setSendingStep] = useState<number>(0); // 0: Idle, 1: Validating, 2: Sending, 3: Waiting for server, 4: Accepted, 5: Sent
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
   const [success, setSuccess] = useState(false);
@@ -43,7 +51,12 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
   // Check rate limit timer on mount and interval
   useEffect(() => {
     const checkRateLimit = () => {
-      const lastSentStr = localStorage.getItem(STORAGE_KEY_LAST_SENT);
+      let lastSentStr: string | null = null;
+      try {
+        lastSentStr = localStorage.getItem(STORAGE_KEY_LAST_SENT);
+      } catch {
+        lastSentStr = null;
+      }
       if (lastSentStr) {
         const lastSent = parseInt(lastSentStr, 10);
         const elapsed = Math.floor((Date.now() - lastSent) / 1000);
@@ -60,8 +73,14 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
     return () => clearInterval(interval);
   }, []);
 
-  const handleCopy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
+  const handleCopy = async (text: string, label: string) => {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard API unavailable');
+      await navigator.clipboard.writeText(text);
+    } catch {
+      addNotification('Copy failed', `Couldn't access the clipboard. ${label}: ${text}`, 'info', 'social');
+      return;
+    }
     addNotification('📋 Copied to Clipboard', `${label} copied!`, 'info', 'social');
     playNotificationSound();
     unlockAchievement('social_butterfly');
@@ -108,10 +127,10 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
     return true;
   };
 
-  const executeResendMail = async (): Promise<boolean> => {
-    // Serverless endpoint (/api/send-email) handles secure Resend API execution
+  const executeResendMail = async (): Promise<SendResult> => {
+    // Serverless endpoint (/api/send-email) calls the Resend API server-side
     try {
-      const serverlessRes = await fetch('/api/send-email', {
+      const serverlessRes = await fetch(apiUrl('send-email'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -121,14 +140,38 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
         }),
       });
 
-      if (serverlessRes.ok) {
-        return true;
-      }
+      if (serverlessRes.ok) return 'sent';
+      if (serverlessRes.status === 429) return 'rate_limited';
     } catch (apiErr) {
       console.warn('Serverless endpoint unavailable...', apiErr);
     }
 
-    return false;
+    return 'failed';
+  };
+
+  // Start the local cooldown only after a message actually went out
+  const startCooldown = () => {
+    try {
+      localStorage.setItem(STORAGE_KEY_LAST_SENT, Date.now().toString());
+    } catch {
+      // Storage unavailable: the in-memory countdown still applies for this session
+    }
+    setCooldownRemaining(RATE_LIMIT_SECONDS);
+  };
+
+  const handleRateLimited = () => {
+    setSending(false);
+    setSendingStep(0);
+    setProgressPercent(0);
+    setTerminalLogs([]);
+    setErrorMessage(RATE_LIMITED_MESSAGE);
+    trackEvent('contact_submit_rate_limited');
+  };
+
+  const clearForm = () => {
+    setEmail('');
+    setSubject('');
+    setMessage('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -139,118 +182,114 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
       return;
     }
 
-    // Record timestamp for rate limit (30s)
-    const now = Date.now();
-    localStorage.setItem(STORAGE_KEY_LAST_SENT, now.toString());
-    setCooldownRemaining(RATE_LIMIT_SECONDS);
-
     setSending(true);
     setTerminalLogs([]);
     playNotificationSound();
 
-    if (isMobileView) {
+    if (isMobile) {
       // ── Mobile simplified fast flow ──
       setSendingStep(1);
       setProgressPercent(30);
-      setTerminalLogs(['> Dispatching message...']);
-      
-      const apiSuccess = await executeResendMail();
+      setTerminalLogs(['> Sending via Resend...']);
 
-      if (apiSuccess) {
+      const result = await executeResendMail();
+
+      if (result === 'rate_limited') {
+        handleRateLimited();
+        return;
+      }
+
+      if (result === 'sent') {
+        startCooldown();
+        clearForm();
         setProgressPercent(100);
         setSendingStep(5);
         setSuccess(true);
         setSending(false);
-        addNotification('✉️ Direct Message Sent', 'Your message has been delivered to Harshit!', 'success', 'career');
+        addNotification('✉️ Message Sent', 'Your message was sent to Harshit.', 'success', 'career');
         playNotificationSound();
         unlockAchievement('social_butterfly');
         trackEvent('contact_submit_success', { channel: 'resend_mobile' });
       } else {
         // Fallback for mobile if offline/API fails
         setSending(false);
-        setErrorMessage('Direct transmission failed. Opening mail client fallback...');
+        setErrorMessage('Sending failed. Opening your mail app instead...');
         window.location.href = `mailto:${PORTFOLIO_META.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
       }
       return;
     }
 
-    // ── Desktop Portfolio OS Terminal Transmission Sequence ──
-    // Step 1: Dispatching...
+    // ── Desktop terminal-style sending log ──
+    // Step 1: Validating
     setSendingStep(1);
     setProgressPercent(15);
     setTerminalLogs([
-      `[SYS] Initializing Portfolio OS Mail Protocol v2.4`,
-      `[SYS] Validating payload parameters & anti-spam token...`,
-      `> Dispatching...`
+      `> Validating...`,
+      `[OK] Email, subject and message look good.`,
     ]);
 
-    await new Promise((res) => setTimeout(res, 600));
+    await wait(500);
 
-    // Step 2: Encrypting payload...
+    // Step 2: Sending
     setSendingStep(2);
     setProgressPercent(45);
     setTerminalLogs((prev) => [
       ...prev,
-      `[CRYPTO] Applying AES-256 GCM encryption to payload...`,
-      `> Encrypting payload...`
+      `> POST /api/send-email`,
+      `> Sending via Resend...`,
     ]);
 
-    await new Promise((res) => setTimeout(res, 600));
+    await wait(400);
 
-    // Step 3: Connecting...
+    // Step 3: Waiting for the server
     setSendingStep(3);
     setProgressPercent(75);
-    setTerminalLogs((prev) => [
-      ...prev,
-      `[NET] Establishing secure bridge with Resend API gateway...`,
-      `> Connecting...`
-    ]);
+    setTerminalLogs((prev) => [...prev, `> Waiting for server response...`]);
 
-    // Dispatch API call
     const sendResult = await executeResendMail();
 
-    await new Promise((res) => setTimeout(res, 500));
+    if (sendResult === 'rate_limited') {
+      handleRateLimited();
+      return;
+    }
 
-    if (sendResult) {
-      // Step 4: Message transmitted.
+    await wait(300);
+
+    if (sendResult === 'sent') {
+      startCooldown();
+
+      // Step 4: Accepted by the server
       setSendingStep(4);
       setProgressPercent(95);
-      setTerminalLogs((prev) => [
-        ...prev,
-        `[NET] HTTP 200 OK — Packet received by destination server.`,
-        `> Message transmitted.`
-      ]);
+      setTerminalLogs((prev) => [...prev, `[OK] Server accepted the message.`]);
 
-      await new Promise((res) => setTimeout(res, 500));
+      await wait(400);
 
-      // Step 5: Delivery Successful
+      // Step 5: Sent
       setSendingStep(5);
       setProgressPercent(100);
       setTerminalLogs((prev) => [
         ...prev,
-        `[STATUS] Transmission complete. Receiver: ${DESTINATION_EMAIL}`,
-        `✓ Delivery Successful`
+        `[OK] Recipient: ${DESTINATION_EMAIL}`,
+        `✓ Message sent`,
       ]);
 
-      await new Promise((res) => setTimeout(res, 400));
+      await wait(400);
       setSuccess(true);
       setSending(false);
-      addNotification('✉️ Direct Transmission Sent', 'Message encrypted and delivered to Harshit!', 'success', 'career');
+      addNotification('✉️ Message Sent', 'Your message was sent to Harshit.', 'success', 'career');
       playNotificationSound();
       unlockAchievement('social_butterfly');
       trackEvent('contact_submit_success', { channel: 'resend_desktop' });
 
-      // Reset form fields
-      setEmail('');
-      setSubject('');
-      setMessage('');
+      clearForm();
     } else {
       // Fallback handling
       setTerminalLogs((prev) => [
         ...prev,
-        `[ERR] Direct transmission interrupted. Opening mail client...`
+        `[ERR] Sending failed. Opening your mail app instead...`
       ]);
-      await new Promise((res) => setTimeout(res, 800));
+      await wait(800);
       setSending(false);
       window.location.href = `mailto:${PORTFOLIO_META.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
     }
@@ -278,7 +317,7 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
   };
 
   return (
-    <div className={`flex flex-col flex-grow h-full overflow-y-auto p-5 md:p-6 space-y-6 ${boxBg} custom-scrollbar`}>
+    <div className={`flex flex-col grow h-full overflow-y-auto p-5 md:p-6 space-y-6 ${boxBg} custom-scrollbar`}>
       {/* Header - Centered line requested */}
       <div className="text-center space-y-1 select-none flex flex-col items-center justify-center mx-auto max-w-md">
         <h2 className="text-sm font-bold tracking-wider uppercase text-purple-400 flex items-center space-x-1.5">
@@ -357,6 +396,36 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                 </div>
               </div>
 
+              {/* Freelance website card */}
+              <div className={`space-y-1.5 p-2.5 rounded-xl border ${isLight ? 'bg-slate-100/90 border-slate-200' : 'bg-white/5 border-white/5'}`}>
+                <div className="flex justify-between items-center">
+                  <span className={`text-[9px] font-bold uppercase flex items-center space-x-1 ${isLight ? 'text-slate-700' : 'text-gray-400'}`}>
+                    <Globe className="w-3 h-3 text-sky-500" />
+                    <span>Freelance website</span>
+                  </span>
+                </div>
+                <p className={`text-[10px] font-bold truncate ${isLight ? 'text-slate-900' : 'text-white'}`}>{FREELANCE_HOST}</p>
+                <div className={`grid grid-cols-2 gap-1.5 pt-1.5 border-t ${isLight ? 'border-slate-200' : 'border-white/5'}`}>
+                  <button
+                    onClick={() => handleCopy(PORTFOLIO_META.companySiteUrl, 'Website')}
+                    className="py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-[9px] font-bold flex items-center justify-center space-x-1 transition"
+                  >
+                    <Copy className="w-2.5 h-2.5" />
+                    <span>Copy</span>
+                  </button>
+                  <a
+                    href={PORTFOLIO_META.companySiteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => trackEvent('contact_freelance_site_click', { action: 'open' })}
+                    className="py-1 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-[9px] font-bold flex items-center justify-center space-x-1 text-center transition"
+                  >
+                    <ExternalLink className="w-2.5 h-2.5" />
+                    <span>Open</span>
+                  </a>
+                </div>
+              </div>
+
               {/* Social profiles */}
               <div className="space-y-1.5 pt-1">
                 <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block">Profiles</span>
@@ -416,11 +485,11 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                 <CheckCircle className="w-8 h-8 animate-bounce" />
               </div>
               <div className="space-y-1">
-                <h3 className={`text-base font-bold tracking-wide ${isLight ? 'text-slate-900' : 'text-white'}`}>✓ Delivery Successful</h3>
-                <p className="text-xs text-emerald-600 font-mono font-bold">Message transmitted directly to Harshit via Resend API</p>
+                <h3 className={`text-base font-bold tracking-wide ${isLight ? 'text-slate-900' : 'text-white'}`}>✓ Message Sent</h3>
+                <p className="text-xs text-emerald-600 font-mono font-bold">Sent to Harshit via Resend</p>
               </div>
               <p className={`text-xs leading-relaxed max-w-sm ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
-                Your direct message payload was encrypted and routed to <span className="text-purple-600 font-semibold">{DESTINATION_EMAIL}</span>. Harshit will get back to you shortly.
+                Your message was sent to <span className="text-purple-600 font-semibold">{DESTINATION_EMAIL}</span>. Harshit will get back to you shortly.
               </p>
               <button
                 onClick={handleResetForm}
@@ -436,7 +505,7 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                 <div className="flex items-center space-x-2">
                   <Cpu className="w-4 h-4 text-purple-400 animate-spin" />
                   <span className="text-xs font-bold text-purple-300 uppercase tracking-wider">
-                    {isMobileView ? 'Transmitting Message...' : 'Portfolio OS Mail Bridge Dispatcher'}
+                    {isMobile ? 'Sending message...' : 'Contact.exe · sending log'}
                   </span>
                 </div>
                 <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30 font-semibold">
@@ -461,31 +530,31 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
               <div className="space-y-2 text-xs pt-1">
                 <div className={`flex items-center space-x-2 transition-opacity ${sendingStep >= 1 ? 'opacity-100 text-purple-300' : 'opacity-30 text-gray-500'}`}>
                   {sendingStep > 1 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <div className="w-2 h-2 rounded-full bg-purple-400 animate-ping" />}
-                  <span className="font-bold">Dispatching...</span>
+                  <span className="font-bold">{isMobile ? 'Sending via Resend...' : 'Validating...'}</span>
                 </div>
 
-                {!isMobileView && (
+                {!isMobile && (
                   <>
                     <div className={`flex items-center space-x-2 transition-opacity ${sendingStep >= 2 ? 'opacity-100 text-purple-300' : 'opacity-30 text-gray-500'}`}>
                       {sendingStep > 2 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : sendingStep === 2 ? <div className="w-2 h-2 rounded-full bg-purple-400 animate-ping" /> : <div className="w-2 h-2 rounded-full bg-gray-600" />}
-                      <span className="font-bold">Encrypting payload...</span>
+                      <span className="font-bold">Sending via Resend...</span>
                     </div>
 
                     <div className={`flex items-center space-x-2 transition-opacity ${sendingStep >= 3 ? 'opacity-100 text-purple-300' : 'opacity-30 text-gray-500'}`}>
                       {sendingStep > 3 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : sendingStep === 3 ? <div className="w-2 h-2 rounded-full bg-purple-400 animate-ping" /> : <div className="w-2 h-2 rounded-full bg-gray-600" />}
-                      <span className="font-bold">Connecting...</span>
+                      <span className="font-bold">Waiting for server...</span>
                     </div>
 
                     <div className={`flex items-center space-x-2 transition-opacity ${sendingStep >= 4 ? 'opacity-100 text-purple-300' : 'opacity-30 text-gray-500'}`}>
                       {sendingStep >= 4 ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <div className="w-2 h-2 rounded-full bg-gray-600" />}
-                      <span className="font-bold">Message transmitted.</span>
+                      <span className="font-bold">Accepted by server</span>
                     </div>
                   </>
                 )}
 
                 <div className={`flex items-center space-x-2 transition-opacity ${sendingStep >= 5 ? 'opacity-100 text-emerald-400' : 'opacity-30 text-gray-500'}`}>
                   {sendingStep === 5 ? <CheckCircle className="w-3.5 h-3.5 text-emerald-400" /> : <div className="w-2 h-2 rounded-full bg-gray-600" />}
-                  <span className="font-bold">✓ Delivery Successful</span>
+                  <span className="font-bold">✓ Message sent</span>
                 </div>
               </div>
 
@@ -542,8 +611,8 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 border transition ${
-                      isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
+                    className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-hidden focus:ring-1 focus:ring-purple-500/50 border transition ${
+                      isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-2xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
                     }`}
                     placeholder="name@domain.com"
                   />
@@ -555,8 +624,8 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                     required
                     value={subject}
                     onChange={(e) => setSubject(e.target.value)}
-                    className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 border transition ${
-                      isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
+                    className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-hidden focus:ring-1 focus:ring-purple-500/50 border transition ${
+                      isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-2xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
                     }`}
                     placeholder="Project Inquiry / Job Opportunity"
                   />
@@ -570,8 +639,8 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
                   rows={4}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-purple-500/50 border transition ${
-                    isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
+                  className={`w-full px-3.5 py-2 rounded-xl text-xs focus:outline-hidden focus:ring-1 focus:ring-purple-500/50 border transition ${
+                    isLight ? 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 shadow-2xs' : 'bg-white/5 border-white/10 text-white placeholder-gray-500'
                   }`}
                   placeholder="Hey Harshit, I checked out your Portfolio OS..."
                 />
@@ -606,4 +675,3 @@ export default function ContactApp({ isMobileView }: { isMobileView?: boolean } 
     </div>
   );
 }
-

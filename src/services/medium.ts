@@ -13,8 +13,10 @@ export interface MediumArticle {
 }
 
 export interface MediumStats {
-  followers: number;
-  articlesCount: number;
+  /** Medium doesn't expose follower counts in the feed; only set when actually known. */
+  followers?: number;
+  /** Number of posts in the feed. rss2json returns at most the 10 latest, so this is "latest posts", not a lifetime total. */
+  latestPostsCount: number;
   articles: MediumArticle[];
 }
 
@@ -24,12 +26,8 @@ const PROXY_URL = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURICompo
 
 export async function fetchMediumStats(): Promise<MediumStats> {
   const cached = cacheGet<MediumStats>('medium_stats');
-  if (cached) {
-    console.log('[Medium Service] Using cached stats:', cached);
-    return cached;
-  }
+  if (cached) return cached;
 
-  console.log('[Medium Service] Fetching fresh Medium data...');
   try {
     const res = await fetch(PROXY_URL);
     if (!res.ok) {
@@ -42,23 +40,15 @@ export async function fetchMediumStats(): Promise<MediumStats> {
     }
 
     const items = (data.items || []) as MediumArticle[];
-    console.log('[Medium Service] Successfully fetched articles:', items.length);
-
-    // Build stats
     const stats: MediumStats = {
-      followers: 98, // Verified public follower count
-      articlesCount: Math.max(items.length, 10), // Dynamically calculate from feed
+      latestPostsCount: items.length,
       articles: items,
     };
 
     cacheSet('medium_stats', stats);
     return stats;
   } catch (err) {
-    console.error('[Medium Service] Failed to fetch Medium feed, using fallbacks:', err);
-    return {
-      followers: 98,
-      articlesCount: 10,
-      articles: [],
-    };
+    console.warn('[Medium] Feed unavailable:', err);
+    return { latestPostsCount: 0, articles: [] };
   }
 }

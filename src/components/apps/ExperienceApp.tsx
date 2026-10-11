@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { experience } from '../../data/experience';
 import { ExternalLink, MapPin } from 'lucide-react';
 import { useOSStore } from '../../store/useOSStore';
@@ -41,7 +41,7 @@ export default function ExperienceApp({ isMobileView }: { isMobileView?: boolean
   };
 
   return (
-    <div className={`flex flex-col flex-grow h-full overflow-hidden ${isLight ? 'bg-gray-50 text-gray-800' : 'bg-[#0c0d14] text-white'}`}>
+    <div className={`flex flex-col grow h-full overflow-hidden ${isLight ? 'bg-gray-50 text-gray-800' : 'bg-[#0c0d14] text-white'}`}>
       {/* Filter Bar */}
       <div className={`shrink-0 px-5 py-3 border-b flex items-center justify-between ${isLight ? 'bg-gray-100 border-gray-200' : 'bg-[#09090f] border-white/5'}`}>
         <div className="flex space-x-1.5 overflow-x-auto custom-scrollbar">
@@ -55,7 +55,7 @@ export default function ExperienceApp({ isMobileView }: { isMobileView?: boolean
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all border ${
                   isSelected
                     ? isLight
-                      ? 'bg-purple-600 border-purple-600 text-white shadow-sm'
+                      ? 'bg-purple-600 border-purple-600 text-white shadow-xs'
                       : 'bg-purple-600/20 border-purple-500 text-purple-300'
                     : isLight
                       ? 'bg-white border-gray-200 text-gray-600 hover:bg-gray-100'
@@ -73,7 +73,7 @@ export default function ExperienceApp({ isMobileView }: { isMobileView?: boolean
       </div>
 
       {/* Timeline */}
-      <div className="flex-grow overflow-y-auto custom-scrollbar">
+      <div className="grow overflow-y-auto custom-scrollbar">
         {filteredItems.length === 0 ? (
           <p className="text-center text-xs py-12 text-gray-500">No records found.</p>
         ) : (
@@ -102,7 +102,7 @@ export default function ExperienceApp({ isMobileView }: { isMobileView?: boolean
                   <div className="relative flex justify-center w-4 shrink-0 pt-1.5">
                     {!isLast && (
                       <div
-                        className={`absolute top-3 bottom-[-2.5rem] w-0.5 pointer-events-none ${
+                        className={`absolute top-3 -bottom-10 w-0.5 pointer-events-none ${
                           isLight
                             ? 'bg-purple-300/80'
                             : 'bg-purple-500/40'

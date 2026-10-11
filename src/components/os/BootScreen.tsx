@@ -1,29 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useOSStore } from '../../store/useOSStore';
 import { playBootSound } from '../../utils/sounds';
+import { APP_VERSION, PORTFOLIO_META } from '../../data/config';
+
+const FIRST_NAME = PORTFOLIO_META.name.split(' ')[0];
 
 const DESKTOP_BOOT_MESSAGES = [
-  'Initializing PortfolioOS kernel v2.4.0-darwin...',
-  'Probing hardware configuration (macOS Darwin x86_64)...',
-  'Verifying CPU state: Apple M2 Max (12 Cores)... OK',
-  'Initializing display server: Aqua Server (React/Tailwind/Vite)... OK',
-  'Loading developer credentials: [Harshit Kandoi]... OK',
-  'Mounting filesystem: /users/harshit/workspace (129.05 kB)... OK',
-  'Starting background services: SpotifyNowPlaying, RPGProgression, AIAssistant... OK',
-  'Starting system shell: zsh 5.9... OK',
-  'System loaded. Workspace ready for console operations.'
+  `Starting PortfolioOS v${APP_VERSION}...`,
+  `Loading owner profile: ${PORTFOLIO_META.name}... OK`,
+  `Mounting experience: ${PORTFOLIO_META.role} @ ${PORTFOLIO_META.company}... OK`,
+  'Loading projects and case studies... OK',
+  'Indexing skills and certifications... OK',
+  'Warming up the AI assistant, terminal and arcade... OK',
+  'Rendering desktop with React + TypeScript + Tailwind... OK',
+  `Welcome to ${FIRST_NAME}'s workspace!`,
 ];
 
 const MOBILE_BOOT_MESSAGES = [
-  'Android Bootloader version 14.0.0...',
-  'Checking system partition... OK',
-  'Mounting external SD storage... OK',
-  'Loading portfolio components... OK',
-  'Initializing cellular and network stack... OK',
-  'Applying mobile layout configurations... OK',
-  'Optimizing touch screen gesture drivers... OK',
-  'Launching system UI... OK',
-  'Welcome back, Harshit!'
+  `Starting PortfolioOS Mobile v${APP_VERSION}...`,
+  `Loading owner profile: ${PORTFOLIO_META.name}... OK`,
+  'Loading projects... OK',
+  'Mounting experience... OK',
+  'Applying touch-friendly layout... OK',
+  'Launching home screen... OK',
+  `Welcome to ${FIRST_NAME}'s workspace!`,
 ];
 
 export default function BootScreen() {
@@ -42,15 +42,17 @@ export default function BootScreen() {
     let currentMsgIdx = 0;
     const interval = setInterval(() => {
       if (currentMsgIdx < bootMessages.length) {
-        setLogs((prev) => [...prev, bootMessages[currentMsgIdx]]);
+        // Capture now: the state updater may run later, after currentMsgIdx has advanced.
+        const message = bootMessages[currentMsgIdx];
+        setLogs((prev) => [...prev, message]);
         setProgress((prev) => Math.min(prev + Math.ceil(100 / bootMessages.length), 100));
         currentMsgIdx++;
       } else {
         clearInterval(interval);
         setProgress(100);
         setTimeout(() => {
-          // Temporarily skip lock screen friction and boot straight to desktop for testing
-          // setBootState('locked');
+          // Intentionally skip the lock screen after boot: visitors land straight on the
+          // desktop. The lock screen is still reachable via the OS "Lock" action.
           setBootState('desktop');
         }, 500);
       }
@@ -60,11 +62,11 @@ export default function BootScreen() {
   }, [setBootState, bootMessages, speed]);
 
   return (
-    <div className="fixed inset-0 bg-[#07070a] text-green-400 font-mono text-sm flex flex-col justify-between p-8 select-none z-[9999]">
-      <div className="max-w-4xl mx-auto w-full flex-grow flex flex-col justify-start space-y-2 mt-12 overflow-y-auto">
+    <div className="fixed inset-0 bg-[#07070a] text-green-400 font-mono text-sm flex flex-col justify-between p-8 select-none z-9999">
+      <div className="max-w-4xl mx-auto w-full grow flex flex-col justify-start space-y-2 mt-12 overflow-y-auto">
         {/* Terminal Header */}
         <div className="text-gray-500 mb-4 border-b border-gray-800 pb-2">
-          === {isMobile ? 'MOBILEOS' : 'DEV PORTFOLIO OS'} BOOTLOADER v2.4.0 ===
+          === {isMobile ? 'PORTFOLIO OS MOBILE' : 'PORTFOLIO OS'} v{APP_VERSION} ===
         </div>
 
         {logs.map((log, idx) => (
@@ -88,7 +90,7 @@ export default function BootScreen() {
         </div>
         <div className="w-full bg-gray-900 h-2 rounded-full overflow-hidden border border-gray-800">
           <div
-            className="h-full bg-gradient-to-r from-green-500 to-emerald-400 transition-all duration-200"
+            className="h-full bg-linear-to-r from-green-500 to-emerald-400 transition-all duration-200"
             style={{ width: `${progress}%` }}
           />
         </div>

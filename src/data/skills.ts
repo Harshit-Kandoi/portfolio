@@ -130,8 +130,8 @@ export const skills: Skill[] = [
     category: "Tools"
   },
   {
-    name: "Antigravity & Codex Combo",
-    proficiency: 95,
+    name: "AI-assisted development (Claude Code, Codex)",
+    proficiency: 70,
     category: "Tools"
   },
   {

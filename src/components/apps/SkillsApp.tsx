@@ -20,7 +20,7 @@ const SKILL_SHORT_NAMES: Record<string, string> = {
   'Workflow Automation': 'Automation',
   'AI-driven Data Processing': 'AI Processing',
   'Model Integration': 'Model Serving',
-  'Antigravity & Codex Combo': 'Antigravity / Codex',
+  'AI-assisted development (Claude Code, Codex)': 'AI-assisted Dev',
   'Jira & VS Code': 'Jira & VS Code',
   'Git & GitHub': 'Git & GitHub',
   'Jupyter Notebook': 'Jupyter',
@@ -117,7 +117,7 @@ const SKILL_DETAILS: Record<string, { summary: string; keyPoints: string[] }> = 
   },
   'Computer Vision (YOLO)': {
     summary: 'Real-time object detection models for plastic classification and sign language recognition.',
-    keyPoints: ['YOLOv5 & YOLOv8 Architectures', 'Bounding Box Annotation & Training', 'OpenCV Frame Manipulation', 'PyTorch Model Export']
+    keyPoints: ['YOLO Object Detection (YOLOv5)', 'Bounding Box Annotation & Training', 'OpenCV Frame Manipulation', 'PyTorch Model Export']
   },
   'Model Integration': {
     summary: 'Exporting, packaging, and serving ML/DL models within web applications and desktop tools.',
@@ -127,9 +127,9 @@ const SKILL_DETAILS: Record<string, { summary: string; keyPoints: string[] }> = 
     summary: 'Distributed version control, feature branching, pull requests, and open-source collaboration.',
     keyPoints: ['Git Rebase & Branch Workflows', 'PR Code Reviews & Merges', 'GitHub Issues & Milestones', 'Commit History Management']
   },
-  'Antigravity & Codex Combo': {
-    summary: 'AI-assisted pair programming and agentic coding workflows for fast production software delivery.',
-    keyPoints: ['Agentic Prompting & Refactoring', 'Architecture Planning & Verification', 'Rapid Full-stack Prototyping', 'Automated Test Generation']
+  'AI-assisted development (Claude Code, Codex)': {
+    summary: 'Using AI coding assistants for refactoring, prototyping, and test writing, with every change reviewed and verified by hand.',
+    keyPoints: ['Prompting for Refactors', 'Reviewing AI-generated Code', 'Prototyping', 'Test Generation']
   },
   'Jira & VS Code': {
     summary: 'Agile project management, sprint tracking, issue ticketing, and IDE extension workflows.',
@@ -156,6 +156,15 @@ const SKILL_DETAILS: Record<string, { summary: string; keyPoints: string[] }> = 
     keyPoints: ['Technical Writing & Docs', 'Architecture Diagrams & Specs', 'Clear Bug Reports', 'Active Listening & Alignment']
   }
 };
+
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/** True when `term` appears in `text` as a whole word (so "java" doesn't match "javascript"). */
+function containsTerm(text: string, term: string): boolean {
+  if (!term) return false;
+  if (text === term) return true;
+  return new RegExp(`(^|[^a-z0-9])${escapeRegExp(term)}($|[^a-z0-9])`).test(text);
+}
 
 /**
  * Robust technology matcher connecting skills to relevant portfolio projects
@@ -193,10 +202,11 @@ function getRelatedProjects(skill: Skill | null): Project[] {
     'ci/cd': ['github actions', 'docker', 'git', 'github'],
     'automation': ['python', 'selenium', 'beautifulsoup4', 'scraping', 'ai'],
     'ai': ['ai', 'python', 'pytorch', 'scikit-learn', 'yolo', 'ml'],
-    'yolo': ['yolov5', 'yolov8', 'opencv', 'computer vision', 'pytorch'],
+    'yolo': ['yolo', 'yolov5', 'yolov8', 'opencv', 'computer vision', 'pytorch'],
     'model': ['pytorch', 'scikit-learn', 'yolo', 'streamlit', 'ml'],
     'git': ['git', 'github', 'react', 'typescript', 'python'],
     'codex': ['react', 'typescript', 'python', 'vite', 'zustand'],
+    'claude': ['react', 'typescript', 'python', 'vite', 'zustand'],
     'jira': ['react', 'python', 'git', 'electron'],
     'jupyter': ['python', 'pandas', 'scikit-learn', 'data analytics', 'sql'],
     'problem': ['python', 'c++', 'algorithms', 'dsa', 'react'],
@@ -211,18 +221,21 @@ function getRelatedProjects(skill: Skill | null): Project[] {
     }
   });
 
+  const kwList = Array.from(keywords);
   const matched = projects.filter((p) => {
     const techMatches = p.technologies.some((tech) => {
       const techLower = tech.toLowerCase();
       return (
-        techLower.includes(rawName) ||
-        rawName.includes(techLower) ||
-        Array.from(keywords).some((kw) => techLower.includes(kw) || kw.includes(techLower))
+        containsTerm(techLower, rawName) ||
+        containsTerm(rawName, techLower) ||
+        kwList.some((kw) => containsTerm(techLower, kw) || containsTerm(kw, techLower))
       );
     });
 
-    const textMatches = Array.from(keywords).some(
-      (kw) => kw.length > 2 && (p.title.toLowerCase().includes(kw) || p.description.toLowerCase().includes(kw))
+    const title = p.title.toLowerCase();
+    const description = p.description.toLowerCase();
+    const textMatches = kwList.some(
+      (kw) => kw.length > 2 && (containsTerm(title, kw) || containsTerm(description, kw))
     );
 
     return techMatches || textMatches;
@@ -253,7 +266,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  const categories = ['All', 'Languages', 'Backend', 'Frontend', 'Databases', 'Cloud', 'AI', 'Tools'];
+  const categories = ['All', 'Languages', 'Backend', 'Frontend', 'Databases', 'Cloud', 'AI', 'Tools', 'Soft Skills'];
   
   // Target skill displayed in sidebar:
   // Hovering temporarily previews node in sidebar; mouse leave returns to locked selectedSkill
@@ -282,7 +295,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
   const centerX = width / 2;
   const centerY = height / 2;
 
-  // 7 categories evenly spaced (51.4° apart), starting at -90° (top)
+  // Categories evenly spaced around the centre, starting at -90° (top)
   const categoriesList = categories.slice(1);
   const categoryAngles: Record<string, number> = {};
   categoriesList.forEach((cat, idx) => {
@@ -294,7 +307,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
    * Arranges sub-nodes strictly along their category's directional ray with alternating perpendicular offsets.
    * Guaranteed ZERO collision between different category branches!
    */
-  const getCoordinates = (category: string, index: number, total: number, isSubNode: boolean = false) => {
+  const getCoordinates = (category: string, index: number, isSubNode: boolean = false) => {
     const angleOffset = categoryAngles[category] ?? 0;
     const rad = (angleOffset * Math.PI) / 180;
     
@@ -316,13 +329,10 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
       
       return {
         x: centerX + R_skill * Math.cos(rad) - perp * Math.sin(rad),
-        y: centerY + R_skill * Sin(rad) + perp * Math.cos(rad),
+        y: centerY + R_skill * Math.sin(rad) + perp * Math.cos(rad),
       };
     }
   };
-
-  // Helper function for Math.sin uppercase typo fallback
-  function Sin(rad: number) { return Math.sin(rad); }
 
   // Select + Auto-Lock handler on click
   const handleSelectSkill = (sk: Skill, view: string) => {
@@ -360,12 +370,12 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
   };
 
   return (
-    <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} flex-grow h-full overflow-hidden ${appBg} custom-scrollbar`}>
+    <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} grow h-full overflow-hidden ${appBg} custom-scrollbar`}>
       {/* Constellation Workspace */}
-      <div className="flex-grow flex flex-col min-w-0 p-4 select-none relative">
+      <div className="grow flex flex-col min-w-0 p-4 select-none relative">
         {/* Navigation Categories bar */}
         <div className="flex justify-between items-center pb-3 border-b border-white/5 space-x-4">
-          <div className="flex space-x-1.5 overflow-x-auto custom-scrollbar flex-grow">
+          <div className="flex space-x-1.5 overflow-x-auto custom-scrollbar grow">
             {categories.map((cat) => {
               const isSel = selectedCategory === cat;
               return (
@@ -425,7 +435,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
 
         {/* Constellation Chart (Flexible full-area SVG Canvas) */}
         {viewType === 'constellation' ? (
-          <div className="flex-grow relative overflow-hidden mt-2 w-full h-full min-h-[350px]">
+          <div className="grow relative overflow-hidden mt-2 w-full h-full min-h-[350px]">
             <svg 
               viewBox={`0 0 ${width} ${height}`} 
               preserveAspectRatio="xMidYMid meet"
@@ -440,7 +450,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
                 
                 {/* Draw Constellation connecting lines */}
                 {categories.slice(1).map((cat) => {
-                  const catPos = getCoordinates(cat, 0, 0, false);
+                  const catPos = getCoordinates(cat, 0, false);
                   const catSkills = skills.filter((s) => s.category === cat);
                   const isCatActive = selectedCategory === 'All' || selectedCategory === cat;
 
@@ -459,7 +469,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
                       
                       {/* Category Node to sub skill nodes */}
                       {catSkills.map((sk, idx) => {
-                        const skPos = getCoordinates(cat, idx, catSkills.length, true);
+                        const skPos = getCoordinates(cat, idx, true);
                         const isSelected = selectedSkill?.name === sk.name && isLocked;
                         const isHovered = hoveredSkill?.name === sk.name;
                         const isHighlighted = isSelected || isHovered;
@@ -501,7 +511,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
 
                 {/* Category Nodes (larger r=16) */}
                 {categories.slice(1).map((cat) => {
-                  const catPos = getCoordinates(cat, 0, 0, false);
+                  const catPos = getCoordinates(cat, 0, false);
                   const isCatActive = selectedCategory === 'All' || selectedCategory === cat;
                   return (
                     <g
@@ -537,7 +547,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
                   return (
                     <g key={cat} className="transition-opacity duration-300" style={{ opacity: isCatActive ? 1 : 0.12 }}>
                       {catSkills.map((sk, idx) => {
-                        const skPos = getCoordinates(cat, idx, catSkills.length, true);
+                        const skPos = getCoordinates(cat, idx, true);
                         const isSelected = selectedSkill?.name === sk.name && isLocked;
                         const isTarget = targetSkill?.name === sk.name;
                         const shortName = SKILL_SHORT_NAMES[sk.name] || sk.name;
@@ -608,7 +618,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
           </div>
         ) : (
           /* ── Grid View ─────────────────────────────────────────────────── */
-          <div className="flex-grow overflow-y-auto mt-3 custom-scrollbar">
+          <div className="grow overflow-y-auto mt-3 custom-scrollbar">
             {categories.slice(1).map((cat) => {
               const catSkills = skills.filter((s) =>
                 (selectedCategory === 'All' || selectedCategory === cat) && s.category === cat
@@ -632,7 +642,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
                           onClick={() => handleSelectSkill(skill, 'grid')}
                           className={`text-left p-2.5 rounded-xl border transition text-xs ${
                             isSelected
-                              ? 'border-purple-500 bg-purple-600/20 text-white shadow-sm ring-1 ring-purple-500/40'
+                              ? 'border-purple-500 bg-purple-600/20 text-white shadow-xs ring-1 ring-purple-500/40'
                               : isLight ? 'border-gray-200 bg-white hover:border-purple-300' : 'border-white/8 bg-white/3 hover:border-purple-500/40 text-gray-300'
                           }`}
                           aria-label={`Select skill ${skill.name}`}
@@ -640,14 +650,14 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
                           <div className="flex items-center justify-between mb-1.5">
                             <span className="font-bold text-[11px] truncate">{skill.name}</span>
                             {projCount > 0 && (
-                              <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold shrink-0">
+                              <span className="text-[9px] px-1.5 py-0.5 rounded-sm bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold shrink-0">
                                 {projCount} {projCount === 1 ? 'Project' : 'Projects'}
                               </span>
                             )}
                           </div>
                           <div className="h-1 rounded-full bg-white/5 overflow-hidden">
                             <div
-                              className="h-full rounded-full bg-gradient-to-r from-purple-500 to-indigo-400"
+                              className="h-full rounded-full bg-linear-to-r from-purple-500 to-indigo-400"
                               style={{ width: `${skill.proficiency}%` }}
                             />
                           </div>
@@ -665,7 +675,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
 
       {/* Details sidebar pane - Strict Non-Overlapping Flex Layout */}
       {targetSkill && (
-        <div className={`${isMobile ? 'w-full' : 'w-80'} flex-shrink-0 p-4 flex flex-col h-full overflow-hidden select-none ${sidebarBg}`}>
+        <div className={`${isMobile ? 'w-full' : 'w-80'} shrink-0 p-4 flex flex-col h-full overflow-hidden select-none ${sidebarBg}`}>
           {/* Top Section: Header & Automatic Lock Toggle Button */}
           <div className="shrink-0 flex items-center justify-between pb-3 border-b border-white/5">
             <div className="flex items-center space-x-2.5 min-w-0 pr-2">
@@ -688,7 +698,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
               ) : isLocked && selectedSkill?.name === targetSkill.name ? (
                 <button
                   onClick={() => setIsLocked(false)}
-                  className="text-purple-300 hover:text-white flex items-center space-x-1 px-2.5 py-1 rounded-full bg-purple-600/30 border border-purple-500/40 text-[9px] font-bold transition shadow-sm"
+                  className="text-purple-300 hover:text-white flex items-center space-x-1 px-2.5 py-1 rounded-full bg-purple-600/30 border border-purple-500/40 text-[9px] font-bold transition shadow-xs"
                   title="Click to unlock hover preview mode"
                 >
                   <Lock className="w-3 h-3 text-purple-400" />
@@ -718,7 +728,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
             </div>
             <div className="w-full bg-white/5 border border-white/10 h-2 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-300"
+                className="h-full bg-linear-to-r from-purple-500 to-indigo-500 transition-all duration-300"
                 style={{ width: `${targetSkill.proficiency}%` }}
               />
             </div>
@@ -773,7 +783,7 @@ export default function SkillsApp({ isMobileView }: { isMobileView?: boolean } =
                       href={p.github || p.demo}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-purple-500 hover:text-purple-600 font-bold text-[9px] uppercase flex items-center space-x-0.5 shrink-0 px-2 py-1 bg-purple-500/10 rounded border border-purple-500/20"
+                      className="text-purple-500 hover:text-purple-600 font-bold text-[9px] uppercase flex items-center space-x-0.5 shrink-0 px-2 py-1 bg-purple-500/10 rounded-sm border border-purple-500/20"
                     >
                       <span>View</span>
                       <Target className="w-2.5 h-2.5" />

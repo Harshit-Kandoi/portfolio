@@ -1,8 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useOSStore } from '../../store/useOSStore';
 import { Sword, Shield, Zap, Sparkles, Trophy, Backpack, Flame, X, RotateCcw, Check } from 'lucide-react';
 import { playNotificationSound, playTerminalClick } from '../../utils/sounds';
 import { initialCombatLogs, inventoryItems, InventoryItem } from '../../data/gamingData';
+import { asset } from '../../utils/paths';
 
 export default function GamingApp({ isMobileView }: { isMobileView?: boolean } = {}) {
   const xp = useOSStore((state) => state.xp);
@@ -17,6 +18,10 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
   const [isFighting, setIsFighting] = useState(false);
   const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
   const combatLogRef = useRef<HTMLDivElement>(null);
+  const combatTimersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // Cancel pending combat steps if the window closes mid-fight.
+  useEffect(() => () => combatTimersRef.current.forEach(clearTimeout), []);
 
   // Preview allocation (sandboxed — does NOT change real stats)
   const [allocationMode, setAllocationMode] = useState(false);
@@ -78,16 +83,20 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
     const enemy = enemies[Math.floor(Math.random() * enemies.length)];
     setCombatLogs((prev) => [...prev, `⚔️ Encountered a wild [${enemy.name}]!`]);
 
-    setTimeout(() => {
+    const later = (fn: () => void, ms: number) => combatTimersRef.current.push(setTimeout(fn, ms));
+    combatTimersRef.current.forEach(clearTimeout);
+    combatTimersRef.current = [];
+
+    later(() => {
       const attackPower = strength + magic;
       setCombatLogs((prev) => [...prev, `💥 Harshit casts Generative API spell! Deals ${attackPower} damage.`]);
     }, 600);
 
-    setTimeout(() => {
+    later(() => {
       setCombatLogs((prev) => [...prev, `🛡️ Harshit's Docker shield absorbs ${enemy.name}'s bugs!`]);
     }, 1200);
 
-    setTimeout(() => {
+    later(() => {
       setCombatLogs((prev) => [...prev, `🎉 Defeated [${enemy.name}]! Earned +${enemy.xpReward} XP.`]);
       addXP(enemy.xpReward);
       playNotificationSound();
@@ -96,19 +105,19 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
   };
 
   const isLight = theme === 'light';
-  const boxBg = isLight ? 'bg-white border-gray-250 shadow-sm' : 'bg-slate-900/40 border-white/5 backdrop-blur-md';
+  const boxBg = isLight ? 'bg-white border-gray-250 shadow-xs' : 'bg-slate-900/40 border-white/5 backdrop-blur-md';
 
   return (
-    <div className={`flex flex-col flex-grow h-full overflow-y-auto p-5 md:p-6 space-y-6 ${isLight ? 'bg-gray-50 text-gray-800' : 'bg-slate-950 text-purple-100'} custom-scrollbar`}>
+    <div className={`flex flex-col grow h-full overflow-y-auto p-5 md:p-6 space-y-6 ${isLight ? 'bg-gray-50 text-gray-800' : 'bg-slate-950 text-purple-100'} custom-scrollbar`}>
       
       {/* RPG Profile Cards */}
       <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-3 gap-5'} items-start`}>
         
         {/* Pixel Character Avatar */}
         <div className={`p-4 rounded-xl border flex flex-col items-center text-center space-y-3 ${boxBg}`}>
-          <div className="w-20 h-20 bg-gradient-to-tr from-purple-800 to-indigo-600 rounded-2xl flex items-center justify-center relative overflow-hidden border border-white/20 select-none shadow-lg">
-            <img src="/gaming profile.webp" alt="Harshit Character" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_40%,_rgba(0,0,0,0.4))] animate-pulse" />
+          <div className="w-20 h-20 bg-linear-to-tr from-purple-800 to-indigo-600 rounded-2xl flex items-center justify-center relative overflow-hidden border border-white/20 select-none shadow-lg">
+            <img src={asset('gaming profile.webp')} alt="Harshit Character" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_40%,rgba(0,0,0,0.4))] animate-pulse" />
           </div>
           <div>
             <h3 className="text-xs font-black uppercase text-white">Harshit Kandoi</h3>
@@ -156,7 +165,7 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
           ].map(({ key, label, sub, icon: Icon, color, base, preview }) => (
             <div key={key} className="flex items-center space-x-2 text-[11px]">
               <Icon className={`w-3.5 h-3.5 shrink-0 ${color}`} />
-              <div className="flex-grow">
+              <div className="grow">
                 <div className="flex justify-between mb-0.5">
                   <span className={`font-semibold ${isLight ? 'text-slate-800' : 'text-gray-300'}`}>{label} <span className={`text-[9px] ${isLight ? 'text-slate-600' : 'text-gray-500'}`}>({sub})</span></span>
                   <span className={`font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>
@@ -174,9 +183,9 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
               {allocationMode && (
                 <div className="flex items-center space-x-1 shrink-0">
                   <button onClick={() => adjustPreview(key, -1)} disabled={previewBonus[key] <= 0}
-                    className={`w-4 h-4 rounded text-xs disabled:opacity-30 transition flex items-center justify-center ${isLight ? 'bg-slate-200 text-slate-800 hover:bg-slate-300' : 'bg-white/10 text-gray-400 hover:text-white'}`}>−</button>
+                    className={`w-4 h-4 rounded-sm text-xs disabled:opacity-30 transition flex items-center justify-center ${isLight ? 'bg-slate-200 text-slate-800 hover:bg-slate-300' : 'bg-white/10 text-gray-400 hover:text-white'}`}>−</button>
                   <button onClick={() => adjustPreview(key, 1)} disabled={remainingPreview <= 0}
-                    className={`w-4 h-4 rounded text-xs disabled:opacity-30 transition flex items-center justify-center ${isLight ? 'bg-slate-200 text-slate-800 hover:bg-slate-300' : 'bg-white/10 text-gray-400 hover:text-white'}`}>+</button>
+                    className={`w-4 h-4 rounded-sm text-xs disabled:opacity-30 transition flex items-center justify-center ${isLight ? 'bg-slate-200 text-slate-800 hover:bg-slate-300' : 'bg-white/10 text-gray-400 hover:text-white'}`}>+</button>
                 </div>
               )}
             </div>
@@ -225,11 +234,11 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
       </div>
 
       {/* Combat Activity logs terminal */}
-      <div className="flex-grow flex flex-col min-h-[140px] space-y-2">
+      <div className="grow flex flex-col min-h-[140px] space-y-2">
         <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-500">Combat Log</h4>
         <div
           ref={combatLogRef}
-          className={`flex-grow rounded-xl p-4 font-mono text-[11px] text-emerald-400 border overflow-y-auto space-y-1.5 h-44 custom-scrollbar ${
+          className={`grow rounded-xl p-4 font-mono text-[11px] text-emerald-400 border overflow-y-auto space-y-1.5 h-44 custom-scrollbar ${
             isLight ? 'bg-slate-900 border-slate-700' : 'bg-black border-white/10'
           }`}
         >
@@ -244,7 +253,7 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
 
       {/* Inventory Item Details Modal */}
       {selectedItem && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[20000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-20000 flex items-center justify-center p-4">
           <div className={`p-6 rounded-2xl w-full max-w-sm space-y-4 relative shadow-2xl animate-scale-up border ${
             isLight ? 'bg-white border-slate-300 text-slate-900' : 'bg-slate-900 border-gray-800 text-white'
           }`}>
@@ -255,7 +264,7 @@ export default function GamingApp({ isMobileView }: { isMobileView?: boolean } =
               <X className="w-4 h-4" />
             </button>
             <div className="flex items-center space-x-3.5">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center shrink-0">
                 <Backpack className="w-6 h-6 text-purple-500" />
               </div>
               <div>

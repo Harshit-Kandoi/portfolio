@@ -5,14 +5,14 @@ import {
 } from '../../store/useOSStore';
 import {
   Monitor, Volume2, Palette, ShieldAlert, Smartphone, Cpu,
-  CheckCircle2, Sun, RefreshCw, Sparkles, Zap, Layers,
+  CheckCircle2, Sun, Zap, Layers,
   Layout, Gauge, Keyboard, Database, RotateCcw, Code2,
   Settings, ChevronRight, Play, BarChart2
 } from 'lucide-react';
 import { playThemeSwitchSound, playVolumePreviewSound, playClickSound } from '../../utils/sounds';
 import { APP_VERSION } from '../../data/config';
+import { useDeviceBattery } from '../../hooks/useDeviceBattery';
 
-type UpdateState = 'idle' | 'checking' | 'done';
 type Section =
   | 'appearance' | 'audio' | 'display' | 'desktop'
   | 'performance' | 'emulator' | 'keyboard' | 'session'
@@ -20,10 +20,10 @@ type Section =
 
 // ─── Wallpaper colour thumbnails (CSS‑only, no images) ────────────────────────
 const WALLPAPER_THUMBS: Record<WallpaperType, string> = {
-  nebula:    'bg-gradient-to-br from-[#03001e] via-[#7303c0] to-[#ec38bc]',
-  particles: 'bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e]',
-  matrix:    'bg-gradient-to-br from-black via-[#001100] to-[#003300]',
-  grid:      'bg-gradient-to-br from-[#000000] via-[#0a0a1a] to-[#0d0d2b]',
+  nebula:    'bg-linear-to-br from-[#03001e] via-[#7303c0] to-[#ec38bc]',
+  particles: 'bg-linear-to-br from-[#0f0c29] via-[#302b63] to-[#24243e]',
+  matrix:    'bg-linear-to-br from-black via-[#001100] to-[#003300]',
+  grid:      'bg-linear-to-br from-[#000000] via-[#0a0a1a] to-[#0d0d2b]',
 };
 
 const WALLPAPER_LABELS: Record<WallpaperType, string> = {
@@ -81,8 +81,8 @@ const RadioRow = ({ label, selected, options, onChange }: {
             className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold border transition-all flex items-center space-x-1.5 ${
               selected === o.id
                 ? isLight
-                  ? 'bg-purple-600 border-purple-600 text-white shadow-sm'
-                  : 'bg-[var(--accent-muted)] border-[var(--accent-border)] text-white shadow-sm'
+                  ? 'bg-purple-600 border-purple-600 text-white shadow-xs'
+                  : 'bg-(--accent-muted) border-(--accent-border) text-white shadow-xs'
                 : isLight
                   ? 'bg-white border-gray-300 text-gray-700 hover:bg-gray-100'
                   : 'bg-white/5 border-white/8 text-gray-400 hover:bg-white/10 hover:text-gray-200'
@@ -91,7 +91,7 @@ const RadioRow = ({ label, selected, options, onChange }: {
           >
             {o.icon && <span>{o.icon}</span>}
             <span>{o.label}</span>
-            {selected === o.id && <CheckCircle2 className={`w-3 h-3 ${isLight ? 'text-white' : 'text-[var(--accent)]'}`} />}
+            {selected === o.id && <CheckCircle2 className={`w-3 h-3 ${isLight ? 'text-white' : 'text-(--accent)'}`} />}
           </button>
         ))}
       </div>
@@ -107,12 +107,12 @@ const ToggleSwitch = ({ checked, onChange, id }: { checked: boolean; onChange: (
     onClick={onChange}
     className={`relative w-10 h-5.5 rounded-full border transition-all duration-200 flex items-center ${
       checked
-        ? 'bg-[var(--accent)] border-[var(--accent)]'
+        ? 'bg-(--accent) border-(--accent)'
         : 'bg-white/10 border-white/15'
     }`}
   >
     <span
-      className={`absolute w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-200 ${
+      className={`absolute w-4 h-4 rounded-full bg-white shadow-xs transition-all duration-200 ${
         checked ? 'translate-x-[22px]' : 'translate-x-0.5'
       }`}
     />
@@ -125,22 +125,11 @@ function MobileSettingsView() {
     theme, setTheme, wallpaper, setWallpaper,
     soundEnabled, setSoundEnabled, volume, setVolume,
     mobileBrightness, setMobileBrightness,
-    batteryLevel, batteryCharging, batterySaver, setBatterySaver,
+    batterySaver, setBatterySaver,
   } = useOSStore();
+  const battery = useDeviceBattery();
 
-  const [updateState, setUpdateState] = useState<UpdateState>('idle');
-  const [screenTimeout, setScreenTimeout] = useState<'30s' | '1m' | '2m' | '5m' | 'never'>('2m');
   const volumeThrottleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const estHours = batterySaver
-    ? Math.max(1, Math.round((batteryLevel / 100) * 22))
-    : Math.max(1, Math.round((batteryLevel / 100) * 16));
-
-  const handleCheckUpdate = () => {
-    if (updateState !== 'idle') return;
-    setUpdateState('checking');
-    setTimeout(() => setUpdateState('done'), 2200);
-  };
 
   const handleVolumeChange = (v: number) => {
     setVolume(v);
@@ -159,24 +148,17 @@ function MobileSettingsView() {
     { title: 'Resume', cat: 'System' },
     { title: 'Terminal', cat: 'Dev' },
     { title: 'AI Assistant', cat: 'Social' },
-    { title: 'Tech Blog', cat: 'Social' },
+    { title: 'Writing', cat: 'Social' },
     { title: 'Badges', cat: 'Gaming' },
-    { title: 'Gaming OS', cat: 'Gaming' },
-    { title: 'Snake 3310', cat: 'Gaming' },
+    { title: 'Arcade', cat: 'Gaming' },
     { title: 'Swipe Match', cat: 'Social' },
-    { title: 'Buy Coffee', cat: 'System' },
     { title: 'Say Hello', cat: 'Social' },
     { title: 'Settings', cat: 'System' },
-    { title: 'Library', cat: 'System' },
-    { title: 'Notes', cat: 'Work' },
-    // { title: 'Gallery', cat: 'System' },
     { title: 'Products', cat: 'Work' },
-    // { title: 'Publications', cat: 'Social' },
-    // { title: 'Marketplace', cat: 'System' },
   ];
 
   return (
-    <div className={`flex flex-col flex-grow h-full overflow-y-auto p-4 space-y-4 ${isLight ? 'bg-white text-gray-800' : 'bg-slate-950 text-purple-100'} custom-scrollbar`}>
+    <div className={`flex flex-col grow h-full overflow-y-auto p-4 space-y-4 ${isLight ? 'bg-white text-gray-800' : 'bg-slate-950 text-purple-100'} custom-scrollbar`}>
 
       {/* Header */}
       <div className="flex items-center space-x-2.5 pb-2.5 border-b border-white/5">
@@ -218,22 +200,6 @@ function MobileSettingsView() {
           }} />
         </div>
 
-        {/* Screen Timeout */}
-        <div className="space-y-1.5 pt-1 border-t border-white/5">
-          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Screen Timeout</p>
-          <div className="grid grid-cols-5 gap-1">
-            {(['30s', '1m', '2m', '5m', 'never'] as const).map(t => (
-              <button key={t} onClick={() => setScreenTimeout(t)}
-                className={`py-1.5 rounded-lg text-[10px] font-semibold border text-center transition-all ${
-                  screenTimeout === t
-                    ? 'bg-purple-600/25 border-purple-500 text-white'
-                    : 'bg-black/20 border-white/5 text-gray-400 hover:bg-white/5'
-                }`}>
-                {t === 'never' ? 'Never' : t}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* 2. Sound */}
@@ -323,10 +289,13 @@ function MobileSettingsView() {
           </div>
           <ToggleSwitch id="mobile-battery-saver" checked={batterySaver} onChange={() => setBatterySaver(!batterySaver)} />
         </div>
-        <div className="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-lg flex items-center justify-between text-[10px]">
-          <span className="font-semibold text-emerald-300">Status: {batteryLevel}% · {batteryCharging ? 'Charging' : 'Discharging'}</span>
-          <span className={`${batterySaver ? 'text-emerald-400 font-bold' : 'text-gray-400'}`}>~{estHours} hrs remaining{batterySaver ? ' (Saver Active)' : ''}</span>
-        </div>
+        {/* Real device battery (Chromium only); hidden where the browser doesn't expose it. */}
+        {battery && (
+          <div className="bg-emerald-500/10 border border-emerald-500/20 p-2.5 rounded-lg flex items-center justify-between text-[10px]">
+            <span className="font-semibold text-emerald-300">Device battery: {battery.level}% · {battery.charging ? 'Charging' : 'On battery'}</span>
+            {batterySaver && <span className="text-emerald-400 font-bold">Saver active</span>}
+          </div>
+        )}
       </div>
 
       {/* 6. About Device */}
@@ -364,13 +333,7 @@ function MobileSettingsView() {
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             <p className="text-[11px] font-bold text-white">Portfolio OS v{APP_VERSION}</p>
           </div>
-          <p className="text-[9px] text-emerald-300 font-semibold">System is up to date</p>
-          <button onClick={handleCheckUpdate} disabled={updateState !== 'idle'}
-            className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 disabled:opacity-60 text-white text-[10px] font-bold py-1.5 px-3 rounded-lg transition self-start flex items-center space-x-1.5">
-            {updateState === 'checking' && <RefreshCw className="w-3 h-3 animate-spin" />}
-            {updateState === 'done' && <CheckCircle2 className="w-3 h-3 text-white" />}
-            <span>{updateState === 'checking' ? 'Checking…' : updateState === 'done' ? 'All Good!' : 'Check Update'}</span>
-          </button>
+          <p className="text-[9px] text-emerald-300 font-semibold">You&apos;re on v{APP_VERSION}, the version currently deployed.</p>
         </div>
       </div>
 
@@ -388,26 +351,17 @@ function DesktopSettingsView() {
     dockSize, setDockSize,
     performanceMode, setPerformanceMode,
     accentColor, setAccentColor,
-    sessionRestore, setSessionRestore,
     showFPS, setShowFPS,
-    debugMode, setDebugMode,
     showWindowBounds, setShowWindowBounds,
     viewMode, isSimulatingMobile, setIsSimulatingMobile,
     layoutOverride, setLayoutOverride,
     resetDesktop,
   } = useOSStore();
 
-  const [updateState, setUpdateState] = useState<UpdateState>('idle');
   const [activeSection, setActiveSection] = useState<Section>('appearance');
   const [versionClickCount, setVersionClickCount] = useState(0);
   const [devUnlocked, setDevUnlocked] = useState(false);
   const volumeThrottleRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleCheckUpdate = () => {
-    if (updateState !== 'idle') return;
-    setUpdateState('checking');
-    setTimeout(() => setUpdateState('done'), 2200);
-  };
 
   const handleVolumeChange = (v: number) => {
     setVolume(v);
@@ -470,7 +424,7 @@ function DesktopSettingsView() {
               activeSection === item.id
                 ? isLight
                   ? 'bg-purple-100 text-purple-700 border-l-2 border-purple-500'
-                  : 'bg-[var(--accent-muted)] text-white border-l-2 border-[var(--accent)]'
+                  : 'bg-(--accent-muted) text-white border-l-2 border-(--accent)'
                 : isLight
                   ? 'text-gray-600 hover:bg-gray-200/60'
                   : 'text-gray-400 hover:bg-white/5 hover:text-gray-200'
@@ -482,7 +436,7 @@ function DesktopSettingsView() {
             </div>
             <div className="flex items-center space-x-1">
               {item.badge && (
-                <span className="text-[8px] font-bold px-1 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                <span className="text-[8px] font-bold px-1 py-0.5 rounded-sm bg-amber-500/20 text-amber-400 border border-amber-500/30">
                   {item.badge}
                 </span>
               )}
@@ -492,7 +446,7 @@ function DesktopSettingsView() {
         ))}
 
         {/* Version number – click 3× to unlock Dev Options */}
-        <div className="flex-grow" />
+        <div className="grow" />
         <button
           onClick={handleVersionClick}
           className="px-4 py-3 text-left border-t border-white/5 mt-2"
@@ -527,19 +481,19 @@ function DesktopSettingsView() {
                     className={`p-3.5 rounded-2xl border text-left flex items-start space-x-3 transition-all ${
                       theme === t.id
                         ? isLight
-                          ? 'bg-purple-100/90 border-purple-400 shadow-sm'
-                          : 'bg-[var(--accent-muted)] border-[var(--accent-border)] shadow-md'
+                          ? 'bg-purple-100/90 border-purple-400 shadow-xs'
+                          : 'bg-(--accent-muted) border-(--accent-border) shadow-md'
                         : isLight
                           ? 'bg-white border-gray-200 hover:bg-gray-100'
                           : 'bg-white/5 border-white/5 hover:bg-white/10'
                     }`}
                   >
-                    <div className={`w-8 h-8 rounded-xl bg-gradient-to-tr ${t.color} border border-white/10 shrink-0`} />
+                    <div className={`w-8 h-8 rounded-xl bg-linear-to-tr ${t.color} border border-white/10 shrink-0`} />
                     <div className="min-w-0">
                       <h4 className={`text-xs font-bold leading-tight ${isLight ? 'text-gray-900' : 'text-white'}`}>{t.label}</h4>
                       <p className={`text-[10px] mt-0.5 leading-normal ${isLight ? 'text-gray-600' : 'text-gray-400'}`}>{t.desc}</p>
                     </div>
-                    {theme === t.id && <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ml-auto ${isLight ? 'text-purple-600' : 'text-[var(--accent)]'}`} />}
+                    {theme === t.id && <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ml-auto ${isLight ? 'text-purple-600' : 'text-(--accent)'}`} />}
                   </button>
                 ))}
               </div>
@@ -554,7 +508,7 @@ function DesktopSettingsView() {
                     key={id}
                     onClick={() => setWallpaper(id)}
                     className={`relative overflow-hidden rounded-2xl border transition-all h-20 text-left ${
-                      wallpaper === id ? 'border-[var(--accent)] ring-1 ring-[var(--accent-border)]' : 'border-white/10 hover:border-white/25'
+                      wallpaper === id ? 'border-(--accent) ring-1 ring-(--accent-border)' : 'border-white/10 hover:border-white/25'
                     }`}
                   >
                     <div className={`absolute inset-0 ${WALLPAPER_THUMBS[id]}`} style={WALLPAPER_PATTERN[id]} />
@@ -563,7 +517,7 @@ function DesktopSettingsView() {
                     </div>
                     {wallpaper === id && (
                       <div className="absolute top-2 right-2 bg-black/60 rounded-full p-0.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-[var(--accent)]" />
+                        <CheckCircle2 className="w-3.5 h-3.5 text-(--accent)" />
                       </div>
                     )}
                   </button>
@@ -682,7 +636,7 @@ function DesktopSettingsView() {
                       onClick={() => setUiScale(s)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all ${
                         uiScale === s
-                          ? 'bg-[var(--accent-muted)] border-[var(--accent-border)] text-white'
+                          ? 'bg-(--accent-muted) border-(--accent-border) text-white'
                           : 'bg-white/5 border-white/8 text-gray-400 hover:bg-white/10'
                       }`}
                     >
@@ -767,7 +721,7 @@ function DesktopSettingsView() {
                 ].map(item => (
                   <div key={item.mode}
                     className={`p-3 rounded-xl border space-y-1.5 ${
-                      performanceMode === item.mode ? 'border-[var(--accent-border)] bg-[var(--accent-muted)]' : 'border-white/5 bg-white/5'
+                      performanceMode === item.mode ? 'border-(--accent-border) bg-(--accent-muted)' : 'border-white/5 bg-white/5'
                     }`}>
                     <p className={`font-bold ${item.color}`}>{item.title}</p>
                     <p className="text-gray-500 leading-relaxed">{item.desc}</p>
@@ -840,7 +794,7 @@ function DesktopSettingsView() {
                         onClick={() => setLayoutOverride(opt.id as 'auto'|'desktop'|'tablet'|'mobile')}
                         className={`p-3 rounded-xl border text-left flex flex-col transition-all ${
                           layoutOverride === opt.id
-                            ? 'bg-[var(--accent-muted)] border-[var(--accent-border)] text-white font-bold'
+                            ? 'bg-(--accent-muted) border-(--accent-border) text-white font-bold'
                             : isLight ? 'bg-slate-100 border-slate-200 text-slate-800 hover:bg-slate-200' : 'bg-black/20 border-white/5 hover:bg-white/5 text-gray-300'
                         }`}
                       >
@@ -905,19 +859,8 @@ function DesktopSettingsView() {
             <SectionTitle label="Session & Reset" icon={Database} />
 
             <div className={`p-4 rounded-2xl border space-y-5 ${cardBg}`}>
-              {/* Session restore */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-bold text-white">Restore Previous Session</p>
-                  <p className="text-[10px] text-gray-400 mt-0.5 max-w-xs leading-normal">
-                    When enabled, your window positions and last opened apps are remembered between visits.
-                  </p>
-                </div>
-                <ToggleSwitch id="session-restore-toggle" checked={sessionRestore} onChange={() => setSessionRestore(!sessionRestore)} />
-              </div>
-
               {/* Reset Desktop */}
-              <div className="border-t border-white/5 pt-4 space-y-3">
+              <div className="space-y-3">
                 <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Reset Desktop</p>
                 <div className={`p-3 rounded-xl bg-red-950/20 border border-red-500/15 text-[10px] text-gray-400 leading-relaxed space-y-1`}>
                   <p>Performing a desktop reset will:</p>
@@ -954,7 +897,6 @@ function DesktopSettingsView() {
               {[
                 { label: 'Show FPS Counter',     desc: 'Displays live frames per second in the top-right corner',       checked: showFPS,         onChange: () => { setShowFPS(!showFPS); playClickSound(); } },
                 { label: 'Show Window Bounds',   desc: 'Outlines all active windows with a red debug border',            checked: showWindowBounds, onChange: () => { setShowWindowBounds(!showWindowBounds); playClickSound(); } },
-                { label: 'Debug Mode',           desc: 'Enables console logging and verbose error output in DevTools',   checked: debugMode,       onChange: () => { setDebugMode(!debugMode); playClickSound(); } },
               ].map((item, i) => (
                 <div key={i} className={`flex items-center justify-between ${i > 0 ? 'border-t border-white/5 pt-4' : ''}`}>
                   <div>
@@ -969,7 +911,7 @@ function DesktopSettingsView() {
                 <button
                   onClick={() => { resetDesktop(); playClickSound(); }}
                   className={`w-full flex items-center space-x-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition ${
-                    isLight ? 'bg-slate-200 hover:bg-slate-300 border-slate-300 text-slate-900 shadow-xs' : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300'
+                    isLight ? 'bg-slate-200 hover:bg-slate-300 border-slate-300 text-slate-900 shadow-2xs' : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300'
                   }`}
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
@@ -983,7 +925,7 @@ function DesktopSettingsView() {
                       uiScale: state.uiScale, windowAnimation: state.windowAnimation,
                       dockSize: state.dockSize, performanceMode: state.performanceMode,
                       accentColor: state.accentColor, volume: state.volume,
-                      soundEnabled: state.soundEnabled, sessionRestore: state.sessionRestore,
+                      soundEnabled: state.soundEnabled,
                     };
                     const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
                     const url = URL.createObjectURL(blob);
@@ -993,7 +935,7 @@ function DesktopSettingsView() {
                     playClickSound();
                   }}
                   className={`w-full flex items-center space-x-2 px-4 py-2.5 rounded-xl border text-xs font-bold transition ${
-                    isLight ? 'bg-slate-200 hover:bg-slate-300 border-slate-300 text-slate-900 shadow-xs' : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300'
+                    isLight ? 'bg-slate-200 hover:bg-slate-300 border-slate-300 text-slate-900 shadow-2xs' : 'bg-white/5 hover:bg-white/10 border-white/10 text-gray-300'
                   }`}
                 >
                   <BarChart2 className="w-3.5 h-3.5" />
@@ -1007,7 +949,7 @@ function DesktopSettingsView() {
         {/* ── SYSTEM UPDATE ──────────────────────────────────────────── */}
         {activeSection === 'system' && (
           <div className="space-y-5">
-            <SectionTitle label="System Update & Device Info" icon={Cpu} />
+            <SectionTitle label="Version" icon={Cpu} />
 
             <div className={`p-4 rounded-2xl border space-y-4 ${cardBg}`}>
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-emerald-500/5 border border-emerald-500/10 p-4 rounded-xl">
@@ -1016,34 +958,9 @@ function DesktopSettingsView() {
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     <h4 className="text-xs font-bold text-white">Portfolio OS v{APP_VERSION}</h4>
                   </div>
-                  <p className="text-[10px] text-emerald-300 font-semibold">System is up to date</p>
-                  <p className="text-[9.5px] text-gray-500">Security patch: July 2026 · Jaipur, Rajasthan</p>
+                  <p className="text-[10px] text-emerald-300 font-semibold">You&apos;re on v{APP_VERSION}, the version currently deployed.</p>
                 </div>
-                <button
-                  onClick={handleCheckUpdate}
-                  disabled={updateState !== 'idle'}
-                  className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 disabled:opacity-60 text-white text-[11px] font-bold py-2 px-4 rounded-xl transition flex items-center space-x-2 shrink-0"
-                >
-                  {updateState === 'checking' && <RefreshCw className="w-3.5 h-3.5 animate-spin" />}
-                  {updateState === 'done' && <CheckCircle2 className="w-3.5 h-3.5" />}
-                  <span>{updateState === 'checking' ? 'Checking…' : updateState === 'done' ? 'All Good!' : 'Check for Update'}</span>
-                </button>
               </div>
-
-              {updateState === 'done' && (
-                <div className="bg-emerald-950/30 border border-emerald-500/15 rounded-xl p-4 flex items-start space-x-3 animate-fade-in">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center shrink-0">
-                    <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-xs font-bold text-emerald-300">✅ You're all up to date!</p>
-                    <p className="text-[10.5px] text-gray-400 leading-relaxed max-w-sm">
-                      Harshit is continuously shipping new skills, projects, and ideas. Check back soon for the next update!
-                    </p>
-                    <p className="text-[9.5px] text-gray-500 italic">Last sync: Portfolio OS v{APP_VERSION} · July 2026</p>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}

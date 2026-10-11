@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useOSStore } from '../../store/useOSStore';
-import { SPOTIFY_CONFIG } from '../../data/config';
+import { SPOTIFY_CONFIG, PORTFOLIO_META } from '../../data/config';
 import { Music, Award, MapPin, Code2, Sparkles, Quote, Target, Terminal, GitBranch, Cpu, Clock, ExternalLink, RotateCw } from 'lucide-react';
 import { trackEvent } from '../../utils/analytics';
 import { useGitHubStats } from '../../services/github';
 import { formatUptimeHHMMSS } from '../../utils/system';
 import { toSpotifyEmbedUrl, toSpotifyExternalUrl } from '../../utils/spotify';
+import { asset } from '../../utils/paths';
 
 const QUOTES = [
   "Good backend systems disappear. Users notice them only when they're broken.",
@@ -15,15 +16,16 @@ const QUOTES = [
 ];
 
 const QUEST_CARDS = [
-  { label: 'CURRENT QUEST',      value: 'Building scalable AI systems',     color: 'text-purple-400',  border: 'border-purple-500/20' },
-  { label: 'CURRENTLY BUILDING', value: 'Financial Mirror',                  color: 'text-emerald-400', border: 'border-emerald-500/20' },
+  { label: 'CURRENT QUEST',      value: 'Building useful AI and cloud systems', color: 'text-purple-400',  border: 'border-purple-500/20' },
+  { label: 'CURRENTLY BUILDING', value: 'Financial Mirror • ClearCue-AI • Pixel Buddy', color: 'text-emerald-400', border: 'border-emerald-500/20' },
   { label: 'CURRENT OBSESSION',  value: 'Event-driven Architectures',        color: 'text-amber-400',   border: 'border-amber-500/20' },
   { label: 'LEVELING UP',        value: 'Kubernetes • Clouds • Agents',      color: 'text-blue-400',    border: 'border-blue-500/20' },
 ];
 
 const MISSION_LOG = [
   { done: true,  text: 'Google ACE Certified'              },
-  { done: false, text: 'AI Developer Certification'        },
+  { done: true,  text: 'System Design Masterclass'         },
+  { done: false, text: 'M.Tech AI & ML in progress'        },
   { done: false, text: 'Build & Launch SaaS Product'       },
   { done: false, text: 'Active on LinkedIn & Medium'       },
   { done: false, text: 'Publish Kaggle Dataset'            },
@@ -81,7 +83,7 @@ function SpotifyPlayerCard({ boxBg }: { boxBg: string }) {
           <Music className="w-3.5 h-3.5 text-pink-400 animate-pulse" />
           <span>Now Playing (Spotify)</span>
           {isFallback && (
-            <span className="text-[8px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.2 rounded font-mono">
+            <span className="text-[8px] bg-amber-500/20 text-amber-300 border border-amber-500/40 px-1.5 py-0.2 rounded-sm font-mono">
               Fallback Active
             </span>
           )}
@@ -167,11 +169,11 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
 
   const isLight = theme === 'light';
   const boxBg = isLight
-    ? 'bg-white border-gray-200/80 shadow-sm'
+    ? 'bg-white border-gray-200/80 shadow-xs'
     : 'bg-white/5 border-white/10 backdrop-blur-md';
 
   return (
-    <div className={`flex flex-col flex-grow h-full overflow-y-auto p-5 space-y-6 ${isLight ? 'bg-gray-50 text-gray-800' : 'bg-slate-950 text-purple-100'} custom-scrollbar`}>
+    <div className={`flex flex-col grow h-full overflow-y-auto p-5 space-y-6 ${isLight ? 'bg-gray-50 text-gray-800' : 'bg-slate-950 text-purple-100'} custom-scrollbar`}>
 
       {/* Live system stats bar */}
       <div className={`flex flex-wrap items-center gap-x-4 gap-y-1.5 px-4 py-2.5 rounded-xl border text-[10px] font-mono ${isLight ? 'bg-gray-100 border-gray-200 text-gray-600' : 'bg-slate-900 border-white/5 text-gray-400'}`}>
@@ -194,7 +196,6 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
           <Cpu className="w-3 h-3 text-pink-400" />
           repos: <span className="text-pink-300">{ghStats?.public_repos ?? '···'}</span>
         </span>
-        <span className="ml-auto text-[9px] text-gray-600 hidden sm:block">PID: 1024 · mem: 37 MB</span>
       </div>
 
       {/* Bio and Profile */}
@@ -204,24 +205,24 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
         <div className={`${isMobile ? '' : 'col-span-1'} border p-6 rounded-2xl flex flex-col items-center text-center space-y-4 shadow-xl ${boxBg}`}>
           <div className="relative group">
             <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-purple-500/50 flex items-center justify-center shadow-lg shadow-purple-500/10">
-              <img src={ghStats?.avatar_url || '/profile.webp'} alt={ghStats?.name || 'Harshit Kandoi'} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+              <img src={ghStats?.avatar_url || asset('profile.webp')} alt={PORTFOLIO_META.name} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
             </div>
             <span
               className="absolute bottom-1 right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-slate-950 animate-pulse cursor-default"
-              title="Available for interesting projects"
+              title={PORTFOLIO_META.availability}
             />
           </div>
 
           <div className="w-full">
-            <h2 className={`text-sm font-bold tracking-wide text-center ${isLight ? 'text-slate-900' : 'text-white'}`}>{ghStats?.name || 'Harshit Kandoi'}</h2>
-            <p className="text-[10px] text-purple-500 font-semibold mt-0.5 text-center">Software &amp; AI Engineer</p>
-            <p className="text-[9px] text-emerald-500 font-bold mt-1 animate-pulse text-center">● Available for interesting projects</p>
+            <h2 className={`text-sm font-bold tracking-wide text-center ${isLight ? 'text-slate-900' : 'text-white'}`}>{PORTFOLIO_META.name}</h2>
+            <p className="text-[10px] text-purple-500 font-semibold mt-0.5 text-center">{PORTFOLIO_META.role} · {PORTFOLIO_META.company}</p>
+            <p className="text-[9px] text-emerald-500 font-bold mt-1 animate-pulse text-center">● {PORTFOLIO_META.availability}</p>
           </div>
 
           <div className={`w-full space-y-2 text-[10px] sm:text-xs pt-3 border-t border-white/10 text-left ${isLight ? 'text-slate-600' : 'text-gray-400'}`}>
             <div className="flex items-center space-x-2">
               <MapPin className="w-3.5 h-3.5 text-purple-500 shrink-0" />
-              <span>{ghStats?.location || 'Jaipur, Rajasthan, India'}</span>
+              <span>{PORTFOLIO_META.location}</span>
             </div>
             <div className="flex items-center space-x-2">
               <Code2 className="w-3.5 h-3.5 text-indigo-500 shrink-0" />
@@ -229,7 +230,7 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
             </div>
             <div className="flex items-center space-x-2">
               <Award className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-              <span>Google ACE Certified</span>
+              <span>Google ACE • System Design</span>
             </div>
           </div>
         </div>
@@ -241,10 +242,10 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
             <h3 className="text-sm font-bold tracking-wider uppercase text-purple-500">Bio Profile</h3>
           </div>
           <p className={`text-xs leading-relaxed text-justify ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
-            I build backend applications that automate business workflows and simplify operational processes. My work focuses on API integrations, cloud-native services on Google Cloud Platform, and backend development using Java and Python. I enjoy building reliable systems that solve real business problems through automation.
+            I build full-stack applications that automate business workflows and simplify operational processes. My work focuses on API integrations, cloud-native services on Google Cloud Platform, AI proof-of-concepts, and backend development using Java and Python.
           </p>
           <p className={`text-xs leading-relaxed text-justify ${isLight ? 'text-slate-800 font-medium' : 'text-gray-300'}`}>
-            Currently, I'm an Associate Software Engineer at <strong>ThoughtIn Solutions</strong>, where I develop internal business applications using Java, Python, React, and GCP services such as Cloud Functions, Pub/Sub, and Firestore. Outside of work, I explore AI agents, developer tools, and practical automation to improve engineering workflows.
+            Currently, I'm an Associate Software Engineer at <strong>ThoughtIn Solutions</strong>, where I develop internal business applications, event-driven cloud workflows, and analytics/reporting tools using Java, Python, React, and GCP services such as Cloud Functions, Pub/Sub, and Firestore. Outside of work, I am starting an M.Tech in AI & ML and building practical product experiments.
           </p>
 
           {/* Quest Cards */}
@@ -307,9 +308,9 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
           <div className={`p-4 rounded-xl border ${boxBg} hover:border-purple-500/30 transition group`}>
             <p className={`font-bold text-[11px] mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>🔍 Offline GCP Emulator</p>
             <div className={`space-y-1 text-[10px] ${isLight ? 'text-slate-700 font-medium' : 'text-gray-400'}`}>
-              <div>✓ <span className="text-emerald-600 font-bold">Zero cloud cost</span> during development</div>
+              <div>✓ <span className="text-emerald-600 font-bold">Runs offline</span> during development</div>
               <div>✓ <span className="text-emerald-600 font-bold">Local Pub/Sub</span> + Firestore support</div>
-              <div>✓ <span className="text-emerald-600 font-bold">Reduced debug cycles</span> by ~10×</div>
+              <div>✓ <span className="text-emerald-600 font-bold">Dockerized</span> local setup</div>
             </div>
           </div>
 
@@ -317,7 +318,7 @@ export default function AboutApp({ isMobileView }: { isMobileView?: boolean } = 
             <p className={`font-bold text-[11px] mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>⚡ YOLOv5 ASL Detector</p>
             <div className={`space-y-1 text-[10px] ${isLight ? 'text-slate-700 font-medium' : 'text-gray-400'}`}>
               <div>✓ <span className="text-emerald-600 font-bold">90%+ accuracy</span> in real-time inference</div>
-              <div>✓ <span className="text-emerald-600 font-bold">Custom dataset</span> curated from scratch</div>
+              <div>✓ <span className="text-emerald-600 font-bold">26 ASL letters</span> recognised</div>
               <div>✓ <span className="text-emerald-600 font-bold">OpenCV pipeline</span> with webcam input</div>
             </div>
           </div>
