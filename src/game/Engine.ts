@@ -11,7 +11,7 @@ export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => vo
   renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.setClearColor('#a9b9bb');
   const canvas = renderer.domElement; canvas.tabIndex = 0; canvas.setAttribute('aria-label', 'HarshitVerse 3D world. Use WASD to move, Shift to sprint, Space to jump, E to interact.'); host.appendChild(canvas);
   const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2('#abb6bd', 0.0065);
-  const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 1000); camera.position.set(13, 11.5, 32);
+  const camera = new THREE.PerspectiveCamera(55, 1, 0.25, 850); camera.position.set(10, 14, 39);
   scene.add(new THREE.HemisphereLight('#d4eaf7', '#70583c', 1.5));
   const sun = new THREE.DirectionalLight('#ffd2a0', 3.8); sun.position.set(-35, 65, -30); sun.castShadow = true;
   sun.shadow.camera.left = sun.shadow.camera.bottom = -55; sun.shadow.camera.right = sun.shadow.camera.top = 55; sun.shadow.camera.near = 1; sun.shadow.camera.far = 160; sun.shadow.bias = -0.001; sun.shadow.normalBias = 0.05; sun.shadow.mapSize.set(2048, 2048); scene.add(sun);
@@ -102,7 +102,7 @@ export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => vo
     } else {
       player.root.position.set(0, 0, 13); player.root.rotation.y = Math.PI; player.animate(time, 0, false);
       const orbit = state.reducedMotion ? 0 : Math.sin(time * 0.055) * 5;
-      desired.set(13 + orbit * 0.4, 11.5, 32); camera.position.lerp(desired, 1 - Math.exp(-1.6 * dt)); camera.lookAt(0, 4, -8);
+      desired.set(10 + orbit * 0.4, 14, 39); camera.position.lerp(desired, 1 - Math.exp(-1.6 * dt)); camera.lookAt(0, 4, -8);
     }
     world.update(time, state.reducedMotion);
     try { renderer.render(scene, camera); } catch { fail('This browser could not render the world. You can still explore every portfolio section directly.'); return; }

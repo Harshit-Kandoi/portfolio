@@ -103,3 +103,39 @@ test('all direct sections, map and keyboard focus remain accessible from the lob
   await page.keyboard.press('Escape'); await expect(page.getByRole('dialog')).toBeVisible();
   expect(await page.evaluate(() => document.pointerLockElement)).toBe(null);
 });
+
+test('lobby and gameplay layouts fit laptop and compact desktop viewports', async ({ page }, info) => {
+  await launch(page);
+  for (const size of [{ width: 1440, height: 900 }, { width: 1366, height: 768 }, { width: 1024, height: 640 }, { width: 900, height: 500 }]) {
+    await page.setViewportSize(size);
+    const copy = await page.locator('.verse-lobby-copy').boundingBox();
+    const dock = await page.locator('.verse-bottom').boundingBox();
+    expect(copy!.y + copy!.height).toBeLessThanOrEqual(dock!.y);
+    const help = await page.getByRole('button', { name: 'First time here? How to play' }).boundingBox();
+    expect(help!.y + help!.height).toBeLessThanOrEqual(copy!.y + copy!.height);
+    for (const button of await page.locator('.verse-destinations>button').all()) {
+      const rect = await button.boundingBox();
+      expect(rect!.x).toBeGreaterThanOrEqual(0);
+      expect(rect!.x + rect!.width).toBeLessThanOrEqual(size.width + 1);
+      const label = button.locator('strong');
+      expect(await label.evaluate(el => el.scrollWidth <= el.clientWidth + 1)).toBe(true);
+    }
+    if (size.width === 1024) await page.screenshot({ path: info.outputPath(`lobby-${size.width}.png`), animations: 'disabled' });
+  }
+  await page.getByRole('button', { name: 'Enter World' }).click();
+  for (const size of [{ width: 900, height: 500 }, { width: 1024, height: 640 }, { width: 1366, height: 768 }]) {
+    await page.setViewportSize(size);
+    const mission = await page.locator('.verse-mission-card').boundingBox();
+    const dock = await page.locator('.verse-bottom').boundingBox();
+    const prompt = await page.locator('.verse-interaction').boundingBox();
+    const controls = await page.locator('.verse-key-hints').boundingBox();
+    expect(mission!.y + mission!.height).toBeLessThan(dock!.y);
+    expect(prompt!.y + prompt!.height).toBeLessThan(dock!.y);
+    if (controls) expect(controls.x + controls.width).toBeLessThan(prompt!.x);
+    if (size.width === 900) await page.screenshot({ path: info.outputPath(`gameplay-${size.width}.png`), animations: 'disabled' });
+  }
+  await travel(page, 'Project District');
+  await page.screenshot({ path: info.outputPath('project-path.png'), animations: 'disabled' });
+  await travel(page, 'Cloud Citadel');
+  await page.screenshot({ path: info.outputPath('cloud-path.png'), animations: 'disabled' });
+});

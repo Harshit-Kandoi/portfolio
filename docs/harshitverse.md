@@ -20,13 +20,23 @@ The world uses original procedural geometry and canvas-generated signs, rather t
 
 Historical OS modules are retained because their apps, store and tests have shared dependencies; they are no longer loaded by the interactive entry. Removing that legacy tree is a separate cleanup once those dependencies are migrated.
 
+## Terrain and layout polish
+
+The ground layout now uses distinct rock and grass layers, a single shared paving grid for the plaza and every route, and a recessed river bed. Path intersections and bridge approaches no longer contain stacked paving surfaces. Position-based colors reduce the patchwork effect without changing the voxel style. All fast-travel arrivals remain paved and the existing level-ground movement and river collision rules remain valid.
+
+The lobby camera has a wider view of the hub and adjacent buildings. Gameplay uses a shorter header and destination dock, smaller minimap, and larger mission text. Lobby copy has bounded scrolling on short screens, destination labels wrap on narrower displays, and panel headers and footers remain fixed while their contents scroll. Below 560 pixels in height, the quest shows the active objective; the full journal remains available.
+
+Focused terrain checks cover paving overlap, river clearance, support-layer contact, arrival paving and bridge approaches. Browser layout checks cover 1440 × 900, 1366 × 768, 1024 × 640 and 900 × 500 viewports alongside the existing movement, interaction, mission and camera checks.
+
+This polish pass passed TypeScript, production build/prerender and seven focused terrain/navigation/state tests. The three existing game browser checks passed against the production build; the new responsive check passed separately after reducing duplicate screenshots that exceeded the software-renderer time budget. Screenshots were reviewed for the hub, Project District, Cloud Citadel and compact lobby/gameplay layouts. The latest low-quality browser sample used 30 draw calls. Hardware frame-rate validation is still outstanding.
+
 ## Performance
 
 Balanced mode limits device pixel ratio to 1.5 with one shadow-casting directional light. Low mode uses pixel ratio 1 and disables shadows. Solid scenery uses instance colors in one shared mesh, with a separate batch for each glowing accent. Each animated avatar uses a single instanced mesh; water foam and lantern glow are also batched. All scene resources, input listeners, instance buffers, the animation loop and the WebGL context are released on exit. Reduced motion disables the lobby camera orbit, atmospheric motion and interface animations.
 
 The Chromium software-renderer check sampled 30 draw calls and 4 FPS at 1440 × 900 in low mode. That is a constrained software-rendering measurement, not a hardware benchmark. The 30/60 FPS targets still require testing on real laptops and desktops.
 
-## Verification
+## Initial MVP verification
 
 - TypeScript validation passed.
 - 88 unit tests passed, including valid travel landings, river/bridge and building collision, interaction radii and exploration state.

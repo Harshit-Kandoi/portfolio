@@ -14,4 +14,42 @@
 @media(max-height:780px){.verse-lobby-copy{top:25%}.verse-lobby-copy h1{font-size:58px;margin:18px 0;letter-spacing:-3px}.verse-lobby-actions{margin-top:22px}.verse-lobby-note{margin-top:23px}.verse-scene-label{bottom:170px}.verse-topbar{height:80px;padding-top:17px;padding-bottom:17px}.verse-lobby-profile,.verse-player-card,.verse-minimap{top:102px}.verse-mission-card{top:190px}.verse-panel{max-height:90vh}}
 @media(max-width:950px){.verse-brand>div{font-size:21px}.verse-lobby-copy h1{font-size:51px}.verse-lobby-copy{width:410px}.verse-destination-heading{display:none}.verse-destinations{grid-template-columns:repeat(7,minmax(0,1fr))}.verse-destinations>button{flex-direction:column;align-items:flex-start;gap:5px;padding:12px!important}.verse-destinations small{display:none}.verse-bottom-meta>span{font-size:6px;letter-spacing:.7px}.verse-lobby-profile{transform:scale(.9);transform-origin:right top}.verse-map-layout{grid-template-columns:1fr 1fr;gap:15px}.verse-panel-header,.verse-panel-body{padding:21px}.verse-scene-label{display:none}.verse-topbar nav{gap:12px}}
 .verse-reduced-motion *{animation:none!important;transition:none!important}
+/* Give the scene more room during play, while keeping every section one click away. */
+.harshitverse{--dock-height:112px;--hud-gap:clamp(20px,2.5vw,38px)}
+.verse-topbar{padding-inline:var(--hud-gap)}
+.verse-destinations{grid-template-columns:100px repeat(7,minmax(0,1fr));padding-inline:var(--hud-gap)}
+.verse-destinations>button{min-width:0;padding:17px 12px!important}
+.verse-destinations strong{font-size:11px;white-space:normal;line-height:1.3}
+.verse-bottom-meta{padding-inline:var(--hud-gap);height:36px}
+.verse-bottom-meta>span{letter-spacing:1px;font-size:8px}
+.verse-bottom-meta button{font-size:11px;min-height:32px}
+.verse-lobby-copy{top:clamp(115px,24vh,240px);bottom:calc(var(--dock-height) + 30px);width:min(46vw,600px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:#79bbaa55 transparent;padding:0 8px 8px 0}
+.verse-lobby-copy h1{font-size:clamp(46px,5vw,76px);letter-spacing:-3px}
+.verse-lobby-note{margin-top:28px}
+.verse-scene-label{bottom:calc(var(--dock-height) + 42px)}
+.is-playing .verse-topbar{height:74px;padding-block:16px;background:linear-gradient(#11242e99,#11242e00);border-bottom:0}
+.is-playing .verse-brand>div{font-size:22px}
+.is-playing .verse-brand-symbol{width:33px;height:36px;font-size:17px}
+.is-playing .verse-brand small{font-size:7px;letter-spacing:1.5px;padding-top:6px}
+.is-playing .verse-player-card{top:88px;left:var(--hud-gap);width:226px}
+.is-playing .verse-mission-card{top:174px;left:var(--hud-gap);padding:14px 16px;background:#11242ed6}
+.verse-mission-card>div{font-size:11px;line-height:1.5}
+.verse-mission-card>.verse-eyebrow{font-size:8px}
+.verse-mission-card>div>span{width:13px;height:13px}
+.is-playing .verse-minimap{top:95px;right:calc(var(--hud-gap) + 6px);width:132px}
+.is-playing .verse-destination-heading{display:none}
+.is-playing .verse-destinations{grid-template-columns:repeat(7,minmax(0,1fr))}
+.is-playing .verse-destinations>button{padding:13px 14px!important;min-height:52px}
+.is-playing .verse-destinations small,.is-playing .verse-zone-arrow{display:none}
+.is-playing .verse-bottom-meta>span{letter-spacing:.8px}
+.is-playing .verse-key-hints{bottom:110px;left:var(--hud-gap)}
+.is-playing .verse-interaction{bottom:110px;max-width:calc(100vw - 540px);white-space:normal;text-align:center}
+.verse-interaction>span{display:block;font-size:11px}
+.verse-panel{max-height:calc(100dvh - 48px)}
+.verse-panel-header,.verse-panel-footer{flex-shrink:0}
+.verse-panel-body{min-height:0;scrollbar-gutter:stable}
+.verse-panel-footer>span{font-size:9px;letter-spacing:.8px}
+@media(max-width:1200px){.verse-destination-heading{display:none}.verse-destinations{grid-template-columns:repeat(7,minmax(0,1fr))}.verse-destinations>button{padding:14px 8px!important;gap:7px}.verse-zone-arrow{display:none}.verse-lobby-profile{right:var(--hud-gap)}.verse-lobby-intro{font-size:13px}.verse-lobby-copy{left:6%;width:47vw}.verse-bottom-meta>div{gap:14px}.verse-key-hints{font-size:10px}.is-playing .verse-destinations>button{padding:12px 8px!important}}
+@media(max-height:700px){.harshitverse{--dock-height:98px}.verse-lobby-copy{top:105px;bottom:118px}.verse-lobby-copy h1{font-size:clamp(42px,4.5vw,62px);margin:16px 0}.verse-lobby-actions{margin-top:20px;gap:12px}.verse-lobby-note{margin-top:20px;padding-top:12px}.verse-topbar{height:76px}.verse-lobby-profile{top:98px}.verse-lobby-profile,.verse-scene-label{transform:scale(.9);transform-origin:right top}.is-playing .verse-player-card{top:78px}.is-playing .verse-mission-card{top:162px}.is-playing .verse-minimap{top:86px;width:110px}.is-playing .verse-key-hints{bottom:103px}.is-playing .verse-interaction{bottom:106px}}
+@media(max-height:560px){.is-playing .verse-mission-card>div:not(.is-current){display:none}.is-playing .verse-mission-card{top:155px}.verse-lobby-note{display:none}.verse-lobby-copy{top:98px}.verse-lobby-copy h1{margin:12px 0}.verse-lobby-copy>.verse-eyebrow{font-size:8px}.verse-lobby-intro{font-size:12px}.verse-lobby-actions{margin-top:16px;gap:10px}.verse-lobby-actions .verse-enter{padding:12px 18px!important}.verse-wide-break{display:none}.is-playing .verse-key-hints{display:none}.is-playing .verse-interaction{max-width:70vw}}
 @media(prefers-reduced-motion:reduce){.harshitverse *{animation:none!important;transition:none!important}}

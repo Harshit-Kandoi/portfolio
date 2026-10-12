@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { zones, colliders, type Collider } from './world';
 import { makeAvatar } from './Avatar';
+import { createGroundLayout, groundColor, river as riverChannel } from './terrain';
 
 type Block = { p: [number, number, number]; s: [number, number, number]; color: string; glow: boolean; rotation: number };
 export function createEnvironment(scene: THREE.Scene) {
@@ -12,7 +13,6 @@ export function createEnvironment(scene: THREE.Scene) {
   const pick = (colors: string[]) => colors[Math.floor(random() * colors.length)];
   function box(x: number, y: number, z: number, w: number, h: number, d: number, color: string, glow = false, rotation = 0) { blocks.push({ p: [x, y, z], s: [w, h, d], color, glow, rotation }); }
   const stone = ['#6b777a', '#7b8683', '#8c9288', '#657478'];
-  const grass = ['#567346', '#5d8047', '#64854c', '#4b7046', '#6a8c52'];
   const foliage = ['#315d40', '#477247', '#527d42', '#6f8b48', '#3c694a'];
   function tree(x: number, z: number, height = 7, distant = false) {
     const ground = distant ? -2 : 0;
@@ -32,28 +32,9 @@ export function createEnvironment(scene: THREE.Scene) {
     box(x, y + 1.3, z, 0.82, 0.18, 0.82, '#55473a');
     for (const s of [-1, 1]) box(x + s * 0.3, y + 0.84, z, 0.07, 0.8, 0.64, '#604835');
   }
-  function path(ax: number, az: number, bx: number, bz: number, width = 3.8) {
-    const length = Math.hypot(bx - ax, bz - az); const angle = Math.atan2(bx - ax, bz - az);
-    for (let l = 0; l < length; l += 1.5) {
-      for (let k = -width / 2; k < width / 2; k += 1.3) {
-        const t = l / length; const x = ax + (bx - ax) * t + Math.cos(angle) * k; const z = az + (bz - az) * t - Math.sin(angle) * k;
-        box(x, 0.065, z, 1.26, 0.12, 1.4, pick(stone), false, angle);
-      }
-    }
-  }
-  // Block terraces create a real island silhouette, including visible cliffs.
-  for (let x = -52; x <= 52; x += 4) for (let z = -52; z <= 52; z += 4) {
-    const radius = Math.hypot(x, z); if (radius > 52 + 1.2 * Math.sin(x)) continue;
-    const inland = radius < 47;
-    box(x, inland ? -3.5 : -4.4, z, 4, inland ? 7 : 5.2, 4, pick(['#596264', '#657072', '#707978']));
-    box(x, inland ? -0.25 : -1.75, z, 4.03, 0.5, 4.03, pick(grass));
-  }
-  // Central paved square and raised foundation for the portal.
-  for (let x = -9; x <= 9; x += 1.5) for (let z = -11; z <= 5; z += 1.5) box(x, 0.055, z, 1.46, 0.1, 1.46, pick(stone));
-  for (const zone of zones.filter(z => z.id !== 'hub')) path(0, zone.z > 10 ? 14 : 1, zone.spawn[0], zone.spawn[1]);
-  path(0, 5, 0, 29, 6);
+  // Terrain layers meet at their edges, with a single paving grid and excavated river.
+  for (const block of createGroundLayout()) box(block.x, block.y, block.z, block.width, block.height, block.depth, groundColor(block));
   // Stone bridge with crenellated rails and warm lights over a flowing river.
-  box(0, 0.06, 9, 8.4, 0.1, 5, '#9da293');
   for (const side of [-1, 1]) {
     box(side * 4.2, 0.48, 9, 0.45, 0.95, 5, '#727f7e');
     for (let z = 6.8; z <= 11.3; z += 1.3) box(side * 4.2, 1.12, z, 0.7, 0.35, 0.7, '#8a9389');
@@ -208,9 +189,9 @@ export function createEnvironment(scene: THREE.Scene) {
   const waterMaterial = new THREE.MeshStandardMaterial({ color: '#407d8d', metalness: 0.42, roughness: 0.28, transparent: true, opacity: 0.92 });
   const ocean = new THREE.Mesh(oceanGeometry, waterMaterial); ocean.rotation.x = -Math.PI / 2; ocean.position.y = -3; scene.add(ocean);
   const riverGeometry = new THREE.PlaneGeometry(104, 3.6, 100, 4); riverGeometry.rotateX(-Math.PI / 2);
-  const river = new THREE.Mesh(riverGeometry, waterMaterial); river.position.set(0, 0.045, 9); scene.add(river);
+  const river = new THREE.Mesh(riverGeometry, waterMaterial); river.position.set(0, riverChannel.waterY, 9); scene.add(river);
   const foam = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ color: '#b9dee2', transparent: true, opacity: 0.25, depthWrite: false }), 52);
-  for (let j = 0; j < 52; j++) { transform.rotation.set(-Math.PI / 2, 0, 0); transform.scale.set(0.5 + random() * 1.6, 0.035, 1); transform.position.set((random() - 0.5) * 97, 0.11, 7.6 + random() * 2.8); transform.updateMatrix(); foam.setMatrixAt(j, transform.matrix); } foam.computeBoundingSphere(); scene.add(foam);
+  for (let j = 0; j < 52; j++) { transform.rotation.set(-Math.PI / 2, 0, 0); transform.scale.set(0.5 + random() * 1.6, 0.035, 1); const x = (random() - 0.5) * 87; transform.position.set(x < 0 ? x - 5 : x + 5, riverChannel.waterY + 0.04, 7.6 + random() * 2.8); transform.updateMatrix(); foam.setMatrixAt(j, transform.matrix); } foam.computeBoundingSphere(); scene.add(foam);
   const waterfall = new THREE.Mesh(new THREE.BoxGeometry(3.4, 9, 0.12), new THREE.MeshStandardMaterial({ color: '#8abccb', emissive: '#367a94', emissiveIntensity: 0.4, transparent: true, opacity: 0.75 })); waterfall.position.set(48.1, -4.3, 9); waterfall.rotation.y = Math.PI / 2; scene.add(waterfall);
   const portal = new THREE.Group(); portal.position.set(0, 3.6, -3.4);
   const aiOrb = new THREE.Group(); aiOrb.position.set(-34, 9.2, -25.6);
