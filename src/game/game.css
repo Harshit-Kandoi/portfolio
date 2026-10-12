@@ -53,3 +53,126 @@
 @media(max-height:700px){.harshitverse{--dock-height:98px}.verse-lobby-copy{top:105px;bottom:118px}.verse-lobby-copy h1{font-size:clamp(42px,4.5vw,62px);margin:16px 0}.verse-lobby-actions{margin-top:20px;gap:12px}.verse-lobby-note{margin-top:20px;padding-top:12px}.verse-topbar{height:76px}.verse-lobby-profile{top:98px}.verse-lobby-profile,.verse-scene-label{transform:scale(.9);transform-origin:right top}.is-playing .verse-player-card{top:78px}.is-playing .verse-mission-card{top:162px}.is-playing .verse-minimap{top:86px;width:110px}.is-playing .verse-key-hints{bottom:103px}.is-playing .verse-interaction{bottom:106px}}
 @media(max-height:560px){.is-playing .verse-mission-card>div:not(.is-current){display:none}.is-playing .verse-mission-card{top:155px}.verse-lobby-note{display:none}.verse-lobby-copy{top:98px}.verse-lobby-copy h1{margin:12px 0}.verse-lobby-copy>.verse-eyebrow{font-size:8px}.verse-lobby-intro{font-size:12px}.verse-lobby-actions{margin-top:16px;gap:10px}.verse-lobby-actions .verse-enter{padding:12px 18px!important}.verse-wide-break{display:none}.is-playing .verse-key-hints{display:none}.is-playing .verse-interaction{max-width:70vw}}
 @media(prefers-reduced-motion:reduce){.harshitverse *{animation:none!important;transition:none!important}}
+.harshitverse{height:100dvh;--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px)}
+.verse-world canvas{touch-action:none}
+.verse-classic-short{display:none}
+.verse-bottom-meta .verse-places-button{display:none}
+.verse-touch-controls{position:absolute;z-index:9;left:0;right:0;bottom:calc(70px + var(--safe-bottom));height:112px;pointer-events:none;user-select:none;-webkit-user-select:none}
+.verse-touch-stick{position:absolute;left:max(20px,env(safe-area-inset-left));bottom:0;width:112px;height:112px;border-radius:50%;border:1px solid #c1e8df66;background:radial-gradient(circle,#173542aa,#12283388);box-shadow:inset 0 0 0 12px #e1f7ed08;display:flex;align-items:center;justify-content:center;touch-action:none;pointer-events:auto}
+.verse-stick-cross{position:absolute;inset:24px;border:1px solid #c1e8df24;border-radius:50%}
+.verse-stick-knob{width:46px;height:46px;display:flex;align-items:center;justify-content:center;background:#b9e3dcd9;border:1px solid #e4fff0aa;color:#193c3c;border-radius:50%;box-shadow:0 4px 12px #00192344;pointer-events:none}
+.verse-stick-label{position:absolute;bottom:6px;font-size:8px;letter-spacing:1.5px;color:#d9eee7;pointer-events:none}
+.verse-touch-actions{position:absolute;right:max(20px,env(safe-area-inset-right));bottom:0;display:flex;flex-direction:column;gap:8px;pointer-events:auto}
+.verse-touch-actions button{width:64px;min-height:50px;display:flex;gap:4px;align-items:center;justify-content:center;flex-direction:column;font-size:11px;border:1px solid #c1e8df66;background:#142e3ce8;border-radius:10px;touch-action:manipulation}
+.verse-touch-actions button[aria-pressed=true]{background:#b9e3dc;color:#193c3c;border-color:#e4fff0}
+.verse-tap-label{font-size:10px;border:1px solid #b9e3dc55;color:#b9e3dc;padding:5px 8px;border-radius:4px}
+.has-touch.is-playing .verse-destinations{display:none}
+.has-touch .verse-bottom-meta{height:52px}
+.has-touch .verse-topbar{padding-left:max(var(--hud-gap),env(safe-area-inset-left));padding-right:max(var(--hud-gap),env(safe-area-inset-right))}
+.has-touch .verse-bottom-meta{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}
+.has-touch .verse-bottom{padding-bottom:var(--safe-bottom)}
+.has-touch .verse-bottom-meta button{min-height:44px}
+.has-touch .verse-bottom-meta .verse-places-button{display:flex}
+.has-touch.is-playing .verse-bottom-meta>span{display:none}
+.has-touch.is-playing .verse-bottom-meta>div{flex:1;justify-content:center;gap:24px}
+.has-touch .verse-bottom-meta kbd,.has-touch .verse-key-hints{display:none}
+.has-touch.is-playing .verse-interaction{bottom:calc(198px + var(--safe-bottom));max-width:min(70vw,420px)}
+.has-touch.is-playing .verse-interaction>button{min-height:48px}
+.has-touch .verse-panel-footer kbd{display:none}
+@media(max-width:850px){
+  .harshitverse{--hud-gap:14px;--dock-height:112px}
+  .verse-topbar,.is-playing .verse-topbar{height:calc(64px + var(--safe-top));padding:calc(10px + var(--safe-top)) max(14px,env(safe-area-inset-right)) 10px max(14px,env(safe-area-inset-left));background:linear-gradient(#102732cc,#10273211);gap:8px}
+  .verse-brand,.is-playing .verse-brand{gap:8px;flex-shrink:0}
+  .verse-brand>div,.is-playing .verse-brand>div{font-size:20px;letter-spacing:-1px}
+  .verse-brand-symbol,.is-playing .verse-brand-symbol{width:29px;height:34px;font-size:16px}
+  .verse-brand small,.is-playing .verse-brand small{display:none}
+  .verse-topbar nav{gap:6px;font-size:11px}
+  .verse-topbar nav>a{min-width:44px;min-height:44px;justify-content:center}
+  .verse-topbar nav>a>span,.verse-classic-full{display:none}
+  .verse-classic-short{display:block}
+  .verse-topbar .verse-classic-link{min-height:44px;padding:8px!important;gap:4px}
+  .verse-icon-button{min-width:44px;min-height:44px}
+  .verse-atmosphere{background:linear-gradient(0deg,#0b202cf5 12%,#0b202cd9 38%,#0b202c55 70%,#0b202c22)}
+  .is-playing .verse-atmosphere{background:linear-gradient(0deg,#0b202c44,transparent 40%,transparent 65%,#0b202c66)}
+  .verse-lobby-copy{top:clamp(100px,calc(100dvh - 480px),260px);bottom:calc(var(--dock-height) + var(--safe-bottom) + 20px);left:24px;width:calc(100% - 48px);padding-right:0}
+  .verse-lobby-copy h1{font-size:clamp(38px,10vw,56px);letter-spacing:-2px;margin:14px 0}
+  .verse-lobby-copy h1 em{letter-spacing:-2px}
+  .verse-lobby-copy>.verse-eyebrow{font-size:8px;letter-spacing:1.3px}
+  .verse-lobby-intro{font-size:13px;line-height:1.7;max-width:450px}
+  .verse-wide-break,.verse-lobby-profile,.verse-lobby-note,.verse-scene-label{display:none}
+  .verse-lobby-actions{margin-top:22px;gap:12px}
+  .verse-enter{min-height:52px}
+  .verse-text-button{min-height:44px}
+  .verse-bottom{padding-bottom:var(--safe-bottom)}
+  .verse-destinations{display:flex;padding:0 14px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
+  .verse-destination-heading{display:none}
+  .verse-destinations>button{flex:0 0 128px;flex-direction:row;min-height:60px;padding:12px 10px!important}
+  .verse-destinations strong{font-size:11px;line-height:1.4}
+  .verse-destinations small{display:none}
+  .verse-bottom-meta,.has-touch .verse-bottom-meta{padding:0 12px;height:52px}
+  .verse-bottom-meta>span{display:none}
+  .verse-bottom-meta>div,.has-touch.is-playing .verse-bottom-meta>div{width:100%;justify-content:space-between;gap:6px}
+  .verse-bottom-meta button{min-height:44px;gap:5px;font-size:11px}
+  .verse-bottom-meta button[aria-label]{min-width:44px;justify-content:center}
+  .verse-bottom-meta kbd{display:none}
+  .verse-bottom-meta .verse-places-button{display:flex}
+  .is-playing .verse-player-card{top:calc(76px + var(--safe-top));width:185px;left:14px;padding:8px 10px;gap:8px}
+  .verse-player-card strong{font-size:11px}
+  .verse-player-card .verse-portrait{width:32px;height:36px}
+  .verse-player-card .verse-progress{width:95px}
+  .is-playing .verse-mission-card{top:calc(147px + var(--safe-top));left:14px;width:185px;padding:11px 12px}
+  .is-playing .verse-mission-card>div:not(.is-current){display:none}
+  .is-playing .verse-mission-card>button{margin-bottom:0}
+  .is-playing .verse-minimap{top:calc(80px + var(--safe-top));right:20px;width:82px}
+  .verse-minimap>strong{font-size:10px;margin-top:10px}
+  .verse-minimap>span{font-size:6px}
+  .verse-panel-scrim{padding:calc(10px + var(--safe-top)) 10px calc(10px + var(--safe-bottom))}
+  .verse-panel{width:100%;max-height:calc(100dvh - 20px - var(--safe-top) - var(--safe-bottom))}
+  .verse-panel-header,.verse-panel-body{padding:18px}
+  .verse-panel-header h2{font-size:22px}
+  .verse-panel-header .verse-eyebrow{font-size:7px}
+  .verse-panel-footer{padding:8px 18px}
+  .verse-panel-footer button{min-height:44px;font-size:12px}
+  .verse-panel-footer>span{font-size:7px}
+  .verse-body-copy{font-size:14px}
+  .verse-project-card p{font-size:12px}
+  .verse-contact-card{padding:20px}
+  .verse-contact-card>a{font-size:14px;overflow-wrap:anywhere}
+  .verse-controls-list>div{grid-template-columns:110px minmax(0,1fr);gap:14px}
+  .verse-controls-list kbd{white-space:normal;line-height:1.4}
+  .verse-setting:not(label){flex-direction:column;align-items:flex-start}
+  .verse-setting>.verse-segmented{width:100%}
+  .verse-segmented button{flex:1;min-height:44px;font-size:12px}
+  .verse-setting input{min-width:24px;min-height:24px}
+  .verse-map-destinations button{min-height:58px}
+  .verse-map-destinations strong{font-size:13px}
+  .verse-map-destinations small{font-size:11px}
+  .verse-dialogue-options>*{min-height:48px}
+  .verse-primary,.verse-secondary{min-height:44px}
+  .verse-error{top:calc(84px + var(--safe-top));bottom:calc(var(--dock-height) + var(--safe-bottom) + 20px);overflow-y:auto;width:calc(100% - 40px)}
+  .verse-error h1{font-size:28px}
+}
+@media(max-width:600px){.verse-project-grid,.verse-map-layout{grid-template-columns:1fr}.verse-map-art{max-height:300px}.verse-map-layout{gap:18px}}
+@media(max-width:420px){.verse-brand-symbol,.is-playing .verse-brand-symbol{display:none}.verse-brand>div,.is-playing .verse-brand>div{font-size:17px}.verse-topbar nav{gap:4px}.verse-topbar .verse-classic-link>svg{display:none}}
+@media(max-height:500px) and (max-width:950px){
+  .has-touch .verse-destinations{display:none}
+  .has-touch .verse-lobby-copy{top:calc(78px + var(--safe-top));bottom:calc(68px + var(--safe-bottom));left:24px;width:54vw}
+  .has-touch .verse-lobby-copy h1{font-size:32px;line-height:1.08;margin:10px 0}
+  .has-touch .verse-lobby-copy>.verse-eyebrow{display:none}
+  .has-touch .verse-lobby-intro{font-size:12px}
+  .has-touch .verse-lobby-actions{margin-top:14px;gap:12px;flex-direction:row;align-items:center}
+  .has-touch .verse-lobby-actions .verse-enter{min-height:44px;width:190px;flex-shrink:0;padding:10px 16px!important}
+  .has-touch .verse-lobby-actions .verse-text-button{min-height:44px;font-size:11px!important;flex:1;line-height:1.4}
+}
+@media(max-height:500px){
+  .has-touch.is-playing .verse-topbar{height:calc(54px + var(--safe-top));padding-block:calc(5px + var(--safe-top)) 5px}
+  .has-touch.is-playing .verse-player-card,.has-touch.is-playing .verse-mission-card{display:none}
+  .has-touch.is-playing .verse-minimap{top:calc(66px + var(--safe-top));width:68px}
+  .has-touch.is-playing .verse-minimap>span{display:none}
+  .verse-touch-controls{height:90px;bottom:calc(65px + var(--safe-bottom))}
+  .verse-touch-stick{width:90px;height:90px}
+  .verse-stick-knob{width:36px;height:36px}
+  .verse-touch-actions{flex-direction:row;gap:8px}
+  .verse-touch-actions button{width:56px;min-height:48px}
+  .has-touch.is-playing .verse-interaction{bottom:calc(65px + var(--safe-bottom));max-width:40vw}
+}

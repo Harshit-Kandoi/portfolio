@@ -132,6 +132,8 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
       {/* Mobile drawer */}
       {mobileOpen && (
         <div
+          role="navigation"
+          aria-label="Mobile navigation"
           className="fixed inset-0 z-40 md:hidden flex flex-col justify-between pb-8"
           style={{
             background: isDark ? 'rgba(20,19,17,0.97)' : 'rgba(247,244,237,0.97)',
@@ -161,7 +163,7 @@ export default function ClassicNavbar({ activeSection, onEnterOS, theme, onToggl
               style={{ color: isDark ? '#ffb089' : '#b94716' }}
             >
               <Monitor className="w-5 h-5" />
-              <span>HarshitVerse · desktop adventure</span>
+              <span>Enter HarshitVerse</span>
             </button>
           </div>
 

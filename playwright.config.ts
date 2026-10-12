@@ -1,5 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const port = Number(process.env.PLAYWRIGHT_PORT || 5173);
+const previewURL = `http://localhost:${port}/`;
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -8,7 +11,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'line',
   use: {
-    baseURL: 'http://localhost:5173/',
+    baseURL: previewURL,
     trace: 'on-first-retry',
   },
   projects: [
@@ -25,8 +28,8 @@ export default defineConfig({
   ],
   webServer: {
     // CI tests the production build (the workflow provides dist/); locally the dev server.
-    command: process.env.CI ? 'npm run preview -- --port 5173 --strictPort' : 'npm run dev',
-    url: 'http://localhost:5173/',
+    command: process.env.CI ? `npm run preview -- --port ${port} --strictPort` : `npm run dev -- --port ${port} --strictPort`,
+    url: previewURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },

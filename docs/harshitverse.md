@@ -6,9 +6,9 @@ React 18, TypeScript, Vite 6, Tailwind 4, Zustand and Framer Motion. There is no
 
 Portfolio facts come from src/data/config.ts, projects.ts, experience.ts, skills.ts and blogs.ts. Resume navigation uses the base-aware asset helper. ClassicPortfolio has three interactive entry points: the navbar, hero shortcut and lab preview. Desktop.tsx and its window/taskbar tree previously rendered the interactive mode.
 
-## Plan
+## Initial MVP plan
 
-1. Keep the classic page, public URLs, content data, analytics initialization, prerender and Netlify configuration. Replace the interactive App branch and its preview/labels. Mobile defaults to classic, including saved desktop sessions.
+1. Keep the classic page, public URLs, content data, analytics initialization, prerender and Netlify configuration. Replace the interactive App branch and its preview/labels. New visitors start in classic; the current game supports both desktop and touch input.
 2. Add a lazy Three.js module with original procedural voxel geometry, a kinematic player, bounded movement, building collision and a camera constrained by world collision volumes. Reuse Zustand for versioned exploration state. Avoid physics/WASM dependencies for this compact, level island.
 3. Build the hub, Project District, Cloud Citadel and Career Guild. Use shared instanced geometry for foliage, masonry and decorative detail; add sunset lighting, water, lanterns and distant islands.
 4. Integrate existing project/career/skills/blog records through accessible HTML panels, a guide, map, fast travel and introductory mission. Content is always available directly.
@@ -29,6 +29,16 @@ The lobby camera has a wider view of the hub and adjacent buildings. Gameplay us
 Focused terrain checks cover paving overlap, river clearance, support-layer contact, arrival paving and bridge approaches. Browser layout checks cover 1440 × 900, 1366 × 768, 1024 × 640 and 900 × 500 viewports alongside the existing movement, interaction, mission and camera checks.
 
 This polish pass passed TypeScript, production build/prerender and seven focused terrain/navigation/state tests. The three existing game browser checks passed against the production build; the new responsive check passed separately after reducing duplicate screenshots that exceeded the software-renderer time budget. Screenshots were reviewed for the hub, Project District, Cloud Citadel and compact lobby/gameplay layouts. The latest low-quality browser sample used 30 draw calls. Hardware frame-rate validation is still outstanding.
+
+## Mobile support
+
+The desktop-only entry restriction has been removed. Every classic launch button now opens HarshitVerse on phones and tablets, and a saved interactive preference opens the lobby on any screen. Visitors without a saved preference continue to start in classic. Prerendered content remains readable if the app bundle fails to load.
+
+Touch controls share transient input with the same movement and collision loop used on desktop. The left stick provides proportional movement, a swipe on the scene rotates the camera, and two fingers pinch to adjust distance. Sprint is a toggle, Jump is a tap, and nearby prompts open the same content panels. Separate pointer capture allows movement and camera input at the same time. Input clears on menus, travel, blur, page hiding, rotation/resizing and teardown; touch input never requests mouse pointer lock.
+
+Touch layouts use a compact Places menu, map and journal, scrollable HTML panels, 44-pixel menu targets, safe-area padding and dynamic viewport height. Both portrait and landscape are supported. Touch devices default to low graphics unless a persisted preference overrides it. Their renderer disables multisample antialiasing, caps pixel ratio at 1 / 1.25 / 1.5 for low / balanced / high and uses 1024-pixel shadow maps when shadows are enabled.
+
+Mobile verification passed TypeScript, lint, production build/prerender and all 97 unit tests, including 13 focused terrain/navigation/touch checks. The production Chromium checks passed across 13 cases: desktop gameplay and layouts, saved-session and WebGL fallback behavior, classic mobile navigation and prerender, and three mobile game scenarios. Native touch dispatch covered simultaneous stick/camera/button input, jumping, sprinting, pinch zoom, map travel, paused movement, rotation, direct career/project content and swipe scrolling. Layout checks included 320 × 568 portrait and 851 × 393 landscape. Reviewed previews are retained as [mobile portrait](screenshots/mobile-portrait.png) and [mobile landscape](screenshots/mobile-landscape.png). These are phone-emulation checks; physical Android/iOS performance and Safari still require device validation.
 
 ## Performance
 

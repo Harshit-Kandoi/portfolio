@@ -1,6 +1,6 @@
 # Harshit Kandoi — Portfolio (v3)
 
-A scroll-first portfolio with **HarshitVerse**, an optional playable 3D adventure for desktop and laptop browsers. Explore an original voxel island, meet the guide, and discover real projects, career details, articles, and contact links. Phones and tablets keep the responsive classic portfolio.
+A scroll-first portfolio with **HarshitVerse**, an optional playable 3D adventure for desktop, phone and tablet browsers. Explore an original voxel island, meet the guide, and discover real projects, career details, articles, and contact links. New visitors start in the responsive classic portfolio; a saved game preference opens the lobby on any screen.
 
 Live at **https://portfolio.harshitkandoi.in/**.
 
@@ -15,6 +15,8 @@ Live at **https://portfolio.harshitkandoi.in/**.
 - **Accessibility**: direct portfolio/resume access, HTML content panels, keyboard focus management, WebGL fallback, graphics presets, reduced motion, and optional original ambient audio.
 
 Open the **HarshitVerse** button on the classic page, then **Enter World**. Controls: WASD/arrows to move, Shift to sprint, Space to jump, E to interact, M for map, Tab for journal, Esc to pause. Click the world to capture the mouse; scroll to adjust camera distance. See [architecture and verification](docs/harshitverse.md).
+
+On touch screens, drag the left movement stick, swipe the scene to look, and pinch to zoom. Tap Sprint to toggle running, Jump to jump, and a nearby interaction prompt to open content. Places, World map, Journal and Settings are always available. Portrait and landscape are supported; phones start with low graphics unless a saved setting overrides it.
 
 ## Tech
 
@@ -49,7 +51,7 @@ npm run dev        # http://localhost:5173/
 
 ## Prerendering
 
-`npm run build` also renders the classic page to static HTML (`src/entry-prerender.tsx` → `scripts/prerender.mjs`) and puts it inside `#root` in `dist/index.html`. The headline paints before any JavaScript runs (~25% faster first paint on slow 4G), and crawlers and visitors without JavaScript get the full page. React then renders over it with `createRoot` (not hydration), so per-visitor state such as the dark theme can't cause mismatches; a tiny inline script applies the saved theme, or clears the page for visitors who left in interactive mode, before first paint.
+`npm run build` also renders the classic page to static HTML (`src/entry-prerender.tsx` → `scripts/prerender.mjs`) and puts it inside `#root` in `dist/index.html`. The headline paints before any JavaScript runs (~25% faster first paint on slow 4G), and crawlers and visitors without JavaScript get the full page. React then renders over it with `createRoot` (not hydration), so per-visitor state such as the dark theme can't cause mismatches. A tiny inline script applies the saved theme. The prerender stays available even for saved game sessions if the app bundle fails to load.
 
 ## Deployment
 

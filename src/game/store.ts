@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { ZoneId } from './world';
-export type Panel = ZoneId | 'guide' | 'map' | 'missions' | 'settings' | 'help' | null;
+export type Panel = ZoneId | 'guide' | 'map' | 'places' | 'missions' | 'settings' | 'help' | null;
 interface GameState {
   playing: boolean; panel: Panel; quality: 'low' | 'balanced' | 'high'; reducedMotion: boolean; sound: boolean;
   completed: string[]; visited: ZoneId[]; travel: { x: number; z: number; serial: number };
@@ -10,7 +10,7 @@ interface GameState {
   teleport: (x: number, z: number) => void;
 }
 export const useGame = create<GameState>()(persist((set, get) => ({
-  playing: false, panel: null, quality: 'balanced', reducedMotion: typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches,
+  playing: false, panel: null, quality: typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches ? 'low' : 'balanced', reducedMotion: typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches,
   sound: false, completed: [], visited: [], travel: { x: 0, z: 13, serial: 0 },
   setPlaying: playing => set({ playing, panel: null }), open: panel => set({ panel }),
   mark: id => set({ completed: get().completed.includes(id) ? get().completed : [...get().completed, id] }),

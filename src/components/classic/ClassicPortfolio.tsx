@@ -566,7 +566,7 @@ function LabSection({ onLaunch, isDark }: { onLaunch: (rect: DOMRect) => void; i
         <h2>A little world. A different way to explore.</h2>
         <p>
           Step into HarshitVerse, a playable 3D adventure through my projects, engineering journey, and ideas.
-          Built for curious explorers on desktop and laptop browsers.
+          Explore with keyboard and mouse, or touch controls on your phone.
         </p>
       </div>
       <MonitorWidget onLaunch={onLaunch} isDark={isDark} />
