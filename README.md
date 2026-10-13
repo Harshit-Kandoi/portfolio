@@ -10,7 +10,7 @@ Live at **https://portfolio.harshitkandoi.in/**.
 
 - **Classic portfolio** (default for every visitor): hero, selected work, services, experience, contact form.
 - **HarshitVerse**: a cinematic lobby, original instanced voxel scenery, a custom animated avatar, movement/camera controls, collision, and an interactive island.
-- **Seven destinations**: Central Hub, Project District, Cloud Citadel, Career Guild, AI Nexus, Knowledge Tavern, Signal Peak. Portfolio panels and fast travel are available immediately.
+- **Seven destinations**: Central Hub, Project District, Cloud Citadel, Career Guild, AI Nexus, Knowledge Tavern, Contact Beacon. Portfolio panels and fast travel are available immediately.
 - **Exploration**: a guide with predefined dialogue, world map/minimap, introductory quest, and browser-local progress. No account or API required.
 - **Accessibility**: direct portfolio/resume access, HTML content panels, keyboard focus management, WebGL fallback, graphics presets, reduced motion, and optional original ambient audio.
 

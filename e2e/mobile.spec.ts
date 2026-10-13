@@ -79,7 +79,8 @@ test.describe('Mobile HarshitVerse', () => {
     await expect.poll(async () => Number(await canvas.getAttribute('data-camera-yaw')), movementCheck).toBeGreaterThan(0.3);
     await touch.end(2);
     await touch.tap(page.getByRole('button', { name: 'Jump', exact: true }));
-    await expect.poll(async () => Number(await canvas.getAttribute('data-player-y')), movementCheck).toBeGreaterThan(0.1);
+    // Peak height verifies a real jump even when the software renderer finishes the arc between polls.
+    await expect.poll(async () => Number(await canvas.getAttribute('data-jump-peak-y')), movementCheck).toBeGreaterThan(0.1);
     await touch.end(1);
     expect(await page.evaluate(() => document.pointerLockElement)).toBeNull();
     await expect.poll(async () => Number(await canvas.getAttribute('data-player-y')), movementCheck).toBe(0);
@@ -174,7 +175,13 @@ test.describe('Mobile HarshitVerse', () => {
     for (const offset of [75, 150, 225]) await touch.move(20, strip.x + strip.width - 35 - offset, stripY);
     await touch.end(20);
     await expect.poll(() => destinations.evaluate(el => el.scrollLeft)).toBeGreaterThan(40);
-    await page.getByRole('button', { name: 'Explore projects', exact: true }).tap();
+    let previousScroll = -1, settled = 0;
+    await expect.poll(async () => {
+      const scroll = await destinations.evaluate(el => el.scrollLeft);
+      settled = Math.abs(scroll - previousScroll) < 1 ? settled + 1 : 0; previousScroll = scroll;
+      return settled;
+    }, { intervals: [100] }).toBeGreaterThanOrEqual(3);
+    await touch.tap(page.getByRole('button', { name: 'Explore projects', exact: true }));
     await expect(page.getByRole('dialog')).toContainText('Financial Mirror');
     const body = page.locator('.verse-panel-body'); const content = (await body.boundingBox())!;
     const centerX = content.x + content.width / 2, startY = content.y + content.height * 0.75;

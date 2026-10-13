@@ -20,6 +20,7 @@ async function travel(page: Page, name: string) {
   await page.locator('.verse-world canvas').focus();
 }
 test('renders a real scene, moves, sprints, jumps and pauses with portfolio panels', async ({ page }, info) => {
+  test.setTimeout(180000); // Balanced screenshots and native collisions on the software renderer.
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message)); page.on('console', msg => { if (msg.type() === 'error' && /THREE|WebGL|shader/i.test(msg.text())) errors.push(msg.text()); });
   await launch(page);
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
@@ -52,9 +53,17 @@ test('renders a real scene, moves, sprints, jumps and pauses with portfolio pane
   await page.screenshot({ path: info.outputPath('project.png'), animations: 'disabled' });
   await page.keyboard.press('Escape'); await canvas.focus();
   await page.keyboard.down('w');
-  await expect.poll(async () => Number(await canvas.getAttribute('data-player-z')), movementCheck).toBeLessThan(-8.35);
+  await expect.poll(async () => Number(await canvas.getAttribute('data-player-z')), movementCheck).toBeLessThan(-4.25);
   await page.keyboard.up('w');
-  expect(Number(await canvas.getAttribute('data-player-z'))).toBeGreaterThan(-8.55); // building collision
+  await page.waitForTimeout(400);
+  expect(Number(await canvas.getAttribute('data-player-z'))).toBeGreaterThan(-4.5); // solid terminal
+  await page.keyboard.down('d');
+  await expect.poll(async () => Number(await canvas.getAttribute('data-player-x')), movementCheck).toBeGreaterThan(-21);
+  await page.keyboard.up('d');
+  await page.keyboard.down('w');
+  await expect.poll(async () => Number(await canvas.getAttribute('data-player-z')), movementCheck).toBeLessThan(-8.5);
+  await page.keyboard.up('w');
+  expect(Number(await canvas.getAttribute('data-player-z'))).toBeGreaterThan(-8.75); // facade collision
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('button', { name: 'balanced', exact: true }).click();
   await expect(page.getByRole('button', { name: 'balanced', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -83,10 +92,24 @@ test('guide dialogue, fast travel and mission completion persist on reload', asy
 });
 test('all direct sections, map and keyboard focus remain accessible from the lobby', async ({ page }, info) => {
   await launch(page);
-  for (const name of ['Cloud Citadel', 'AI Nexus', 'Knowledge Tavern', 'Signal Peak']) {
+  for (const name of ['Cloud Citadel', 'AI Nexus', 'Knowledge Tavern', 'Contact Beacon']) {
     await page.locator('.verse-destinations').getByRole('button', { name: new RegExp(name) }).click(); await expect(page.getByRole('dialog')).toBeVisible();
     await page.keyboard.press('Tab'); expect(await page.getByRole('dialog').evaluate(el => el.contains(document.activeElement))).toBe(true);
-    if (name === 'Signal Peak') await expect(page.getByRole('link', { name: /hello@harshitkandoi.in/ })).toHaveAttribute('href', 'mailto:hello@harshitkandoi.in');
+    if (name === 'Cloud Citadel') {
+      await expect(page.getByRole('dialog')).toContainText('Google Cloud Platform (GCP)');
+      await expect(page.getByRole('dialog')).toContainText('Associate Software Engineer');
+      await expect(page.getByRole('dialog')).toContainText('Google Associate Cloud Engineer (ACE)');
+      await expect(page.getByRole('link', { name: 'View credential' }).first()).toHaveAttribute('href', /^https:\/\//);
+      await expect(page.getByRole('button', { name: /Local GCP Emulator/ })).toBeAttached();
+      await page.screenshot({ path: info.outputPath('cloud-exhibit.png'), animations: 'disabled' });
+    }
+    if (name === 'AI Nexus') await expect(page.getByRole('dialog')).toContainText('M.Tech. Artificial Intelligence & Machine Learning');
+    if (name === 'Contact Beacon') {
+      await expect(page.getByRole('link', { name: /hello@harshitkandoi.in/ })).toHaveAttribute('href', 'mailto:hello@harshitkandoi.in');
+      await expect(page.getByRole('link', { name: 'Email Harshit' })).toHaveAttribute('href', 'mailto:hello@harshitkandoi.in');
+      await expect(page.getByRole('link', { name: 'Connect on LinkedIn' })).toHaveAttribute('href', 'https://linkedin.com/in/harshit-kandoi');
+      await page.screenshot({ path: info.outputPath('contact-exhibit.png'), animations: 'disabled' });
+    }
     await page.keyboard.press('Escape');
   }
   await page.getByRole('button', { name: /World map/ }).click(); await page.screenshot({ path: info.outputPath('map.png'), animations: 'disabled' });
@@ -97,7 +120,7 @@ test('all direct sections, map and keyboard focus remain accessible from the lob
   await page.mouse.move(20, 430);
   await expect.poll(async () => Math.abs(Number(await canvas.getAttribute('data-camera-yaw')))).toBeGreaterThan(2);
   await expect.poll(async () => Number(await canvas.getAttribute('data-camera-z'))).toBeLessThan(-20);
-  expect(Number(await canvas.getAttribute('data-camera-z'))).toBeGreaterThan(-22.8); // camera remains in front of the citadel wall
+  expect(Number(await canvas.getAttribute('data-camera-z'))).toBeGreaterThan(-23); // camera remains in front of the rendered citadel wings (z = -23.25)
   const calls = Number(await canvas.getAttribute('data-draw-calls')); expect(calls).toBeLessThan(80);
   console.log('HarshitVerse low quality: ' + calls + ' draw calls; software-renderer FPS sample: ' + await canvas.getAttribute('data-fps'));
   await page.keyboard.press('Escape'); await expect(page.getByRole('dialog')).toBeVisible();
@@ -105,6 +128,7 @@ test('all direct sections, map and keyboard focus remain accessible from the lob
 });
 
 test('lobby and gameplay layouts fit laptop and compact desktop viewports', async ({ page }, info) => {
+  test.setTimeout(180000); // Multiple sizes and destination screenshots share one WebGL session.
   await launch(page);
   for (const size of [{ width: 1440, height: 900 }, { width: 1366, height: 768 }, { width: 1024, height: 640 }, { width: 900, height: 500 }]) {
     await page.setViewportSize(size);
@@ -138,4 +162,8 @@ test('lobby and gameplay layouts fit laptop and compact desktop viewports', asyn
   await page.screenshot({ path: info.outputPath('project-path.png'), animations: 'disabled' });
   await travel(page, 'Cloud Citadel');
   await page.screenshot({ path: info.outputPath('cloud-path.png'), animations: 'disabled' });
+  await travel(page, 'Career Guild');
+  await page.screenshot({ path: info.outputPath('career-path.png'), animations: 'disabled' });
+  await travel(page, 'Contact Beacon');
+  await page.screenshot({ path: info.outputPath('contact-path.png'), animations: 'disabled' });
 });

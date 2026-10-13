@@ -1,32 +1,40 @@
 import * as THREE from 'three';
-import { zones, colliders, type Collider } from './world';
+import { zones, boxCollider, type Collider } from './world';
 import { makeAvatar } from './Avatar';
 import { createGroundLayout, groundColor, river as riverChannel } from './terrain';
 
-type Block = { p: [number, number, number]; s: [number, number, number]; color: string; glow: boolean; rotation: number };
-export function createEnvironment(scene: THREE.Scene) {
+type Block = { p: [number, number, number]; s: [number, number, number]; color: string; glow: boolean; rotation: number; solid?: boolean };
+type Sign = { title: string; subtitle: string; x: number; y: number; z: number; color: string; width: number; landmark?: boolean };
+// Rendering and movement use this same deterministic scenery layout.
+export function createSceneryLayout() {
   const blocks: Block[] = [];
-  const obstacles: Collider[] = [...colliders];
+  const obstacles: Collider[] = [];
   const lanternPositions: number[] = [];
+  const signs: Sign[] = [];
   let seed = 7391;
   const random = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
   const pick = (colors: string[]) => colors[Math.floor(random() * colors.length)];
   function box(x: number, y: number, z: number, w: number, h: number, d: number, color: string, glow = false, rotation = 0) { blocks.push({ p: [x, y, z], s: [w, h, d], color, glow, rotation }); }
+  function solid(x: number, y: number, z: number, w: number, h: number, d: number, color: string, glow = false) {
+    blocks.push({ p: [x, y, z], s: [w, h, d], color, glow, rotation: 0, solid: true });
+    obstacles.push(boxCollider(x, y, z, w, h, d));
+  }
+  function addSign(title: string, subtitle: string, x: number, y: number, z: number, color: string, width: number, landmark = false) { signs.push({ title, subtitle, x, y, z, color, width, landmark }); }
   const stone = ['#6b777a', '#7b8683', '#8c9288', '#657478'];
   const foliage = ['#315d40', '#477247', '#527d42', '#6f8b48', '#3c694a'];
   function tree(x: number, z: number, height = 7, distant = false) {
     const ground = distant ? -2 : 0;
-    box(x, ground + height / 2, z, 0.7, height, 0.7, '#654635');
+    if (distant) box(x, ground + height / 2, z, 0.7, height, 0.7, '#654635');
+    else solid(x, height / 2, z, 0.7, height, 0.7, '#654635');
     box(x + 0.8, ground + height * 0.71, z, 1.8, 0.38, 0.44, '#654635');
     for (let j = 0; j < 8; j++) {
       const w = 2.1 + random() * 1.8;
       box(x + (random() - 0.5) * 3.7, ground + height - 0.8 + random() * 2.4, z + (random() - 0.5) * 3.4, w, 1.1 + random() * 1.6, w * 0.8, pick(foliage));
     }
-    if (!distant) obstacles.push({ minX: x - 0.36, maxX: x + 0.36, minZ: z - 0.36, maxZ: z + 0.36, height });
   }
   function lantern(x: number, z: number, y = 0, tall = false) {
-    if (tall) { box(x, y + 1.6, z, 0.2, 3.2, 0.2, '#4b3b32'); y += 3; }
-    box(x, y + 0.22, z, 0.8, 0.44, 0.8, '#62706d');
+    if (tall) { solid(x, y + 1.6, z, 0.2, 3.2, 0.2, '#4b3b32'); y += 3; }
+    solid(x, y + 0.22, z, 0.8, 0.44, 0.8, '#62706d');
     box(x, y + 0.86, z, 0.52, 0.75, 0.52, '#ffbd64', true);
     lanternPositions.push(x, y + 0.86, z);
     box(x, y + 1.3, z, 0.82, 0.18, 0.82, '#55473a');
@@ -36,13 +44,13 @@ export function createEnvironment(scene: THREE.Scene) {
   for (const block of createGroundLayout()) box(block.x, block.y, block.z, block.width, block.height, block.depth, groundColor(block));
   // Stone bridge with crenellated rails and warm lights over a flowing river.
   for (const side of [-1, 1]) {
-    box(side * 4.2, 0.48, 9, 0.45, 0.95, 5, '#727f7e');
+    solid(side * 4.2, 0.48, 9, 0.45, 0.95, 5, '#727f7e');
     for (let z = 6.8; z <= 11.3; z += 1.3) box(side * 4.2, 1.12, z, 0.7, 0.35, 0.7, '#8a9389');
     lantern(side * 4.3, 6.6, 0.6); lantern(side * 4.3, 11.5, 0.6);
   }
   // Gateway: nested cyan frames, stone columns, tower caps and glowing insets.
   for (const side of [-1, 1]) {
-    box(side * 3.5, 3.6, -4.5, 1.4, 7.2, 2, '#617d85');
+    solid(side * 3.5, 3.6, -4.5, 1.4, 7.2, 2, '#617d85');
     box(side * 3.5, 4.1, -3.42, 0.32, 5.9, 0.06, '#6cf2ff', true);
     box(side * 3.5, 7.65, -4.5, 2.15, 0.9, 2.65, '#839592');
     for (let z = -5.3; z < -3.6; z += 0.8) box(side * 3.5, 8.3, z, 0.65, 0.65, 0.55, '#5c7780');
@@ -57,9 +65,9 @@ export function createEnvironment(scene: THREE.Scene) {
     box(x, 0.27, z, 12, 0.55, 10, '#6e7b7b');
     const technology = id === 'cloud' || id === 'projects' || id === 'ai';
     if (id === 'cloud') {
-      box(x, 8.5, z, 6.6, 17, 6.6, '#334d68');
+      solid(x, 8.5, z, 6.6, 17, 6.6, '#334d68');
       for (const side of [-1, 1]) {
-        box(x + side * 4, 5, z, 2, 10, 7.5, '#5e6f80');
+        solid(x + side * 4, 5, z, 2, 10, 7.5, '#5e6f80');
         box(x + side * 4, 5.8, z + 3.8, 0.45, 8.5, 0.08, color, true);
         box(x + side * 3.2, 10, z, 1, 2, 1, '#8d9d9b');
       }
@@ -71,8 +79,23 @@ export function createEnvironment(scene: THREE.Scene) {
       box(x, 17.3, z, 8, 0.7, 8, '#789198');
       for (let y = 18; y <= 21; y++) box(x, y, z, 6.5 - (y - 18) * 1.4, 1, 6.5 - (y - 18) * 1.4, '#354f65');
       box(x, 24, z, 0.2, 5.4, 0.2, color, true);
+      // Buttresses, roof crowns and side windows make the citadel readable from every approach.
+      for (const side of [-1, 1]) {
+        solid(x + side * 5.1, 3, z - 2.3, 1.1, 6, 2.1, '#456474');
+        for (let y = 3; y < 16; y += 3) {
+          box(x + side * 3.34, y, z, 0.06, 1.8, 4.6, '#318599', true);
+          box(x + side * 3.4, y + 1, z, 0.12, 0.2, 5.5, '#789198');
+        }
+      }
     } else if (id === 'signal') {
-      for (let step = 0; step < 10; step++) box(x, 0.5 + step * 0.8, z, 11 - step * 0.85, 0.9, 8 - step * 0.6, step > 6 ? '#d0cfc0' : pick(stone));
+      // A welcoming communications lodge, with a rooftop beacon instead of an inaccessible summit.
+      solid(x, 2.5, z, 9.6, 5, 7.8, '#6d574d');
+      for (let roof = 0; roof < 4; roof++) box(x, 5.2 + roof * 0.65, z, 11.5 - roof * 2, 0.7, 9 - roof * 1.5, '#a36749');
+      for (const side of [-1, 1]) {
+        box(x + side * 3, 2.6, z + 3.95, 1.8, 2.1, 0.08, '#ffcf9b', true);
+        box(x + side * 3, 2.6, z + 4.01, 0.12, 2.2, 0.12, '#594434');
+      }
+      box(x, 1.9, z + 3.95, 1.8, 3.8, 0.08, '#263b46');
       box(x, 12.2, z, 0.28, 7.5, 0.28, '#d69c65');
       for (const side of [-1, 1]) { box(x + side * 1.1, 12.8, z, 0.15, 3.5, 0.15, '#759396'); box(x + side * 1.1, 14.8, z, 0.35, 0.35, 0.35, color, true); }
       box(x, 14.1, z, 2.4, 0.15, 0.15, color, true);
@@ -80,7 +103,7 @@ export function createEnvironment(scene: THREE.Scene) {
       lantern(x - 4, z + 5.3); lantern(x + 4, z + 5.3);
     } else {
       const wall = technology ? '#435567' : '#a9825c';
-      box(x, 3.6, z, 10.6, 6.8, 7.8, wall);
+      solid(x, 3.6, z, 10.6, 6.8, 7.8, wall);
       for (const side of [-1, 1]) {
         box(x + side * 4.7, 3.6, z + 4.02, 0.55, 7.1, 0.42, technology ? '#2b394c' : '#4e382c');
         box(x + side * 3.1, 3.6, z + 4.01, 1.55, 2.7, 0.06, technology ? '#1f6683' : '#ffd494', true);
@@ -99,23 +122,41 @@ export function createEnvironment(scene: THREE.Scene) {
         for (let roof = 0; roof < 5; roof++) box(x, 7.1 + roof * 0.62, z, 12.2 - roof * 1.8, 0.68, 9.6 - roof * 1.4, id === 'career' ? (roof % 2 ? '#9b5936' : '#b46f41') : '#5b4636');
         box(x + 3.2, 9.8, z - 2, 1.1, 3.8, 1.2, '#7f7264');
         if (id === 'career') for (const side of [-1, 1]) {
-          box(x + side * 5.1, 5.5, z - 1, 2.5, 11, 2.5, '#a18362');
+          solid(x + side * 5.1, 5.5, z - 1, 2.5, 11, 2.5, '#a18362');
           for (let r = 0; r < 4; r++) box(x + side * 5.1, 11.1 + r * 0.65, z - 1, 3.4 - r * 0.8, 0.7, 3.4 - r * 0.8, '#925134');
           box(x + side * 5.1, 14.2, z - 1, 0.08, 2, 0.08, '#493a32'); box(x + side * 5.1 + 0.55, 14.5, z - 1, 1.1, 0.7, 0.04, '#eabc68');
         }
       }
       // Facade masonry / beam work adds rhythm without individual draw calls.
       for (let y = 0.9; y < 6.6; y += 1.3) for (let j = -4; j <= 4; j += 1.8) if (Math.abs(j) > 1.5) box(x + j, y, z + 4.1, 0.6, 0.24, 0.12, technology ? '#7c919b' : '#c1a17a');
+      // Side facades and a framed entrance avoid the appearance of plain cubes.
+      for (const side of [-1, 1]) {
+        for (const offset of [-2, 1.7]) {
+          box(x + side * 5.34, 3.4, z + offset, 0.06, 2.2, 1.5, technology ? '#3d97b6' : '#ffd494', true);
+          box(x + side * 5.39, 3.4, z + offset, 0.1, 2.3, 0.13, '#374651');
+        }
+        box(x + side * 1.25, 2.15, z + 4.2, 0.32, 4.3, 0.5, technology ? '#738c96' : '#d0ad7e');
+      }
+      box(x, 4.4, z + 4.3, 2.8, 0.35, 0.7, color, technology);
+      if (id === 'projects') {
+        for (const side of [-1, 1]) { box(x + side * 4, 8.8, z, 1, 2.4, 5, '#526877'); box(x + side * 4, 10.1, z, 1.2, 0.2, 5.2, color, true); }
+        box(x + 2, 9, z - 1, 3, 2.4, 3, '#3d566b');
+      }
+      if (id === 'knowledge') {
+        box(x, 4.7, z + 4.8, 9.5, 0.35, 1.8, '#856348');
+        for (const side of [-1, 1]) solid(x + side * 4.4, 2.3, z + 5.3, 0.22, 4.6, 0.22, '#624a37');
+      }
     }
-    box(x, 0.7, zone.spawn[1] - 1.3, 1.6, 1.4, 0.9, '#354a52');
+    solid(x, 0.7, zone.spawn[1] - 1.3, 1.6, 1.4, 0.9, '#354a52');
     box(x, 1.42, zone.spawn[1] - 1.3, 1.8, 0.1, 1.02, color, true);
-    sign(scene, zone.name.toUpperCase(), zone.subtitle, x, id === 'cloud' ? 14 : 6.3, z + (id === 'cloud' ? 4.1 : 4.5), color, id === 'cloud' ? 7 : 10.7);
+    addSign(zone.name.toUpperCase(), zone.subtitle, x, id === 'cloud' ? 14 : 6.3, z + (id === 'cloud' ? 4.1 : 5.25), color, id === 'cloud' ? 7 : 10.7);
+    addSign(zone.name, id === 'signal' ? 'CONTACT · EMAIL / LINKEDIN' : zone.subtitle, x, 3.8, zone.spawn[1] - 1.3, color, 3.6, true);
   }
-  sign(scene, 'CENTRAL HUB', 'WELCOME TO HARSHITVERSE', 0, 8.1, -3.1, '#ffcf8a', 8.5);
+  addSign('CENTRAL HUB', 'WELCOME TO HARSHITVERSE', 0, 8.1, -3.1, '#ffcf8a', 8.5);
   // Deliberately composed gardens bring the small details into the player's view.
   for (const side of [-1, 1]) for (const z of [-8, -1, 4, 16]) {
     const x = side * (z === 16 ? 7 : 10);
-    box(x, 0.36, z, 2.5, 0.72, 1.8, '#747e70');
+    solid(x, 0.36, z, 2.5, 0.72, 1.8, '#747e70');
     box(x, 0.75, z, 2.15, 0.2, 1.5, '#384e34');
     for (let flower = 0; flower < 16; flower++) {
       const fx = x + (random() - 0.5) * 2, fz = z + (random() - 0.5) * 1.3;
@@ -129,12 +170,12 @@ export function createEnvironment(scene: THREE.Scene) {
   }
   // Garden walls, timber benches, a guide and abundant small vegetation.
   for (const side of [-1, 1]) for (let z = -10; z <= 4; z += 1.6) if (z < -6 || z > -1) {
-    box(side * 10.5, 0.65, z, 0.9, 1.3, 1.5, pick(stone)); box(side * 10.5, 1.38, z, 1.1, 0.2, 1.6, '#8c9788');
+    solid(side * 10.5, 0.65, z, 0.9, 1.3, 1.5, pick(stone)); box(side * 10.5, 1.38, z, 1.1, 0.2, 1.6, '#8c9788');
   }
   for (const [x, z] of [[-7, 4], [7, 4], [-7, -8], [7, -8], [-12, 16], [12, 17], [-15, -6], [12, -17], [22, 15]]) lantern(x, z);
-  for (const [x, z] of [[-8, 0], [8, 0], [24, 29]]) { box(x, 0.7, z, 2.8, 0.2, 0.8, '#745438'); box(x, 1.17, z + 0.45, 2.8, 0.85, 0.18, '#745438'); for (const s of [-1, 1]) box(x + s, 0.35, z, 0.2, 0.7, 0.8, '#494438'); }
-  const guide = makeAvatar(true); guide.root.position.set(-5.5, 0, 2); guide.root.rotation.y = Math.PI; scene.add(guide.root);
-  sign(scene, 'THE GUIDE', 'E  /  SAY HELLO', -5.5, 3.8, 2, '#ffd897', 3.3);
+  for (const [x, z] of [[-8, 0], [8, 0], [24, 29]]) { solid(x, 0.7, z, 2.8, 0.2, 0.8, '#745438'); solid(x, 1.17, z + 0.45, 2.8, 0.85, 0.18, '#745438'); for (const s of [-1, 1]) solid(x + s, 0.35, z, 0.2, 0.7, 0.8, '#494438'); }
+  obstacles.push(boxCollider(-5.5, 1.3, 2, 0.8, 2.6, 0.8));
+  addSign('THE GUIDE', 'COME SAY HELLO', -5.5, 3.8, 2, '#ffd897', 3.3, true);
   const isPath = (x: number, z: number) => {
     if (Math.abs(x) < 10 || Math.abs(z - 9) < 5) return true;
     if (x > 8 && x < 24 && z > 13 && z < 39) return true; // Keep the lobby's view of the hub and citadel clear.
@@ -154,8 +195,8 @@ export function createEnvironment(scene: THREE.Scene) {
     const x = (random() - 0.5) * 92, z = (random() - 0.5) * 92;
     if (Math.hypot(x, z) > 45 || isPath(x, z)) continue;
     const c = pick(['#e9b962', '#dac77e', '#c983b0', '#80a46d', '#66a075']);
-    box(x, 0.22, z, 0.12, 0.45, 0.12, '#678246'); box(x, 0.5, z, 0.32, 0.24, 0.32, c);
-    if (j % 3 === 0) box(x + 0.4, 0.3, z + 0.4, 0.75, 0.6, 0.65, pick(foliage));
+    box(x, 0.22, z, 0.12, 0.45, 0.12, '#678246'); solid(x, 0.5, z, 0.32, 0.24, 0.32, c);
+    if (j % 3 === 0) solid(x + 0.4, 0.3, z + 0.4, 0.75, 0.6, 0.65, pick(foliage));
   }
   // Distant floating islands and stepped mountain silhouettes frame the world.
   for (let j = 0; j < 10; j++) {
@@ -175,6 +216,14 @@ export function createEnvironment(scene: THREE.Scene) {
     for (const side of [-1, 1]) { box(x + side * 5, y + 5, z, 3.1, 10, 3.1, '#728082'); for (let top = 0; top < 4; top++) box(x + side * 5, y + 10.3 + top * 0.65, z, 4 - top * 0.9, 0.7, 4 - top * 0.9, '#6e574c'); box(x + side * 5, y + 5, z + 1.6, 0.6, 2, 0.08, '#ffdcb1', true); }
     box(x, y + 3, z, 7, 6, 4, '#697979'); box(x, y + 3, z + 2.1, 1.6, 3.4, 0.1, '#7ae5f4', true);
   }
+  return { blocks, obstacles, lanternPositions, signs };
+}
+export function createEnvironment(scene: THREE.Scene) {
+  const { blocks, obstacles, lanternPositions, signs } = createSceneryLayout();
+  for (const label of signs) sign(scene, label.title, label.subtitle, label.x, label.y, label.z, label.color, label.width, label.landmark);
+  const guide = makeAvatar(true); guide.root.position.set(-5.5, 0, 2); guide.root.rotation.y = Math.PI; scene.add(guide.root);
+  let seed = 1749;
+  const random = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
   // Flush original geometry into shared instanced meshes grouped by material.
   const grouped = new Map<string, Block[]>();
   for (const b of blocks) { const key = b.glow ? b.color : 'solid'; if (!grouped.has(key)) grouped.set(key, []); grouped.get(key)!.push(b); }
@@ -227,10 +276,13 @@ function glowTexture() {
   const canvas = document.createElement('canvas'); canvas.width = canvas.height = 128; const ctx = canvas.getContext('2d')!;
   const grad = ctx.createRadialGradient(64, 64, 0, 64, 64, 64); grad.addColorStop(0, '#ffffff'); grad.addColorStop(0.12, '#ffffff88'); grad.addColorStop(0.5, '#ffffff18'); grad.addColorStop(1, '#ffffff00'); ctx.fillStyle = grad; ctx.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(canvas);
 }
-function sign(scene: THREE.Scene, title: string, subtitle: string, x: number, y: number, z: number, color: string, width: number) {
+function sign(scene: THREE.Scene, title: string, subtitle: string, x: number, y: number, z: number, color: string, width: number, landmark = false) {
   const canvas = document.createElement('canvas'); canvas.width = 1024; canvas.height = 220; const ctx = canvas.getContext('2d')!;
   ctx.fillStyle = '#112232'; ctx.fillRect(0, 0, 1024, 220); ctx.strokeStyle = color; ctx.lineWidth = 5; ctx.strokeRect(4, 4, 1016, 212);
-  ctx.fillStyle = color; ctx.font = 'bold 66px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, 512, 96); ctx.fillStyle = '#dfedf2'; ctx.font = '29px system-ui, sans-serif'; ctx.fillText(subtitle, 512, 160);
+  ctx.fillStyle = color; ctx.font = 'bold 66px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.fillText(title, 512, 96, 950); ctx.fillStyle = '#dfedf2'; ctx.font = '29px system-ui, sans-serif'; ctx.fillText(subtitle, 512, 160, 950);
   const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace;
-  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, width * 220 / 1024), new THREE.MeshBasicMaterial({ map: texture, side: THREE.DoubleSide })); mesh.position.set(x, y, z); scene.add(mesh);
+  const material = { map: texture, toneMapped: false, fog: false };
+  const mesh = landmark ? new THREE.Sprite(new THREE.SpriteMaterial(material)) : new THREE.Mesh(new THREE.PlaneGeometry(width, width * 220 / 1024), new THREE.MeshBasicMaterial({ ...material, side: THREE.DoubleSide }));
+  if (landmark) mesh.scale.set(width, width * 220 / 1024, 1);
+  mesh.position.set(x, y, z); scene.add(mesh);
 }

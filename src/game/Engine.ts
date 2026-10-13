@@ -12,7 +12,7 @@ export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => vo
   renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.2;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.setClearColor('#a9b9bb');
   const canvas = renderer.domElement; canvas.tabIndex = 0; canvas.setAttribute('aria-label', 'HarshitVerse 3D world. Use the movement stick and drag to look on touch screens, or WASD and mouse on desktop.'); host.appendChild(canvas);
-  const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2('#abb6bd', 0.0065);
+  const scene = new THREE.Scene(); scene.fog = new THREE.FogExp2('#abb6bd', 0.004);
   const camera = new THREE.PerspectiveCamera(55, 1, 0.25, 850); camera.position.set(10, 14, 39);
   scene.add(new THREE.HemisphereLight('#d4eaf7', '#70583c', 1.5));
   const sun = new THREE.DirectionalLight('#ffd2a0', 3.8); sun.position.set(-35, 65, -30); sun.castShadow = true;
@@ -20,12 +20,12 @@ export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => vo
   const fill = new THREE.DirectionalLight('#8fdbff', 0.7); fill.position.set(20, 20, 40); scene.add(fill);
   const world = createEnvironment(scene); const player = makeAvatar(); scene.add(player.root); player.root.position.set(0, 0, 13);
   const playerGlow = new THREE.PointLight('#65eaff', 6, 15, 2); playerGlow.position.set(0, 4, -3); scene.add(playerGlow);
-  const keys = new Set<string>(); let yaw = 0, pitch = 0.36, distance = 8.5, vx = 0, vz = 0, vy = 0, time = 0;
+  const keys = new Set<string>(); let yaw = 0, pitch = 0.36, distance = 8.5, vx = 0, vz = 0, vy = 0, time = 0, jumpPeakY = 0;
   const lookPointers = new Map<number, { x: number; y: number }>(); let pinchSpan = 0;
   let frame = 0, stopped = false, last = performance.now(), lastReport = 0, fps = 60, hadLock = false;
   const look = new THREE.Vector3(), desired = new THREE.Vector3(), direction = new THREE.Vector3(), target = new THREE.Vector3(), ray = new THREE.Ray();
   const hit = new THREE.Vector3();
-  const cameraBoxes = world.obstacles.map(b => new THREE.Box3(new THREE.Vector3(b.minX - 0.25, 0, b.minZ - 0.25), new THREE.Vector3(b.maxX + 0.25, b.height, b.maxZ + 0.25)));
+  const cameraBoxes = world.obstacles.map(b => new THREE.Box3(new THREE.Vector3(b.minX - 0.25, b.minY ?? 0, b.minZ - 0.25), new THREE.Vector3(b.maxX + 0.25, b.height, b.maxZ + 0.25)));
   function quality() {
     const s = useGame.getState();
     const pixelLimit = s.quality === 'low' ? 1 : touchDevice() ? (s.quality === 'high' ? 1.5 : 1.25) : (s.quality === 'high' ? 2 : 1.5);
@@ -40,7 +40,7 @@ export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => vo
     if (state.travel.serial !== previous.travel.serial) {
       release(); player.root.position.set(state.travel.x, 0, state.travel.z); vy = 0; yaw = 0; camera.position.set(state.travel.x, 4.5, state.travel.z + 8); reportState();
     }
-    if (state.playing && !previous.playing) { canvas.focus(); camera.position.set(player.root.position.x, 5, player.root.position.z + 9); }
+    if (state.playing && !previous.playing) { canvas.focus(); player.root.rotation.y = 0; camera.position.set(player.root.position.x, 5, player.root.position.z + 9); }
   });
   function keydown(event: KeyboardEvent) {
     const s = useGame.getState(); if (!s.playing) return;
@@ -53,7 +53,7 @@ export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => vo
     if (key === 'KeyM') { s.open('map'); return; }
     if (key === 'Tab') { s.open('missions'); return; }
     if (key === 'KeyE') { const near = interactionAt(player.root.position.x, player.root.position.z); if (near) s.open(near); return; }
-    if (key === 'Space' && player.root.position.y <= 0.001) vy = 8.3;
+    if (key === 'Space' && player.root.position.y <= 0.001) { vy = 8.3; jumpPeakY = 0; }
     keys.add(key);
   }
   function keyup(event: KeyboardEvent) { keys.delete(event.code); }
@@ -96,6 +96,7 @@ export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => vo
     canvas.dataset.playerX = p.x.toFixed(2); canvas.dataset.playerZ = p.z.toFixed(2); canvas.dataset.playerY = p.y.toFixed(2); canvas.dataset.fps = fps.toFixed(0); canvas.dataset.drawCalls = String(renderer.info.render.calls);
     canvas.dataset.cameraX = camera.position.x.toFixed(2); canvas.dataset.cameraY = camera.position.y.toFixed(2); canvas.dataset.cameraZ = camera.position.z.toFixed(2); canvas.dataset.cameraYaw = yaw.toFixed(2);
     canvas.dataset.cameraDistance = distance.toFixed(2); canvas.dataset.pixelRatio = renderer.getPixelRatio().toFixed(2);
+    canvas.dataset.jumpPeakY = jumpPeakY.toFixed(2);
   }
   window.addEventListener('keydown', keydown); window.addEventListener('keyup', keyup); window.addEventListener('blur', blur);
   document.addEventListener('pointerlockchange', lockChange); document.addEventListener('mousemove', mousemove);
@@ -114,7 +115,7 @@ export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => vo
       if (!state.panel) {
         dx = THREE.MathUtils.clamp(Number(keys.has('KeyD') || keys.has('ArrowRight')) - Number(keys.has('KeyA') || keys.has('ArrowLeft')) + input.x, -1, 1);
         dz = THREE.MathUtils.clamp(Number(keys.has('KeyS') || keys.has('ArrowDown')) - Number(keys.has('KeyW') || keys.has('ArrowUp')) + input.z, -1, 1);
-        if (input.jump && player.root.position.y <= 0.001) vy = 8.3;
+        if (input.jump && player.root.position.y <= 0.001) { vy = 8.3; jumpPeakY = 0; }
       }
       input.jump = false;
       const speed = keys.has('ShiftLeft') || keys.has('ShiftRight') || input.sprint ? 8.2 : 4.6; const length = Math.max(1, Math.hypot(dx, dz));
@@ -127,7 +128,7 @@ export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => vo
         for (let i = 0; i < steps; i++) {
           if (canOccupy(p.x + vx * step, p.z, world.obstacles)) p.x += vx * step; else vx = 0;
           if (canOccupy(p.x, p.z + vz * step, world.obstacles)) p.z += vz * step; else vz = 0;
-          vy -= 22 * step; p.y = Math.max(0, p.y + vy * step); if (p.y === 0 && vy < 0) vy = 0;
+          vy -= 22 * step; p.y = Math.max(0, p.y + vy * step); jumpPeakY = Math.max(jumpPeakY, p.y); if (p.y === 0 && vy < 0) vy = 0;
         }
         if (Math.hypot(vx, vz) > 0.15) { const angle = Math.atan2(-vx, -vz); player.root.rotation.y += (THREE.MathUtils.euclideanModulo(angle - player.root.rotation.y + Math.PI, Math.PI * 2) - Math.PI) * (1 - Math.exp(-12 * dt)); }
       }
