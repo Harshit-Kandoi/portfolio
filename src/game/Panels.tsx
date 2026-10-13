@@ -2,7 +2,6 @@ import TouchButton from './TouchButton';
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, Check, ChevronLeft, FileText, Github, Mail, Linkedin, X, MapPin, Volume2, Footprints } from 'lucide-react';
 import { projects } from '../data/projects';
-import { experience } from '../data/experience';
 import { blogPosts } from '../data/blogs';
 import { PORTFOLIO_META } from '../data/config';
 import { resumeLink } from '../data/navigation';
@@ -14,8 +13,7 @@ import type { WorldSnapshot } from './Engine';
 import WorldMap from './WorldMap';
 import ZoneIcon from './ZoneIcon';
 import useTouchDevice from './useTouchDevice';
-import { engineeringRecords, skillGroups } from './content';
-import type { ExperienceItem } from '../types';
+import { AILab, CareerExhibit, CloudExhibit } from './Exhibits';
 
 const titles: Record<Exclude<Panel, null>, string> = { hub: 'Welcome, explorer.', projects: 'Project District', cloud: 'Cloud Citadel', career: 'Career Guild', ai: 'AI Nexus', knowledge: 'Knowledge Tavern', signal: 'Contact Beacon', guide: 'A little guidance.', map: 'Your next destination.', places: 'Pick a place.', missions: 'The explorer’s journal.', settings: 'Take a moment.', help: 'Make yourself at home.' };
 export default function Panels({ snapshot, onClassic }: { snapshot: WorldSnapshot; onClassic: () => void }) {
@@ -27,7 +25,7 @@ export default function Panels({ snapshot, onClassic }: { snapshot: WorldSnapsho
     const previous = document.activeElement as HTMLElement | null;
     dialog.current?.focus();
     const trap = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') { event.preventDefault(); event.stopImmediatePropagation(); open(null); }
+      if (event.key === 'Escape') { event.preventDefault(); event.stopImmediatePropagation(); if (!event.repeat) open(null); }
       if (event.key !== 'Tab') return;
       const elements = [...(dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled),a[href],input,select,[tabindex="0"]') ?? [])];
       const first = elements[0], last = elements[elements.length - 1];
@@ -41,7 +39,7 @@ export default function Panels({ snapshot, onClassic }: { snapshot: WorldSnapsho
   const inspect = (p: Project) => { setSelected(p); useGame.getState().mark('inspect'); };
   const filtered = panel === 'cloud' ? projects.filter(p => p.category.includes('Cloud & Backend')) : panel === 'ai' ? projects.filter(p => p.category.includes('AI & Machine Learning')) : projects;
   return <div className="verse-panel-scrim" onPointerDown={e => { if (e.target === e.currentTarget) open(null); }}>
-    <div ref={dialog} className={`verse-panel ${panel === 'map' ? 'verse-map-panel' : ''}`} role="dialog" aria-modal="true" aria-labelledby="verse-panel-title" tabIndex={-1}>
+    <div ref={dialog} className={`verse-panel verse-${panel}-panel`} role="dialog" aria-modal="true" aria-labelledby="verse-panel-title" tabIndex={-1}>
       <header className="verse-panel-header"><div><p className="verse-eyebrow">HARSHITVERSE / {panel === 'settings' ? 'PAUSE MENU' : 'DISCOVER'}</p><h2 id="verse-panel-title">{selected?.title ?? titles[panel]}</h2></div><TouchButton className="verse-icon-button" onClick={() => open(null)} aria-label="Close panel"><X size={21}/></TouchButton></header>
       <div className="verse-panel-body">
         {selected ? <>
@@ -51,15 +49,14 @@ export default function Panels({ snapshot, onClassic }: { snapshot: WorldSnapsho
           <div className="verse-project-meta"><span>{selected.status}</span><span>{selected.duration}</span></div>
           <div className="verse-actions">{selected.demo && <a className="verse-primary" href={selected.demo} target="_blank" rel="noopener noreferrer">Open project <ArrowUpRight size={17}/></a>}{selected.github && <a className="verse-secondary" href={selected.github} target="_blank" rel="noopener noreferrer"><Github size={17}/> Source code</a>}</div>
         </> : <>
-          {(panel === 'projects' || panel === 'cloud' || panel === 'ai') && <>
-            <p className="verse-body-copy">{panel === 'cloud' ? 'Backend services, local cloud environments, and the tools behind reliable workflows.' : panel === 'ai' ? 'Computer vision, machine learning, and products built around practical AI.' : 'A collection of products, experiments, and things learned along the way. Pick a project to take a closer look.'}</p>
-            {panel === 'cloud' && <><h3 className="verse-section-title">Cloud & backend toolkit</h3><SkillLibrary categories={['Cloud', 'Backend', 'Databases', 'Languages', 'Tools']}/></>}
-            {panel === 'ai' && <><h3 className="verse-section-title">Applied AI toolkit</h3><SkillLibrary categories={['AI']}/></>}
-            {(panel === 'cloud' || panel === 'ai') && <><h3 className="verse-section-title">Experience & credentials</h3><ExperienceRecords entries={engineeringRecords(panel)}/></>}
-            <h3 className="verse-section-title">{panel === 'projects' ? 'All projects' : 'Public projects & learning labs'} · {filtered.length}</h3>
+          {panel === 'cloud' && <CloudExhibit projects={filtered} onInspect={inspect}/>}
+          {panel === 'ai' && <AILab projects={filtered} onInspect={inspect}/>}
+          {panel === 'projects' && <>
+            <p className="verse-body-copy">A collection of products, experiments, and things learned along the way. Pick a project to take a closer look.</p>
+            <h3 className="verse-section-title">All projects · {filtered.length}</h3>
             <div className="verse-project-grid">{filtered.map(p => <TouchButton key={p.id} className="verse-project-card" onClick={() => inspect(p)}><img src={resolveAsset(p.image)} alt="" loading="lazy"/><div><small>{p.status ?? p.category[0]}</small><h3>{p.title}</h3><p>{p.technologies.slice(0, 3).join(' · ')}</p><span>Inspect project <ArrowUpRight size={15}/></span></div></TouchButton>)}</div>
           </>}
-          {panel === 'career' && <><p className="verse-body-copy">The real journey, from learning the foundations to building software for people.</p><a className="verse-secondary" href={resumeLink} target="_blank" rel="noopener noreferrer"><FileText size={17}/> View resume <ArrowUpRight size={16}/></a><ExperienceRecords entries={experience}/><h3 className="verse-section-title">Complete skills library</h3><SkillLibrary/></>}
+          {panel === 'career' && <CareerExhibit/>}
           {panel === 'knowledge' && <><p className="verse-body-copy">Pull up a chair. These are ideas, tutorials, and notes from my engineering journey.</p><div className="verse-article-list">{blogPosts.map(b => <a key={b.id} href={b.canonical || b.link} target="_blank" rel="noopener noreferrer"><BookIcon/><div><small>{b.category} · {b.readingTime ? `${b.readingTime} MIN READ` : b.date}</small><h3>{b.title}</h3><p>{b.excerpt}</p></div><ArrowUpRight size={20}/></a>)}</div></>}
           {panel === 'signal' && <><p className="verse-body-copy">Have a project in mind? Contact Harshit by email or connect on LinkedIn. Share what you want to build, your timeline, and how I can help.</p><div className="verse-contact-card"><span className="verse-status-dot"/><span>{PORTFOLIO_META.availability}</span><h3>Let’s talk about<br/>your next project.</h3><a href={`mailto:${PORTFOLIO_META.email}`}>{PORTFOLIO_META.email} <ArrowUpRight size={20}/></a><p><MapPin size={14}/> {PORTFOLIO_META.location}</p></div><div className="verse-actions"><a className="verse-primary" href={`mailto:${PORTFOLIO_META.email}`}><Mail size={18}/> Email Harshit <ArrowUpRight size={16}/></a><a className="verse-secondary" href={PORTFOLIO_META.linkedin} target="_blank" rel="noopener noreferrer"><Linkedin size={18}/> Connect on LinkedIn <ArrowUpRight size={16}/></a></div><h3 className="verse-section-title">More ways to connect</h3><div className="verse-socials"><a href={PORTFOLIO_META.github} target="_blank" rel="noopener noreferrer"><Github/> GitHub <ArrowUpRight size={16}/></a><a href={resumeLink} target="_blank" rel="noopener noreferrer"><FileText/> Resume <ArrowUpRight size={16}/></a><a href={PORTFOLIO_META.medium} target="_blank" rel="noopener noreferrer">Medium <ArrowUpRight size={16}/></a><a href={PORTFOLIO_META.kaggle} target="_blank" rel="noopener noreferrer">Kaggle <ArrowUpRight size={16}/></a></div></>}
           {(panel === 'hub' || panel === 'guide') && <Guide/>}
@@ -73,12 +70,6 @@ export default function Panels({ snapshot, onClassic }: { snapshot: WorldSnapsho
       <footer className="verse-panel-footer"><span><span className="verse-status-dot"/> EXPLORE AT YOUR OWN PACE</span><TouchButton onClick={() => open(null)}>Close <kbd>ESC</kbd></TouchButton></footer>
     </div>
   </div>;
-}
-function SkillLibrary({ categories }: { categories?: string[] }) {
-  return <div className="verse-skill-library">{skillGroups.filter(group => !categories || categories.includes(group.category)).sort((a, b) => categories ? categories.indexOf(a.category) - categories.indexOf(b.category) : 0).map(group => <section key={group.category}><h4>{group.category}</h4><div className="verse-tags">{group.skills.map(skill => <span key={skill.name}>{skill.name}</span>)}</div></section>)}</div>;
-}
-function ExperienceRecords({ entries }: { entries: ExperienceItem[] }) {
-  return <div className="verse-timeline">{entries.map(entry => <article key={entry.id}><small>{entry.period || entry.date} / {entry.type.toUpperCase()}</small><h3>{entry.role || entry.title}</h3><h4>{entry.company || entry.organization}</h4>{entry.location && <p className="verse-record-location"><MapPin size={13}/> {entry.location}</p>}{(Array.isArray(entry.description) ? entry.description : [entry.description]).map((description, i) => <p key={i}>{description}</p>)}{entry.skills && <div className="verse-tags">{entry.skills.map(skill => <span key={skill}>{skill}</span>)}</div>}{entry.link && <a href={entry.link} target="_blank" rel="noopener noreferrer">View credential <ArrowUpRight size={13}/></a>}</article>)}</div>;
 }
 function BookIcon() { return <span className="verse-book-icon">✧</span>; }
 function Help() {

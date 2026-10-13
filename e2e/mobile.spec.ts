@@ -69,6 +69,13 @@ test.describe('Mobile HarshitVerse', () => {
     const canvas = page.locator('.verse-world canvas');
     await expect(canvas).toHaveAttribute('data-pixel-ratio', '1.00');
     await expect(page.getByRole('button', { name: 'Jump', exact: true })).toBeVisible();
+    for (const close of ['Continue exploring', 'Close panel', 'Close']) {
+      await page.getByRole('button', { name: 'Settings', exact: true }).tap();
+      await expect(page.getByRole('dialog')).toBeVisible();
+      await page.getByRole('dialog').getByRole('button', { name: close, exact: true }).tap();
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await expect(page.getByRole('button', { name: 'Jump', exact: true })).toBeVisible();
+    }
     await page.screenshot({ path: info.outputPath('mobile-portrait.png'), animations: 'disabled', scale: 'css' });
     const touch = await touchDriver(page);
     const stick = page.getByRole('group', { name: 'Movement stick' }); const rect = (await stick.boundingBox())!;
@@ -112,6 +119,29 @@ test.describe('Mobile HarshitVerse', () => {
     await page.getByRole('button', { name: 'Places', exact: true }).tap();
     await page.getByRole('dialog').getByRole('button', { name: /Career Guild/ }).tap();
     await expect(page.getByRole('dialog')).toContainText('Associate Software Engineer');
+    const categories = page.getByRole('navigation', { name: 'Career Guild categories' });
+    await touch.tap(categories.getByRole('button', { name: 'Education', exact: true }));
+    await expect(page.locator('.verse-timeline article')).toHaveCount(4);
+    await expect(page.locator('.verse-timeline')).toContainText('M.Tech.');
+    await touch.tap(categories.getByRole('button', { name: 'Certifications', exact: true }));
+    await expect(page.locator('.verse-timeline article')).toHaveCount(7);
+    await expect(page.locator('.verse-timeline')).toContainText('Google Associate Cloud Engineer (ACE)');
+    const phoneViewport = page.viewportSize()!;
+    await page.setViewportSize({ width: 320, height: 568 });
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    for (const button of await categories.getByRole('button').all()) {
+      const bounds = (await button.boundingBox())!;
+      expect(bounds.height).toBeGreaterThanOrEqual(44);
+      expect(bounds.x).toBeGreaterThanOrEqual(0); expect(bounds.x + bounds.width).toBeLessThanOrEqual(320);
+    }
+    await page.screenshot({ path: info.outputPath('career-filters-compact.png'), animations: 'disabled', scale: 'css' });
+    await page.setViewportSize(phoneViewport);
+    await page.screenshot({ path: info.outputPath('career-filters-mobile.png'), animations: 'disabled', scale: 'css' });
+    await touch.tap(categories.getByRole('button', { name: 'Work Experience', exact: true }));
+    await expect(page.locator('.verse-timeline article')).toHaveCount(4);
+    await expect(page.locator('.verse-timeline')).toContainText('Associate Software Engineer');
+    await touch.tap(categories.getByRole('button', { name: 'All', exact: true }));
+    await expect(page.locator('.verse-timeline article')).toHaveCount(15);
     await page.getByRole('button', { name: 'Close panel' }).tap();
     await page.getByRole('button', { name: 'Classic Portfolio', exact: true }).tap();
     await expect(page.locator('#hero h1')).toContainText('Harshit Kandoi');
@@ -156,6 +186,26 @@ test.describe('Mobile HarshitVerse', () => {
     await expect.poll(async () => Number(await canvas.getAttribute('data-player-x')), movementCheck).toBe(25);
     await page.getByRole('button', { name: 'Tap Explore Career Guild' }).tap();
     await expect(page.getByRole('dialog')).toContainText('Associate Software Engineer');
+    await page.screenshot({ path: info.outputPath('career-exhibit-mobile.png'), animations: 'disabled', scale: 'css' });
+    await page.getByRole('button', { name: 'Close panel' }).tap();
+    await page.getByRole('button', { name: 'Places', exact: true }).tap();
+    await page.getByRole('dialog').getByRole('button', { name: /Cloud Citadel/ }).tap();
+    await expect(page.getByRole('dialog')).toContainText('Google Cloud Platform (GCP)');
+    expect(await page.getByRole('dialog').evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await page.screenshot({ path: info.outputPath('cloud-exhibit-mobile.png'), animations: 'disabled', scale: 'css' });
+    await page.getByRole('button', { name: 'Inspect Local GCP Emulator', exact: true }).tap();
+    await expect(page.getByRole('heading', { name: 'Local GCP Emulator', exact: true })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Source code', exact: true })).toHaveAttribute('href', 'https://github.com/Harshit-Kandoi/Local-GCP-Emulator');
+    await page.getByRole('button', { name: 'Close panel' }).tap();
+    await page.getByRole('button', { name: 'Places', exact: true }).tap();
+    await page.getByRole('dialog').getByRole('button', { name: /AI Nexus/ }).tap();
+    await page.screenshot({ path: info.outputPath('ai-exhibit-mobile.png'), animations: 'disabled', scale: 'css' });
+    const sections = page.getByRole('navigation', { name: 'AI Nexus sections' });
+    await sections.getByRole('button', { name: 'Learning', exact: true }).tap();
+    await expect(page.getByRole('heading', { name: 'M.Tech. Artificial Intelligence & Machine Learning', exact: true })).toBeVisible();
+    await sections.getByRole('button', { name: 'Projects', exact: true }).tap();
+    await page.getByRole('button', { name: 'Inspect Financial Mirror', exact: true }).tap();
+    await expect(page.getByRole('link', { name: 'Open project', exact: true })).toHaveAttribute('href', 'https://mirror.harshitkandoi.in');
   });
   test('mobile WebGL failure keeps direct content and classic access usable', async ({ page }) => {
     await page.addInitScript(() => {

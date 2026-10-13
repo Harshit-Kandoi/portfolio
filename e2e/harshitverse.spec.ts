@@ -19,6 +19,73 @@ async function travel(page: Page, name: string) {
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.locator('.verse-world canvas').focus();
 }
+test('pause dismissal survives delayed pointer unlocks and held Escape', async ({ page }) => {
+  const errors: string[] = []; page.on('pageerror', error => errors.push(error.message));
+  await launch(page); await page.getByRole('button', { name: 'Enter World' }).click();
+  const dialog = page.getByRole('dialog');
+  // Model the browser's asynchronous unlock notification without relying on timing.
+  const lock = () => page.evaluate(() => {
+    const canvas = document.querySelector<HTMLCanvasElement>('.verse-world canvas')!;
+    Object.defineProperty(canvas, 'requestPointerLock', { configurable: true, value: () => { document.documentElement.dataset.lockRequested = 'true'; } });
+    Object.defineProperty(document, 'pointerLockElement', { configurable: true, value: canvas });
+    Object.defineProperty(document, 'exitPointerLock', { configurable: true, value: () => { document.documentElement.dataset.unlockRequested = 'true'; } });
+    document.documentElement.dataset.unlockRequested = 'false';
+    document.documentElement.dataset.lockRequested = 'false';
+    document.dispatchEvent(new Event('pointerlockchange'));
+  });
+  const unlock = () => page.evaluate(() => {
+    Object.defineProperty(document, 'pointerLockElement', { configurable: true, value: null });
+    document.dispatchEvent(new Event('pointerlockchange'));
+  });
+  for (const close of ['Continue exploring', 'Close panel', 'Close ESC', 'Escape']) {
+    await lock(); await page.getByRole('button', { name: 'Settings', exact: true }).click();
+    await expect(dialog).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.dataset.unlockRequested)).toBe('true');
+    if (close === 'Escape') await page.keyboard.press('Escape');
+    else await dialog.getByRole('button', { name: close, exact: true }).click();
+    await expect(dialog).toHaveCount(0);
+    await page.locator('.verse-world canvas').evaluate(canvas => canvas.dispatchEvent(new PointerEvent('click', { bubbles: true, pointerType: 'mouse' })));
+    expect(await page.evaluate(() => document.documentElement.dataset.lockRequested)).toBe('false');
+    await unlock(); // A late event must not reopen the menu after the user closed it.
+    await expect(dialog).toHaveCount(0);
+    await page.locator('.verse-world canvas').evaluate(canvas => canvas.dispatchEvent(new PointerEvent('click', { bubbles: true, pointerType: 'mouse' })));
+    expect(await page.evaluate(() => document.documentElement.dataset.lockRequested)).toBe('true');
+  }
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await lock(); // A pending capture request may finish after a panel opens.
+  expect(await page.evaluate(() => document.documentElement.dataset.unlockRequested)).toBe('true');
+  await dialog.getByRole('button', { name: 'Continue exploring' }).click();
+  await unlock(); await expect(dialog).toHaveCount(0);
+  await lock(); await unlock(); // An unexpected mouse capture loss should still pause.
+  await expect(dialog).toBeVisible(); await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await page.keyboard.down('Escape'); await expect(dialog).toBeVisible();
+  await page.keyboard.down('Escape'); await expect(dialog).toBeVisible(); // Auto-repeat.
+  await page.keyboard.up('Escape'); await page.keyboard.down('Escape');
+  await expect(dialog).toHaveCount(0);
+  await page.keyboard.down('Escape'); await expect(dialog).toHaveCount(0);
+  await page.keyboard.up('Escape');
+  await page.evaluate(() => {
+    Reflect.deleteProperty(document, 'pointerLockElement'); Reflect.deleteProperty(document, 'exitPointerLock');
+    Reflect.deleteProperty(document.querySelector('.verse-world canvas')!, 'requestPointerLock');
+    window.dispatchEvent(new Event('blur'));
+  });
+  await expect(dialog).toBeVisible(); await dialog.getByRole('button', { name: 'Continue exploring' }).click();
+  await expect(dialog).toHaveCount(0);
+  const canvas = page.locator('.verse-world canvas'); await canvas.focus();
+  await page.keyboard.down('w');
+  await expect.poll(async () => Number(await canvas.getAttribute('data-player-z')), movementCheck).toBeLessThan(12);
+  await page.keyboard.up('w');
+  for (const key of ['m', 'Escape']) {
+    await canvas.click({ position: { x: 1000, y: 430 } });
+    await expect.poll(() => page.evaluate(() => document.pointerLockElement?.tagName)).toBe('CANVAS');
+    await page.keyboard.press(key); await expect(dialog).toBeVisible();
+    await expect.poll(() => page.evaluate(() => document.pointerLockElement)).toBe(null);
+    await dialog.getByRole('button', { name: 'Close panel' }).click();
+    await expect(dialog).toHaveCount(0);
+  }
+  expect(errors).toEqual([]);
+});
 test('renders a real scene, moves, sprints, jumps and pauses with portfolio panels', async ({ page }, info) => {
   test.setTimeout(180000); // Balanced screenshots and native collisions on the software renderer.
   const errors: string[] = []; page.on('pageerror', e => errors.push(e.message)); page.on('console', msg => { if (msg.type() === 'error' && /THREE|WebGL|shader/i.test(msg.text())) errors.push(msg.text()); });
@@ -92,7 +159,7 @@ test('guide dialogue, fast travel and mission completion persist on reload', asy
 });
 test('all direct sections, map and keyboard focus remain accessible from the lobby', async ({ page }, info) => {
   await launch(page);
-  for (const name of ['Cloud Citadel', 'AI Nexus', 'Knowledge Tavern', 'Contact Beacon']) {
+  for (const name of ['Cloud Citadel', 'AI Nexus', 'Career Guild', 'Knowledge Tavern', 'Contact Beacon']) {
     await page.locator('.verse-destinations').getByRole('button', { name: new RegExp(name) }).click(); await expect(page.getByRole('dialog')).toBeVisible();
     await page.keyboard.press('Tab'); expect(await page.getByRole('dialog').evaluate(el => el.contains(document.activeElement))).toBe(true);
     if (name === 'Cloud Citadel') {
@@ -103,7 +170,38 @@ test('all direct sections, map and keyboard focus remain accessible from the lob
       await expect(page.getByRole('button', { name: /Local GCP Emulator/ })).toBeAttached();
       await page.screenshot({ path: info.outputPath('cloud-exhibit.png'), animations: 'disabled' });
     }
-    if (name === 'AI Nexus') await expect(page.getByRole('dialog')).toContainText('M.Tech. Artificial Intelligence & Machine Learning');
+    if (name === 'AI Nexus') {
+      await expect(page.getByRole('button', { name: 'Inspect Financial Mirror', exact: true })).toBeVisible();
+      await expect.poll(() => page.locator('.verse-ai-project-image img').evaluateAll(images => images.slice(0, 2).every(image => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
+      await page.screenshot({ path: info.outputPath('ai-exhibit.png'), animations: 'disabled' });
+      const sections = page.getByRole('navigation', { name: 'AI Nexus sections' });
+      await sections.getByRole('button', { name: 'Applied AI', exact: true }).click();
+      const work = page.getByRole('article').filter({ hasText: 'Associate Software Engineer' });
+      await work.getByRole('button', { name: 'Read details', exact: true }).click();
+      await expect(work.getByRole('button', { name: 'Hide details' })).toHaveAttribute('aria-expanded', 'true');
+      await expect(work).toContainText('Developed and supported full-stack business applications');
+      await sections.getByRole('button', { name: 'Learning', exact: true }).click();
+      await expect(page.getByRole('dialog')).toContainText('M.Tech. Artificial Intelligence & Machine Learning');
+    }
+    if (name === 'Career Guild') {
+      await expect(page.getByRole('dialog')).toContainText('Associate Software Engineer');
+      const categories = page.getByRole('navigation', { name: 'Career Guild categories' });
+      await expect(page.locator('.verse-timeline article')).toHaveCount(15);
+      await categories.getByRole('button', { name: 'Work Experience', exact: true }).click();
+      await expect(page.locator('.verse-timeline article')).toHaveCount(4);
+      await expect(page.locator('.verse-timeline')).not.toContainText('M.Tech.');
+      await categories.getByRole('button', { name: 'Education', exact: true }).click();
+      await expect(page.locator('.verse-timeline article')).toHaveCount(4);
+      await expect(page.locator('.verse-timeline')).toContainText('M.Tech. Artificial Intelligence & Machine Learning');
+      await expect(page.locator('.verse-timeline')).not.toContainText('Associate Software Engineer');
+      await categories.getByRole('button', { name: 'Certifications', exact: true }).click();
+      await expect(page.locator('.verse-timeline article')).toHaveCount(7);
+      await expect(page.locator('.verse-timeline')).toContainText('Google Associate Cloud Engineer (ACE)');
+      await expect(page.locator('.verse-timeline').getByRole('link', { name: 'View credential' })).toHaveCount(6);
+      await categories.getByRole('button', { name: 'All', exact: true }).click();
+      await expect(page.locator('.verse-timeline article')).toHaveCount(15);
+      await page.screenshot({ path: info.outputPath('career-exhibit.png'), animations: 'disabled' });
+    }
     if (name === 'Contact Beacon') {
       await expect(page.getByRole('link', { name: /hello@harshitkandoi.in/ })).toHaveAttribute('href', 'mailto:hello@harshitkandoi.in');
       await expect(page.getByRole('link', { name: 'Email Harshit' })).toHaveAttribute('href', 'mailto:hello@harshitkandoi.in');
@@ -125,6 +223,14 @@ test('all direct sections, map and keyboard focus remain accessible from the lob
   console.log('HarshitVerse low quality: ' + calls + ' draw calls; software-renderer FPS sample: ' + await canvas.getAttribute('data-fps'));
   await page.keyboard.press('Escape'); await expect(page.getByRole('dialog')).toBeVisible();
   expect(await page.evaluate(() => document.pointerLockElement)).toBe(null);
+  await page.getByRole('button', { name: 'Continue exploring' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await canvas.click({ position: { x: 1000, y: 430 } });
+  await expect.poll(() => page.evaluate(() => document.pointerLockElement?.tagName)).toBe('CANVAS');
+  await page.keyboard.press('m'); await expect(page.getByRole('dialog')).toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.pointerLockElement)).toBe(null);
+  await page.getByRole('button', { name: 'Close panel' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
 });
 
 test('lobby and gameplay layouts fit laptop and compact desktop viewports', async ({ page }, info) => {

@@ -22,7 +22,7 @@ export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => vo
   const playerGlow = new THREE.PointLight('#65eaff', 6, 15, 2); playerGlow.position.set(0, 4, -3); scene.add(playerGlow);
   const keys = new Set<string>(); let yaw = 0, pitch = 0.36, distance = 8.5, vx = 0, vz = 0, vy = 0, time = 0, jumpPeakY = 0;
   const lookPointers = new Map<number, { x: number; y: number }>(); let pinchSpan = 0;
-  let frame = 0, stopped = false, last = performance.now(), lastReport = 0, fps = 60, hadLock = false;
+  let frame = 0, stopped = false, last = performance.now(), lastReport = 0, fps = 60, hadLock = false, unlockPending = false;
   const look = new THREE.Vector3(), desired = new THREE.Vector3(), direction = new THREE.Vector3(), target = new THREE.Vector3(), ray = new THREE.Ray();
   const hit = new THREE.Vector3();
   const cameraBoxes = world.obstacles.map(b => new THREE.Box3(new THREE.Vector3(b.minX - 0.25, b.minY ?? 0, b.minZ - 0.25), new THREE.Vector3(b.maxX + 0.25, b.height, b.maxZ + 0.25)));
@@ -36,7 +36,7 @@ export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => vo
   const resizeObserver = new ResizeObserver(resize); resizeObserver.observe(host); quality();
   const unsubscribe = useGame.subscribe((state, previous) => {
     if (state.quality !== previous.quality) quality();
-    if (state.panel || !state.playing) { release(); if (document.pointerLockElement === canvas) document.exitPointerLock(); }
+    if (state.panel || !state.playing) { release(); releasePointerLock(); }
     if (state.travel.serial !== previous.travel.serial) {
       release(); player.root.position.set(state.travel.x, 0, state.travel.z); vy = 0; yaw = 0; camera.position.set(state.travel.x, 4.5, state.travel.z + 8); reportState();
     }
@@ -44,7 +44,7 @@ export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => vo
   });
   function keydown(event: KeyboardEvent) {
     const s = useGame.getState(); if (!s.playing) return;
-    if (event.key === 'Escape') { event.preventDefault(); s.open(s.panel ? null : 'settings'); return; }
+    if (event.key === 'Escape') { event.preventDefault(); if (!event.repeat) s.open(s.panel ? null : 'settings'); return; }
     if (s.panel || event.ctrlKey || event.metaKey || event.altKey) return;
     if ((event.target as HTMLElement).closest('input,textarea,select,button,a')) return;
     const key = event.code;
@@ -66,9 +66,25 @@ export function createEngine(host: HTMLElement, report: (s: WorldSnapshot) => vo
   function visibility() { if (document.hidden) blur(); }
   function lock(event: MouseEvent) {
     if (touchDevice() || (event instanceof PointerEvent && event.pointerType !== 'mouse')) return;
-    if (useGame.getState().playing && !useGame.getState().panel) { canvas.focus(); const result = canvas.requestPointerLock?.(); if (result && typeof result.catch === 'function') result.catch(() => {}); }
+    if (useGame.getState().playing && !useGame.getState().panel && !unlockPending) { canvas.focus(); const result = canvas.requestPointerLock?.(); if (result && typeof result.catch === 'function') result.catch(() => {}); }
   }
-  function lockChange() { const locked = document.pointerLockElement === canvas; if (hadLock && !locked && useGame.getState().playing && !useGame.getState().panel) useGame.getState().open('settings'); hadLock = locked; reportState(); }
+  function releasePointerLock() {
+    // Record our intent before the browser's asynchronous unlock notification.
+    hadLock = false;
+    if (document.pointerLockElement === canvas && !unlockPending) { unlockPending = true; document.exitPointerLock(); }
+  }
+  function lockChange() {
+    const locked = document.pointerLockElement === canvas, s = useGame.getState();
+    if (locked) {
+      if (s.panel || !s.playing || unlockPending) releasePointerLock();
+      else hadLock = true;
+    } else {
+      const unexpected = hadLock && !unlockPending;
+      hadLock = false; unlockPending = false;
+      if (unexpected && s.playing && !s.panel) s.open('settings');
+    }
+    reportState();
+  }
   function mousemove(event: MouseEvent) { if (document.pointerLockElement !== canvas || useGame.getState().panel) return; yaw -= event.movementX * 0.0026; pitch = THREE.MathUtils.clamp(pitch + event.movementY * 0.002, 0.12, 0.85); }
   function wheel(event: WheelEvent) { if (!useGame.getState().playing || useGame.getState().panel) return; event.preventDefault(); distance = THREE.MathUtils.clamp(distance + event.deltaY * 0.006, 5, 13); }
   function span() { const [a, b] = [...lookPointers.values()]; return a && b ? Math.hypot(a.x - b.x, a.y - b.y) : 0; }
