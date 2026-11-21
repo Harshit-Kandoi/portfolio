@@ -10,7 +10,7 @@ test.describe('SEO and Meta Tags Verification', () => {
   test('has a title, description and canonical URL', async ({ page }) => {
     await expect(page).toHaveTitle(/^Harshit Kandoi — Software Engineer/);
     await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /Associate Software Engineer/);
-    await expect(page.locator('meta[name="viewport"]')).toHaveAttribute('content', 'width=device-width, initial-scale=1.0');
+    await expect(page.locator('meta[name="viewport"]')).toHaveAttribute('content', 'width=device-width, initial-scale=1.0, viewport-fit=cover');
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /index, follow/);
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', SITE);
   });
