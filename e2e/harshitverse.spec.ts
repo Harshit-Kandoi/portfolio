@@ -9,6 +9,15 @@ async function launch(page: Page) {
     localStorage.setItem('portfolio-os-portal-mode', JSON.stringify('os'));
     if (!localStorage.getItem('harshitverse-v1')) localStorage.setItem('harshitverse-v1', JSON.stringify({ state: { quality: 'low', reducedMotion: true, sound: false, completed: [], visited: [] }, version: 1 }));
   });
+  // Headless Chromium (CI) rejects requestPointerLock with WrongDocumentError, so emulate the
+  // browser granting and releasing the lock, including its asynchronous pointerlockchange event.
+  await page.addInitScript(() => {
+    let locked: Element | null = null;
+    const setLock = (element: Element | null) => { locked = element; setTimeout(() => document.dispatchEvent(new Event('pointerlockchange'))); };
+    Object.defineProperty(Document.prototype, 'pointerLockElement', { configurable: true, get: () => locked });
+    Object.defineProperty(Element.prototype, 'requestPointerLock', { configurable: true, value(this: Element) { setLock(this); return Promise.resolve(); } });
+    Object.defineProperty(Document.prototype, 'exitPointerLock', { configurable: true, value() { if (locked) setLock(null); } });
+  });
   await page.goto('./');
   await expect(page.getByRole('button', { name: 'Enter World' })).toBeVisible({ timeout: 30000 });
   await expect(page.locator('.verse-world canvas')).toBeVisible();
