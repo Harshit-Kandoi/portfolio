@@ -1,4 +1,4 @@
-name: CI · Lighthouse · Deploy
+name: CI · Lighthouse
 
 on:
   push:
@@ -108,38 +108,3 @@ jobs:
           name: lighthouse-${{ matrix.preset }}
           path: .lighthouseci
           retention-days: 14
-
-  # ── Deploy (only after every check passed) ─────────────────────────────────
-  # Secrets: NETLIFY_AUTH_TOKEN (User settings › Applications) and NETLIFY_SITE_ID.
-  # If Netlify also auto-builds from Git, turn one of them off to avoid double deploys.
-  deploy:
-    name: Deploy to Netlify
-    runs-on: ubuntu-latest
-    needs: [checks, e2e, lighthouse]
-    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-      - run: npm ci
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist
-      - name: Deploy preview (PR)
-        if: github.event_name == 'pull_request'
-        # Block scalar: in a plain YAML value, " #" would start a comment and cut the command short.
-        run: |
-          npx netlify-cli deploy --dir=dist --alias="pr-$PR_NUMBER" --message="PR #$PR_NUMBER"
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-      - name: Deploy production (main)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: npx netlify-cli deploy --dir=dist --prod --message="Deploy @ ${{ github.sha }}"
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
