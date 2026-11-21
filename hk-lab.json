@@ -1,0 +1,27 @@
+{
+  "$comment": "Public copy for harshitkandoi.in. Everything here is shown on the company page; never put secrets or private details in it. Format: Company-page/docs/NETWORK.md",
+  "name": "Portfolio · HarshitVerse",
+  "tagline": "My portfolio, with HarshitVerse: an optional 3D island you can explore on desktop or phone to find my projects, career and contact details.",
+  "status": "Live · v4",
+  "stage": "live",
+  "stack": ["React", "TypeScript", "Three.js", "Vite"],
+  "url": "https://portfolio.harshitkandoi.in",
+  "cta": "Open the portfolio",
+  "order": 5,
+  "updates": [
+    {
+      "id": "2026-11-22-v4",
+      "date": "2026-11-22",
+      "tag": "Release",
+      "title": "Portfolio v4: HarshitVerse",
+      "body": "HarshitVerse replaces the desktop mode: an original voxel island with seven destinations for projects, cloud work, career, AI, writing and contact, plus a guide, a world map, fast travel and a short first quest. It runs in desktop, phone and tablet browsers with touch controls, graphics presets and reduced motion, and every panel is plain HTML you can open without playing. The classic page is still the default for new visitors."
+    },
+    {
+      "id": "2026-10-11-v3",
+      "date": "2026-10-11",
+      "tag": "Release",
+      "title": "Portfolio v3",
+      "body": "A scroll-first classic page is now the default for every visitor, with the interactive desktop, the Android shell, the offline assistant and the arcade one switch away. The page is pre-rendered, so the headline appears before any JavaScript runs."
+    }
+  ]
+}
