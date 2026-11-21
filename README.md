@@ -1,4 +1,4 @@
-# Harshit Kandoi — Portfolio (v3)
+# Harshit Kandoi — Portfolio (v4)
 
 A scroll-first portfolio with **HarshitVerse**, an optional playable 3D adventure for desktop, phone and tablet browsers. Explore an original voxel island, meet the guide, and discover real projects, career details, articles, and contact links. New visitors start in the responsive classic portfolio; a saved game preference opens the lobby on any screen.
 
