@@ -130,7 +130,9 @@ jobs:
           path: dist
       - name: Deploy preview (PR)
         if: github.event_name == 'pull_request'
-        run: npx netlify-cli deploy --dir=dist --alias="pr-$PR_NUMBER" --message="PR #$PR_NUMBER"
+        # Block scalar: in a plain YAML value, " #" would start a comment and cut the command short.
+        run: |
+          npx netlify-cli deploy --dir=dist --alias="pr-$PR_NUMBER" --message="PR #$PR_NUMBER"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
